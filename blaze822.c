@@ -18,6 +18,11 @@
 
 #define bufsiz 4096
 
+struct message {
+	char *msg;
+	char *end;
+};
+
 static long
 parse_posint(char **s, size_t minn, size_t maxn)
 {
@@ -39,7 +44,7 @@ parse_posint(char **s, size_t minn, size_t maxn)
 }
 
 time_t
-parse_date(char *s) {
+blaze822_date(char *s) {
 	struct tm tm;
 	int c;
 
@@ -139,7 +144,7 @@ fail:
 }
 
 char *
-parse_addr(char *s, char **dispo, char **addro)
+blaze822_addr(char *s, char **dispo, char **addro)
 {
 	static char disp[1024];
 	static char addr[1024];
@@ -147,7 +152,7 @@ parse_addr(char *s, char **dispo, char **addro)
 //	char *addr = addr+sizeof addr;
 	char *c, *e;
 
-	printf("RAW : |%s|\n", s);
+//	printf("RAW : |%s|\n", s);
 	
 	while (iswsp(*s))
 		s++;
@@ -210,8 +215,8 @@ parse_addr(char *s, char **dispo, char **addro)
 		*disp = 0;
 	}
 
-	printf("DISP :: |%s|\n", disp);
-	printf("ADDR :: |%s|\n", addr);
+//	printf("DISP :: |%s|\n", disp);
+//	printf("ADDR :: |%s|\n", addr);
 
 	if (dispo) *dispo = disp;
 	if (addro) *addro = addr;
@@ -219,7 +224,7 @@ parse_addr(char *s, char **dispo, char **addro)
 	return s;
 }
 
-void
+struct message *
 blaze822(char *file)
 {
 	int fd;
@@ -231,11 +236,13 @@ blaze822(char *file)
 
 	fd = open(file, O_RDONLY);
 	if (fd < 0) {
-		perror("open");
-		return;
+//		perror("open");
+		return 0;
 	}
 
 	buf = malloc(3);
+	if (!buf)
+		return 0;
 	buf[0] = '\n';
 	buf[1] = '\n';
 	buf[2] = '\n';
@@ -245,14 +252,21 @@ blaze822(char *file)
 	while (1) {
 		bufalloc += bufsiz;
 		buf = realloc(buf, bufalloc);
+		if (!buf) {
+			close(fd);
+			return 0;
+		}
 
 		rd = read(fd, buf+used, bufalloc-used);
 		if (rd == 0) {
 			end = buf+used;
 			break;
 		}
-		if (rd < 0)
-			exit(-1);
+		if (rd < 0) {
+			free(buf);
+			close(fd);
+			return 0;
+		}
 
 		if ((end = memmem(buf-1+used, rd+1, "\n\n", 2)) ||
 		    (end = memmem(buf-3+used, rd+3, "\r\n\r\n", 4))) {
@@ -293,7 +307,7 @@ blaze822(char *file)
 				*(s-1) = ' ';
 			} else {			
 				*(s-1) = 0;
-				if (*(s-2) == '\n')   // ex-crlf
+				if (s-2 > buf && *(s-2) == '\n')   // ex-crlf
 					*(s-2) = 0;
 				while (s < end && *s != ':') {
 					*s = tolower(*s);
@@ -304,46 +318,46 @@ blaze822(char *file)
 	}
 
 	buf[0] = 0;
+	buf[1] = 0;
+	buf[2] = 0;
 
-/*
-	for (s = buf; s < end; ) {
-		printf("%s\n", s);
-		s += strlen(s) + 1;
+	struct message *mesg = malloc(sizeof (struct message));
+	if (!mesg) {
+		free(buf);
+		return 0;
 	}
-*/
-	char *v;
-	if ((v = memmem(buf, end-buf, "\0from:", 6))) {
-		printf("FROM : %s\n", v+6);
-		parse_addr(v+6, 0, 0);
-	}
-	if ((v = memmem(buf, end-buf, "\0to:", 4))) {
-		printf("TO : %s\n", v+4);
-		char *a = v+4;
-		char *disp, *addr;
-		do {
-			a = parse_addr(a, &disp, &addr);
-			printf("DISP: |%s|  ADDR: |%s|\n", disp, addr);
-		} while (*a);
-	}
-	if ((v = memmem(buf, end-buf, "\0date:", 6))) {
-		printf("DATE : %s\n", v+6);
-		time_t t = parse_date(v+6);
-		if (t != -1)
-			printf("DATE :: %s", ctime(&t));
-		else
-			fprintf(stderr, "invalid date: %s\n", v+6);
-	}
-	if ((v = memmem(buf, end-buf, "\0subject:", 9))) {
-		printf("SUBJECT : %s\n", v+9);
-	}
-	
-	free(buf);
 
-	printf("used: %d %d\n", used, end-buf);
+	mesg->msg = buf;
+	mesg->end = end;
+
+	return mesg;
 }
 
+void
+blaze822_free(struct message *mesg)
+{
+	free(mesg->msg);
+	free(mesg);
+}
+
+char *
+blaze822_hdr_(struct message *mesg, char *hdr, size_t hdrlen)
+{
+	char *v;
+
+	v = memmem(mesg->msg, mesg->end - mesg->msg, hdr, hdrlen);
+	if (!v)
+		return 0;
+	v += hdrlen;
+	while (*v && iswsp(*v))
+		v++;
+	return v;
+}
+
+#if 0
 int
-main(int argc, char *argv[]) {
+main(int argc, char *argv[])
+{
 	char *s;
 	
 	char *line = 0;
@@ -355,14 +369,12 @@ main(int argc, char *argv[]) {
 	if (argc == 1 || (argc == 2 && strcmp(argv[1], "-") == 0)) {
 		while ((read = getdelim(&line, &linelen, '\n', stdin)) != -1) {
 			if (line[read-1] == '\n') line[read-1] = 0;
-			fprintf(stderr, "%s\n", line);
-			blaze822(line);
+			oneline(file);
 			i++;
 		}
 	} else {
 		for (i = 1; i < argc; i++) {
-			fprintf(stderr, "%s\n", argv[i]);
-			blaze822(argv[i]);
+			oneline(file);
 		}
 		i--;
 	}
@@ -371,3 +383,4 @@ main(int argc, char *argv[]) {
 
 	return 0;
 }
+#endif
