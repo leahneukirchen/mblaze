@@ -54,14 +54,18 @@ mid(struct message *msg)
 
 		m = strchr(v, '<');
 		if (!m)
-			return 0;
+			return strdup(v);
 		v = strchr(m, '>');
 		if (!v)
-			return 0;
+			return strdup(m);
 		return strndup(m+1, v-m-1);
+	} else {
+		// invent new message-id for internal tracking
+		static long i;
+		char buf[32];
+		snprintf(buf, sizeof buf, "thread.%08d@localhost", ++i);
+		return strdup(buf);
 	}
-	else
-		return 0;
 }
 
 struct container *
@@ -89,10 +93,21 @@ store_id(char *file, struct message *msg)
 	struct container *c;
 
 	c = midcont(mid(msg));
-	c->file = file;
+	c->file = strdup(file);
 	c->msg = msg;
 
 	return c;
+}
+
+int
+reachable(struct container *child, struct container *parent)
+{
+	if (strcmp(child->mid, parent->mid) == 0)
+		return 1;
+	else if (parent->child)
+		return reachable(child, parent->child);
+	else
+		return 0;
 }
 
 void
@@ -128,8 +143,14 @@ thread(char *file)
 			printf("ref |%s|\n", mid);
 
 			me = midcont(mid);
-			if (parent && !me->parent) {
-				me->parent = me;
+
+			if (me == c)
+				continue;
+
+			if (parent && !me->parent &&
+			    !reachable(me, parent) && !reachable(parent, me)) {
+				me->parent = parent;
+				me->next = parent->child;
 				parent->child = me;
 			}
 
@@ -156,9 +177,39 @@ thread(char *file)
 	}
 out:
 
-	if (parent) {
+	if (parent && parent != c) {
+		struct container *r;
+
+		if (c->parent == parent) { // already correct
+			goto out2;
+		} else if (c->parent) {
+			// if we already have a wrong parent, orphan us first
+
+			for (r = c->parent->child; r; r = r->next) {
+				if (r->next == c)
+					r->next = c->next;
+			}
+		}
+
 		c->parent = parent;
+
+/*
+  not needed with above checks?
+		for (r = parent->child; r; r = r->next) {
+			// check if we are already a child of the correct parent
+			if (r == c)
+				goto out2;
+		}
+*/
+		c->next = parent->child;
 		parent->child = c;
+
+out2:
+		// someone said our parent was our child, a lie
+		if (c->child == c->parent) {
+			c->child->parent = 0;
+			c->child = 0;
+		}
 	}
 }
 
@@ -194,6 +245,9 @@ find_roots()
 	lastc = top;
 
 	twalk(mids, find_root);
+
+	top->child = top->next;
+	top->next = 0;
 }
 
 void
@@ -229,7 +283,6 @@ main(int argc, char *argv[])
 	if (argc == 1 || (argc == 2 && strcmp(argv[1], "-") == 0)) {
 		while ((read = getdelim(&line, &linelen, '\n', stdin)) != -1) {
 			if (line[read-1] == '\n') line[read-1] = 0;
-			printf("%s\n", line);
 			thread(line);
 			i++;
 		}
