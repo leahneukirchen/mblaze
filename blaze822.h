@@ -12,4 +12,7 @@ int blaze822_loop(int, char **, void (*)(char *));
 
 time_t blaze822_date(char *);
 char *blaze822_addr(char *, char **, char **);
-int decode_rfc2047 (char *, char *, size_t);
+
+
+int blaze822_decode_rfc2047(char *, char *, size_t, char *);
+

@@ -92,20 +92,16 @@ oneline(char *file)
 	}
 
 	char fromdec[17];
-	if (!decode_rfc2047(from, fromdec, sizeof fromdec))
-		memcpy(fromdec, from, sizeof fromdec);
+	blaze822_decode_rfc2047(fromdec, from, sizeof fromdec - 1, "UTF-8");
 	fromdec[sizeof fromdec - 1] = 0;
 
 
 	char *subj = "(no subject)";
-	char subjdec[1000];   // XXX rewrite decode_rfc2047, it overflows!
+	char subjdec[100];
         if ((v = blaze822_hdr(msg, "subject"))) {
-		if (decode_rfc2047(v, subjdec, sizeof subjdec - 1))
-			subj = subjdec;
-		else
-			subj = v;
-		
+		subj = v;
 	}
+	blaze822_decode_rfc2047(subjdec, v, sizeof subjdec - 1, "UTF-8");
 
 	printf("%c%c%9s  ", flag1, flag2, date);
 	u8putstr(stdout, fromdec, 17, 1);
@@ -113,7 +109,7 @@ oneline(char *file)
 	int z;
 	for (z = 0; z < indent; z++)
 		printf(" ");
-	u8putstr(stdout, subj, 80-33-indent, 0);
+	u8putstr(stdout, subjdec, 80-33-indent, 0);
 	printf("\n");
 }
 

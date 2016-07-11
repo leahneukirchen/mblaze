@@ -4,7 +4,7 @@ ALL = scan thread hdr show
 
 all: $(ALL)
 
-scan: blaze822.o scan.o fmt_rfc2047.o
+scan: blaze822.o scan.o rfc2047.o
 thread: blaze822.o thread.o
 hdr: blaze822.o hdr.o
 show: blaze822.o show.o
