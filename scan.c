@@ -120,27 +120,7 @@ oneline(char *file)
 int
 main(int argc, char *argv[])
 {
-	char *s;
-	
-	char *line = 0;
-	size_t linelen = 0;
-	int read;
-
-	int i = 0;
-
-	if (argc == 1 || (argc == 2 && strcmp(argv[1], "-") == 0)) {
-		while ((read = getdelim(&line, &linelen, '\n', stdin)) != -1) {
-			if (line[read-1] == '\n') line[read-1] = 0;
-//			printf("%s\n", line);
-			oneline(line);
-			i++;
-		}
-	} else {
-		for (i = 1; i < argc; i++) {
-			oneline(argv[i]);
-		}
-		i--;
-	}
+	int i = blaze822_loop(argc-1, argv+1, oneline);
 
 	printf("%d mails scanned\n", i);
 

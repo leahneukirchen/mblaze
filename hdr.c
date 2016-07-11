@@ -13,8 +13,11 @@
 
 #include "blaze822.h"
 
+static size_t l;
+static char *hdr;
+
 void
-header(char *hdr, size_t l, char *file)
+header(char *file)
 {
 	struct message *msg;
 
@@ -30,14 +33,8 @@ header(char *hdr, size_t l, char *file)
 int
 main(int argc, char *argv[])
 {
-	char *line = 0;
-	size_t linelen = 0;
-	int read;
-
-	int i = 0;
-
-	size_t l = strlen(argv[1])+2;
-        char *hdr = malloc(l);
+	l = strlen(argv[1])+2;
+        hdr = malloc(l);
 	hdr[0] = 0;
 	char *s = hdr+1;
 	char *t = argv[1];
@@ -45,19 +42,8 @@ main(int argc, char *argv[])
 		*s++ = tolower(*t++);
 	*s = ':';
 
-	if (argc == 2 || (argc == 3 && strcmp(argv[1], "-") == 0)) {
-		while ((read = getdelim(&line, &linelen, '\n', stdin)) != -1) {
-			if (line[read-1] == '\n') line[read-1] = 0;
-			header(hdr, l, line);
-			i++;
-		}
-	} else {
-		for (i = 2; i < argc; i++) {
-			header(hdr, l, argv[i]);
-		}
-		i--;
-	}
-
+	int i = blaze822_loop(argc-2, argv+2, header);
+	
 	printf("%d mails scanned\n", i);
 	
 	return 0;

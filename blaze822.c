@@ -354,33 +354,25 @@ blaze822_hdr_(struct message *mesg, char *hdr, size_t hdrlen)
 	return v;
 }
 
-#if 0
 int
-main(int argc, char *argv[])
+blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 {
-	char *s;
-	
 	char *line = 0;
 	size_t linelen = 0;
-	int read;
-
+	ssize_t rd;
 	int i = 0;
 
-	if (argc == 1 || (argc == 2 && strcmp(argv[1], "-") == 0)) {
-		while ((read = getdelim(&line, &linelen, '\n', stdin)) != -1) {
-			if (line[read-1] == '\n') line[read-1] = 0;
-			oneline(file);
+	if (argc == 0 || (argc == 1 && strcmp(argv[0], "-") == 0)) {
+		while ((rd = getdelim(&line, &linelen, '\n', stdin)) != -1) {
+			if (line[rd-1] == '\n')
+				line[rd-1] = 0;
+			cb(line);
 			i++;
 		}
 	} else {
-		for (i = 1; i < argc; i++) {
-			oneline(file);
-		}
-		i--;
+		for (i = 0; i < argc; i++)
+			cb(argv[i]);
 	}
 
-	printf("%d mails scanned\n", i);
-
-	return 0;
+	return i;
 }
-#endif

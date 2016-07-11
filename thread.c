@@ -272,26 +272,7 @@ print_tree(struct container *c, int depth)
 int
 main(int argc, char *argv[])
 {
-	char *s;
-	
-	char *line = 0;
-	size_t linelen = 0;
-	int read;
-
-	int i = 0;
-
-	if (argc == 1 || (argc == 2 && strcmp(argv[1], "-") == 0)) {
-		while ((read = getdelim(&line, &linelen, '\n', stdin)) != -1) {
-			if (line[read-1] == '\n') line[read-1] = 0;
-			thread(line);
-			i++;
-		}
-	} else {
-		for (i = 1; i < argc; i++) {
-			thread(argv[i]);
-		}
-		i--;
-	}
+	int i = blaze822_loop(argc-1, argv+1, thread);
 
 	printf("%d mails scanned\n", i);
 	
