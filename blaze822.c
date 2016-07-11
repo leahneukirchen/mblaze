@@ -376,3 +376,19 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 
 	return i;
 }
+
+int
+blaze822_body(struct message *mesg, char *file)
+{
+	int fd = open(file, O_RDONLY);
+	if (fd < 0)
+		return fd;
+
+	if (lseek(fd, mesg->end - mesg->msg, SEEK_SET) < 0) {
+		perror("lseek");
+		close(fd);
+		return -1;
+	}
+
+	return fd;
+}
