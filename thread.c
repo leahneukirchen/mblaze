@@ -102,12 +102,15 @@ store_id(char *file, struct message *msg)
 int
 reachable(struct container *child, struct container *parent)
 {
+	int r = 0;
+
 	if (strcmp(child->mid, parent->mid) == 0)
 		return 1;
-	else if (parent->child)
-		return reachable(child, parent->child);
-	else
-		return 0;
+	if (child->child)
+		r |= reachable(child->child, parent);
+	if (child->next)
+		r |= reachable(child->next, parent);
+	return r;
 }
 
 void
@@ -185,6 +188,8 @@ out:
 		} else if (c->parent) {
 			// if we already have a wrong parent, orphan us first
 
+			if (c->parent->child == c)   // first in list
+				c->parent->child = c->next;
 			for (r = c->parent->child; r; r = r->next) {
 				if (r->next == c)
 					r->next = c->next;
