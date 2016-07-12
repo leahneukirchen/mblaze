@@ -274,6 +274,7 @@ blaze822(char *file)
 		if ((end = memmem(buf-1+used, rd+1, "\n\n", 2)) ||
 		    (end = memmem(buf-3+used, rd+3, "\r\n\r\n", 4))) {
 			used += rd;
+			end++;
 			break;
 		}
 
@@ -281,7 +282,6 @@ blaze822(char *file)
 	}
 	close(fd);
 
-	end++;
 	*end = 0;   // dereferencing *end is safe
 
 	char *s;
