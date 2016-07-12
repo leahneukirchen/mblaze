@@ -80,7 +80,6 @@ midcont(char *mid)
 		c->file = 0;
 		c->msg = 0;
 		c->parent = c->child = c->next = 0;
-		printf("ADD %s\n", mid);
 		return *(struct container **)tsearch(c, &mids, midorder);
 	} else {
 		return *result;
@@ -143,8 +142,6 @@ thread(char *file)
 			mid = strndup(m+1, v-m-1);
 			// XXX free?
 
-			printf("ref |%s|\n", mid);
-
 			me = midcont(mid);
 
 			if (me == c)
@@ -172,7 +169,6 @@ thread(char *file)
 		if (!v)
 			goto out;
 		irt = strndup(m+1, v-m-1);
-		printf("irt |%s|\n", irt);
 		
 		if (strcmp(irt, mid) != 0) {
 			parent = midcont(irt);
@@ -230,8 +226,6 @@ find_root(const void *nodep, const VISIT which, const int depth)
 		struct container *c = *(struct container **)nodep;
 
 		if (!c->parent) {
-//			printf("%s\n", c->mid);
-			printf("root %s\n", c->mid);
 			lastc->next = c;
 			c->next = 0;
 			lastc = c;
