@@ -16,10 +16,14 @@
 void
 u8putstr(FILE *out, char *s, size_t l, int pad)
 {
-	while (*s && l > 0) {
+	while (*s && l) {
 		putc(*s, out);
-		if ((*s++ & 0xc0) != 0x80)
-			l--;
+		// elongate by utf8 overhead
+		if      ((*s & 0xf0) == 0xf0) l += 3;
+		else if ((*s & 0xe0) == 0xe0) l += 2;
+		else if ((*s & 0xc0) == 0xc0) l += 1;
+		l--;
+		s++;
 	}
 	if (pad)
 		while (l-- > 0)
