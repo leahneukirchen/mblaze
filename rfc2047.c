@@ -69,7 +69,7 @@ decode_b64(char *s, char *e, char **deco, size_t *decleno)
 		41,42,43,44, 45,46,47,48, 49,50,51,-1, -1,-1,-1,-1
 	};
 
-	char *buf = malloc(e - s);   // XXX better bound
+	char *buf = malloc((e - s) / 4 * 3);
 	if (!buf)
 		return 0;
 
