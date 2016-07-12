@@ -119,6 +119,8 @@ blaze822_date(char *s) {
 	if (*s++ == ':') {
 		if ((c = parse_posint(&s, 0, 61)) < 0) goto fail;
 		tm.tm_sec = c;
+	} else {
+		tm.tm_sec = 0;
 	}
 
 	while (iswsp(*s))
