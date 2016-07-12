@@ -389,7 +389,7 @@ blaze822_body(struct message *mesg, char *file)
 	if (fd < 0)
 		return fd;
 
-	if (lseek(fd, mesg->end - mesg->msg, SEEK_SET) < 0) {
+	if (lseek(fd, mesg->end - mesg->msg - 2, SEEK_SET) < 0) {
 		perror("lseek");
 		close(fd);
 		return -1;
