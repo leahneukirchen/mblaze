@@ -38,6 +38,11 @@ static int flagsum;
 static int flagset;
 static int Nflag;
 static int Cflag;
+static int iflag;
+
+static long icount;
+static long iseen;
+static long iflagged;
 
 void
 list(char *prefix, char *file)
@@ -57,6 +62,21 @@ list(char *prefix, char *file)
 		}
 		if (sum != flagsum)
 			return;
+	}
+
+	if (iflag) {
+		char *f = strstr(file, ":2,");
+		if (!f)
+			return;
+		icount++;
+		while (*f) {
+			if (*f == 'S')
+				iseen++;
+			if (*f == 'F')
+				iflagged++;
+			f++;
+		}
+		return;
 	}
 
 	if (prefix) {
@@ -139,7 +159,7 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "PRSTDFprstdfNnCcm:")) != -1)
+	while ((c = getopt(argc, argv, "PRSTDFprstdfNnCcim:")) != -1)
 		switch(c) {
 		case 'P': case 'R': case 'S': case 'T': case 'D': case 'F':
 			flags[(unsigned int)c] = 1;
@@ -151,6 +171,7 @@ main(int argc, char *argv[])
 		case 'n': Nflag = -1; break;
 		case 'C': Cflag = 1; break;
 		case 'c': Cflag = -1; break;
+		case 'i': iflag = 1; break;
 		case 'm': // XXX todo
 		default:
 			// XXX usage
@@ -175,6 +196,14 @@ main(int argc, char *argv[])
 			struct stat st2;
 			int maildir = 0;
 
+			long gcount = icount;
+			long gseen = iseen;
+			long gflagged = iflagged;
+
+			icount = 0;
+			iseen = 0;
+			iflagged = 0;
+
 			snprintf(subdir, sizeof subdir, "%s/cur", argv[i]);
 			if (stat(subdir, &st2) == 0) {
 				maildir = 1;
@@ -191,10 +220,22 @@ main(int argc, char *argv[])
 
 			if (!maildir)
 				listdir(argv[i]);
+
+			if (iflag && icount)
+				printf("%6ld unseen  %3ld flagged  %6ld msg  %s\n",
+				    icount-iseen, iflagged, icount, argv[i]);
+
+			icount = gcount;
+			iseen = gseen;
+			iflagged = gflagged;
 		} else if (S_ISREG(st.st_mode)) {
 			list(0, argv[i]);
 		}
         }
+
+	if (icount || iseen || iflagged)
+		printf("%6ld unseen  %3ld flagged  %6ld msg\n",
+		    icount-iseen, iflagged, icount);
 
 exit(0);
 
