@@ -139,10 +139,8 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		*e = '?';
 		e++;
 
-		if (ic < 0) {
-			perror("iconv_open");
+		if (ic == (iconv_t)-1)
 			goto nocode;
-		}
 
 		char enc = lc(*e++);
 		if (*e++ != '?')
