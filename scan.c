@@ -72,9 +72,11 @@ oneline(char *file)
 			struct tm *tm;
 			tm = localtime(&t);
 			strftime(date, sizeof date, "%Y-%m-%d", tm);
+		} else {
+			strcpy(date, "(invalid)");
 		}
 	} else {
-		strcpy(date, "(invalid)");
+		strcpy(date, "(unknown)");
 		// mtime perhaps?
 	}
 
