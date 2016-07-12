@@ -115,14 +115,21 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		t = b;
 		while (t < s)  // strip space-only inbetween encoded words
 			if (!isspace((unsigned char) *t++)) {
-				while (b < s && dlen--)
+				while (b < s && dlen) {
 					*dst++ = *b++;
+					dlen--;
+				}
 				break;
 			}
+
+		if (!dlen)
+			break;
 
 		s += 2;
 
 		char *e = strchr(s, '?');
+		if (!e)
+			goto nocode;
 
 		*e = 0;
 		ic = iconv_open(tgtenc, s);
@@ -162,11 +169,13 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 
 		iconv_close(ic);
 
-		while (declen-- && dlen--)
+		while (declen-- && dlen) {
 			*dst++ = *dec++;
+			dlen--;
+		}
 
 		b = stop + 2;
-	} while (s = strstr(b, "=?"));
+	} while (dlen && (s = strstr(b, "=?")));
 
 	while (*b && dlen-- > 0)
 		*dst++ = *b++;
@@ -178,8 +187,10 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 nocode:
 	fprintf(stderr, "error decoding rfc2047\n");
 nocodeok:
-	while (*src && dlen--)
+	while (*src && dlen) {
 		*dst++ = *src++;
+		dlen--;
+	}
 	*dst = 0;
 
 	return 1;
