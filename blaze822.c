@@ -16,6 +16,9 @@
 //          WSP            =  SP / HTAB
 #define iswsp(c)  (((c) == ' ' || (c) == '\t'))
 
+// ASCII lowercase without alpha check (wrong for "@[\]^_")
+#define lc(c) ((c) | 0x20)
+
 #define bufsiz 4096
 
 struct message {
@@ -310,7 +313,7 @@ blaze822(char *file)
 				if (s-2 > buf && *(s-2) == '\n')   // ex-crlf
 					*(s-2) = 0;
 				while (s < end && *s != ':') {
-					*s = tolower(*s);
+					*s = lc(*s);
 					s++;
 				}
 			}
