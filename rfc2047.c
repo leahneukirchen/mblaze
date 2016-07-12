@@ -163,11 +163,15 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 
 		int r = iconv(ic, &dec, &declen, &dst, &dlen);
 		if (r < 0) {
-			if (errno == E2BIG)
+			if (errno == E2BIG) {
+				iconv_close(ic);
 				break;
-			perror("iconv");
-			iconv_close(ic);
-			goto nocode;
+			} else if (errno == EILSEQ || errno == EINVAL) {
+				goto nocode;
+			} else {
+				perror("iconv");
+				goto nocode;
+			}
 		}
 
 		iconv_close(ic);
