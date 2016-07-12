@@ -172,16 +172,19 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 
 		iconv_close(ic);
 
-		while (declen-- && dlen) {
+		while (declen && dlen) {
 			*dst++ = *dec++;
+			declen--;
 			dlen--;
 		}
 
 		b = stop + 2;
 	} while (dlen && (s = strstr(b, "=?")));
 
-	while (*b && dlen-- > 0)
+	while (*b && dlen > 0) {
 		*dst++ = *b++;
+		dlen--;
+	}
 
 	*dst = 0;
 
