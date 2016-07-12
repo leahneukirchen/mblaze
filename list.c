@@ -41,8 +41,9 @@ static int Cflag;
 static int iflag;
 
 static long icount;
-static long iseen;
+static long iunseen;
 static long iflagged;
+static long imatched;
 
 void
 list(char *prefix, char *file)
@@ -52,6 +53,7 @@ list(char *prefix, char *file)
 		char *f = strstr(file, ":2,");
 		if (!f)
 			return;
+		icount++;
 		f += 3;
 		while (*f) {
 			if (flags[(unsigned int)*f] == -1)
@@ -68,14 +70,13 @@ list(char *prefix, char *file)
 		char *f = strstr(file, ":2,");
 		if (!f)
 			return;
-		icount++;
-		while (*f) {
-			if (*f == 'S')
-				iseen++;
-			if (*f == 'F')
-				iflagged++;
-			f++;
-		}
+		imatched++;
+		if (!flagset)
+			icount++;
+		if (!strchr(f, 'S'))
+			iunseen++;
+		if (strchr(f, 'F'))
+			iflagged++;
 		return;
 	}
 
@@ -197,11 +198,12 @@ main(int argc, char *argv[])
 			int maildir = 0;
 
 			long gcount = icount;
-			long gseen = iseen;
+			long gunseen = iunseen;
 			long gflagged = iflagged;
+			long gmatched = imatched;
 
 			icount = 0;
-			iseen = 0;
+			iunseen = 0;
 			iflagged = 0;
 
 			snprintf(subdir, sizeof subdir, "%s/cur", argv[i]);
@@ -221,21 +223,22 @@ main(int argc, char *argv[])
 			if (!maildir)
 				listdir(argv[i]);
 
-			if (iflag && icount)
+			if (iflag && imatched)
 				printf("%6ld unseen  %3ld flagged  %6ld msg  %s\n",
-				    icount-iseen, iflagged, icount, argv[i]);
+				    iunseen, iflagged, icount, argv[i]);
 
 			icount = gcount;
-			iseen = gseen;
+			iunseen = gunseen;
 			iflagged = gflagged;
+			imatched = gmatched;
 		} else if (S_ISREG(st.st_mode)) {
 			list(0, argv[i]);
 		}
         }
 
-	if (icount || iseen || iflagged)
+	if (iflag && imatched)
 		printf("%6ld unseen  %3ld flagged  %6ld msg\n",
-		    icount-iseen, iflagged, icount);
+		    iunseen, iflagged, icount);
 
 exit(0);
 
