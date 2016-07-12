@@ -7,6 +7,9 @@
 
 #define iswsp(c)  (((c) == ' ' || (c) == '\t'))
 
+// ASCII lowercase without alpha check (wrong for "@[\]^_")
+#define lc(c) ((c) | 0x20)
+
 // XXX error detection on decode
 // XXX keep trying bytewise on invalid iconv
 
@@ -141,7 +144,7 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 			goto nocode;
 		}
 
-		char enc = tolower(*e++);
+		char enc = lc(*e++);
 		if (*e++ != '?')
 			goto nocode;
 		char *start = e++;
