@@ -101,7 +101,7 @@ oneline(char *file)
         if ((v = blaze822_hdr(msg, "subject"))) {
 		subj = v;
 	}
-	blaze822_decode_rfc2047(subjdec, v, sizeof subjdec - 1, "UTF-8");
+	blaze822_decode_rfc2047(subjdec, subj, sizeof subjdec - 1, "UTF-8");
 
 	printf("%c%c%9s  ", flag1, flag2, date);
 	u8putstr(stdout, fromdec, 17, 1);
