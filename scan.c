@@ -38,12 +38,12 @@ oneline(char *file)
 		indent++;
 		file++;
 	}
+	indent *= 2;
 	
 	struct message *msg = blaze822(file);
-
 	if (!msg) {
-		int p = 80-33-2-indent;
-		printf("%*.*s\\ %*.*s\n", -33 - indent, 33 + indent, "",
+		int p = 80-33-3-indent;
+		printf("%*.*s\\_ %*.*s\n", -33 - indent, 33 + indent, "",
 		    -p, p, file);
 		return 0;
 	}
