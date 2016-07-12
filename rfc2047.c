@@ -168,7 +168,7 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		b = stop + 2;
 	} while (s = strstr(b, "=?"));
 
-	while (*b && dlen-- >= 0)
+	while (*b && dlen-- > 0)
 		*dst++ = *b++;
 
 	*dst = 0;
