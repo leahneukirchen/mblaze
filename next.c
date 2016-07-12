@@ -24,21 +24,37 @@ main(int argc, char *argv[])
 		exit(102);
 
 	char *s = strstr(map, argv[1]);
+	int a = 1;
+	if (argc > 2)
+		a = atoi(argv[2]);
+
 	if (!argv[1][0] || !s) {
 		// default to first line
 		s = map;
 	} else {
-		while (*s && *s != '\n')
-			s++;
-		s++;
+		if (a > 0) {
+			while (a-- > 0) {
+				while (*s && *s != '\n')
+					s++;
+				s++;
+			}
+		} else {
+			while (a++ <= 0 && map < s) {
+				s--;
+				while (map < s && *s != '\n')
+					s--;
+			}
+			if (map < s && *s == '\n')
+				s++;
+		}
 	}
 	char *t = s;
 	while (*t && *t != '\n')
 		t++;
 	if (!*t)
-		exit(1);
+		return 1;
 	t++;
-	write(1, s, t-s);
-
+	if (write(1, s, t-s) <= 0)
+		return 2;
 	return 0;
 }
