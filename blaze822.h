@@ -30,5 +30,5 @@ int blaze822_decode_b64(char *start, char *stop, char **deco, size_t *decleno);
 // rfc2045.c
 
 int blaze822_check_mime(struct message *msg);
-int blaze822_mime_body(struct message *msg, char **cto, char **bodyo, size_t *bodyleno);
+int blaze822_mime_body(struct message *msg, char **cto, char **bodyo, size_t *bodyleno, char **bodychunko);
 int blaze822_multipart(struct message *msg, struct message **imsg);

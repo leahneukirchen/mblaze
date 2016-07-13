@@ -16,7 +16,8 @@ blaze822_check_mime(struct message *msg)
 }
 
 int
-blaze822_mime_body(struct message *msg, char **cto, char **bodyo, size_t *bodyleno)
+blaze822_mime_body(struct message *msg,
+    char **cto, char **bodyo, size_t *bodyleno, char **bodychunko)
 {
 	if (!msg->body || !msg->bodyend) {
 		*bodyo = 0;
@@ -37,16 +38,20 @@ blaze822_mime_body(struct message *msg, char **cto, char **bodyo, size_t *bodyle
 	*cto = ct;
 
 	if (cte) {
-		if (strncasecmp(cte, "quoted-printable", 16) == 0)
+		if (strncasecmp(cte, "quoted-printable", 16) == 0) {
 			blaze822_decode_qp(msg->body, msg->bodyend, bodyo, bodyleno);
-		else if (strncasecmp(cte, "base64", 6) == 0)
+			*bodychunko = *bodyo;
+		} else if (strncasecmp(cte, "base64", 6) == 0) {
 			blaze822_decode_b64(msg->body, msg->bodyend, bodyo, bodyleno);
-		else
+			*bodychunko = *bodyo;
+		} else {
 			cte = 0;
+		}
 	}
 	if (!cte) {
 		*bodyo = msg->body;
 		*bodyleno = msg->bodyend - msg->body;
+		*bodychunko = 0;
 	}
 
 	return 1;
