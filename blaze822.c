@@ -260,12 +260,13 @@ unfold_hdr(char *buf, char *end)
 		}
 	}
 
+	// compress fields by removing fws
 	for (s = buf; s < end; ) {
 		char *t, *h;
 		size_t l = strlen(s) + 1;
 
 		if ((t = h = strchr(s, '\n'))) {
-			while (*h) {
+			while (h < end && *h) {
 				if (*h == '\n') {
 					*t++ = ' ';
 					while (*h && isfws(*h))
@@ -273,7 +274,8 @@ unfold_hdr(char *buf, char *end)
 				}
 				*t++ = *h++;
 			}
-			*t = 0;
+			while (t < h)
+				*t++ = 0;
 		}
 		s += l;
 	}
