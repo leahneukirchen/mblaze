@@ -75,7 +75,7 @@ blaze822_decode_b64(char *s, char *e, char **deco, size_t *decleno)
 	*deco = buf;
 
 	while (s + 4 <= e) {
-		while (s < e && isspace((unsigned char) *s))
+		while (s < e && isfws((unsigned char) *s))
 			s++;
 		if (s < e) {
 			uint32_t v = 0;
@@ -116,7 +116,7 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		char *t;
 		t = b;
 		while (t < s)  // strip space-only inbetween encoded words
-			if (!isspace((unsigned char) *t++)) {
+			if (!isfws(*t++)) {
 				while (b < s && dlen) {
 					*dst++ = *b++;
 					dlen--;
