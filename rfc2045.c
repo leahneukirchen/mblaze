@@ -114,7 +114,9 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 		return 0;
 	/// XXX access to stuff before first boundary?
 	part += boundarylen;
-	if (*part == '\n')    // XXX crlf
+	if (*part == '\r')
+		part++;
+	if (*part == '\n')
 		part++;
 	else if (*part == '-' && part < msg->bodyend && *(part+1) == '-')
 		return 0;
