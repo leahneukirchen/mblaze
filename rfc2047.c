@@ -25,7 +25,7 @@ blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno)
 		-1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1
 	};
 
-	char *buf = malloc(4 * (stop - start));
+	char *buf = malloc(4 * (stop - start) + 1);
 	if (!buf)
 		return 0;
 
