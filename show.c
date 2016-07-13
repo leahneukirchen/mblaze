@@ -31,7 +31,7 @@ show(char *file)
 {
 	struct message *msg;
 
-	msg = blaze822(file);
+	msg = blaze822_file(file);
 	if (!msg)
 		return;
 
@@ -48,19 +48,9 @@ show(char *file)
 		}
 	}
 
-	int fd = blaze822_body(msg, file);
-	if (fd < 0)
-		return;
-	
 	printf("\n");
-	fflush(stdout);
 
-	char buf[2048];
-	ssize_t rd;
-	// XXX skip initial lf here, convert crlf
-	// XXX do mime...
-	while ((rd = read(fd, buf, sizeof buf)))
-		write(1, buf, rd);
+	fwrite(blaze822_body(msg), blaze822_bodylen(msg), 1, stdout);
 }
 
 int
