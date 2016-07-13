@@ -5,10 +5,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#define iswsp(c)  (((c) == ' ' || (c) == '\t'))
-
-// ASCII lowercase without alpha check (wrong for "@[\]^_")
-#define lc(c) ((c) | 0x20)
+#include "blaze822.h"
+#include "blaze822_priv.h"
 
 // XXX error detection on decode
 // XXX keep trying bytewise on invalid iconv
