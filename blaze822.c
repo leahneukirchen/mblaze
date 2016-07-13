@@ -227,65 +227,17 @@ blaze822_addr(char *s, char **dispo, char **addro)
 	return s;
 }
 
-struct message *
-blaze822(char *file)
+static void
+unfold_hdr(char *buf, char *end)
 {
-	int fd;
-	ssize_t rd;
-	char *buf;
-	ssize_t bufalloc;
-	ssize_t used;
-	char *end;
+	char *s = buf;
 
-	fd = open(file, O_RDONLY);
-	if (fd < 0) {
-//		perror("open");
-		return 0;
+	while (s < end && *s != ':') {
+		*s = lc(*s);
+		s++;
 	}
 
-	buf = malloc(3);
-	if (!buf)
-		return 0;
-	buf[0] = '\n';
-	buf[1] = '\n';
-	buf[2] = '\n';
-	bufalloc = 3;
-	used = 3;
-
-	while (1) {
-		bufalloc += bufsiz;
-		buf = realloc(buf, bufalloc);
-		if (!buf) {
-			close(fd);
-			return 0;
-		}
-
-		rd = read(fd, buf+used, bufalloc-used);
-		if (rd == 0) {
-			end = buf+used;
-			break;
-		}
-		if (rd < 0) {
-			free(buf);
-			close(fd);
-			return 0;
-		}
-
-		if ((end = memmem(buf-1+used, rd+1, "\n\n", 2)) ||
-		    (end = memmem(buf-3+used, rd+3, "\r\n\r\n", 4))) {
-			used += rd;
-			end++;
-			break;
-		}
-
-		used += rd;
-	}
-	close(fd);
-
-	*end = 0;   // dereferencing *end is safe
-
-	char *s;
-	for (s = buf; s < end; s++) {
+	for (; s < end; s++) {
 		if (*s == 0)   // sanitize nul bytes in headers
 			*s = ' ';
 
@@ -308,7 +260,7 @@ blaze822(char *file)
 			s++;
 			if (iswsp(*s)) {
 				*(s-1) = ' ';
-			} else {			
+			} else {
 				*(s-1) = 0;
 				if (s-2 > buf && *(s-2) == '\n')   // ex-crlf
 					*(s-2) = 0;
@@ -319,16 +271,69 @@ blaze822(char *file)
 			}
 		}
 	}
+}
 
-	buf[0] = 0;
-	buf[1] = 0;
-	buf[2] = 0;
+struct message *
+blaze822(char *file)
+{
+	int fd;
+	ssize_t rd;
+	char *buf;
+	ssize_t bufalloc;
+	ssize_t used;
+	char *end;
 
 	struct message *mesg = malloc(sizeof (struct message));
-	if (!mesg) {
-		free(buf);
+	if (!mesg)
+		return 0;
+
+	fd = open(file, O_RDONLY);
+	if (fd < 0) {
+//		perror("open");
 		return 0;
 	}
+
+	buf = 0;
+	bufalloc = 0;
+	used = 0;
+
+	while (1) {
+		int overlap = used > 3 ? 3 : 0;
+
+		bufalloc += bufsiz;
+		buf = realloc(buf, bufalloc);
+		if (!buf) {
+			free(mesg);
+			close(fd);
+			return 0;
+		}
+
+		rd = read(fd, buf+used, bufalloc-used);
+		if (rd == 0) {
+			end = buf+used;
+			break;
+		}
+		if (rd < 0) {
+			free(mesg);
+			free(buf);
+			close(fd);
+			return 0;
+		}
+
+		if ((end = memmem(buf-overlap+used, rd+overlap, "\n\n", 2)) ||
+		    (end = memmem(buf-overlap+used, rd+overlap, "\r\n\r\n", 4))) {
+			used += rd;
+			end++;
+			break;
+		}
+
+		used += rd;
+	}
+	close(fd);
+
+	*end = 0;   // dereferencing *end is safe
+
+	unfold_hdr(buf, end);
 
 	mesg->msg = buf;
 	mesg->end = end;
@@ -345,12 +350,9 @@ blaze822_mem(char *src, size_t len)
 	char *buf;
 	char *end;
 
-	buf = malloc(3);
-	if (!buf)
+	struct message *mesg = malloc(sizeof (struct message));
+	if (!mesg)
 		return 0;
-	buf[0] = '\n';
-	buf[1] = '\n';
-	buf[2] = '\n';
 
 	end = memmem(src, len, "\n\n", 2);
 	if (!end) end = memmem(src, len, "\r\n\r\n", 4);
@@ -358,59 +360,15 @@ blaze822_mem(char *src, size_t len)
 
 	len = end - src;
 
-	buf = realloc(buf, len+3+1);
-	memcpy(buf+3, src, len);
+	buf = malloc(len+1);
+	if (!buf)
+		return 0;
+	memcpy(buf, src, len);
 
-	end = buf+3+1+len;
+	end = buf+len+1;
 	*end = 0;   // dereferencing *end is safe
 
-	/// XXX merge with below
-
-	char *s;
-	for (s = buf; s < end; s++) {
-		if (*s == 0)   // sanitize nul bytes in headers
-			*s = ' ';
-
-		if (*s == '\r') {
-			if (*(s+1) == '\n') {
-				*s++ = '\n';
-			} else {
-				*s = ' ';
-			}
-		}
-
-		if (iswsp(*s)) {
-			// change prior \n to spaces
-			int j;
-			for (j = 1; s - j >= buf && *(s-j) == '\n'; j++)
-				*(s-j) = ' ';
-		}
-
-		if (*s == '\n') {
-			s++;
-			if (iswsp(*s)) {
-				*(s-1) = ' ';
-			} else {
-				*(s-1) = 0;
-				if (s-2 > buf && *(s-2) == '\n')   // ex-crlf
-					*(s-2) = 0;
-				while (s < end && *s != ':') {
-					*s = lc(*s);
-					s++;
-				}
-			}
-		}
-	}
-
-	buf[0] = 0;
-	buf[1] = 0;
-	buf[2] = 0;
-
-	struct message *mesg = malloc(sizeof (struct message));
-	if (!mesg) {
-		free(buf);
-		return 0;
-	}
+	unfold_hdr(buf, end);
 
 	mesg->msg = buf;
 	mesg->end = end;
@@ -440,7 +398,11 @@ blaze822_hdr_(struct message *mesg, const char *hdr, size_t hdrlen)
 {
 	char *v;
 
-	v = memmem(mesg->msg, mesg->end - mesg->msg, hdr, hdrlen);
+	// special case: first header, no leading nul
+	if (memcmp(mesg->msg, hdr+1, hdrlen-1) == 0)
+		v = mesg->msg;
+	else
+		v = memmem(mesg->msg, mesg->end - mesg->msg, hdr, hdrlen);
 	if (!v)
 		return 0;
 	v += hdrlen;
