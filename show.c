@@ -35,12 +35,12 @@ show(char *file)
 	if (!msg)
 		return;
 
-	char fields[] = "\0from:\0subject:\0to:\0cc:\0date:\0";
+	char fields[] = "\0from:\0subject:\0to:\0cc:\0date:\0\0";
 
 	// XXX custom field formatting
 
 	char *f, *v;
-	for (f = fields; f < fields + sizeof fields; f += strlen(f+1)+1) {
+	for (f = fields; f[1]; f += strlen(f+1)+1) {
 		v = blaze822_hdr_(msg, f, strlen(f+1)+1);
 		if (v) {
 			printhdr(f+1);
