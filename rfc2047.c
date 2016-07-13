@@ -103,7 +103,7 @@ blaze822_decode_b64(char *s, char *e, char **deco, size_t *decleno)
 int
 blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 {
-	iconv_t ic;
+	iconv_t ic = (iconv_t)-1;
 
 	char *b = src;
 
@@ -149,7 +149,7 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		if (!stop)
 			goto nocode;
 
-		char *dec;
+		char *dec, *decchunk;
 		size_t declen;
 		if (enc == 'q')
 			blaze822_decode_qp(start, stop, &dec, &declen);
@@ -158,6 +158,7 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		else
 			goto nocode;
 
+		decchunk = dec;
 		int r = iconv(ic, &dec, &declen, &dst, &dlen);
 		if (r < 0) {
 			if (errno == E2BIG) {
@@ -179,6 +180,8 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 			dlen--;
 		}
 
+		free(decchunk);
+
 		b = stop + 2;
 	} while (dlen && (s = strstr(b, "=?")));
 
@@ -192,6 +195,9 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 	return 1;
 
 nocode:
+	if (ic != (iconv_t)-1)
+		iconv_close(ic);
+
 	fprintf(stderr, "error decoding rfc2047\n");
 nocodeok:
 	while (*src && dlen) {
