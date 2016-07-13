@@ -23,15 +23,25 @@ main(int argc, char *argv[])
 	if (!map)
 		exit(102);
 
-	char *s = strstr(map, argv[1]);
-	int a = 1;
+	char *s;
+	char *arg;
 	if (argc > 2)
-		a = atoi(argv[2]);
+		arg = argv[2];
+	else
+		arg = "+1";
 
-	if (!argv[1][0] || !s) {
+	if (argc <= 1 || !argv[1][0]) {
 		// default to first line
-		s = map;
-	} else {
+		arg = "1";
+	}
+
+	if (*arg == '+' || *arg == '-') {
+		s = strstr(map, argv[1]);
+		int a = atoi(arg);
+		if (!s) {
+			s = map;
+			a = 0;
+		}
 		if (a > 0) {
 			while (a-- > 0) {
 				while (*s && *s != '\n')
@@ -47,6 +57,17 @@ main(int argc, char *argv[])
 			if (map < s && *s == '\n')
 				s++;
 		}
+	} else {
+		int a = atoi(arg);
+		s = map;
+		while (--a > 0) {
+			char *n = strchr(s+1, '\n');
+			if (!n)
+				break;
+			s = n;
+		}
+		if (s && *s)
+			s++;
 	}
 	char *t = s;
 	while (*t && *t != '\n')
