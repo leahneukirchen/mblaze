@@ -88,7 +88,7 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 		// bcharsnospace := DIGIT / ALPHA / "'" / "(" / ")" /
 		//              "+" / "_" / "," / "-" / "." /
 		//              "/" / ":" / "=" / "?"
-		while(!iswsp(*e) && *e != ';')
+		while (*e && !iswsp(*e) && *e != ';')
 			e++;
 		e++;
 	}
