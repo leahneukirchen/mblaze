@@ -367,7 +367,8 @@ blaze822_mem(char *src, size_t len)
 		mesg->body = end+4;
 	} else {
 		end = src + len;
-		mesg->body = 0;
+		mesg->body = end;
+		mesg->bodyend = end;
 	}
 	if (mesg->body)
 		mesg->bodyend = src + len;
