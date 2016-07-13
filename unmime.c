@@ -19,19 +19,20 @@ void
 recmime(struct message *msg, int depth)
 {
 	struct message *imsg = 0;
-	char *ct, *body;
+	char *ct, *body, *bodychunk;
 	size_t bodylen;
 
-	if (blaze822_mime_body(msg, &ct, &body, &bodylen)) {
+	if (blaze822_mime_body(msg, &ct, &body, &bodylen, &bodychunk)) {
 		printf("%*.sbody %s len %d\n", depth*2, "", ct, bodylen);
-		if (strncmp(ct, "multipart/", 10) == 0)
+		if (strncmp(ct, "multipart/", 10) == 0) {
 			while (blaze822_multipart(msg, &imsg))
 				recmime(imsg, depth+1);
-		else if (strncmp(ct, "text/", 5) == 0) {
+		} else if (strncmp(ct, "text/", 5) == 0) {
 			printf("---\n");
 			fwrite(body, bodylen, 1, stdout);
 			printf("---\n");
 		}
+		free(bodychunk);
 	}
 }
 
@@ -50,6 +51,8 @@ unmime(char *file)
 		return;
 
 	recmime(msg, 0);
+
+	blaze822_free(msg);
 }
 
 int
