@@ -194,16 +194,15 @@ out:
 
 		c->parent = parent;
 
-/*
-  not needed with above checks?
-		for (r = parent->child; r; r = r->next) {
-			// check if we are already a child of the correct parent
-			if (r == c)
-				goto out2;
+		// add at the end
+		for (r = parent->child; r && r->next; r = r->next)
+			;
+		if (!r) {
+			parent->child = c;
+		} else {
+			r->next = c;
+			c->next = 0;
 		}
-*/
-		c->next = parent->child;
-		parent->child = c;
 
 out2:
 		// someone said our parent was our child, a lie
@@ -222,7 +221,7 @@ find_root(const void *nodep, const VISIT which, const int depth)
 {
         (void)depth;
 
-        if (which == postorder || which == leaf) {
+        if (which == preorder || which == leaf) {
 		struct container *c = *(struct container **)nodep;
 
 		if (!c->parent) {
