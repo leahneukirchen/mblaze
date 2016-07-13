@@ -222,62 +222,76 @@ blaze822_addr(char *s, char **dispo, char **addro)
 }
 
 static void
+compress_hdr(char *s, char *end)
+{
+	char *t, *h;
+
+	if ((t = h = strchr(s, '\n'))) {
+		while (h < end && *h) {
+			if (*h == '\n') {
+				*t++ = ' ';
+				while (*h && isfws(*h))
+					h++;
+			}
+			*t++ = *h++;
+		}
+		// zero fill gap
+		while (t < h)
+			*t++ = 0;
+		// remove trailing whitespace
+		t--;
+		while (s < t && isfws(t[-1]))
+			*--t = 0;
+	}
+}
+
+
+static void
 unfold_hdr(char *buf, char *end)
 {
-	char *s = buf;
+	char *s, *l;
 	*end = 0;
 
-	while (s < end && *s != ':') {
+	// sanitize all nul in message headers, srsly
+	if (memchr(buf, 0, end-buf))
+		for (s = buf; s < end; s++)
+			if (*s == 0)
+				*s = ' ';
+
+	// normalize crlf
+	if (memchr(buf, '\r', end-buf))
+		for (s = buf; s < end; s++)
+			if (*s == '\r') {
+				if (*(s+1) == '\n')
+					*s = '\n';
+				else
+					*s = ' ';
+			}
+
+	l = buf;
+	s = buf;
+
+	while (s < end && *s != ':' && *s != '\n') {
 		*s = lc(*s);
 		s++;
 	}
 
-	/// XXX can we turn both loops into one?
-	for (; s < end; s++) {
-		/// XXX use strchr here
-		if (*s == 0)   // sanitize nul bytes in headers
-			*s = ' ';
+	while (s < end) {
+		s = memchr(s+1, '\n', end-buf);
+		if (!s)
+			break;
 
-		if (*s == '\r') {
-			if (*(s+1) == '\n') {
-				*s++ = '\n';
-			} else {
-				*s = ' ';
-			}
-		}
-
-		if (*s == '\n') {
+		while (s < end && *s == '\n')
 			s++;
-			if (!iswsp(*s)) {
-				*(s-1) = 0;
-				if (s-2 > buf && *(s-2) == '\n')   // ex-crlf
-					*(s-2) = 0;
-				while (s < end && *s != ':') {
-					*s = lc(*s);
-					s++;
-				}
+		if (!iswsp(*s)) {
+			*(s-1) = 0;
+			compress_hdr(l, s-1);
+			l = s;
+			while (s < end && *s != ':' && *s != '\n') {
+				*s = lc(*s);
+				s++;
 			}
 		}
-	}
-
-	// compress fields by removing fws
-	for (s = buf; s < end; ) {
-		char *t, *h;
-		size_t l = strlen(s) + 1;
-
-		if ((t = h = strchr(s, '\n'))) {
-			while (h < end && *h) {
-				if (*h == '\n') {
-					*t++ = ' ';
-					while (*h && isfws(*h))
-						h++;
-				}
-				*t++ = *h++;
-			}
-			while (t < h)
-				*t++ = 0;
-		}
-		s += l;
 	}
 }
 
