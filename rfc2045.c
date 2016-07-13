@@ -18,8 +18,11 @@ blaze822_check_mime(struct message *msg)
 int
 blaze822_mime_body(struct message *msg, char **cto, char **bodyo, size_t *bodyleno)
 {
-	if (!msg->body || !msg->bodyend)
+	if (!msg->body || !msg->bodyend) {
+		*bodyo = 0;
+		*bodyleno = 0;
 		return -1;
+        }
 
 	char *ct = blaze822_hdr(msg, "content-type");
 	char *cte = blaze822_hdr(msg, "content-transfer-encoding");
