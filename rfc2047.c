@@ -14,7 +14,7 @@
 // XXX keep trying bytewise on invalid iconv
 
 int
-decode_qp(char *start, char *stop, char **deco, size_t *decleno)
+blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno)
 {
 	static signed char hex[] = {
 		-1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
@@ -55,8 +55,9 @@ decode_qp(char *start, char *stop, char **deco, size_t *decleno)
 	*decleno = buf - *deco;
 	return 1;
 }
+
 int
-decode_b64(char *s, char *e, char **deco, size_t *decleno)
+blaze822_decode_b64(char *s, char *e, char **deco, size_t *decleno)
 {
 	static signed char b64[128] = {
 		-1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
@@ -153,9 +154,9 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		char *dec;
 		size_t declen;
 		if (enc == 'q')
-			decode_qp(start, stop, &dec, &declen);
+			blaze822_decode_qp(start, stop, &dec, &declen);
 		else if (enc == 'b')
-			decode_b64(start, stop, &dec, &declen);
+			blaze822_decode_b64(start, stop, &dec, &declen);
 		else
 			goto nocode;
 

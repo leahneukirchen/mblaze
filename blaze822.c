@@ -337,8 +337,7 @@ blaze822(char *file)
 
 	mesg->msg = buf;
 	mesg->end = end;
-	mesg->body = 0;
-	mesg->bodyend = 0;
+	mesg->body = mesg->bodyend = mesg->bodychunk = 0;
 
 	return mesg;
 }
@@ -355,41 +354,37 @@ blaze822_mem(char *src, size_t len)
 		return 0;
 
 	end = memmem(src, len, "\n\n", 2);
-	if (!end) end = memmem(src, len, "\r\n\r\n", 4);
-	if (!end) end = src + len;
+	if (!end)
+		end = memmem(src, len, "\r\n\r\n", 4);
+	if (!end)
+		end = src + len;
 
-	len = end - src;
+	size_t hlen = end - src;
 
-	buf = malloc(len+1);
+	buf = malloc(hlen+1);
 	if (!buf)
 		return 0;
-	memcpy(buf, src, len);
+	memcpy(buf, src, hlen);
 
-	end = buf+len+1;
+	end = buf+hlen+1;
 	*end = 0;   // dereferencing *end is safe
 
 	unfold_hdr(buf, end);
 
 	mesg->msg = buf;
 	mesg->end = end;
-	mesg->body = 0;
-	mesg->bodyend = 0;
+	mesg->body = src + hlen;
+	mesg->bodyend = src + len;
+	mesg->bodychunk = 0;   // src is not ours
 
 	return mesg;
-}
-
-void
-blaze822_mem_body(struct message *mesg, char *buf, size_t len)
-{
-	mesg->body = buf + (mesg->end - mesg->msg - 2);
-	mesg->bodyend = buf + len - (mesg->end - mesg->msg - 2);
 }
 
 void
 blaze822_free(struct message *mesg)
 {
 	free(mesg->msg);
-	// XXX body? keep track who malloced it?
+	free(mesg->bodychunk);
 	free(mesg);
 }
 
@@ -434,24 +429,8 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 	return i;
 }
 
-int
-blaze822_body(struct message *mesg, char *file)
-{
-	int fd = open(file, O_RDONLY);
-	if (fd < 0)
-		return fd;
-
-	if (lseek(fd, mesg->end - mesg->msg - 2, SEEK_SET) < 0) {
-		perror("lseek");
-		close(fd);
-		return -1;
-	}
-
-	return fd;
-}
-
-int
-blaze822_file_body(struct message *mesg, char *file)
+struct message *
+blaze822_file(char *file)
 {
 	int fd = open(file, O_RDONLY);
 	if (fd < 0)
@@ -461,29 +440,39 @@ blaze822_file_body(struct message *mesg, char *file)
 	if (fstat(fd, &st) < 0)
 		goto error;
 
-	if (lseek(fd, mesg->end - mesg->msg - 2, SEEK_SET) < 0) {
-		perror("lseek");
-		goto error;
-	}
+	size_t s = st.st_size;
 
-	size_t s = st.st_size - (mesg->end - mesg->msg - 2);
-
-	char *body = malloc(s+1);
-	if (read(fd, body, s) < 0) {
+	char *buf = malloc(s+1);
+	if (read(fd, buf, s) < 0) {
 		// XXX handle short reads?
 		perror("read");
 		goto error;
 	}
-	body[s] = 0;
-
-	mesg->body = body;
-	mesg->bodyend = body+s;
-
 	close(fd);
-	return 1;
+
+	buf[s] = 0;
+
+	// XXX duplicate header in ram...
+	struct message *mesg = blaze822_mem(buf, s);
+	if (mesg)
+		mesg->bodychunk = buf;
+	return mesg;
 
 error:
 	close(fd);
-	return -1;
+	return 0;
 }
 
+char *
+blaze822_body(struct message *mesg)
+{
+	return mesg->body;
+}
+
+size_t
+blaze822_bodylen(struct message *mesg)
+{
+	if (!mesg->body || !mesg->bodyend)
+		return 0;
+	return mesg->bodyend - mesg->body;
+}
