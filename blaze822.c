@@ -347,11 +347,16 @@ blaze822_mem(char *src, size_t len)
 	if (!mesg)
 		return 0;
 
-	end = memmem(src, len, "\n\n", 2);
-	if (!end)
-		end = memmem(src, len, "\r\n\r\n", 4);
-	if (!end)
+	if ((end = memmem(src, len, "\n\n", 2))) {
+		mesg->body = end+2;
+	} else if ((end = memmem(src, len, "\r\n\r\n", 4))) {
+		mesg->body = end+4;
+	} else {
 		end = src + len;
+		mesg->body = 0;
+	}
+	if (mesg->body)
+		mesg->bodyend = src + len;
 
 	size_t hlen = end - src;
 
@@ -367,8 +372,6 @@ blaze822_mem(char *src, size_t len)
 
 	mesg->msg = buf;
 	mesg->end = end;
-	mesg->body = src + hlen;
-	mesg->bodyend = src + len;
 	mesg->bodychunk = 0;   // src is not ours
 
 	return mesg;
