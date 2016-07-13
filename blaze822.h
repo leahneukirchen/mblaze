@@ -3,10 +3,12 @@
 struct message;
 
 struct message *blaze822(char *file);
+struct message *blaze822_mem(char *buf, size_t len);
 void blaze822_free(struct message *mesg);
 char *blaze822_hdr_(struct message *mesg, const char *hdr, size_t len);
 #define blaze822_hdr(mesg, hdr) blaze822_hdr_(mesg, "\0" hdr ":", 2+strlen((hdr)))
 int blaze822_body(struct message *mesg, char *file);
+void blaze822_mem_body(struct message *mesg, char *buf, size_t len);
 
 int blaze822_loop(int, char **, void (*)(char *));
 

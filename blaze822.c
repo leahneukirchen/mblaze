@@ -332,14 +332,106 @@ blaze822(char *file)
 
 	mesg->msg = buf;
 	mesg->end = end;
+	mesg->body = 0;
+	mesg->bodyend = 0;
 
 	return mesg;
+}
+
+
+struct message *
+blaze822_mem(char *src, size_t len)
+{
+	char *buf;
+	char *end;
+
+	buf = malloc(3);
+	if (!buf)
+		return 0;
+	buf[0] = '\n';
+	buf[1] = '\n';
+	buf[2] = '\n';
+
+	end = memmem(src, len, "\n\n", 2);
+	if (!end) end = memmem(src, len, "\r\n\r\n", 4);
+	if (!end) end = src + len;
+
+	len = end - src;
+
+	buf = realloc(buf, len+3+1);
+	memcpy(buf+3, src, len);
+
+	end = buf+3+1+len;
+	*end = 0;   // dereferencing *end is safe
+
+	/// XXX merge with below
+
+	char *s;
+	for (s = buf; s < end; s++) {
+		if (*s == 0)   // sanitize nul bytes in headers
+			*s = ' ';
+
+		if (*s == '\r') {
+			if (*(s+1) == '\n') {
+				*s++ = '\n';
+			} else {
+				*s = ' ';
+			}
+		}
+
+		if (iswsp(*s)) {
+			// change prior \n to spaces
+			int j;
+			for (j = 1; s - j >= buf && *(s-j) == '\n'; j++)
+				*(s-j) = ' ';
+		}
+
+		if (*s == '\n') {
+			s++;
+			if (iswsp(*s)) {
+				*(s-1) = ' ';
+			} else {
+				*(s-1) = 0;
+				if (s-2 > buf && *(s-2) == '\n')   // ex-crlf
+					*(s-2) = 0;
+				while (s < end && *s != ':') {
+					*s = lc(*s);
+					s++;
+				}
+			}
+		}
+	}
+
+	buf[0] = 0;
+	buf[1] = 0;
+	buf[2] = 0;
+
+	struct message *mesg = malloc(sizeof (struct message));
+	if (!mesg) {
+		free(buf);
+		return 0;
+	}
+
+	mesg->msg = buf;
+	mesg->end = end;
+	mesg->body = 0;
+	mesg->bodyend = 0;
+
+	return mesg;
+}
+
+void
+blaze822_mem_body(struct message *mesg, char *buf, size_t len)
+{
+	mesg->body = buf + (mesg->end - mesg->msg - 2);
+	mesg->bodyend = buf + len - (mesg->end - mesg->msg - 2);
 }
 
 void
 blaze822_free(struct message *mesg)
 {
 	free(mesg->msg);
+	// XXX body? keep track who malloced it?
 	free(mesg);
 }
 
@@ -395,3 +487,41 @@ blaze822_body(struct message *mesg, char *file)
 
 	return fd;
 }
+
+int
+blaze822_file_body(struct message *mesg, char *file)
+{
+	int fd = open(file, O_RDONLY);
+	if (fd < 0)
+		return fd;
+
+	struct stat st;
+	if (fstat(fd, &st) < 0)
+		goto error;
+
+	if (lseek(fd, mesg->end - mesg->msg - 2, SEEK_SET) < 0) {
+		perror("lseek");
+		goto error;
+	}
+
+	size_t s = st.st_size - (mesg->end - mesg->msg - 2);
+
+	char *body = malloc(s+1);
+	if (read(fd, body, s) < 0) {
+		// XXX handle short reads?
+		perror("read");
+		goto error;
+	}
+	body[s] = 0;
+
+	mesg->body = body;
+	mesg->bodyend = body+s;
+
+	close(fd);
+	return 1;
+
+error:
+	close(fd);
+	return -1;
+}
+
