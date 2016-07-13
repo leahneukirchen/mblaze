@@ -418,6 +418,7 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 			cb(line);
 			i++;
 		}
+		free(line);
 	} else {
 		for (i = 0; i < argc; i++)
 			cb(argv[i]);
