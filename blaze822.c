@@ -13,6 +13,9 @@
 #include <errno.h>
 #include <time.h>
 
+#include "blaze822.h"
+#include "blaze822_priv.h"
+
 //          WSP            =  SP / HTAB
 #define iswsp(c)  (((c) == ' ' || (c) == '\t'))
 
@@ -20,11 +23,6 @@
 #define lc(c) ((c) | 0x20)
 
 #define bufsiz 4096
-
-struct message {
-	char *msg;
-	char *end;
-};
 
 static long
 parse_posint(char **s, size_t minn, size_t maxn)
@@ -346,7 +344,7 @@ blaze822_free(struct message *mesg)
 }
 
 char *
-blaze822_hdr_(struct message *mesg, char *hdr, size_t hdrlen)
+blaze822_hdr_(struct message *mesg, const char *hdr, size_t hdrlen)
 {
 	char *v;
 
