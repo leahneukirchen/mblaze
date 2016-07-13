@@ -365,7 +365,7 @@ blaze822_mem(char *src, size_t len)
 		return 0;
 	memcpy(buf, src, hlen);
 
-	end = buf+hlen+1;
+	end = buf+hlen;
 	*end = 0;   // dereferencing *end is safe
 
 	unfold_hdr(buf, end);
