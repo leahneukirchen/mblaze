@@ -32,7 +32,7 @@ u8putstr(FILE *out, char *s, size_t l, int pad)
 
 long lineno;
 
-int
+void
 oneline(char *file)
 {
 	lineno++;
@@ -49,7 +49,7 @@ oneline(char *file)
 		int p = 80-38-3-indent;
 		printf("%*.*s\\_ %*.*s\n", -38 - indent, 38 + indent, "",
 		    -p, p, file);
-		return 0;
+		return;
 	}
 
 	char flag1, flag2;
@@ -106,7 +106,6 @@ oneline(char *file)
 	blaze822_decode_rfc2047(fromdec, from, sizeof fromdec - 1, "UTF-8");
 	fromdec[sizeof fromdec - 1] = 0;
 
-
 	char *subj = "(no subject)";
 	char subjdec[100];
         if ((v = blaze822_hdr(msg, "subject"))) {
@@ -122,6 +121,8 @@ oneline(char *file)
 		printf(" ");
 	u8putstr(stdout, subjdec, 80-38-indent, 0);
 	printf("\n");
+
+	blaze822_free(msg);
 }
 
 int
