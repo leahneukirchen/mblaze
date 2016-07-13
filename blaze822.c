@@ -428,7 +428,7 @@ blaze822_file(char *file)
 {
 	int fd = open(file, O_RDONLY);
 	if (fd < 0)
-		return fd;
+		return 0;
 
 	struct stat st;
 	if (fstat(fd, &st) < 0)
