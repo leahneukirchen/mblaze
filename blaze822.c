@@ -225,13 +225,16 @@ static void
 unfold_hdr(char *buf, char *end)
 {
 	char *s = buf;
+	*end = 0;
 
 	while (s < end && *s != ':') {
 		*s = lc(*s);
 		s++;
 	}
 
+	/// XXX can we turn both loops into one?
 	for (; s < end; s++) {
+		/// XXX use strchr here
 		if (*s == 0)   // sanitize nul bytes in headers
 			*s = ' ';
 
@@ -243,18 +246,9 @@ unfold_hdr(char *buf, char *end)
 			}
 		}
 
-		if (iswsp(*s)) {
-			// change prior \n to spaces
-			int j;
-			for (j = 1; s - j >= buf && *(s-j) == '\n'; j++)
-				*(s-j) = ' ';
-		}
-
 		if (*s == '\n') {
 			s++;
-			if (iswsp(*s)) {
-				*(s-1) = ' ';
-			} else {
+			if (!iswsp(*s)) {
 				*(s-1) = 0;
 				if (s-2 > buf && *(s-2) == '\n')   // ex-crlf
 					*(s-2) = 0;
@@ -264,6 +258,24 @@ unfold_hdr(char *buf, char *end)
 				}
 			}
 		}
+	}
+
+	for (s = buf; s < end; ) {
+		char *t, *h;
+		size_t l = strlen(s) + 1;
+
+		if ((t = h = strchr(s, '\n'))) {
+			while (*h) {
+				if (*h == '\n') {
+					*t++ = ' ';
+					while (*h && isfws(*h))
+						h++;
+				}
+				*t++ = *h++;
+			}
+			*t = 0;
+		}
+		s += l;
 	}
 }
 
