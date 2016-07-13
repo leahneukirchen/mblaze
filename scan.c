@@ -30,9 +30,13 @@ u8putstr(FILE *out, char *s, size_t l, int pad)
 			putc(' ', out);
 }
 
+long lineno;
+
 int
 oneline(char *file)
 {
+	lineno++;
+
 	int indent = 0;
 	while (*file == ' ') {
 		indent++;
@@ -42,8 +46,8 @@ oneline(char *file)
 	
 	struct message *msg = blaze822(file);
 	if (!msg) {
-		int p = 80-33-3-indent;
-		printf("%*.*s\\_ %*.*s\n", -33 - indent, 33 + indent, "",
+		int p = 80-38-3-indent;
+		printf("%*.*s\\_ %*.*s\n", -38 - indent, 38 + indent, "",
 		    -p, p, file);
 		return 0;
 	}
@@ -110,13 +114,13 @@ oneline(char *file)
 	}
 	blaze822_decode_rfc2047(subjdec, subj, sizeof subjdec - 1, "UTF-8");
 
-	printf("%c%c%-10s  ", flag1, flag2, date);
+	printf("%c%c %-3d %-10s  ", flag1, flag2, lineno, date);
 	u8putstr(stdout, fromdec, 17, 1);
 	printf("  ");
 	int z;
 	for (z = 0; z < indent; z++)
 		printf(" ");
-	u8putstr(stdout, subjdec, 80-33-indent, 0);
+	u8putstr(stdout, subjdec, 80-38-indent, 0);
 	printf("\n");
 }
 
