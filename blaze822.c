@@ -395,6 +395,8 @@ blaze822_mem(char *src, size_t len)
 void
 blaze822_free(struct message *mesg)
 {
+	if (!mesg)
+		return;
 	free(mesg->msg);
 	free(mesg->bodychunk);
 	free(mesg);
