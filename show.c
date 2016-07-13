@@ -51,6 +51,7 @@ show(char *file)
 	printf("\n");
 
 	fwrite(blaze822_body(msg), blaze822_bodylen(msg), 1, stdout);
+	blaze822_free(msg);
 }
 
 int
