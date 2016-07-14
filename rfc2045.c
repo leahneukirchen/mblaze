@@ -22,7 +22,8 @@ blaze822_mime_body(struct message *msg,
 	if (!msg->body || !msg->bodyend) {
 		*bodyo = 0;
 		*bodyleno = 0;
-		return -1;
+		*bodychunko = 0;
+		return 0;
         }
 
 	char *ct = blaze822_hdr(msg, "content-type");
