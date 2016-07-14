@@ -13,6 +13,8 @@ struct message *blaze822_mem(char *buf, size_t len);  // header + body
 char *blaze822_hdr_(struct message *mesg, const char *hdr, size_t len);
 #define blaze822_hdr(mesg, hdr) blaze822_hdr_(mesg, "\0" hdr ":", 2+strlen((hdr)))
 
+char *blaze822_next_header(struct message *mesg, char *prev);
+
 void blaze822_free(struct message *mesg);
 
 time_t blaze822_date(char *);

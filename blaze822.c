@@ -559,3 +559,20 @@ blaze822_bodylen(struct message *mesg)
 		return 0;
 	return mesg->bodyend - mesg->body;
 }
+
+char *
+blaze822_next_header(struct message *mesg, char *prev)
+{
+	if (!prev) {
+		prev = mesg->msg;
+	} else {
+		if (prev >= mesg->end)
+			return 0;
+		prev = prev + strlen(prev);
+	}
+	while (prev < mesg->end && *prev == 0)
+		prev++;
+	if (prev >= mesg->end)
+		return 0;
+	return prev;
+}
