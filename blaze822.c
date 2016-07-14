@@ -421,7 +421,7 @@ blaze822_hdr_(struct message *mesg, const char *hdr, size_t hdrlen)
 {
 	char *v;
 
-	if (mesg->msg + hdrlen - 1 >= mesg->end)
+	if (hdrlen == 0 || hdrlen-1 >= (size_t)(mesg->end - mesg->msg))
 		return 0;  // header too small for the key, probably empty
 
 	// special case: first header, no leading nul
