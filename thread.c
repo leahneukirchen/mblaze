@@ -264,7 +264,7 @@ print_tree(struct container *c, int depth)
 	
 		if (c->child)
 			print_tree(c->child, depth+1);
-	} while (c = c->next);
+	} while ((c = c->next));
 }
 
 int

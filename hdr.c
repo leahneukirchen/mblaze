@@ -54,7 +54,7 @@ headerall(char *file)
 		return;
 
 	char *h = 0;
-	while (h = blaze822_next_header(msg, h))
+	while ((h = blaze822_next_header(msg, h)))
 		printhdr(h);
 }
 
