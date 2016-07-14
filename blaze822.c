@@ -235,13 +235,12 @@ compress_hdr(char *s, char *end)
 			}
 			*t++ = *h++;
 		}
+		// remove trailing whitespace
+		while (s < t && isfws(t[-1]))
+			*--t = 0;
 		// zero fill gap
 		while (t < h)
 			*t++ = 0;
-		// remove trailing whitespace
-		t--;
-		while (s < t && isfws(t[-1]))
-			*--t = 0;
 	}
 }
 
@@ -277,7 +276,7 @@ unfold_hdr(char *buf, char *end)
 	}
 
 	while (s < end) {
-		s = memchr(s+1, '\n', end-buf);
+		s = memchr(s+1, '\n', end-s);
 		if (!s)
 			break;
 
@@ -293,6 +292,7 @@ unfold_hdr(char *buf, char *end)
 			}
 		}
 	}
+	compress_hdr(l, end);
 }
 
 struct message *
