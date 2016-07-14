@@ -57,7 +57,7 @@ show(char *file)
 int
 main(int argc, char *argv[])
 {
-	int i = blaze822_loop(argc-1, argv+1, show);
+	blaze822_loop(argc-1, argv+1, show);
 
 	return 0;
 }

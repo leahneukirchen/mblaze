@@ -181,7 +181,7 @@ main(int argc, char *argv[])
 
         int i;
 	
-	for (i = 0, flagsum = 0, flagset = 0; i < sizeof flags; i++) {
+	for (i = 0, flagsum = 0, flagset = 0; (size_t)i < sizeof flags; i++) {
 		if (flags[i] != 0)
 			flagset++;
 		if (flags[i] == 1)

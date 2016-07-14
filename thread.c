@@ -125,12 +125,11 @@ thread(char *file)
 
 	char *mid = "";
 
-	char *v;
+	char *v, *m;
 	struct container *parent = 0, *me = 0;
 
 	v = blaze822_hdr(msg, "references");
 	if (v) {
-		char *m, *n;
 		parent = 0;
 		while (1) {
 			m = strchr(v, '<');
@@ -161,7 +160,6 @@ thread(char *file)
 	v = blaze822_hdr(msg, "in-reply-to");
 	char *irt;
 	if (v) {
-		char *m, *n;
 		m = strchr(v, '<');
 		if (!m)
 			goto out;
