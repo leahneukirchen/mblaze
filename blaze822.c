@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -364,7 +365,6 @@ blaze822(char *file)
 	return mesg;
 }
 
-
 struct message *
 blaze822_mem(char *src, size_t len)
 {
@@ -411,8 +411,12 @@ blaze822_free(struct message *mesg)
 {
 	if (!mesg)
 		return;
-	free(mesg->msg);
-	free(mesg->bodychunk);
+	if (mesg->bodychunk == mesg->msg) {
+		munmap(mesg->bodychunk, mesg->bodyend - mesg->msg);
+	} else {
+		free(mesg->msg);
+		free(mesg->bodychunk);
+	}
 	free(mesg);
 }
 
@@ -488,6 +492,53 @@ blaze822_file(char *file)
 	struct message *mesg = blaze822_mem(buf, s);
 	if (mesg)
 		mesg->bodychunk = buf;
+	return mesg;
+
+error:
+	close(fd);
+	return 0;
+}
+
+struct message *
+blaze822_mmap(char *file)
+{
+	int fd = open(file, O_RDONLY);
+	if (fd < 0)
+		return 0;
+
+	struct stat st;
+	if (fstat(fd, &st) < 0)
+		goto error;
+
+	size_t len = st.st_size;
+
+	struct message *mesg = malloc(sizeof (struct message));
+	if (!mesg)
+		goto error;
+
+	char *buf = mmap(0, len+1, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+	if (buf == MAP_FAILED) {
+		perror("mmap");
+		goto error;
+	}
+	close(fd);
+
+	char *end;
+	if ((end = memmem(buf, len, "\n\n", 2))) {
+		mesg->body = end+2;
+	} else if ((end = memmem(buf, len, "\r\n\r\n", 4))) {
+		mesg->body = end+4;
+	} else {
+		end = buf + len;
+		mesg->body = end;
+	}
+
+	unfold_hdr(buf, end);
+
+	mesg->msg = mesg->bodychunk = buf;
+	mesg->end = end;
+	mesg->bodyend = buf + len;
+
 	return mesg;
 
 error:

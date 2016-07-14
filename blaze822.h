@@ -6,7 +6,8 @@ struct message;
 // blaze822.c
 
 struct message *blaze822(char *file);       // just header
-struct message *blaze822_file(char *file);  // header + body
+struct message *blaze822_file(char *file);  // header + body (read(2))
+struct message *blaze822_mmap(char *file);  // header + body (mmap(2))
 struct message *blaze822_mem(char *buf, size_t len);  // header + body
 
 char *blaze822_hdr_(struct message *mesg, const char *hdr, size_t len);
