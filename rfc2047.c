@@ -38,8 +38,12 @@ blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno)
 		if (*s == '=' && s[1] == '\n') {
 			s += 2;
 		} else if (*s == '=' && s+2 < stop) {
-			*buf++ = (hex[s[1]] << 4) | hex[s[2]];
+			unsigned char c1 = s[1];
+			unsigned char c2 = s[2];
 			s += 3;
+			if (c1 > 127 || c2 > 127 || hex[c1] < 0 || hex[c2] < 0)
+				continue;
+			*buf++ = (hex[c1] << 4) | hex[c2];
 		} else if (*s == '_') {
 			*buf++ = ' ';
 			s++;
