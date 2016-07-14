@@ -1,4 +1,4 @@
-CFLAGS=-g -O1 -Wall -Wno-switch -Wextra -Wwrite-strings -fstack-protector-strong -D_FORTIFY_SOURCE=2
+CFLAGS=-g -O1 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
 
 ALL = scan thread hdr show list next unmime
 
