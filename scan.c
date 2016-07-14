@@ -113,7 +113,7 @@ oneline(char *file)
 	}
 	blaze822_decode_rfc2047(subjdec, subj, sizeof subjdec - 1, "UTF-8");
 
-	printf("%c%c %-3d %-10s  ", flag1, flag2, lineno, date);
+	printf("%c%c %-3ld %-10s  ", flag1, flag2, lineno, date);
 	u8putstr(stdout, fromdec, 17, 1);
 	printf("  ");
 	int z;

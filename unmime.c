@@ -23,7 +23,7 @@ recmime(struct message *msg, int depth)
 	size_t bodylen;
 
 	if (blaze822_mime_body(msg, &ct, &body, &bodylen, &bodychunk)) {
-		printf("%*.sbody %s len %d\n", depth*2, "", ct, bodylen);
+		printf("%*.sbody %s len %zd\n", depth*2, "", ct, bodylen);
 		if (strncmp(ct, "multipart/", 10) == 0) {
 			while (blaze822_multipart(msg, &imsg))
 				recmime(imsg, depth+1);

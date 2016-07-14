@@ -63,7 +63,7 @@ mid(struct message *msg)
 		// invent new message-id for internal tracking
 		static long i;
 		char buf[32];
-		snprintf(buf, sizeof buf, "thread.%08d@localhost", ++i);
+		snprintf(buf, sizeof buf, "thread%08ld@localhost", ++i);
 		return strdup(buf);
 	}
 }
