@@ -8,7 +8,6 @@
 #include "blaze822.h"
 #include "blaze822_priv.h"
 
-// XXX error detection on decode
 // XXX keep trying bytewise on invalid iconv
 
 int
@@ -32,8 +31,6 @@ blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno)
 	*deco = buf;
 
 	char *s = start;
-	size_t declen;
-
 	while (s < stop) {
 		if (*s == '=' && s[1] == '\n') {
 			s += 2;
@@ -81,23 +78,33 @@ blaze822_decode_b64(char *s, char *e, char **deco, size_t *decleno)
 	while (s + 4 <= e) {
 		while (s < e && isfws((unsigned char) *s))
 			s++;
-		if (s < e) {
-			uint32_t v = 0;
-			v |= b64[s[0]]; v <<= 6;
-			v |= b64[s[1]]; v <<= 6;
-			v |= b64[s[2]]; v <<= 6;
-			v |= b64[s[3]];
-			
-			char d2 = v & 0xff; v >>= 8;
-			char d1 = v & 0xff; v >>= 8;
-			char d0 = v & 0xff;
+		if (s >= e)
+			break;
 
-			if (s[1] != '=') *buf++ = d0;
-			if (s[2] != '=') *buf++ = d1;
-			if (s[3] != '=') *buf++ = d2;
-			
-			s += 4;
-		}
+		uint32_t v = 0;
+		unsigned char t = 0;
+
+		unsigned char c0=s[0], c1=s[1], c2=s[2], c3=s[3];
+		s += 4;
+
+		if ((c0 | c1 | c2 | c3) > 127)
+			continue;
+
+		v |= b64[c0]; t |= b64[c0]; v <<= 6;
+		v |= b64[c1]; t |= b64[c1]; v <<= 6;
+		v |= b64[c2]; t |= b64[c2]; v <<= 6;
+		v |= b64[c3]; t |= b64[c3];
+
+		if (t > 127)
+			continue;
+
+		char d2 = v & 0xff; v >>= 8;
+		char d1 = v & 0xff; v >>= 8;
+		char d0 = v & 0xff;
+
+		if (c1 != '=') *buf++ = d0;
+		if (c2 != '=') *buf++ = d1;
+		if (c3 != '=') *buf++ = d2;
 	}
 
 	*decleno = buf - *deco;
@@ -219,13 +226,13 @@ main() {
 	char *r;
 	size_t l;
 	char test[] = "Keld_J=F8rn_Simonsen";
-	decode_qp(test, test + sizeof test, &r, &l);
+	blaze822_decode_qp(test, test + sizeof test, &r, &l);
 	printf("%s %d\n", r, l);
 
 	char *r2;
 	size_t l2;
-	char test2[] = "SWYgeW91IGNhbiByZWFkIHRoaXMgeW8=dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==";
-	decode_b64(test2, test2+sizeof test2, &r2, &l2);
+	char test2[] = "SWYgeW91IGNhbiByZWFkIHRoaXMgeW8="; // dSB1bmRlcnN0YW5kIHRoZSBleGFtcGxlLg==";
+	blaze822_decode_b64(test2, test2+sizeof test2, &r2, &l2);
 	printf("%s %d\n", r2, l2);
 
 	char test3[] = "=?ISO-8859-1?Q?Keld_J=F8rn_Simonsen?= <keld@dkuug.dk>";
