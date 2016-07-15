@@ -38,8 +38,12 @@ blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno)
 			unsigned char c1 = s[1];
 			unsigned char c2 = s[2];
 			s += 3;
-			if (c1 > 127 || c2 > 127 || hex[c1] < 0 || hex[c2] < 0)
+			if (c1 > 127 || c2 > 127 || hex[c1] < 0 || hex[c2] < 0) {
+				*buf++ = '?';
+				*buf++ = '?';
+				*buf++ = '?';
 				continue;
+			}
 			*buf++ = (hex[c1] << 4) | hex[c2];
 		} else if (*s == '_') {
 			*buf++ = ' ';
@@ -88,15 +92,20 @@ blaze822_decode_b64(char *s, char *e, char **deco, size_t *decleno)
 		s += 4;
 
 		if ((c0 | c1 | c2 | c3) > 127)
-			continue;
+			goto error;
 
 		v |= b64[c0]; t |= b64[c0]; v <<= 6;
 		v |= b64[c1]; t |= b64[c1]; v <<= 6;
 		v |= b64[c2]; t |= b64[c2]; v <<= 6;
 		v |= b64[c3]; t |= b64[c3];
 
-		if (t >= 64)
+		if (t >= 64) {
+error:
+			*buf++ = '?';
+			*buf++ = '?';
+			*buf++ = '?';
 			continue;
+		}
 
 		char d2 = v & 0xff; v >>= 8;
 		char d1 = v & 0xff; v >>= 8;
