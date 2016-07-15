@@ -20,7 +20,7 @@ main(int argc, char *argv[])
 
 	fstat(fd, &st);
 	char *map = mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	if (map = MAP_FAILED)
+	if (map == MAP_FAILED)
 		exit(102);
 
 	char *s;
