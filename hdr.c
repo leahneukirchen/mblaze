@@ -54,8 +54,12 @@ headerall(char *file)
 		return;
 
 	char *h = 0;
-	while ((h = blaze822_next_header(msg, h)))
-		printhdr(h);
+	while ((h = blaze822_next_header(msg, h))) {
+		char d[4096];
+		blaze822_decode_rfc2047(d, h, sizeof d, "UTF-8");
+
+		printhdr(d);
+	}
 }
 
 int
