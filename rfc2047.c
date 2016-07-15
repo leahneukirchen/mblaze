@@ -90,31 +90,18 @@ blaze822_decode_b64(char *s, char *e, char **deco, size_t *decleno)
 		if ((c0 | c1 | c2 | c3) > 127)
 			continue;
 
-// V  21098765432109876543210
-// [[[c0]]]543210
-//       [[[c1]]]543210
-//             [[[c2]]]543210
-//                   [[[c3]]]
-//   [[[d2]]][[[d1]]][[[d0]]]
-
-#ifndef SLICE
 		v |= b64[c0]; t |= b64[c0]; v <<= 6;
 		v |= b64[c1]; t |= b64[c1]; v <<= 6;
 		v |= b64[c2]; t |= b64[c2]; v <<= 6;
 		v |= b64[c3]; t |= b64[c3];
 
-		if (t => 64)
+		if (t >= 64)
 			continue;
 
 		char d2 = v & 0xff; v >>= 8;
 		char d1 = v & 0xff; v >>= 8;
 		char d0 = v & 0xff;
-#else
-		if ((b64[c0] | b64[c1] | b64[c2] | b64[c3]) >= 64) continue;
-		char d0 = (b64[c0] << 2) | (b64[c1] >> 4);
-		char d1 = ((b64[c1] & 0x0f) << 4) | (b64[c2] >> 2);
-		char d2 = ((b64[c2] & 0x03) << 6) | b64[c3];
-#endif
+
 		if (c1 != '=') *buf++ = d0;
 		if (c2 != '=') *buf++ = d1;
 		if (c3 != '=') *buf++ = d2;
