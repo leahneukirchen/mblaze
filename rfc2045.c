@@ -59,6 +59,47 @@ blaze822_mime_body(struct message *msg,
 }
 
 int
+blaze822_mime_parameter(char *s, char *name, char **starto, char **stopo)
+{
+	s = strchr(s, ';');
+	if (!s)
+		return 0;
+	s++;
+
+	size_t namelen = strlen(name);
+
+	while (*s) {
+		while (iswsp(*s))
+			s++;
+		if (strncasecmp(s, name, namelen) == 0 && s[namelen] == '=') {
+			s += namelen + 1;
+			break;
+		}
+		s = strchr(s+1, ';');
+		if (!s)
+			return 0;
+		s++;
+	}
+	if (!s || !*s)
+		return 0;
+	char *e;
+	if (*s == '"') {
+		s++;
+		e = strchr(s, '"');
+		if (!e)
+			return 0;
+	} else {
+		e = s;
+		while (*e && !iswsp(*e) && *e != ';')
+			e++;
+	}
+
+	*starto = s;
+	*stopo = e;
+	return 1;
+}
+
+int
 blaze822_multipart(struct message *msg, struct message **imsg)
 {
 	char *s = blaze822_hdr(msg, "content-type");
