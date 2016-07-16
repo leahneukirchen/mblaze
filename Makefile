@@ -1,6 +1,6 @@
 CFLAGS=-g -O1 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
 
-ALL = scan thread hdr show list next unmime
+ALL = scan thread hdr show list unmime mseq
 
 all: $(ALL)
 
@@ -9,8 +9,8 @@ thread: blaze822.o thread.o
 hdr: blaze822.o hdr.o rfc2047.o
 show: blaze822.o show.o
 list: list.o
-next: next.o
 unmime: blaze822.o unmime.o rfc2045.o rfc2047.o
+mseq: mseq.o
 
 clean: FRC
 	-rm -f $(ALL) *.o
