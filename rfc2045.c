@@ -99,7 +99,6 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 		//              "/" / ":" / "=" / "?"
 		while (*e && !iswsp(*e) && *e != ';')
 			e++;
-		e++;
 	}
 
 	char mboundary[256];
