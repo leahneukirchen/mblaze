@@ -22,6 +22,7 @@ time_t blaze822_date(char *);
 char *blaze822_addr(char *, char **, char **);
 char *blaze822_body(struct message *mesg);
 size_t blaze822_bodylen(struct message *mesg);
+size_t blaze822_headerlen(struct message *mesg);
 
 int blaze822_loop(int, char **, void (*)(char *));
 

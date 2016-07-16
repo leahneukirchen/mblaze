@@ -555,6 +555,12 @@ error:
 	return 0;
 }
 
+size_t
+blaze822_headerlen(struct message *mesg)
+{
+	return mesg->end - mesg->msg;
+}
+
 char *
 blaze822_body(struct message *mesg)
 {
