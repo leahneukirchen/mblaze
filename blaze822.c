@@ -441,6 +441,15 @@ blaze822_hdr_(struct message *mesg, const char *hdr, size_t hdrlen)
 	return v;
 }
 
+char *
+blaze822_chdr(struct message *mesg, const char *chdr)
+{
+	char hdr[256];
+	size_t l = snprintf(hdr, sizeof hdr, "%c%s:", 0, chdr);
+
+	return blaze822_hdr_(mesg, hdr, l);
+}
+
 int
 blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 {
