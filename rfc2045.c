@@ -110,47 +110,18 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 	if (!*s)
 		return 0;
 
-	// XXX scan boundary only once
-	char *boundary = s+1;
-	while (*boundary) {
-		while (iswsp(*boundary))
-			boundary++;
-		if (strncasecmp(boundary, "boundary=", 9) == 0) {
-			boundary += 9;
-			break;
-		}
-		boundary = strchr(boundary+1, ';');
-		if (!boundary)
-			break;
-		boundary++;
-	}
-	if (!boundary || !*boundary)
+	char *boundary, *boundaryend;
+	if (!blaze822_mime_parameter(s, "boundary", &boundary, &boundaryend))
 		return 0;
-	char *e;
-	if (*boundary == '"') {
-		boundary++;
-		e = strchr(boundary, '"');
-		if (!e)
-			return 0;
-	} else {
-		e = boundary;
-		// XXX    bchars := bcharsnospace / " "
-		// bcharsnospace := DIGIT / ALPHA / "'" / "(" / ")" /
-		//              "+" / "_" / "," / "-" / "." /
-		//              "/" / ":" / "=" / "?"
-		while (*e && !iswsp(*e) && *e != ';')
-			e++;
-	}
-
 	char mboundary[256];
+	int boundarylen = boundaryend-boundary+2;
+
+	if (boundarylen >= 256)
+		return 0;
 	mboundary[0] = '-';
 	mboundary[1] = '-';
-	memcpy(mboundary+2, boundary, e-boundary);  // XXX overflow
-	mboundary[e-boundary+2] = 0;
-
-	int boundarylen = e-boundary+2;
-
-//	printf("boundary: %s %s %s\n", ct, cte, boundary);
+	memcpy(mboundary+2, boundary, boundarylen-2);
+	mboundary[boundarylen] = 0;
 
 	char *prevpart;
 	if (*imsg)
