@@ -78,7 +78,7 @@ render_mime(int depth, char *ct, char *body, size_t bodylen)
 	char *mt = mimetype(ct);
 	char *tlmt = tlmimetype(ct);
 
-	char *filename, *fn, *fne;
+	char *filename = 0, *fn, *fne;
 	if (blaze822_mime_parameter(ct, "name", &fn, &fne))
 		filename = strndup(fn, fne-fn);
 
@@ -292,17 +292,30 @@ extract(char *file, int argc, char **argv, int use_stdout)
 	walk_mime(msg, 0, extract_mime);
 }
 
+static char *newcur;
+
 void
 show(char *file)
 {
 	struct message *msg;
 
+	while (*file == ' ' || *file == '\t')
+		file++;
+
+	if (newcur) {
+		printf("\014\n");
+		free(newcur);
+	}
+	newcur = strdup(file);
+
 	if (qflag)
 		msg = blaze822(file);
 	else
 		msg = blaze822_file(file);
-	if (!msg)
+	if (!msg) {
+		fprintf(stderr, "show: %s: %s\n", file, strerror(errno));
 		return;
+	}
 
 	if (Hflag) {  // raw headers
 		size_t hl = blaze822_headerlen(msg);
@@ -388,6 +401,7 @@ main(int argc, char *argv[])
 		if (!(qflag || rflag))
 			filters = blaze822("filters");
 		blaze822_loop(argc-optind, argv+optind, show);
+		blaze822_seq_setcur(newcur);
 	}
 
 	return 0;
