@@ -38,3 +38,9 @@ int blaze822_check_mime(struct message *msg);
 int blaze822_mime_body(struct message *msg, char **cto, char **bodyo, size_t *bodyleno, char **bodychunko);
 int blaze822_multipart(struct message *msg, struct message **imsg);
 int blaze822_mime_parameter(char *s, char *name, char **starto, char **stopo);
+
+// seq.c
+
+char *blaze822_seq_open(char *file);
+int blaze822_seq_load(char *map);
+long blaze822_seq_find(char *ref);

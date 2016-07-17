@@ -10,28 +10,7 @@
 #include <limits.h>
 #include <errno.h>
 
-char *
-seq_open(char *file)
-{
-	int fd;
-	struct stat st;
-
-	// env $SEQ or something
-	if (!file)
-		file = "map";
-	fd = open(file, O_RDONLY);
-	if (!fd)
-		return 0;
-
-	fstat(fd, &st);
-	char *map = mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	close(fd);
-
-	if (map == MAP_FAILED)
-		return 0;
-
-	return map;
-}
+#include "blaze822.h"
 
 static const char *
 readlin(const char *p)
@@ -84,7 +63,7 @@ parse_relnum(char *a, long cur, long last, long *out)
 int
 main(int argc, char *argv[])
 {
-	char *map = seq_open(0);
+	char *map = blaze822_seq_open(0);
 	if (!map)
 		return 1;
 
