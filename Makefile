@@ -4,7 +4,7 @@ ALL = scan thread hdr show list unmime mseq
 
 all: $(ALL)
 
-scan: blaze822.o scan.o rfc2047.o
+scan: blaze822.o scan.o seq.o rfc2047.o
 thread: blaze822.o thread.o
 hdr: blaze822.o hdr.o rfc2047.o
 show: blaze822.o show.o rfc2045.o rfc2047.c

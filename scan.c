@@ -30,13 +30,9 @@ u8putstr(FILE *out, char *s, size_t l, int pad)
 			putc(' ', out);
 }
 
-long lineno;
-
 void
 oneline(char *file)
 {
-	lineno++;
-
 	int indent = 0;
 	while (*file == ' ' || *file == '\t') {
 		indent++;
@@ -117,7 +113,11 @@ oneline(char *file)
 	}
 	blaze822_decode_rfc2047(subjdec, subj, sizeof subjdec - 1, "UTF-8");
 
-	printf("%c%c %-3ld %-10s  ", flag1, flag2, lineno, date);
+	long lineno = blaze822_seq_find(file);
+	if (lineno)
+		printf("%c%c %-3ld %-10s  ", flag1, flag2, lineno, date);
+	else
+		printf("%c%c     %-10s  ", flag1, flag2, date);
 	u8putstr(stdout, fromdec, 17, 1);
 	printf("  ");
 	int z;
@@ -132,6 +132,9 @@ oneline(char *file)
 int
 main(int argc, char *argv[])
 {
+	char *seqmap = blaze822_seq_open(0);
+	blaze822_seq_load(seqmap);
+
 	int i = blaze822_loop(argc-1, argv+1, oneline);
 
 	printf("%d mails scanned\n", i);
