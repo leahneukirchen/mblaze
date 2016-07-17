@@ -38,11 +38,15 @@ oneline(char *file)
 	lineno++;
 
 	int indent = 0;
-	while (*file == ' ') {
+	while (*file == ' ' || *file == '\t') {
 		indent++;
 		file++;
 	}
 	indent *= 2;
+
+	char *e = file + strlen(file) - 1;
+	while (file < e && (*e == ' ' || *e == '\t'))
+		*e-- = 0;
 	
 	struct message *msg = blaze822(file);
 	if (!msg) {
