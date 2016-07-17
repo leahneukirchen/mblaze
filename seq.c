@@ -99,3 +99,201 @@ blaze822_seq_load(char *map)
 
 	return 0;
 }
+
+char *
+blaze822_seq_cur()
+{
+        static char b[PATH_MAX];
+	// XXX env
+        int r = readlink("map.cur", b, sizeof b - 1);
+        if (r < 0)
+		return 0;
+        b[r] = 0;
+        return b;
+}
+
+int
+blaze822_seq_setcur(char *s)
+{
+	// XXX env
+	if (unlink("map.cur-") < 0 && errno != ENOENT)
+		return -1;
+	if (symlink(s, "map.cur-") < 0)
+		return -1;
+	if (rename("map.cur-", "map.cur") < 0)
+		return -1;
+	return 0;
+}
+
+static char *
+parse_relnum(char *a, long cur, long last, long *out)
+{
+	long base;
+	char *b;
+
+	if (strcmp(a, "+") == 0)
+		a = ".+1";
+	else if (strcmp(a, "-") == 0)
+		a = ".-1";
+	else if (strcmp(a, "$") == 0)
+		a = "-1";
+
+	if (*a == '.') {
+		a++;
+		base = cur;
+	} else if (*a == '-') {
+		base = last + 1;
+	} else {
+		base = 0;
+	}
+	errno = 0;
+	long d = strtol(a, &b, 10);
+	if (errno != 0) {
+		perror("strtol");
+		exit(1);
+	}
+
+	*out = base + d;
+	if (*out <= 0)
+		*out = 1;
+	if (*out > last)
+		*out = last;
+
+	return b;
+}
+
+static int
+parse_range(char *a, long *start, long *stop, long cur, long lines)
+{
+	*start = *stop = 1;
+
+	while (*a && *a != ':') {
+		char *b = parse_relnum(a, cur, lines, start);
+		if (a == b)
+			return 0;
+		a = b;
+	}
+	if (*a == ':') {
+		a++;
+		if (!*a) {
+			*stop = lines;
+		} else {
+			char *b = parse_relnum(a, cur, lines, stop);
+			if (a == b)
+				return 0;
+			a = b;
+		}
+	} else if (!*a) {
+		*stop = *start;
+	} else {
+		return 0;
+	}
+
+	return 1;
+}
+
+void
+find_cur(char *map, struct blaze822_seq_iter *iter)
+{
+	char *s, *t;
+	long cur = 0;
+	const char *curfile = blaze822_seq_cur();
+
+	iter->lines = 0;
+	for (s = map; s; s = t+1) {
+		t = strchr(s, '\n');
+		if (!t)
+			break;
+		while (*s == ' ' || *s == '\t')
+			s++;
+
+//		printf("{%.*s}\n", t-s, s);
+		iter->lines++;
+		if (!cur && curfile &&
+		    strncmp(s, curfile, strlen(curfile)) == 0 &&
+		    (s[strlen(curfile)] == '\n' ||
+		    s[strlen(curfile)] == ' ' ||
+		    s[strlen(curfile)] == '\t'))
+			iter->cur = iter->lines;
+	}
+}
+
+char *
+blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
+{
+	if (!map)
+		return 0;
+
+	if (!iter->lines)  // count total lines
+		find_cur(map, iter);
+
+	if (!iter->start) {
+		if (!parse_range(range, &iter->start, &iter->stop,
+				 iter->cur, iter->lines)) {
+			fprintf(stderr, "can't parse range: %s\n", range);
+			return 0;
+		}
+
+		iter->s = map;
+		iter->line = 1;
+	}
+
+	while (iter->line < iter->start) {
+		char *t = strchr(iter->s, '\n');
+		if (!t)
+			return 0;
+		iter->line++;
+		iter->s = t + 1;
+	}
+
+	if (iter->line > iter->stop) {
+		iter->start = iter->stop = 0;  // reset iteration
+		return 0;
+	}
+
+	char *t = strchr(iter->s, '\n');
+	if (!t)
+		return 0;
+	iter->cur = iter->line;
+	iter->line++;
+	char *r = strndup(iter->s, t-iter->s);
+	iter->s = t + 1;
+	return r;
+}
+
+
+int
+blaze822_loop(int argc, char *argv[], void (*cb)(char *))
+{
+	char *line = 0;
+	size_t linelen = 0;
+	ssize_t rd;
+	int i = 0;
+
+	if (argc == 0 || (argc == 1 && strcmp(argv[0], "-") == 0)) {
+		while ((rd = getdelim(&line, &linelen, '\n', stdin)) != -1) {
+			if (line[rd-1] == '\n')
+				line[rd-1] = 0;
+			cb(line);
+			i++;
+		}
+		free(line);
+		return i;
+	}
+
+	char *map = blaze822_seq_open(0);
+	struct blaze822_seq_iter iter = { 0 };
+	int j = 0;
+	for (i = 0; i < argc; i++) {
+		if (strchr(argv[i], '/')) {  // a file name
+			cb(argv[i]);
+		} else {
+			while ((line = blaze822_seq_next(map, argv[i], &iter))) {
+				cb(line);
+				free(line);
+				j++;
+			}
+		}
+	}
+	return j;
+}

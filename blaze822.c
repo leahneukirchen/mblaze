@@ -450,30 +450,6 @@ blaze822_chdr(struct message *mesg, const char *chdr)
 	return blaze822_hdr_(mesg, hdr, l);
 }
 
-int
-blaze822_loop(int argc, char *argv[], void (*cb)(char *))
-{
-	char *line = 0;
-	size_t linelen = 0;
-	ssize_t rd;
-	int i = 0;
-
-	if (argc == 0 || (argc == 1 && strcmp(argv[0], "-") == 0)) {
-		while ((rd = getdelim(&line, &linelen, '\n', stdin)) != -1) {
-			if (line[rd-1] == '\n')
-				line[rd-1] = 0;
-			cb(line);
-			i++;
-		}
-		free(line);
-	} else {
-		for (i = 0; i < argc; i++)
-			cb(argv[i]);
-	}
-
-	return i;
-}
-
 struct message *
 blaze822_file(char *file)
 {

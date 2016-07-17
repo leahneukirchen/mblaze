@@ -4,12 +4,12 @@ ALL = scan thread hdr show list unmime mseq
 
 all: $(ALL)
 
-scan: blaze822.o scan.o seq.o rfc2047.o
-thread: blaze822.o thread.o
-hdr: blaze822.o hdr.o rfc2047.o
-show: blaze822.o show.o rfc2045.o rfc2047.c
+scan: scan.o blaze822.o seq.o rfc2047.o
+thread: thread.o blaze822.o seq.o
+hdr: hdr.o blaze822.o seq.o rfc2047.o
+show: show.o blaze822.o seq.o rfc2045.o rfc2047.c
 list: list.o
-unmime: blaze822.o unmime.o rfc2045.o rfc2047.o
+unmime: unmime.o blaze822.o seq.o rfc2045.o rfc2047.o
 mseq: mseq.o seq.o
 
 clean: FRC
