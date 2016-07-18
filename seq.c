@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <pwd.h>
 #include <search.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,22 @@
 #include "blaze822.h"
 #include "blaze822_priv.h"
 
+static char *
+homefile(char *suffix)
+{
+	static char path[PATH_MAX];
+	static char *homedir;
+
+	if (!homedir)
+		homedir = getenv("HOME");
+	if (!homedir)
+		homedir = getpwuid(getuid())->pw_dir;
+
+	snprintf(path, sizeof path, "%s/%s", homedir, suffix);
+
+	return path;
+}
+
 char *
 blaze822_seq_open(char *file)
 {
@@ -22,7 +39,9 @@ blaze822_seq_open(char *file)
 
 	// env $SEQ or something
 	if (!file)
-		file = "map";
+		file = getenv("MAILMAP");
+	if (!file)
+		file = homefile(".santoku/map");
 	fd = open(file, O_RDONLY);
 	if (!fd)
 		return 0;
@@ -104,23 +123,34 @@ char *
 blaze822_seq_cur()
 {
         static char b[PATH_MAX];
-	// XXX env
-        int r = readlink("map.cur", b, sizeof b - 1);
-        if (r < 0)
+
+	char *curlink = getenv("MAILCUR");
+	if (!curlink)
+		curlink = homefile(".santoku/cur");
+
+	int r = readlink(curlink, b, sizeof b - 1);
+	if (r < 0)
 		return 0;
-        b[r] = 0;
-        return b;
+	b[r] = 0;
+	return b;
 }
 
 int
 blaze822_seq_setcur(char *s)
 {
-	// XXX env
-	if (unlink("map.cur-") < 0 && errno != ENOENT)
+	char curtmplink[PATH_MAX];
+	char *curlink = getenv("MAILCUR");
+	if (!curlink)
+		curlink = homefile(".santoku/cur");
+
+	if (snprintf(curtmplink, sizeof curtmplink, "%s-", curlink) >= PATH_MAX)
+		return -1;  // truncation
+
+	if (unlink(curtmplink) < 0 && errno != ENOENT)
 		return -1;
-	if (symlink(s, "map.cur-") < 0)
+	if (symlink(s, curtmplink) < 0)
 		return -1;
-	if (rename("map.cur-", "map.cur") < 0)
+	if (rename(curtmplink, curlink) < 0)
 		return -1;
 	return 0;
 }
