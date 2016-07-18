@@ -1,4 +1,7 @@
 #define _GNU_SOURCE
+
+#include <sys/types.h>
+
 #include <string.h>
 
 #include "blaze822.h"

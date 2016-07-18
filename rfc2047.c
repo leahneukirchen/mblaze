@@ -1,9 +1,9 @@
-#include <stdlib.h>
 #include <errno.h>
 #include <iconv.h>
-#include <stdio.h>
-#include <string.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "blaze822.h"
 #include "blaze822_priv.h"

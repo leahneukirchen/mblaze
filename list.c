@@ -1,17 +1,16 @@
 #define _GNU_SOURCE
-#include <dirent.h>     /* Defines DT_* constants */
-#include <fcntl.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
+
 #include <sys/stat.h>
 #include <sys/syscall.h>
-#include <stdint.h>
-#include <limits.h>
 
-#define handle_error(msg)					\
-	do { perror(msg); exit(EXIT_FAILURE); } while (0)
+#include <dirent.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #define lc(c) ((c) | 0x20)
 #define uc(c) ((c) & 0xdf)
@@ -115,8 +114,10 @@ listdir(char *dir)
 	
 	while (1) {
 		nread = syscall(SYS_getdents64, fd, buf, BUF_SIZE);
-		if (nread == -1)
-			handle_error("getdents64");
+		if (nread == -1) {
+			perror("getdents64");
+			break;
+		}
 		
 		if (nread == 0)
 			break;
