@@ -28,6 +28,8 @@ u8putstr(FILE *out, char *s, size_t l, int pad)
 			putc(' ', out);
 }
 
+static char *cur;
+
 void
 oneline(char *file)
 {
@@ -56,7 +58,9 @@ oneline(char *file)
         if (!f)
 		f = "";
 
-	if (!strchr(f, 'S'))
+	if (strcmp(cur, file) == 0)
+		flag1 = '>';
+	else if (!strchr(f, 'S'))
 		flag1 = '.';
 	else if (strchr(f, 'T'))
 		flag1 = 'x';
@@ -64,7 +68,7 @@ oneline(char *file)
 		flag1 = ' ';
 
 	if (strchr(f, 'F'))
-		flag2 = '#';
+		flag2 = '*';
 	else if (strchr(f, 'R'))
 		flag2 = '-';
 	else
@@ -132,10 +136,11 @@ main(int argc, char *argv[])
 {
 	char *seqmap = blaze822_seq_open(0);
 	blaze822_seq_load(seqmap);
+	cur = blaze822_seq_cur();
 
 	int i = blaze822_loop(argc-1, argv+1, oneline);
 
-	printf("%d mails scanned\n", i);
+	fprintf(stderr, "%d mails scanned\n", i);
 
 	return 0;
 }
