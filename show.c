@@ -11,6 +11,7 @@
 #include <time.h>
 #include <wchar.h>
 #include <unistd.h>
+#include <iconv.h>
 
 #include "blaze822.h"
 
@@ -42,6 +43,54 @@ printhdr(char *hdr)
 	if (*hdr) {
 		printf("%s\n", hdr);
 	}
+}
+
+void
+print_u8recode(char *body, size_t bodylen, char *srcenc)
+{
+	iconv_t ic;
+
+	ic = iconv_open("UTF-8", srcenc);
+	if (ic == (iconv_t)-1) {
+		printf("unsupported encoding: %s\n", srcenc);
+		return;
+	}
+
+	char final_char = 0;
+
+	char buf[4096];
+	while (bodylen > 0) {
+		char *bufptr = buf;
+		size_t buflen = sizeof buf;
+		size_t r = iconv(ic, &body, &bodylen, &bufptr, &buflen);
+
+		if (bufptr != buf) {
+			fwrite(buf, 1, bufptr-buf, stdout);
+			final_char = bufptr[-1];
+		}
+
+		if (r != (size_t)-1) {  // done, flush iconv
+			bufptr = buf;
+			buflen = sizeof buf;
+			r = iconv(ic, 0, 0, &bufptr, &buflen);
+			if (bufptr != buf) {
+				fwrite(buf, 1, bufptr-buf, stdout);
+				final_char = bufptr[-1];
+			}
+			if (r != (size_t)-1)
+				break;
+		}
+
+		if (r == (size_t)-1 && errno != E2BIG) {
+			perror("iconv");
+			break;
+		}
+	}
+
+	if (final_char != '\n')
+		printf("\n");
+
+	iconv_close(ic);
 }
 
 char *
@@ -88,8 +137,10 @@ render_mime(int depth, char *ct, char *body, size_t bodylen)
 	for (i = 0; i < depth+1; i++)
 		printf("--- ");
 	printf("%d: %s size=%zd", mimecount, mt, bodylen);
-	if (filename)
+	if (filename) {
 		printf(" name=%s", filename);
+		free(filename);
+	}
 
 	char *cmd;
 	mime_action r = MIME_CONTINUE;
@@ -116,7 +167,17 @@ nofilter:
 		printf(" ---\n");
 
 		if (strncmp(ct, "text/", 5) == 0) {
-			fwrite(body, bodylen, 1, stdout);
+			char *charset = 0, *cs, *cse;
+			if (blaze822_mime_parameter(ct, "charset", &cs, &cse))
+				charset = strndup(cs, cse-cs);
+			if (!charset ||
+			    strcasecmp(charset, "utf-8") == 0 ||
+			    strcasecmp(charset, "utf8") == 0 ||
+			    strcasecmp(charset, "us-ascii") == 0)
+				fwrite(body, bodylen, 1, stdout);
+			else
+				print_u8recode(body, bodylen, charset);
+			free(charset);
 		} else if (strncmp(ct, "message/rfc822", 14) == 0) {
 			struct message *imsg = blaze822_mem(body, bodylen);
 			char *h = 0;
@@ -227,7 +288,6 @@ extract_mime(int depth, char *ct, char *body, size_t bodylen)
 	(void) depth;
 
 	char *filename = 0, *fn, *fne;
-
 	if (blaze822_mime_parameter(ct, "name", &fn, &fne))
 		filename = strndup(fn, fne-fn);
 
