@@ -17,6 +17,7 @@ static int qflag;
 static int Hflag;
 static int Lflag;
 static int tflag;
+static int nflag;
 static char defaulthflags[] = "from:subject:to:cc:date:";
 static char *hflag = defaulthflags;
 static char *xflag;
@@ -433,7 +434,7 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "h:qrtHLx:O:")) != -1)
+	while ((c = getopt(argc, argv, "h:qrtHLx:O:n")) != -1)
 		switch(c) {
 		case 'h': hflag = optarg; break;
 		case 'q': qflag = 1; break;
@@ -443,6 +444,7 @@ main(int argc, char *argv[])
 		case 't': tflag = 1; break;
 		case 'x': xflag = optarg; break;
 		case 'O': Oflag = optarg; break;
+		case 'n': nflag = 1; break;
                 default:
                         // XXX usage
                         exit(1);
@@ -458,7 +460,8 @@ main(int argc, char *argv[])
 		if (!(qflag || rflag))
 			filters = blaze822("filters");
 		blaze822_loop(argc-optind, argv+optind, show);
-		blaze822_seq_setcur(newcur);
+		if (!nflag) // don't set cur
+			blaze822_seq_setcur(newcur);
 	}
 
 	return 0;
