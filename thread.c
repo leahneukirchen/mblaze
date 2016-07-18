@@ -243,6 +243,22 @@ find_roots()
 }
 
 void
+prune_tree(struct container *c, int depth)
+{
+	do {
+		if (c->child)
+			prune_tree(c->child, depth+1);
+		if (!c->file && c->child && !c->child->next) {
+			// turn into child if we don't exist and only have a child
+			c->mid = c->child->mid;
+			c->file = c->child->file;
+			c->msg = c->child->msg;
+			c->child = c->child->child;
+		}
+	} while ((c = c->next));
+}
+
+void
 print_tree(struct container *c, int depth)
 {
 	do {
@@ -267,7 +283,7 @@ main(int argc, char *argv[])
 	int i = blaze822_loop(argc-1, argv+1, thread);
 
 	find_roots();
-
+	prune_tree(top, -1);
 	print_tree(top, -1);
 
 	fprintf(stderr, "%d mails threaded\n", i);
