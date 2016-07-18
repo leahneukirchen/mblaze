@@ -52,7 +52,7 @@ oneline(char *file)
 
 	char flag1, flag2;
 
-	char *f = strstr(file, "2:,");
+	char *f = strstr(file, ":2,");
         if (!f)
 		f = "";
 
