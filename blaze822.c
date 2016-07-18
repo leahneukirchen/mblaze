@@ -81,8 +81,8 @@ blaze822_date(char *s) {
 	else if (i3("mar")) tm.tm_mon = 2;
 	else if (i3("apr")) tm.tm_mon = 3;
 	else if (i3("may")) tm.tm_mon = 4;
-	else if (i3("jul")) tm.tm_mon = 5;
-	else if (i3("jun")) tm.tm_mon = 6;
+	else if (i3("jun")) tm.tm_mon = 5;
+	else if (i3("jul")) tm.tm_mon = 6;
 	else if (i3("aug")) tm.tm_mon = 7;
 	else if (i3("sep")) tm.tm_mon = 8;
 	else if (i3("oct")) tm.tm_mon = 9;
