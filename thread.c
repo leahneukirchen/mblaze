@@ -266,11 +266,11 @@ main(int argc, char *argv[])
 {
 	int i = blaze822_loop(argc-1, argv+1, thread);
 
-	printf("%d mails scanned\n", i);
-	
 	find_roots();
 
 	print_tree(top, -1);
+
+	fprintf(stderr, "%d mails threaded\n", i);
 
 	return 0;
 }
