@@ -156,7 +156,7 @@ render_mime(int depth, char *ct, char *body, size_t bodylen)
 			perror("popen");
 			goto nofilter;
 		}
-		fwrite(body, bodylen, 1, p);
+		fwrite(body, 1, bodylen, p);
 		if (pclose(p) != 0) {
 			perror("pclose");
 			goto nofilter;
@@ -174,7 +174,7 @@ nofilter:
 			    strcasecmp(charset, "utf-8") == 0 ||
 			    strcasecmp(charset, "utf8") == 0 ||
 			    strcasecmp(charset, "us-ascii") == 0)
-				fwrite(body, bodylen, 1, stdout);
+				fwrite(body, 1, bodylen, stdout);
 			else
 				print_u8recode(body, bodylen, charset);
 			free(charset);
@@ -295,7 +295,7 @@ extract_mime(int depth, char *ct, char *body, size_t bodylen)
 
 	if (extract_argc == 0) {
 		if (extract_stdout) { // output all parts
-			fwrite(body, bodylen, 1, stdout);
+			fwrite(body, 1, bodylen, stdout);
 		} else { // extract all named attachments
 			if (filename) {
 				printf("%s\n", filename);
@@ -312,7 +312,7 @@ extract_mime(int depth, char *ct, char *body, size_t bodylen)
 			if (errno == 0 && !*b && d == mimecount) {
 				// extract by id
 				if (extract_stdout) {
-					fwrite(body, bodylen, 1, stdout);
+					fwrite(body, 1, bodylen, stdout);
 				} else {
 					char buf[255];
 					if (!filename) {
@@ -326,7 +326,7 @@ extract_mime(int depth, char *ct, char *body, size_t bodylen)
 			} else if (filename && strcmp(a, filename) == 0) {
 				// extract by name
 				if (extract_stdout) {
-					fwrite(body, bodylen, 1, stdout);
+					fwrite(body, 1, bodylen, stdout);
 				} else {
 					printf("%s\n", filename);
 					writefile(filename, body, bodylen);
@@ -386,7 +386,7 @@ show(char *file)
 		if (fd == -1)
 			return;
 		hl = read(fd, header, hl);
-		fwrite(header, hl, 1, stdout);
+		fwrite(header, 1, hl, stdout);
 	} else if (Lflag) {  // all headers
 		char *h = 0;
 		while ((h = blaze822_next_header(msg, h))) {
@@ -421,7 +421,7 @@ show(char *file)
 	printf("\n");
 
 	if (rflag || !blaze822_check_mime(msg)) {  // raw body
-		fwrite(blaze822_body(msg), blaze822_bodylen(msg), 1, stdout);
+		fwrite(blaze822_body(msg), 1, blaze822_bodylen(msg), stdout);
 		goto done;
 	}
 
