@@ -317,6 +317,7 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 	for (i = 0; i < argc; i++) {
 		if (strchr(argv[i], '/')) {  // a file name
 			cb(argv[i]);
+			j++;
 		} else {
 			while ((line = blaze822_seq_next(map, argv[i], &iter))) {
 				cb(line);
