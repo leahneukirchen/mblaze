@@ -249,7 +249,7 @@ prune_tree(struct container *c, int depth)
 	do {
 		if (c->child)
 			prune_tree(c->child, depth+1);
-		if (!c->file && c->child && !c->child->next) {
+		if (depth >= 0 && !c->file && c->child && !c->child->next) {
 			// turn into child if we don't exist and only have a child
 			c->mid = c->child->mid;
 			c->file = c->child->file;
