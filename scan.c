@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -8,20 +10,32 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <wchar.h>
+#include <locale.h>
 
 #include "blaze822.h"
+
+wchar_t replacement = '?';
 
 void
 u8putstr(FILE *out, char *s, size_t l, int pad)
 {
 	while (*s && l) {
-		putc(*s, out);
-		// elongate by utf8 overhead
-		if      ((*s & 0xf0) == 0xf0) l += 3;
-		else if ((*s & 0xe0) == 0xe0) l += 2;
-		else if ((*s & 0xc0) == 0xc0) l += 1;
-		l--;
-		s++;
+		if (*s >= 32 && *s < 127) {
+			putc(*s, out);
+			s++;
+			l--;
+		} else {
+			wchar_t wc;
+			int r = mbtowc(&wc, s, 4);
+			if (r < 0) {
+				r = 1;
+				wc = replacement;
+			}
+			s += r;
+			fprintf(out, "%lc", wc);
+			l -= wcwidth(wc);
+		}
 	}
 	if (pad)
 		while (l-- > 0)
@@ -134,6 +148,10 @@ oneline(char *file)
 int
 main(int argc, char *argv[])
 {
+	setlocale(LC_ALL, "");  // for wcwidth later
+	if (wcwidth(0xFFFD) > 0)
+		replacement = 0xFFFD;
+
 	char *seqmap = blaze822_seq_open(0);
 	blaze822_seq_load(seqmap);
 	cur = blaze822_seq_cur();
