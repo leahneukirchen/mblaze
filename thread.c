@@ -231,6 +231,7 @@ find_roots()
 {
 	top = malloc (sizeof (struct container));
 	top->msg = 0;
+	top->file = 0;
 	top->next = top->child = top->parent = 0;
 	top->mid = "(top)";
 
