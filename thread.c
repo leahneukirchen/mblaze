@@ -15,14 +15,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "blaze822.h"
 
 struct container {
-        char *mid;
+	char *mid;
 	char *file;
 	struct message *msg;
+	time_t date;
 	struct container *parent;
 	struct container *child;
 	struct container *next;
@@ -33,8 +35,8 @@ static void *mids;
 int
 midorder(const void *a, const void *b)
 {
-        struct container *ia = (struct container *)a;
-        struct container *ib = (struct container *)b;
+	struct container *ia = (struct container *)a;
+	struct container *ib = (struct container *)b;
 
 	return strcmp(ia->mid, ib->mid);
 }
@@ -75,6 +77,7 @@ midcont(char *mid)
 		c->mid = mid;
 		c->file = 0;
 		c->msg = 0;
+		c->date = -1;
 		c->parent = c->child = c->next = 0;
 		return *(struct container **)tsearch(c, &mids, midorder);
 	} else {
@@ -123,6 +126,12 @@ thread(char *file)
 
 	char *v, *m;
 	struct container *parent = 0, *me = 0;
+
+	if ((v = blaze822_hdr(msg, "date"))) {
+		c->date = blaze822_date(v);
+	} else {
+		c->date = -1;
+	}
 
 	v = blaze822_hdr(msg, "references");
 	if (v) {
@@ -207,20 +216,44 @@ out2:
 	}
 }
 
+time_t
+newest(struct container *c, int depth)
+{
+	time_t n = -1;
+
+	if (!c)
+		return n;
+
+	do {
+		if (c->child) {
+			time_t r = newest(c->child, depth+1);
+			if (n < r)
+				n = r;
+		}
+		if (n < c->date)
+			n = c->date;
+	} while ((c = c->next));
+
+	return n;
+}
+
 struct container *top;
 struct container *lastc;
 
 void
 find_root(const void *nodep, const VISIT which, const int depth)
 {
-        (void)depth;
+	(void)depth;
 
-        if (which == preorder || which == leaf) {
+	if (which == preorder || which == leaf) {
 		struct container *c = *(struct container **)nodep;
 
 		if (!c->parent) {
 			lastc->next = c;
 			c->next = 0;
+			time_t r = newest(c->child, 0);
+			if (c->date < r)
+				c->date = r;
 			lastc = c;
 		}
 	}
@@ -231,6 +264,7 @@ find_roots()
 {
 	top = malloc (sizeof (struct container));
 	top->msg = 0;
+	top->date = -1;
 	top->file = 0;
 	top->next = top->child = top->parent = 0;
 	top->mid = "(top)";
@@ -254,9 +288,53 @@ prune_tree(struct container *c, int depth)
 			c->mid = c->child->mid;
 			c->file = c->child->file;
 			c->msg = c->child->msg;
+			c->date = c->child->date;
 			c->child = c->child->child;
 		}
 	} while ((c = c->next));
+}
+
+static int
+dateorder(const void *a, const void *b)
+{
+	struct container *ia = *(struct container **)a;
+	struct container *ib = *(struct container **)b;
+
+	if (ia->date < ib->date)
+		return -1;
+	else if (ia->date > ib->date)
+		return 1;
+	return 0;
+}
+
+void
+sort_tree(struct container *c, int depth)
+{
+	if (c && c->child) {
+		struct container *r;
+		int i, j;
+		for (r = c->child, i = 0; r; r = r->next, i++)
+			sort_tree(r, depth+1);
+
+		if (i == 1) // no sort needed
+			return;
+
+		struct container **a = calloc(sizeof (struct container *), i);
+		if (!a)
+			return;
+
+		for (r = c->child, i = 0; r; r = r->next, i++)
+			a[i] = r;
+
+		qsort(a, i, sizeof (struct container *), dateorder);
+
+		c->child = a[0];
+		for (j = 0; j+1 < i; j++)
+			a[j]->next = a[j+1];
+		a[i-1]->next = 0;
+
+		free(a);
+	}
 }
 
 void
@@ -285,6 +363,7 @@ main(int argc, char *argv[])
 
 	find_roots();
 	prune_tree(top, -1);
+	sort_tree(top, -1);
 	print_tree(top, -1);
 
 	fprintf(stderr, "%d mails threaded\n", i);
