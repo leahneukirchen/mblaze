@@ -378,7 +378,7 @@ show(char *file)
 	else
 		msg = blaze822_file(file);
 	if (!msg) {
-		fprintf(stderr, "show: %s: %s\n", file, strerror(errno));
+		fprintf(stderr, "mshow: %s: %s\n", file, strerror(errno));
 		return;
 	}
 
