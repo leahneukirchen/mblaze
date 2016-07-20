@@ -188,21 +188,24 @@ out:
 			// if we already have a wrong parent, orphan us first
 
 			if (c->parent->child == c)   // first in list
-				c->parent->child = c->next;
+				c->parent->child = c->parent->child->next;
 			for (r = c->parent->child; r; r = r->next) {
 				if (r->next == c)
 					r->next = c->next;
 			}
+
+			c->next = 0;
 		}
 
 		c->parent = parent;
 
 		// add at the end
-		for (r = parent->child; r && r->next; r = r->next)
-			;
-		if (!r) {
+		if (!parent->child) {
 			parent->child = c;
 		} else {
+			for (r = parent->child; r && r->next; r = r->next)
+				if (r == c)
+					goto out2;
 			r->next = c;
 			c->next = 0;
 		}
