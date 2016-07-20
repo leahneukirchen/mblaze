@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -15,7 +16,9 @@
 
 #include "blaze822.h"
 
-wchar_t replacement = '?';
+static int cols;
+static wchar_t replacement = L'?';
+static char *cur;
 
 void
 u8putstr(FILE *out, char *s, size_t l, int pad)
@@ -44,8 +47,6 @@ u8putstr(FILE *out, char *s, size_t l, int pad)
 			putc(' ', out);
 }
 
-static char *cur;
-
 void
 oneline(char *file)
 {
@@ -62,7 +63,7 @@ oneline(char *file)
 	
 	struct message *msg = blaze822(file);
 	if (!msg) {
-		int p = 80-38-3-indent;
+		int p = cols-38-3-indent;
 		printf("%*.*s\\_ %*.*s\n", -38 - indent, 38 + indent, "",
 		    -p, p, file);
 		return;
@@ -141,7 +142,7 @@ oneline(char *file)
 	int z;
 	for (z = 0; z < indent; z++)
 		printf(" ");
-	u8putstr(stdout, subjdec, 80-38-indent, 0);
+	u8putstr(stdout, subjdec, cols-38-indent, 0);
 	printf("\n");
 
 	blaze822_free(msg);
@@ -153,6 +154,14 @@ main(int argc, char *argv[])
 	setlocale(LC_ALL, "");  // for wcwidth later
 	if (wcwidth(0xFFFD) > 0)
 		replacement = 0xFFFD;
+
+	struct winsize w;
+	if (ioctl(1, TIOCGWINSZ, &w) == 0)
+		cols = w.ws_col;
+	if (getenv("COLUMNS"))
+		cols = atoi(getenv("COLUMNS"));
+	if (cols <= 40)
+		cols = 80;
 
 	char *seqmap = blaze822_seq_open(0);
 	blaze822_seq_load(seqmap);
