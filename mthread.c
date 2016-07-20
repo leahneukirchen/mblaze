@@ -20,6 +20,8 @@
 
 #include "blaze822.h"
 
+static int vflag;
+
 struct container {
 	char *mid;
 	char *file;
@@ -362,16 +364,26 @@ print_tree(struct container *c, int depth)
 int
 main(int argc, char *argv[])
 {
-	int i;
-	if (argc == 1 && isatty(0)) {
+	int c, i;
+
+ 	while ((c = getopt(argc, argv, "v")) != -1)
+ 		switch(c) {
+ 		case 'v': vflag = 1; break;
+ 		default:
+ 			// XXX usage
+ 			exit(1);
+ 		}
+
+	if (argc == optind && isatty(0)) {
 		char *all[] = { ":" };
 		i = blaze822_loop(1, all, thread);
 	} else {
-		i = blaze822_loop(argc-1, argv+1, thread);
+		i = blaze822_loop(argc-optind, argv+optind, thread);
 	}
 
 	find_roots();
-	prune_tree(top, -1);
+	if (!vflag)
+		prune_tree(top, -1);
 	sort_tree(top, -1);
 	print_tree(top, -1);
 
