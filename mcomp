@@ -66,12 +66,37 @@ c=e
 while :; do
 	case "$c" in
 	s|send)
-		sendmail -t <$draft && rm $draft
-		exit $?
+		if [ -e $draft.mime ]; then
+			if [ $draft -ot $draft.mime ]; then
+				if sendmail -t <$draft.mime; then
+					rm $draft $draft.mime
+					exit 0
+				else
+					echo "mcomp: sendmail failed, kept draft $draft"
+					exit 2
+				fi
+			else
+				echo "mcomp: re-run mmime first."
+				c=
+			fi
+		else
+			if sendmail -t <$draft; then
+				rm $draft
+				exit 0
+			else
+				echo "mcomp: sendmail failed, kept draft $draft"
+				exit 2
+			fi
+		fi
 		;;
 	c|cancel)
 		echo "mcomp: cancelled draft $draft"
 		exit 1
+		;;
+	m|mime)
+		mmime <$draft >$draft.mime
+		mshow -t ./$draft.mime
+		c=
 		;;
 	e|edit)
 		c=
@@ -80,7 +105,7 @@ while :; do
 		fi
 		;;
 	*)
-		echo -n "What now? ([s]end, [c]ancel, [e]dit) "
+		echo -n "What now? ([s]end, [c]ancel, [e]dit, [m]ime) "
 		read -r c
 		;;
 	esac
