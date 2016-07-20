@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -294,6 +295,40 @@ blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
 	return r;
 }
 
+static void
+iterfile(char *dir, void (*cb)(char *))
+{
+	DIR *fd, *fd2;
+        struct dirent *d;
+
+	fd = opendir(dir);
+	if (!fd) {
+		if (errno == ENOTDIR)
+			cb(dir);
+		return;
+	}
+
+	char sub[PATH_MAX];
+	snprintf(sub, sizeof sub, "%s/cur", dir);
+	fd2 = opendir(sub);
+	if (fd2) {
+		closedir(fd);
+		fd = fd2;
+	}
+
+	while ((d = readdir(fd))) {
+		if (d->d_type != DT_REG && d->d_type != DT_UNKNOWN)
+			continue;
+		if (d->d_name[0] == '.')
+			continue;
+		if (fd2)
+			snprintf(sub, sizeof sub, "%s/cur/%s", dir, d->d_name);
+		else
+			snprintf(sub, sizeof sub, "%s/%s", dir, d->d_name);
+		cb(sub);
+	}
+	closedir(fd);
+}
 
 int
 blaze822_loop(int argc, char *argv[], void (*cb)(char *))
@@ -319,7 +354,7 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 	int j = 0;
 	for (i = 0; i < argc; i++) {
 		if (strchr(argv[i], '/')) {  // a file name
-			cb(argv[i]);
+			iterfile(argv[i], cb);
 			j++;
 		} else {
 			while ((line = blaze822_seq_next(map, argv[i], &iter))) {
