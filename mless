@@ -22,6 +22,10 @@ if [ "$#" -eq 0 ] && ! [ -t 0 ]; then
 	set -- :
 fi
 
+if ! [ -t 1 ]; then
+	exec mseq "$@"
+fi
+
 curcmd=$(mseq -n "$@" |
 	awk -v cur=$(mseq -n .) '$1 == cur {print "+" FNR ":x"; quit}')
 
