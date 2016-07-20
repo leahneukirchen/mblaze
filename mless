@@ -17,6 +17,11 @@ hdr { print fg(120, $0); next }
 	exit $?
 fi
 
+if [ "$#" -eq 0 ] && ! [ -t 0 ]; then
+	msetseq >/dev/null
+	set -- :
+fi
+
 curcmd=$(mseq -n "$@" |
 	awk -v cur=$(mseq -n .) '$1 == cur {print "+" FNR ":x"; quit}')
 
