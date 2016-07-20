@@ -13,6 +13,7 @@
 #include "blaze822.h"
 
 static int rflag;
+static int Rflag;
 static int qflag;
 static int Hflag;
 static int Lflag;
@@ -205,6 +206,34 @@ nofilter:
 }
 
 mime_action
+reply_mime(int depth, char *ct, char *body, size_t bodylen)
+{
+	(void) depth;
+
+	char *mt = mimetype(ct);
+	char *tlmt = tlmimetype(ct);
+
+	if (strncmp(ct, "text/plain", 10) == 0) {
+		char *charset = 0, *cs, *cse;
+		if (blaze822_mime_parameter(ct, "charset", &cs, &cse))
+			charset = strndup(cs, cse-cs);
+		if (!charset ||
+		    strcasecmp(charset, "utf-8") == 0 ||
+		    strcasecmp(charset, "utf8") == 0 ||
+		    strcasecmp(charset, "us-ascii") == 0)
+			fwrite(body, 1, bodylen, stdout);
+		else
+			print_u8recode(body, bodylen, charset);
+		free(charset);
+	}
+
+	free(mt);
+	free(tlmt);
+
+	return MIME_CONTINUE;
+}
+
+mime_action
 list_mime(int depth, char *ct, char *body, size_t bodylen)
 {
 	(void) body;
@@ -263,6 +292,15 @@ list(char *file)
 		return;
 	mimecount = 0;
 	walk_mime(msg, 0, list_mime);
+}
+
+void
+reply(char *file)
+{
+	struct message *msg = blaze822_file(file);
+	if (!msg)
+		return;
+	walk_mime(msg, 0, reply_mime);
 }
 
 static int extract_argc;
@@ -441,7 +479,7 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "h:qrtHLx:O:n")) != -1)
+	while ((c = getopt(argc, argv, "h:qrtHLx:O:Rn")) != -1)
 		switch(c) {
 		case 'h': hflag = optarg; break;
 		case 'q': qflag = 1; break;
@@ -451,6 +489,7 @@ main(int argc, char *argv[])
 		case 't': tflag = 1; break;
 		case 'x': xflag = optarg; break;
 		case 'O': Oflag = optarg; break;
+		case 'R': Rflag = 1; break;
 		case 'n': nflag = 1; break;
                 default:
                         // XXX usage
@@ -463,6 +502,8 @@ main(int argc, char *argv[])
 		extract(Oflag, argc-optind, argv+optind, 1);
 	} else if (tflag) { // list
 		blaze822_loop(argc-optind, argv+optind, list);
+	} else if (Rflag) { // render for reply
+		blaze822_loop(argc-optind, argv+optind, reply);
 	} else { // show
 		if (!(qflag || rflag)) {
 			char *f = getenv("MAILFILTER");
