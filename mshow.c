@@ -308,10 +308,18 @@ static int extract_argc;
 static char **extract_argv;
 static int extract_stdout;
 
+
+static const char *
+basenam(const char *s)
+{
+        char *r = strrchr(s, '/');
+        return r ? r + 1 : s;
+}
+
 static int
 writefile(char *name, char *buf, ssize_t len)
 {
-	int fd = open(name, O_CREAT | O_EXCL | O_WRONLY, 0666);
+	int fd = open(basenam(name), O_CREAT | O_EXCL | O_WRONLY, 0666);
 	if (fd == -1) {
 		perror("open");
 		return -1;
