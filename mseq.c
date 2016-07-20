@@ -1,3 +1,4 @@
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -26,6 +27,10 @@ main(int argc, char *argv[])
 	char *f;
 	struct blaze822_seq_iter iter = { 0 };
 	for (i = optind; i < argc; i++) {
+		if (strchr(argv[i], '/')) {
+			printf("%s\n", argv[i]);
+			continue;
+		}
 		while ((f = blaze822_seq_next(map, argv[i], &iter))) {
 			if (nflag)
 				printf("%ld\n", iter.line-1);
