@@ -15,8 +15,8 @@
 #include "blaze822.h"
 #include "blaze822_priv.h"
 
-static char *
-homefile(char *suffix)
+char *
+blaze822_home_file(char *basename)
 {
 	static char path[PATH_MAX];
 	static char *homedir;
@@ -26,7 +26,7 @@ homefile(char *suffix)
 	if (!homedir)
 		homedir = getpwuid(getuid())->pw_dir;
 
-	snprintf(path, sizeof path, "%s/%s", homedir, suffix);
+	snprintf(path, sizeof path, "%s/%s", homedir, basename);
 
 	return path;
 }
@@ -41,7 +41,7 @@ blaze822_seq_open(char *file)
 	if (!file)
 		file = getenv("MAILMAP");
 	if (!file)
-		file = homefile(".santoku/map");
+		file = blaze822_home_file(".santoku/map");
 	fd = open(file, O_RDONLY);
 	if (!fd)
 		return 0;
@@ -126,7 +126,7 @@ blaze822_seq_cur()
 
 	char *curlink = getenv("MAILCUR");
 	if (!curlink)
-		curlink = homefile(".santoku/cur");
+		curlink = blaze822_home_file(".santoku/cur");
 
 	int r = readlink(curlink, b, sizeof b - 1);
 	if (r < 0)
@@ -141,7 +141,7 @@ blaze822_seq_setcur(char *s)
 	char curtmplink[PATH_MAX];
 	char *curlink = getenv("MAILCUR");
 	if (!curlink)
-		curlink = homefile(".santoku/cur");
+		curlink = blaze822_home_file(".santoku/cur");
 
 	if (snprintf(curtmplink, sizeof curtmplink, "%s-", curlink) >= PATH_MAX)
 		return -1;  // truncation
