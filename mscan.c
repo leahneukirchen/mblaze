@@ -50,6 +50,16 @@ u8putstr(FILE *out, char *s, size_t l, int pad)
 void
 oneline(char *file)
 {
+	static int init;
+	if (!init) {
+		// delay loading of the seqmap until we need to scan the first
+		// file, in case someone in the pipe updated the map before
+		char *seqmap = blaze822_seq_open(0);
+		blaze822_seq_load(seqmap);
+		cur = blaze822_seq_cur();
+		init = 1;
+	}
+
 	int indent = 0;
 	while (*file == ' ' || *file == '\t') {
 		indent++;
@@ -167,10 +177,6 @@ main(int argc, char *argv[])
 		cols = atoi(getenv("COLUMNS"));
 	if (cols <= 40)
 		cols = 80;
-
-	char *seqmap = blaze822_seq_open(0);
-	blaze822_seq_load(seqmap);
-	cur = blaze822_seq_cur();
 
 	long i;
 	if (argc == 1 && isatty(0)) {
