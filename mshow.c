@@ -457,8 +457,13 @@ main(int argc, char *argv[])
 	} else if (tflag) { // list
 		blaze822_loop(argc-optind, argv+optind, list);
 	} else { // show
-		if (!(qflag || rflag))
-			filters = blaze822("filters");
+		if (!(qflag || rflag)) {
+			char *f = getenv("MAILFILTER");
+			if (!f)
+				f = blaze822_home_file(".santoku/filter");
+			if (f)
+				filters = blaze822(f);
+		}
 		blaze822_loop(argc-optind, argv+optind, show);
 		if (!nflag) // don't set cur
 			blaze822_seq_setcur(newcur);
