@@ -21,6 +21,8 @@ void
 u8putstr(FILE *out, char *s, size_t l, int pad)
 {
 	while (*s && l) {
+		if (*s == '\t')
+			*s = ' ';
 		if (*s >= 32 && *s < 127) {
 			putc(*s, out);
 			s++;
