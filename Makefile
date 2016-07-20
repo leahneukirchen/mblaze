@@ -1,11 +1,11 @@
 CFLAGS=-g -O1 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
 
-ALL = mscan thread hdr show list mseq msort
+ALL = mscan mthread hdr show list mseq msort
 
 all: $(ALL)
 
 mscan: mscan.o blaze822.o seq.o rfc2047.o
-thread: thread.o blaze822.o seq.o
+mthread: mthread.o blaze822.o seq.o
 hdr: hdr.o blaze822.o seq.o rfc2047.o
 show: show.o blaze822.o seq.o rfc2045.o rfc2047.c
 list: list.o
