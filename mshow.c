@@ -263,7 +263,7 @@ list_mime(int depth, struct message *msg, char *body, size_t bodylen)
 	char *mt = mimetype(ct);
 	char *filename = mime_filename(msg);
 
-	printf("%*.s%d: %s size=%zd", depth*2, "", ++mimecount, mt, bodylen);
+	printf("  %*.s%d: %s size=%zd", depth*2, "", ++mimecount, mt, bodylen);
 	if (filename) {
 		printf(" name=\"%s\"", filename);
 		free(filename);
