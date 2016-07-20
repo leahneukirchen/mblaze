@@ -63,7 +63,9 @@ headerall(char *file)
 int
 main(int argc, char *argv[])
 {
-	if (argv[1] && argv[1][0] == '-') {
+	void (*cb)(char *) = headerall;
+
+	if (argc >= 2 && argv[1][0] == '-') {
 		l = strlen(argv[1])+1;
 		hdr = malloc(l);
 		hdr[0] = 0;
@@ -73,9 +75,16 @@ main(int argc, char *argv[])
 			*s++ = tolower(*t++);
 		*s = ':';
 
-		blaze822_loop(argc-2, argv+2, header);
+		cb = header;
+		argc--;
+		argv++;
+	}
+
+	if (argc == 1 && isatty(0)) {
+		char *cur[] = { "." };
+		blaze822_loop(1, cur, cb);
 	} else {
-		blaze822_loop(argc-1, argv+1, headerall);
+		blaze822_loop(argc-1, argv+1, cb);
 	}
 	
 	return 0;
