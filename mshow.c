@@ -291,6 +291,7 @@ list(char *file)
 	if (!msg)
 		return;
 	mimecount = 0;
+	printf("%s\n", file);
 	walk_mime(msg, 0, list_mime);
 }
 
