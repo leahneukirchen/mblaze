@@ -141,11 +141,12 @@ oneline(char *file)
 	printf("  ");
 	int z;
 	if (indent > 18) {
-		printf("..%2d..", indent/2);
-		indent = 14;
+		printf("..%2d..              ", indent/2);
+		indent = 20;
+	} else {
+		for (z = 0; z < indent; z++)
+			printf(" ");
 	}
-	for (z = 0; z < indent; z++)
-		printf(" ");
 	u8putstr(stdout, subjdec, cols-38-indent, 0);
 	printf("\n");
 
