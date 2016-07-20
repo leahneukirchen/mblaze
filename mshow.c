@@ -471,7 +471,12 @@ main(int argc, char *argv[])
 			if (f)
 				filters = blaze822(f);
 		}
-		blaze822_loop(argc-optind, argv+optind, show);
+		if (argc == optind) {
+			char *cur[] = { "." };
+			blaze822_loop(1, cur, show);
+		} else {
+			blaze822_loop(argc-optind, argv+optind, show);
+		}
 		if (!nflag) // don't set cur
 			blaze822_seq_setcur(newcur);
 	}
