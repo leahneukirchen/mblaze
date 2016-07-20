@@ -4,6 +4,8 @@
 PATH="${0%/*}:$PATH"
 
 if [ "$1" = --filter ]; then
+	[ "$2" = //scan ] && exec mscan :
+
 	mshow "$2" | awk '
 function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
 function so(s) { return sprintf("\033[1m%s\033[0m", s) }
@@ -19,7 +21,7 @@ fi
 
 if [ "$#" -eq 0 ] && ! [ -t 0 ]; then
 	msetseq >/dev/null
-	set -- :
+	set -- //scan :
 fi
 
 if ! [ -t 1 ]; then
