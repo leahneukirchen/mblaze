@@ -1,5 +1,5 @@
 #!/bin/sh -e
-# setmap [-a] - store/append stdin as santoku map (can be used as filter)
+# msetseq [-a] - store/append stdin as santoku seq (can be used as filter)
 
 : ${MAILMAP:=~/.santoku/map}
 
