@@ -1,0 +1,23 @@
+#!/bin/sh
+# mless RANGES... - less(1)-wrapper around show
+
+PATH="${0%/*}:$PATH"
+
+if [ "$1" = --filter ]; then
+	show "$2" | awk '
+function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
+function so(s) { return sprintf("\033[1m%s\033[0m", s) }
+BEGIN { hdr = 1 }
+/^$/ { hdr = 0 }
+hdr && /^From:/ { print so(fg(119, $0)); next }
+hdr { print fg(120, $0); next }
+/^---.*---/ { print fg(242, $0); next }
+/^>/ { print fg(151, $0); next }
+{ print }'
+	exit $?
+fi
+
+cur=$(mseq -n .)
+curcmd=$(mseq -n "$@" | awk -v cur=$cur '$1 == cur {print "+" FNR ":x"; quit}')
+
+LESSOPEN="|$0 --filter %s" exec less -R $curcmd $(mseq -n "$@")
