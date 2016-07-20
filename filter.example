@@ -1,4 +1,4 @@
-text/html: lynx -dump -stdin -nomargins
+text/html: lynx -dump -stdin -nomargins ${PIPE_CHARSET:+-assume_charset $PIPE_CHARSET}
 application/pdf: pdftotext - - | par
 application: file -b -
 image: file -b -
