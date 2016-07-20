@@ -36,4 +36,4 @@ esac
 curcmd=$(mseq -n "$@" |
 	awk -v cur=$(mseq -n .) -v d=$d '$1 == cur {print "+" FNR+d ":x"; quit}')
 
-LESSOPEN="|$0 --filter %s" exec less -R $curcmd $(mseq -n "$@")
+LESSOPEN="|$0 --filter %s" exec less -Ps"mless %f?m (message %i of %m).." -R $curcmd $(mseq -n "$@")
