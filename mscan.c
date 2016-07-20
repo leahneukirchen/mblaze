@@ -167,9 +167,14 @@ main(int argc, char *argv[])
 	blaze822_seq_load(seqmap);
 	cur = blaze822_seq_cur();
 
-	int i = blaze822_loop(argc-1, argv+1, oneline);
-
-	fprintf(stderr, "%d mails scanned\n", i);
+	long i;
+	if (argc == 1 && isatty(0)) {
+		char *all[] = { ":" };
+		i = blaze822_loop(1, all, oneline);
+	} else {
+		i = blaze822_loop(argc-1, argv+1, oneline);
+	}
+	fprintf(stderr, "%ld mails scanned\n", i);
 
 	return 0;
 }
