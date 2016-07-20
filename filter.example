@@ -1,0 +1,4 @@
+text/html: lynx -dump -stdin -nomargins
+application/pdf: pdftotext - - | par
+application: file -b -
+image: file -b -
