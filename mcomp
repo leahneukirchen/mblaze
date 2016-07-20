@@ -11,7 +11,7 @@ draft="snd.$i"
 	case "$0" in
 	*mcomp*)
 		echo -n "To: $1"
-		[ "$#" -gt 1 ] && shift
+		[ "$#" -ge 1 ] && shift
 		for rcpt; do
 			echo -n ", $rcpt"
 		done
