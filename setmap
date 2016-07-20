@@ -1,0 +1,12 @@
+#!/bin/sh -e
+# setmap [-a] - store/append stdin as santoku map (can be used as filter)
+
+: ${MAILMAP:=~/.santoku/map}
+
+if [ "$1" = -a ]; then
+	cat ${MAILMAP} - >"${MAILMAP}-"
+else
+	cat >"${MAILMAP}-"
+fi
+mv "${MAILMAP}-" "${MAILMAP}"
+[ -t 1 ] || cat "${MAILMAP}"
