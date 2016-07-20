@@ -513,7 +513,7 @@ main(int argc, char *argv[])
 			if (f)
 				filters = blaze822(f);
 		}
-		if (argc == optind) {
+		if (argc == optind && isatty(0)) {
 			char *cur[] = { "." };
 			blaze822_loop(1, cur, show);
 		} else {
