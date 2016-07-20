@@ -25,13 +25,22 @@ main(int argc, char *argv[])
 
 	int i;
 	char *f;
+	char *a;
 	struct blaze822_seq_iter iter = { 0 };
+
+	if (optind == argc && isatty(0)) {
+		a = ":";
+		i = argc;
+		goto hack;
+	}
 	for (i = optind; i < argc; i++) {
-		if (strchr(argv[i], '/')) {
-			printf("%s\n", argv[i]);
+		a = argv[i];
+hack:
+		if (strchr(a, '/')) {
+			printf("%s\n", a);
 			continue;
 		}
-		while ((f = blaze822_seq_next(map, argv[i], &iter))) {
+		while ((f = blaze822_seq_next(map, a, &iter))) {
 			if (nflag)
 				printf("%ld\n", iter.line-1);
 			else
