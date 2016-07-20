@@ -268,6 +268,9 @@ blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
 		iter->line = 1;
 	}
 
+	if (!iter->s)
+		return 0;
+
 	while (iter->line < iter->start) {
 		char *t = strchr(iter->s, '\n');
 		if (!t)
