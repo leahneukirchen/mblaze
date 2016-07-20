@@ -362,7 +362,13 @@ print_tree(struct container *c, int depth)
 int
 main(int argc, char *argv[])
 {
-	int i = blaze822_loop(argc-1, argv+1, thread);
+	int i;
+	if (argc == 1 && isatty(0)) {
+		char *all[] = { ":" };
+		i = blaze822_loop(1, all, thread);
+	} else {
+		i = blaze822_loop(argc-1, argv+1, thread);
+	}
 
 	find_roots();
 	prune_tree(top, -1);
