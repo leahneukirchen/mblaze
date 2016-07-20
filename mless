@@ -26,7 +26,12 @@ if ! [ -t 1 ]; then
 	exec mseq "$@"
 fi
 
+case "$0" in
+	*next*) d=1;;
+	*prev*) d=-1;;
+	*) d=0;;
+esac
 curcmd=$(mseq -n "$@" |
-	awk -v cur=$(mseq -n .) '$1 == cur {print "+" FNR ":x"; quit}')
+	awk -v cur=$(mseq -n .) -v d=$d '$1 == cur {print "+" FNR+d ":x"; quit}')
 
 LESSOPEN="|$0 --filter %s" exec less -R $curcmd $(mseq -n "$@")
