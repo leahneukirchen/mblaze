@@ -64,6 +64,8 @@ blaze822_mime_body(struct message *msg,
 int
 blaze822_mime_parameter(char *s, char *name, char **starto, char **stopo)
 {
+	if (!s)
+		return 0;
 	s = strchr(s, ';');
 	if (!s)
 		return 0;

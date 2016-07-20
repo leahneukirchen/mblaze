@@ -96,6 +96,9 @@ char *
 mimetype(char *ct)
 {
 	char *s;
+
+	if (!ct)
+		return 0;
 	for (s = ct; *s && *s != ';' && *s != ' ' && *s != '\t'; s++)
 		;
 
@@ -106,6 +109,9 @@ char *
 tlmimetype(char *ct)
 {
 	char *s;
+
+	if (!ct)
+		return 0;
 	for (s = ct; *s && *s != ';' && *s != ' ' && *s != '\t' && *s != '/'; s++)
 		;
 
@@ -118,17 +124,31 @@ typedef enum {
 	MIME_PRUNE,
 } mime_action;
 
-typedef mime_action (*mime_callback)(int, char *, char *, size_t);
+typedef mime_action (*mime_callback)(int, struct message *, char *, size_t);
+
+char *
+mime_filename(struct message *msg)
+{
+	char *filename = 0, *fn, *fne, *v;
+
+	if ((v = blaze822_hdr(msg, "content-disposition"))) {
+		if (blaze822_mime_parameter(v, "filename", &fn, &fne))
+			filename = strndup(fn, fne-fn);
+	} else if ((v = blaze822_hdr(msg, "content-type"))) {
+		if (blaze822_mime_parameter(v, "name", &fn, &fne))
+			filename = strndup(fn, fne-fn);
+	}
+
+	return filename;
+}
 
 mime_action
-render_mime(int depth, char *ct, char *body, size_t bodylen)
+render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
+	char *ct = blaze822_hdr(msg, "content-type");
 	char *mt = mimetype(ct);
 	char *tlmt = tlmimetype(ct);
-
-	char *filename = 0, *fn, *fne;
-	if (blaze822_mime_parameter(ct, "name", &fn, &fne))
-		filename = strndup(fn, fne-fn);
+	char *filename = mime_filename(msg);
 
 	mimecount++;
 
@@ -137,7 +157,7 @@ render_mime(int depth, char *ct, char *body, size_t bodylen)
 		printf("--- ");
 	printf("%d: %s size=%zd", mimecount, mt, bodylen);
 	if (filename) {
-		printf(" name=%s", filename);
+		printf(" name=\"%s\"", filename);
 		free(filename);
 	}
 
@@ -206,10 +226,11 @@ nofilter:
 }
 
 mime_action
-reply_mime(int depth, char *ct, char *body, size_t bodylen)
+reply_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
 	(void) depth;
 
+	char *ct = blaze822_hdr(msg, "Content-Type");
 	char *mt = mimetype(ct);
 	char *tlmt = tlmimetype(ct);
 
@@ -234,17 +255,18 @@ reply_mime(int depth, char *ct, char *body, size_t bodylen)
 }
 
 mime_action
-list_mime(int depth, char *ct, char *body, size_t bodylen)
+list_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
 	(void) body;
 
+	char *ct = blaze822_hdr(msg, "content-type");
 	char *mt = mimetype(ct);
-	char *fn, *fne;
+	char *filename = mime_filename(msg);
 
 	printf("%*.s%d: %s size=%zd", depth*2, "", ++mimecount, mt, bodylen);
-	if (blaze822_mime_parameter(ct, "name", &fn, &fne)) {
-		printf(" name=");
-		fwrite(fn, 1, fne-fn, stdout);
+	if (filename) {
+		printf(" name=\"%s\"", filename);
+		free(filename);
 	}
 	printf("\n");
 
@@ -261,7 +283,7 @@ walk_mime(struct message *msg, int depth, mime_callback visit)
 
 	if (blaze822_mime_body(msg, &ct, &body, &bodylen, &bodychunk)) {
 
-		mime_action r = visit(depth, ct, body, bodylen);
+		mime_action r = visit(depth, msg, body, bodylen);
 
 		if (r == MIME_CONTINUE) {
 			if (strncmp(ct, "multipart/", 10) == 0) {
@@ -334,14 +356,12 @@ writefile(char *name, char *buf, ssize_t len)
 }
 
 mime_action
-extract_mime(int depth, char *ct, char *body, size_t bodylen)
+extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
 	(void) body;
 	(void) depth;
 
-	char *filename = 0, *fn, *fne;
-	if (blaze822_mime_parameter(ct, "name", &fn, &fne))
-		filename = strndup(fn, fne-fn);
+	char *filename = mime_filename(msg);
 
 	mimecount++;
 
