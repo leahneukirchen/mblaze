@@ -75,7 +75,7 @@ oneline(char *file)
         if (!f)
 		f = "";
 
-	if (strcmp(cur, file) == 0)
+	if (cur && strcmp(cur, file) == 0)
 		flag1 = '>';
 	else if (!strchr(f, 'S'))
 		flag1 = '.';
