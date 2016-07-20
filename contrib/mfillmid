@@ -1,0 +1,14 @@
+#!/bin/sh
+# mfillmid - fill in files for message-ids (via mairix)
+
+exec awk '
+function q(a) { gsub("\\47", "\47\\\47\47", a); return "\47"a"\47" }
+/<..*>/ {
+	match($0, "<..*>")
+	mid = substr($0, RSTART+1, RLENGTH-2)
+	if ("mairix -r m:" q(mid) | getline file) {
+		print substr($0, 0, RSTART-1) file
+		next
+	}
+}
+{ print }'
