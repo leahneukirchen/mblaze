@@ -275,9 +275,10 @@ add(char *file)
 int
 main(int argc, char *argv[])
 {
+	int c, i;
+
 	sortorder = idxorder;
 
-	int c;
 	while ((c = getopt(argc, argv, "fdsFMSr")) != -1)
 		switch(c) {
 		case 'f': sortorder = fromorder; break;
@@ -297,7 +298,12 @@ main(int argc, char *argv[])
 	if (!mails)
 		exit(-1);
 
-	int i = blaze822_loop(argc-optind, argv+optind, add);
+	if (argc == optind && isatty(0)) {
+		char *all[] = { ":" };
+		blaze822_loop(1, all, add);
+	} else {
+		blaze822_loop(argc-optind, argv+optind, add);
+	}
 
 	qsort(mails, idx, sizeof (struct mail), sortorder);
 
