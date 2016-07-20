@@ -146,6 +146,13 @@ render_mime(int depth, char *ct, char *body, size_t bodylen)
 	if (filters &&
 	    ((cmd = blaze822_chdr(filters, mt)) ||
 	    (cmd = blaze822_chdr(filters, tlmt)))) {
+		char *charset = 0, *cs, *cse;
+		if (blaze822_mime_parameter(ct, "charset", &cs, &cse)) {
+			charset = strndup(cs, cse-cs);
+			printf(" charset=\"%s\"", charset);
+			setenv("PIPE_CHARSET", charset, 1);
+			free(charset);
+		}
 		printf(" filter=\"%s\" ---\n", cmd);
 		FILE *p;
 		fflush(stdout);
