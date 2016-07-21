@@ -387,13 +387,16 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 					fwrite(body, 1, bodylen, stdout);
 				} else {
 					char buf[255];
-					if (!filename) {
+					char *bufptr;
+					if (filename) {
+						bufptr = filename;
+					} else {
 						snprintf(buf, sizeof buf,
 						    "attachment%d", mimecount);
-						filename = buf;
+						bufptr = buf;
 					}
-					printf("%s\n", filename);
-					writefile(filename, body, bodylen);
+					printf("%s\n", bufptr);
+					writefile(bufptr, body, bodylen);
 				}
 			} else if (filename && strcmp(a, filename) == 0) {
 				// extract by name
