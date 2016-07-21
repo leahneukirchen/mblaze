@@ -458,8 +458,10 @@ show(char *file)
 		if (!header)
 			return;
 		int fd = open(file, O_RDONLY);
-		if (fd == -1)
+		if (fd == -1) {
+			free(header);
 			return;
+		}
 		hl = read(fd, header, hl);
 		fwrite(header, 1, hl, stdout);
 	} else if (Lflag) {  // all headers
