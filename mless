@@ -6,6 +6,11 @@ PATH="${0%/*}:$PATH"
 if [ "$1" = --filter ]; then
 	[ "$2" = //scan ] && exec mscan :
 
+	if ! [ -f $(mseq "$2") ]; then
+		mseq "$2"
+		exit
+	fi
+
 	mshow "$2" | awk '
 function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
 function so(s) { return sprintf("\033[1m%s\033[0m", s) }
