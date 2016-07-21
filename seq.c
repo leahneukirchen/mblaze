@@ -212,7 +212,6 @@ parse_range(char *a, long *start, long *stop, long cur, long lines)
 			char *b = parse_relnum(a, cur, lines, stop);
 			if (a == b)
 				return 0;
-			a = b;
 		}
 	} else if (!*a) {
 		*stop = *start;
