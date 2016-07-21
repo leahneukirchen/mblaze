@@ -169,8 +169,8 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		if (!stop)
 			goto nocode;
 
-		char *dec, *decchunk;
-		size_t declen;
+		char *dec = 0, *decchunk;
+		size_t declen = 0;
 		if (enc == 'q')
 			blaze822_decode_qp(start, stop, &dec, &declen);
 		else if (enc == 'b')
