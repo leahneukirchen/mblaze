@@ -344,9 +344,12 @@ blaze822(char *file)
 			return 0;
 		}
 
-		if ((end = memmem(buf-overlap+used, rd+overlap, "\n\n", 2)) ||
-		    (end = memmem(buf-overlap+used, rd+overlap, "\r\n\r\n", 4))) {
-			used += rd;
+		if ((end = memmem(buf-overlap+used, rd+overlap, "\n\n", 2))) {
+			end++;
+			break;
+		}
+		if ((end = memmem(buf-overlap+used, rd+overlap, "\r\n\r\n", 4))) {
+			end++;
 			end++;
 			break;
 		}
