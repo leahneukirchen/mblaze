@@ -313,6 +313,7 @@ blaze822(char *file)
 	fd = open(file, O_RDONLY);
 	if (fd < 0) {
 //		perror("open");
+		free(mesg);
 		return 0;
 	}
 
