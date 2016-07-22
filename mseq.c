@@ -6,14 +6,16 @@
 #include "blaze822.h"
 
 static int nflag;
+static int rflag;
 
 int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "n")) != -1)
+	while ((c = getopt(argc, argv, "rn")) != -1)
 		switch(c) {
 		case 'n': nflag = 1; break;
+		case 'r': rflag = 1; break;
 		default:
 			// XXX usage
 			exit(1);
@@ -41,10 +43,15 @@ hack:
 			continue;
 		}
 		while ((f = blaze822_seq_next(map, a, &iter))) {
-			if (nflag)
+			if (nflag) {
 				printf("%ld\n", iter.line-1);
-			else
-				printf("%s\n", f);
+			} else {
+				char *s = f;
+				if (rflag)
+					while (*s == ' ' || *s == '\t')
+						s++;
+				printf("%s\n", s);
+			}
 			free(f);
 		}
 	}
