@@ -24,7 +24,7 @@ draft="snd.$i"
 		echo
 		;;
 	*mrepl*)
-	[ "$#" -eq 0 ] && set -- .
+		[ "$#" -eq 0 ] && set -- .
 		# XXX reply-all
 		echo "To: $(mhdr -from "$1")"
 		echo "Cc: "
