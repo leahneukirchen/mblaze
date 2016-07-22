@@ -1,6 +1,6 @@
 CFLAGS=-g -O1 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
 
-ALL = mscan mthread mhdr mshow mlist mseq msort mmime minc
+ALL = mscan mthread mhdr mshow mlist mseq msort mmime minc mflag
 
 all: $(ALL)
 
@@ -13,6 +13,7 @@ mseq: mseq.o seq.o
 msort: msort.o blaze822.o seq.o
 mmime: mmime.o
 minc: minc.o
+mflag: mflag.o blaze822.o seq.o
 
 clean: FRC
 	-rm -f $(ALL) *.o
