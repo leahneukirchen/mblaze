@@ -1,0 +1,9 @@
+#!/bin/sh
+# mhasatt [RANGE...] - print mails with real attachments
+
+mshow -t "${@:-:}" | awk '
+	/^[^ 0-9]/ && /\// { file = $0 }
+	/^.*[0-9]*: (application\/pkcs7-signature)/ { next }
+	/^.*[0-9]*: (application|image|video)\// || /^.*[0-9]*:.*name=/
+		{ if (file) print file; file = 0 }
+'
