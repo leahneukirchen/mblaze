@@ -298,12 +298,10 @@ main(int argc, char *argv[])
 	if (!mails)
 		exit(-1);
 
-	if (argc == optind && isatty(0)) {
-		char *all[] = { ":" };
-		blaze822_loop(1, all, add);
-	} else {
+	if (argc == optind && isatty(0))
+		blaze822_loop1(":", add);
+	else
 		blaze822_loop(argc-optind, argv+optind, add);
-	}
 
 	qsort(mails, idx, sizeof (struct mail), sortorder);
 
