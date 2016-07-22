@@ -146,6 +146,8 @@ mime_action
 render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
 	char *ct = blaze822_hdr(msg, "content-type");
+	if (!ct)
+		ct = "text/x-unknown";
 	char *mt = mimetype(ct);
 	char *tlmt = tlmimetype(ct);
 	char *filename = mime_filename(msg);
@@ -230,7 +232,7 @@ reply_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
 	(void) depth;
 
-	char *ct = blaze822_hdr(msg, "Content-Type");
+	char *ct = blaze822_hdr(msg, "content-type");
 	char *mt = mimetype(ct);
 	char *tlmt = tlmimetype(ct);
 
@@ -260,6 +262,8 @@ list_mime(int depth, struct message *msg, char *body, size_t bodylen)
 	(void) body;
 
 	char *ct = blaze822_hdr(msg, "content-type");
+	if (!ct)
+		ct = "text/x-unknown";
 	char *mt = mimetype(ct);
 	char *filename = mime_filename(msg);
 
