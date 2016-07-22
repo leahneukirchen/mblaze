@@ -337,7 +337,7 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 	ssize_t rd;
 	int i = 0;
 
-	if (argc == 0 || (argc == 1 && strcmp(argv[0], "-") == 0)) {
+	if (argc == 0) {
 		while ((rd = getdelim(&line, &linelen, '\n', stdin)) != -1) {
 			if (line[rd-1] == '\n')
 				line[rd-1] = 0;
