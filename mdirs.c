@@ -1,0 +1,75 @@
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+void
+pwd()
+{
+	char cwd[PATH_MAX];
+	if (getcwd(cwd, sizeof cwd))
+		puts(cwd);
+}
+
+void
+mdirs(char *fpath)
+{
+	DIR *dir;
+        struct dirent *d;
+	struct stat st;
+
+	dir = opendir(fpath);
+	if (!dir)
+		return;
+
+	if (chdir(fpath) < 0) {
+		closedir(dir);
+		return;
+	}
+
+	int dotonly = 0;
+
+	if (stat("cur", &st) == 0 &&
+	    S_ISDIR(st.st_mode) &&
+	    stat("new", &st) == 0 &&
+	    S_ISDIR(st.st_mode)) {
+		pwd();
+		dotonly = 1;   // Maildir++
+	}
+
+	while ((d = readdir(dir))) {
+		if (d->d_type != DT_DIR && d->d_type != DT_UNKNOWN)
+			continue;
+		if (d->d_name[0] == '.' &&
+		    d->d_name[1] == 0)
+			continue;
+		if (d->d_name[0] == '.' &&
+		    d->d_name[1] == '.' &&
+		    d->d_name[2] == 0)
+			continue;
+
+		if (dotonly && d->d_name[0] != '.')
+			continue;
+		
+		mdirs(d->d_name);
+	}
+		
+	if (chdir("..") < 0)
+		exit(-1);
+
+        closedir(dir);
+}
+
+int
+main(int argc, char *argv[])
+{
+	int i;
+
+	for (i = 0; i < argc; i++)
+		mdirs(argv[i]);
+
+	return 0;
+}
