@@ -53,15 +53,13 @@ from the message
 .Ar msg
 into files.
 .Ar parts
-can be specified by number or file name.
+can be specified by number, file name or
+.Xr fnmatch 3
+pattern.
 .It Fl O Ar msg
-Switch to extraction mode: extract
-.Ar parts
-from the message
-.Ar msg
-to standard output.
-.Ar parts
-can be specified by number or file name.
+Like
+.Fl x
+but extract to standard output.
 .It Fl t
 Switch to list mode: list all MIME parts
 of each

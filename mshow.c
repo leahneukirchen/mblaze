@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <fnmatch.h>
 #include <iconv.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -402,7 +403,8 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 					printf("%s\n", bufptr);
 					writefile(bufptr, body, bodylen);
 				}
-			} else if (filename && strcmp(a, filename) == 0) {
+			} else if (filename &&
+				   fnmatch(a, filename, FNM_PATHNAME) == 0) {
 				// extract by name
 				if (extract_stdout) {
 					fwrite(body, 1, bodylen, stdout);
