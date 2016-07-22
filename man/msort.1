@@ -1,0 +1,63 @@
+.Dd July 22, 2016
+.Dt MSORT 1
+.Os
+.Sh NAME
+.Nm msort
+.Nd sort mail messages
+.Sh SYNOPSIS
+.Nm
+.Op Fl r
+.Op Fl f | Fl d | Fl s | Fl F | Fl M | Fl S
+.Op Ar msgs\ ...
+.Sh DESCRIPTION
+.Nm
+sorts mail messages according to various orders.
+See
+.Xr mmsg 5
+for the message argument syntax.
+.Pp
+If no messages are passed,
+.Nm
+will read file names from standard input,
+or use the default sequence if used interactively.
+.Pp
+.Nm
+prints the sorted messages line by line.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl r
+Reverse order.
+.It Fl f
+Sort by
+.Sq Li From: .
+.It Fl d
+Sort by date.
+.It Fl s
+Sort by
+.Sq Li Subject\&:
+(modulo various variants of
+.Sq Li Re: ) .
+.It Fl F
+Sort by file name, using proper order for numbers in file names.
+.It Fl M
+Sort by message file modification time.
+.It Fl S
+Sort by message file size.
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr mmsg 5
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

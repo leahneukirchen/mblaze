@@ -1,0 +1,55 @@
+.Dd July 22, 2016
+.Dt MLESS 1
+.Os
+.Sh NAME
+.Nm mless
+.Nd interactive wrapper around mshow
+.Sh SYNOPSIS
+.Nm
+.Op Ar msgs\ ...
+.Sh DESCRIPTION
+.Nm
+runs
+.Xr less 1
+on the output of
+.Xr mshow 1
+for the given messages.
+See
+.Xr mmsg 5
+for the message argument syntax.
+.Pp
+When no messages are passed and standard input is from a pipe,
+.Xr msetseq 1
+will be called and
+.Nm
+is run on the resulting sequence.
+The first "file" of the less instance will be the output of
+.Xr mscan 1 .
+This makes
+.Nm
+convenient for use at the end of a pipe.
+.Pp
+.Nm
+will start
+.Xr less 1
+displaying the current message if possible.
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr less 1 ,
+.Xr mscan 1 ,
+.Xr msetseq 1 ,
+.Xr mshow 1 ,
+.Xr mmsg 5
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

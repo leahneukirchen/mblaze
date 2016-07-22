@@ -1,0 +1,48 @@
+.Dd July 22, 2016
+.Dt MHDR 1
+.Os
+.Sh NAME
+.Nm mhdr
+.Nd show mail headers
+.Sh SYNOPSIS
+.Nm
+.Op Fl Ar header
+.Op Ar msgs\ ...
+.Sh DESCRIPTION
+.Nm
+prints the mail headers of the given
+.Ar msgs .
+See
+.Xr mmsg 5
+for the message argument syntax.
+.Pp
+If no
+.Ar msgs
+are passed,
+.Nm
+will default to the current message.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl Ar header
+Only print the value of the header
+.Sq Ar header Ns Li \&: .
+.Pp
+By default, print all headers in normalized form (lowercase and unfolded).
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr mmsg 5
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

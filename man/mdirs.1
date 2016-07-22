@@ -1,0 +1,42 @@
+.Dd July 22, 2016
+.Dt MDIRS 1
+.Os
+.Sh NAME
+.Nm mdirs
+.Nd list maildirs, recursively
+.Sh SYNOPSIS
+.Nm
+.Ar dirs\ ...
+.Sh DESCRIPTION
+.Nm
+scans the given directories for Maildir folders and prints them line by line.
+It understands Maildir and Maildir++.
+.Pp
+There are currently no options.
+.Pp
+To
+.Nm ,
+a Maildir folder is a directory containing
+a directory
+.Pa cur
+and a directory
+.Pa new .
+By the Maildir++ convention, nested Maildir folders
+need to start with
+.Sq Li \&. .
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr find 1
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

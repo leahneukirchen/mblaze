@@ -1,0 +1,77 @@
+.Dd July 22, 2016
+.Dt MCOMP 1
+.Os
+.Sh NAME
+.Nm mcomp ,
+.Nm mrepl
+.Nd compose new, reply to, and send mail
+.Sh SYNOPSIS
+.Nm mcomp
+.Op Ar recipient
+.Nm mrepl
+.Ar msg
+.Sh DESCRIPTION
+.Nm mcomp
+creates a new draft mail and runs an editor.
+After editing, a loop is started where the user can re-edit, send or
+cancel the mail.
+.Pp
+.Nm mrepl
+behaves like
+.Nm mcomp
+but fills the draft such that the mail will be a reply to the message
+.Ar msg .
+See
+.Xr mmsg 5
+for the message argument syntax.
+.Sh MENU COMMANDS
+.Bl -tag -width 2n
+.It Ic s
+Send the mail.
+The MIME version will be used when one has been created.
+.It Ic c
+Cancel sending and quit
+.Nm
+after displaying the file name of the draft.
+.It Ic m
+Run
+.Xr mmime 1
+on the draft, and show the result of
+.Ic mshow -t .
+.It Ic e
+Re-run the editor on the draft.
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width Ds
+.It Ev EDITOR
+Editor used to compose mail.
+.El
+.Sh FILES
+.Bl -tag -width Ds
+.It Pa snd.*
+Draft messages (kept in current directory)
+.It Pa ~/.santoku/headers
+Default headers for each mail.
+(Put your
+.Sq Li From\&:
+line there.)
+.It Pa ~/.signature
+Default signature.
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr mmime 1 ,
+.Xr mmsg 5
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

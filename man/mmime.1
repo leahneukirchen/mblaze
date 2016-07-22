@@ -1,0 +1,67 @@
+.Dd July 22, 2016
+.Dt MMIME 1
+.Os
+.Sh NAME
+.Nm mmime
+.Nd encode MIME mails
+.Sh SYNOPSIS
+.Nm
+.Ar files\ ...
+.Sh DESCRIPTION
+.Nm
+encodes the
+.Ar files
+given as arguments into a MIME message.
+.Pp
+If there is more than one file, a
+.Sq Li multipart/mixed
+mail is generated.
+.Pp
+With no arguments,
+.Nm
+generates a
+.Sq Li multipart/mixed
+mail from standard input,
+extending the header as neccessary,
+and replacing body lines looking like
+.D1 Li # Ns Ar type Pa filename
+with a MIME part having Content-Type
+.Ar type
+consisting of the contents of
+.Pa filename .
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Rs
+.%A N. Freed
+.%A N. Borenstein
+.%B Multipurpose Internet Mail Extensions (MIME) Part One: Format of Internet Message Bodies
+.%R RFC 2045
+.%D November 1996
+.Re
+.Rs
+.%A N. Freed
+.%A N. Borenstein
+.%B Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types
+.%R RFC 2046
+.%D November 1996
+.Re
+.Rs
+.%A N. Freed
+.%A N. Borenstein
+.%B MIME (Multipurpose Internet Mail Extensions) Part Three: Message Header Extensions for Non-ASCII Text
+.%R RFC 2047
+.%D November 1996
+.Re
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

@@ -1,0 +1,94 @@
+.Dd July 22, 2016
+.Dt MLIST 1
+.Os
+.Sh NAME
+.Nm mlist
+.Nd list mesages in Maildir folders
+.Sh SYNOPSIS
+.Nm
+.Op Fl DFPRST
+.Op Fl X Ar str
+.br
+.Op Fl dfprst
+.Op Fl x Ar str
+.br
+.Op Fl N | Fl n | Fl C | Fl c
+.br
+.Op Fl i
+.Ar dirs\ ...
+.Sh DESCRIPTION
+.Nm
+lists all messages in the Maildir folders
+.Ar dirs
+line by line.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl D
+Only list messages marked as draft.
+.It Fl F
+Only list messages marked as flagged.
+.It Fl P
+Only list messages marked as passed (resent/forwarded/bounced).
+.It Fl R
+Only list messages marked as replied-to.
+.It Fl S
+Only list messages marked as seen.
+.It Fl T
+Only list messages marked as trashed.
+.It Fl X Ar str
+Only list messages marked with the chracters in
+.Ar str .
+.It Fl d
+Don't list messages marked as draft.
+.It Fl f
+Don't list messages marked as flagged.
+.It Fl p
+Don't list messages marked as passed (resent/forwarded/bounced).
+.It Fl r
+Don't list messages marked as replied-to.
+.It Fl s
+Don't list messages marked as seen.
+.It Fl t
+Don't list messages marked as trashed.
+.It Fl x Ar str
+Don't list messages marked with the chracters in
+.Ar str .
+(Remember to use uppercase characters.)
+.It Fl C
+Only list messages in
+.Pa cur .
+.It Fl N
+Only list messages in
+.Pa new .
+.It Fl c
+Don't list messages in
+.Pa cur .
+.It Fl n
+Don't list messages in
+.Pa new .
+.It Fl i
+Don't print filenames, instead print a single line summary for each
+folder with the number of unseen, flagged and total messages, as well
+as the folder name.
+.El
+.Pp
+Multiple options are regarded as a conjunction.
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr find 1
+.Pp
+.Lk https://cr.yp.to/proto/maildir.html "Using maildir format"
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

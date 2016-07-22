@@ -1,0 +1,51 @@
+.Dd July 22, 2016
+.Dt MTHREAD 1
+.Os
+.Sh NAME
+.Nm mthread
+.Nd thread mail messages
+.Sh SYNOPSIS
+.Nm
+.Op Fl v
+.Ar msgs\ ...
+.Sh DESCRIPTION
+.Nm
+groups messages together in parent/child relationships based on
+which messages are replies to which others.
+See
+.Xr mmsg 5
+for the message argument syntax.
+.Pp
+If no messages are passed,
+.Nm
+will read file names from standard input,
+or use the default sequence if used interactively.
+.Pp
+.Nm
+prints the threaded messages line by line, indented according to their
+depth in the message tree.
+Unresolved Message-IDs are printed as-is.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl v
+Do not prune unresolved Message-IDs at the top-level.
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr mmsg 5
+.Pp
+.Lk https://www.jwz.org/doc/threading.html "Message threading"
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

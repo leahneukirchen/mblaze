@@ -1,0 +1,50 @@
+.Dd July 22, 2016
+.Dt MSEQ 1
+.Os
+.Sh NAME
+.Nm mseq
+.Nd print messages from mail sequence
+.Sh SYNOPSIS
+.Nm
+.Op Fl n
+.Op Fl r
+.Ar msgs\ ...
+.Sh DESCRIPTION
+.Nm
+prints messages in the mail sequence.
+See
+.Xr mmsg 5
+for the message argument syntax.
+.Pp
+If no
+.Ar msgs
+are passed and
+.Nm
+is used interactively,
+.Nm
+prints all messages in the sequence.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl n
+Print the sequence numbers of the
+.Ar msgs .
+.It Fl r
+Remove leading indentation from the file names.
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr mmsg 5
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

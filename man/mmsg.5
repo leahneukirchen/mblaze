@@ -1,0 +1,75 @@
+.Dd July 22, 2016
+.Dt MMSG 5
+.Os
+.Sh NAME
+.Nm mmsg
+.Nd Santoku message argument syntax
+.Sh DESCRIPTION
+This manpage documents the message syntax used
+by the tools
+.Xr mflag 1 ,
+.Xr mhdr 1 ,
+.Xr mless 1 ,
+.Xr mrepl 1 ,
+.Xr mscan 1 ,
+.Xr mseq 1 ,
+.Xr mshow 1 ,
+.Xr msort 1 ,
+.Xr mthread 1 .
+.Pp
+In general, you can always pass a file name as a message,
+if it contains a
+.Sq Li \&/
+character.
+Use
+.Sq Li \&./
+to prefix messages in the current directory.
+.Pp
+Sequences have the format
+.Sq Ar start Ns Li \&: Ns Ar stop ,
+where
+.Ar start
+and
+.Ar stop
+are one-based indexes into the sequence.
+Negative numbers count from the end.
+If
+.Ar start
+is the empty string,
+.Li 1
+will be used instead.
+If
+.Ar stop
+is the empty string,
+.Li \&-1
+will be used instead.
+Thus,
+.Sq Li \&:
+represents the whole sequence.
+If the sequence does not contain a
+.Sq Li \&: ,
+it is considered to be a single message, equivalent to the range
+.Sq Ar start Ns Li \&: Ns Ar start
+of size one.
+.Pp
+There are four special shortcuts:
+.Bl -tag -width 3n
+.It Sq Li \&.
+refers to the current message.
+Additionally, the syntax
+.Sq Li \&.+ Ns Ar N
+and
+.Sq Li \&.- Ns Ar N
+can be used to refer to messages relative to the current message.
+.It Sq Li \&+
+refers to the next message (like
+.Sq Li \&.+1 ) .
+.It Sq Li \&-
+refers to the previous message (like
+.Sq Li \&.-1 ) .
+.It Sq Li \&$
+refers to the last message (like
+.Sq Li -1 ) .
+.El
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com

@@ -1,0 +1,43 @@
+.Dd July 22, 2016
+.Dt MINC 1
+.Os
+.Sh NAME
+.Nm minc
+.Nd incorporate new Maildir mail
+.Sh SYNOPSIS
+.Nm
+.Op Fl q
+.Ar dirs\ ...
+.Sh DESCRIPTION
+.Nm
+incorporates new mail in the given
+.Ar dirs
+by moving them from
+.Pa new
+to
+.Pa cur
+and adjusting the file names.
+.Pp
+By default, the new Maildir files are printed line by line.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl q
+Don't print the new Maildir files.
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Lk https://cr.yp.to/proto/maildir.html "Using maildir format"
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

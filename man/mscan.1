@@ -1,0 +1,60 @@
+.Dd July 22, 2016
+.Dt MSCAN 1
+.Os
+.Sh NAME
+.Nm mscan
+.Nd print a one line per message mail listing
+.Sh SYNOPSIS
+.Nm
+.Ar msgs\ ...
+.Sh DESCRIPTION
+.Nm
+prints a one line summary for each message.
+See
+.Xr mmsg 5
+for the message argument syntax.
+.Pp
+If no
+.Ar msgs
+are passed,
+.Nm
+reads file names from standard input,
+or uses the mails in the current sequence when used interactively.
+.Pp
+For each message,
+.Nm
+prints
+flags,
+the sequence number (if applicable),
+the date,
+the originator,
+and the subject of the message.
+.Sh FLAGS
+.Bl -tag -width 2n -compact
+.It Li \&>
+The current message
+.It Li \&.
+A seen message
+.It Li x
+A trashed message
+.It Li \&*
+A flagged message
+.It Li \&-
+A replied-to message
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr mmsg 5
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

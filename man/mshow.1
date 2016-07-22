@@ -1,0 +1,113 @@
+.Dd July 22, 2016
+.Dt MSHOW 1
+.Os
+.Sh NAME
+.Nm mshow
+.Nd render mail and extract MIME parts
+.Sh SYNOPSIS
+.Nm
+.Op Fl h Ar headers
+.Op Fl qrHL
+.Op Ar msgs\ ...
+.Nm
+.Fl x Ar msg
+.Ar parts\ ...
+.Nm
+.Fl O Ar msg
+.Ar parts\ ...
+.Nm
+.Fl t
+.Ar msgs\ ...
+.Nm
+.Fl R
+.Ar msg
+.Sh DESCRIPTION
+By default,
+.Nm
+renders the passed messages to standard output.
+See
+.Xr mmsg 5
+for the message argument syntax.
+If used interactively and no messages are given,
+displays the current message.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl h Ar headers
+Display the headers in the colon-separated list
+.Ar headers
+instead of the default headers
+.Sq Li from:subject:to:cc:date: .
+.It Fl q
+Don't render the body, stop after header output.
+.It Fl r
+Don't render the body, print raw body.
+.It Fl H
+Don't decode the headers, print all raw headers.
+.It Fl L
+Don't filter the headers, print all decoded headers.
+.It Fl x Ar msg
+Switch to extraction mode: extract
+.Ar parts
+from the message
+.Ar msg
+into files.
+.Ar parts
+can be specified by number or file name.
+.It Fl O Ar msg
+Switch to extraction mode: extract
+.Ar parts
+from the message
+.Ar msg
+to standard output.
+.Ar parts
+can be specified by number or file name.
+.It Fl t
+Switch to list mode: list all MIME parts
+of each
+.Ar msg .
+.It Fl R Ar msg
+Render the text parts from
+.Ar msg ,
+suitable for use in a reply.
+.El
+.Sh FILTERS
+.Nm
+by default decodes all
+.Sq Li text/* ,
+.Sq Li message/rfc822 ,
+.Sq Li multipart/*
+parts,
+and re-encodes them into UTF-8 if necessary.
+.Pp
+Other filters can be specified in the file
+.Pa ~/.santoku/filter
+in the format
+.D1 Ar type/subtype Ns Li \&: Ar command
+or
+.D1 Ar type Ns Li \&: Ar command
+.Nm
+will then spawn a pipe to
+.Ar command ,
+write the MIME part
+and display the output.
+The environment variable
+.Ev PIPE_CHARSET
+will be set to the charset declared in the MIME part,
+if known.
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr mmsg 5
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/
