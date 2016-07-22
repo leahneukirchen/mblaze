@@ -136,29 +136,23 @@ main(int argc, char *argv[])
 		if (!args)
 			exit(-1);
 
-		if (argc == optind) {
-			char *cur[] = { "." };
-			blaze822_loop(1, cur, add);
-		} else {
+		if (argc == optind)
+			blaze822_loop1(".", add);
+		else
 			blaze822_loop(argc-optind, argv+optind, add);
-		}
 
-		if (isatty(0)) {
-			char *all[] = { ":" };
-			blaze822_loop(1, all, flag);
-		} else {
+		if (isatty(0))
+			blaze822_loop1(":", flag);
+		else
 			blaze822_loop(0, 0, flag);
-		}
 		
 		return 0;
 	}
 
-	if (argc == optind && isatty(0)) {
-		char *cur[] = { "." };
-		blaze822_loop(1, cur, flag);
-	} else {
+	if (argc == optind && isatty(0))
+		blaze822_loop1(".", flag);
+	else
 		blaze822_loop(argc-optind, argv+optind, flag);
-	}
 
 	return 0;
 }
