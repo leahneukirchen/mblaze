@@ -179,12 +179,10 @@ main(int argc, char *argv[])
 		cols = 80;
 
 	long i;
-	if (argc == 1 && isatty(0)) {
-		char *all[] = { ":" };
-		i = blaze822_loop(1, all, oneline);
-	} else {
+	if (argc == 1 && isatty(0))
+		i = blaze822_loop1(":", oneline);
+	else
 		i = blaze822_loop(argc-1, argv+1, oneline);
-	}
 	fprintf(stderr, "%ld mails scanned\n", i);
 
 	return 0;
