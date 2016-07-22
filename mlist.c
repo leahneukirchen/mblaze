@@ -249,7 +249,5 @@ main(int argc, char *argv[])
 		printf("%6ld unseen  %3ld flagged  %6ld msg\n",
 		    iunseen, iflagged, icount);
 
-exit(0);
-
-	exit(EXIT_SUCCESS);
+	return 0;
 }
