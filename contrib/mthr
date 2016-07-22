@@ -18,7 +18,7 @@ NR != FNR { exit }
 mode==1 && ind==0 {
 	if (sel)
 		for (i in thread)
-			print thread[i] 
+			print thread[i]
 	split("", thread)
 	sel = 0
 }
@@ -38,4 +38,9 @@ mode==3 && sel {
 	sel = 0
 }
 mode==3 {parents[ind] = $0 }
+END {
+	if (mode==1 && sel)
+		for (i in thread)
+			print thread[i]
+}
 ' - $(mseq $@)
