@@ -539,7 +539,12 @@ main(int argc, char *argv[])
 	} else if (Oflag) { // extract to stdout
 		extract(Oflag, argc-optind, argv+optind, 1);
 	} else if (tflag) { // list
-		blaze822_loop(argc-optind, argv+optind, list);
+		if (argc == optind && isatty(0)) {
+			char *cur[] = { "." };
+			blaze822_loop(1, cur, list);
+		} else {
+			blaze822_loop(argc-optind, argv+optind, list);
+		}
 	} else if (Rflag) { // render for reply
 		blaze822_loop(argc-optind, argv+optind, reply);
 	} else { // show
