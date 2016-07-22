@@ -161,13 +161,21 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "PRSTDFprstdfNnCcim:")) != -1)
+	while ((c = getopt(argc, argv, "PRSTDFprstdfX:x:NnCcim:")) != -1)
 		switch(c) {
 		case 'P': case 'R': case 'S': case 'T': case 'D': case 'F':
 			flags[(unsigned int)c] = 1;
 			break;
 		case 'p': case 'r': case 's': case 't': case 'd': case 'f':
 			flags[(unsigned int)uc(c)] = -1;
+			break;
+                case 'X':
+			while (*optarg)
+				flags[(unsigned int)*optarg++] = 1;
+			break;
+                case 'x':
+			while (*optarg)
+				flags[(unsigned int)*optarg++] = -1;
 			break;
 		case 'N': Nflag = 1; break;
 		case 'n': Nflag = -1; break;
