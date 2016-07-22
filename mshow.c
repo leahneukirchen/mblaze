@@ -234,7 +234,7 @@ reply_mime(int depth, struct message *msg, char *body, size_t bodylen)
 	char *mt = mimetype(ct);
 	char *tlmt = tlmimetype(ct);
 
-	if (strncmp(ct, "text/plain", 10) == 0) {
+	if (!ct || strncmp(ct, "text/plain", 10) == 0) {
 		char *charset = 0, *cs, *cse;
 		if (blaze822_mime_parameter(ct, "charset", &cs, &cse))
 			charset = strndup(cs, cse-cs);
