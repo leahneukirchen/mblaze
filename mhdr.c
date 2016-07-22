@@ -80,12 +80,10 @@ main(int argc, char *argv[])
 		argv++;
 	}
 
-	if (argc == 1 && isatty(0)) {
-		char *cur[] = { "." };
-		blaze822_loop(1, cur, cb);
-	} else {
+	if (argc == 1 && isatty(0))
+		blaze822_loop1(".", cb);
+	else
 		blaze822_loop(argc-1, argv+1, cb);
-	}
 	
 	return 0;
 }
