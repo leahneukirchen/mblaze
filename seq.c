@@ -365,3 +365,10 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 	}
 	return j;
 }
+
+int
+blaze822_loop1(char *arg, void (*cb)(char *))
+{
+	char *args[] = { arg };
+	return blaze822_loop(1, args, cb);
+}

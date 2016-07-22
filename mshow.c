@@ -539,12 +539,10 @@ main(int argc, char *argv[])
 	} else if (Oflag) { // extract to stdout
 		extract(Oflag, argc-optind, argv+optind, 1);
 	} else if (tflag) { // list
-		if (argc == optind && isatty(0)) {
-			char *cur[] = { "." };
-			blaze822_loop(1, cur, list);
-		} else {
+		if (argc == optind && isatty(0))
+			blaze822_loop1(".", list);
+		else
 			blaze822_loop(argc-optind, argv+optind, list);
-		}
 	} else if (Rflag) { // render for reply
 		blaze822_loop(argc-optind, argv+optind, reply);
 	} else { // show
@@ -555,12 +553,10 @@ main(int argc, char *argv[])
 			if (f)
 				filters = blaze822(f);
 		}
-		if (argc == optind && isatty(0)) {
-			char *cur[] = { "." };
-			blaze822_loop(1, cur, show);
-		} else {
+		if (argc == optind && isatty(0))
+			blaze822_loop1(".", show);
+		else
 			blaze822_loop(argc-optind, argv+optind, show);
-		}
 		if (!nflag) // don't set cur
 			blaze822_seq_setcur(newcur);
 	}

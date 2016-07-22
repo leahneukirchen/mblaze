@@ -59,4 +59,5 @@ struct blaze822_seq_iter {
 
 char *blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter);
 int blaze822_loop(int, char **, void (*)(char *));
+int blaze822_loop1(char *arg, void (*cb)(char *));
 char *blaze822_home_file(char *basename);
