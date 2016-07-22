@@ -33,8 +33,9 @@ mode==2 && ind <= dep { sel = 0 }
 }
 mode==2 && sel { print }
 mode==3 && sel {
-	print parents[ind-1]
-                 sel = 0
+	if (ind>0)
+		print parents[ind-1]
+	sel = 0
 }
 mode==3 {parents[ind] = $0 }
 ' - $(mseq $@)
