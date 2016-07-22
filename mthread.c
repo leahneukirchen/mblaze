@@ -374,12 +374,10 @@ main(int argc, char *argv[])
  			exit(1);
  		}
 
-	if (argc == optind && isatty(0)) {
-		char *all[] = { ":" };
-		i = blaze822_loop(1, all, thread);
-	} else {
+	if (argc == optind && isatty(0))
+		i = blaze822_loop1(":", thread);
+	else
 		i = blaze822_loop(argc-optind, argv+optind, thread);
-	}
 
 	find_roots();
 	if (!vflag)
