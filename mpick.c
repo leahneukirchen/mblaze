@@ -790,11 +790,11 @@ oneline(char *line, long idx)
 		*e-- = 0;
 
 	m.msg = blaze822(m.fpath);
-	if (!m.msg) {
+	if (!m.msg)
 		return;
-	}
 
-	if (strstr(m.fpath, "/new/") != NULL)
+	if ((e = strrchr(m->fpath, '/') - 1) && (e - m->fpath) >= 2 &&
+	    *e-- == 'w' && *e-- == 'e' && *e-- == 'n')
 		m.flags |= FLAG_NEW;
 
 	if (cur && strcmp(cur, m.fpath) == 0)
