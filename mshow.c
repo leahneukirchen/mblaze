@@ -419,16 +419,22 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 }
 
 void
-extract(char *file, int argc, char **argv, int use_stdout)
+extract_cb(char *file)
 {
 	struct message *msg = blaze822_file(file);
 	if (!msg)
 		return;
 	mimecount = 0;
+	walk_mime(msg, 0, extract_mime);
+}
+
+void
+extract(char *file, int argc, char **argv, int use_stdout)
+{
 	extract_argc = argc;
 	extract_argv = argv;
 	extract_stdout = use_stdout;
-	walk_mime(msg, 0, extract_mime);
+	blaze822_loop1(file, extract_cb);
 }
 
 static char *newcur;
