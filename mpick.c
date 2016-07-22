@@ -100,6 +100,7 @@ struct mailinfo {
 static char *argv0;
 
 static long kept;
+static long num;
 
 static struct expr *expr;
 static char *cur;
@@ -759,7 +760,7 @@ eval(struct expr *e, struct mailinfo *m)
 }
 
 void
-oneline(char *line, long idx)
+oneline(char *line)
 {
 	static int init;
 	if (!init) {
@@ -775,7 +776,7 @@ oneline(char *line, long idx)
 
 	memset(m.subject, 0, sizeof m.subject);
 	m.fpath = line;
-	m.index = idx;
+	m.index = num++;
 	m.flags = 0;
 	m.depth = 0;
 	m.sb = 0;
@@ -832,7 +833,6 @@ main(int argc, char *argv[])
 {
 	long i;
 	int c;
-	char *f, *a;
 
 	argv0 = argv[0];
 
@@ -845,20 +845,10 @@ main(int argc, char *argv[])
 		for (c = optind; c < argc; c++)
 			expr = chain(expr, EXPR_AND, parse_msglist(argv[c]));
 
-	struct blaze822_seq_iter iter = { 0 };
-
-	char *map = blaze822_seq_open(0);
-	if (!map)
-		return 1;
-
-	a = ":";
-	i = 0;
-
-	while ((f = blaze822_seq_next(map, a, &iter))) {
-		i = iter.line - 1;
-		oneline(f, i);
-		free(f);
-	}
+	if (isatty(0)) {
+		i = blaze822_loop1(":", oneline);
+	} else
+		i = blaze822_loop(0, NULL, oneline);
 
 	fprintf(stderr, "%ld mails tested, %ld picked.\n", i, kept);
 	return 0;
