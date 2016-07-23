@@ -120,6 +120,8 @@ static struct thread *thr;
 static char *argv0;
 static int Tflag;
 
+static int need_thr;
+
 static long kept;
 static long num;
 
@@ -399,6 +401,12 @@ parse_flag()
 		flag = FLAG_NEW;
 	} else if (token("cur")) {
 		flag = FLAG_CUR;
+	} else if (token("parent")) {
+		flag = FLAG_PARENT;
+		need_thr = 1;
+	} else if (token("child")) {
+		flag = FLAG_CHILD;
+		need_thr = 1;
 	} else
 		return parse_strcmp();
 
@@ -924,9 +932,14 @@ collect(char *file)
 		}
 
 		thr->matched = 0;
-		thr->cur = thr->childs;
+		ml = thr->cur = thr->childs;
 		thr->cur->m = m;
 	} else {
+		/* previous mail is a prent, current one is a child */
+		if (thr->cur->m->depth < m->depth)
+			thr->cur->m->flags |= FLAG_PARENT;
+		m->flags |= FLAG_CHILD;
+
 		ml = thr->cur + 1;
 		thr->cur->next = ml;
 		thr->cur = ml;
@@ -935,14 +948,15 @@ collect(char *file)
 
 	m->fpath = strdup(m->fpath);
 
-	/* already one match in thread */
-	if (Tflag && thr->matched)
-		return;
+	if (Tflag) {
+		if (thr->matched)
+			return;
 
-	if (expr && !eval(expr, m))
-		return;
+		if (expr && !eval(expr, m))
+			return;
 
-	thr->matched++;
+		thr->matched++;
+	}
 }
 
 void
@@ -970,13 +984,12 @@ main(int argc, char *argv[])
 {
 	long i;
 	int c;
-	void (*cb)(char *);
 
 	argv0 = argv[0];
 
 	while ((c = getopt(argc, argv, "Tt:")) != -1)
 		switch (c) {
-		case 'T': Tflag = 1; break;
+		case 'T': Tflag = need_thr = 1; break;
 		case 't': expr = chain(expr, EXPR_AND, parse_expr(optarg)); break;
 		}
 
@@ -984,15 +997,10 @@ main(int argc, char *argv[])
 		for (c = optind; c < argc; c++)
 			expr = chain(expr, EXPR_AND, parse_msglist(argv[c]));
 
-	if (Tflag)
-		cb = collect;
-	else
-		cb = oneline;
-
 	if (isatty(0)) {
-		i = blaze822_loop1(":", cb);
+		i = blaze822_loop1(":", need_thr ? collect : oneline);
 	} else
-		i = blaze822_loop(0, NULL, cb);
+		i = blaze822_loop(0, NULL, need_thr ? collect : oneline);
 
 	/* print and free last thread */
 	if (Tflag && thr)
