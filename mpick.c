@@ -36,6 +36,7 @@ enum op {
 	EXPR_GLOBI,
 	EXPR_REGEX,
 	EXPR_REGEXI,
+	EXPR_PRUNE,
 	EXPR_PRINT,
 	EXPR_TYPE,
 	EXPR_ALLSET,
@@ -72,6 +73,9 @@ enum flags {
 	/* custom */
 	FLAG_NEW = 64,
 	FLAG_CUR = 128,
+
+	FLAG_PARENT = 256,
+	FLAG_CHILD = 512,
 };
 
 struct expr {
@@ -92,12 +96,29 @@ struct mailinfo {
 	time_t date;
 	int depth;
 	int index;
+	int replies;
+	int matched;
+	int prune;
 	long flags;
 	off_t total;
 	char subject[100];
 };
 
+struct mlist {
+	struct mailinfo *m;
+	struct mlist *next;
+};
+
+struct thread {
+	int matched;
+	struct mlist childs[100];
+	struct mlist *cur;
+};
+
+static struct thread *thr;
+
 static char *argv0;
+static int Tflag;
 
 static long kept;
 static long num;
@@ -106,6 +127,7 @@ static struct expr *expr;
 static char *cur;
 static char *pos;
 static time_t now;
+static int prune;
 
 static void
 ws()
@@ -196,7 +218,10 @@ static struct expr *parse_or();
 static struct expr *
 parse_inner()
 {
-	if (token("print")) {
+	if (token("prune")) {
+		struct expr *e = mkexpr(EXPR_PRUNE);
+		return e;
+	} else if (token("print")) {
 		struct expr *e = mkexpr(EXPR_PRINT);
 		return e;
 	} else if (token("!")) {
@@ -688,6 +713,9 @@ eval(struct expr *e, struct mailinfo *m)
 	case EXPR_NOT:
 		return !eval(e->a.expr, m);
 		return 1;
+	case EXPR_PRUNE:
+		prune = 1;
+		return 1;
 	case EXPR_PRINT:
 		return 1;
 	case EXPR_LT:
@@ -759,8 +787,8 @@ eval(struct expr *e, struct mailinfo *m)
 	return 0;
 }
 
-void
-oneline(char *line)
+struct mailinfo *
+mailfile(char *file)
 {
 	static int init;
 	if (!init) {
@@ -772,60 +800,169 @@ oneline(char *line)
 		init = 1;
 	}
 
-	struct mailinfo m;
+	struct mailinfo *m;
+	m = calloc(1, sizeof *m);
+	if (!m) {
+		fprintf(stderr, "calloc");
+		exit(2);
+	}
+	memset(m->subject, 0, sizeof m->subject);
 
-	memset(m.subject, 0, sizeof m.subject);
-	m.fpath = line;
-	m.index = num++;
-	m.flags = 0;
-	m.depth = 0;
-	m.sb = 0;
+	m->fpath = file;
+	m->index = num++;
+	m->flags = 0;
+	m->depth = 0;
+	m->sb = 0;
+	m->msg = 0;
 
-	while (*m.fpath == ' ' || *m.fpath== '\t') {
-		m.depth++;
-		m.fpath++;
+	while (*m->fpath == ' ' || *m->fpath== '\t') {
+		m->depth++;
+		m->fpath++;
 	}
 
-	char *e = m.fpath + strlen(m.fpath) - 1;
-	while (m.fpath < e && (*e == ' ' || *e == '\t'))
+	char *e = m->fpath + strlen(m->fpath) - 1;
+	while (m->fpath < e && (*e == ' ' || *e == '\t'))
 		*e-- = 0;
 
-	m.msg = blaze822(m.fpath);
-	if (!m.msg)
-		return;
+	m->msg = blaze822(m->fpath);
+	if (!m->msg)
+		return 0;
 
 	if ((e = strrchr(m->fpath, '/') - 1) && (e - m->fpath) >= 2 &&
 	    *e-- == 'w' && *e-- == 'e' && *e-- == 'n')
-		m.flags |= FLAG_NEW;
+		m->flags |= FLAG_NEW;
 
-	if (cur && strcmp(cur, m.fpath) == 0)
-		m.flags |= FLAG_CUR;
+	if (cur && strcmp(cur, m->fpath) == 0)
+		m->flags |= FLAG_CUR;
 
-	char *f = strstr(m.fpath, ":2,");
+	char *f = strstr(m->fpath, ":2,");
 	if (f) {
 		if (strchr(f, 'P'))
-			m.flags |= FLAG_PASSED;
+			m->flags |= FLAG_PASSED;
 		if (strchr(f, 'R'))
-			m.flags |= FLAG_REPLIED;
+			m->flags |= FLAG_REPLIED;
 		if (strchr(f, 'S'))
-			m.flags |= FLAG_SEEN;
+			m->flags |= FLAG_SEEN;
 		if (strchr(f, 'T'))
-			m.flags |= FLAG_TRASHED;
+			m->flags |= FLAG_TRASHED;
 		if (strchr(f, 'D'))
-			m.flags |= FLAG_DRAFT;
+			m->flags |= FLAG_DRAFT;
 		if (strchr(f, 'F'))
-			m.flags |= FLAG_FLAGGED;
+			m->flags |= FLAG_FLAGGED;
 	}
 
-	if (expr && !eval(expr, &m))
+	return m;
+}
+
+void
+do_thr()
+{
+	struct mlist *ml;
+
+	if (!thr)
+		return;
+
+	for (ml = thr->childs; ml; ml = ml->next) {
+		if (!ml->m)
+			continue;
+		if ((ml->m->prune = prune) || (Tflag && thr->matched))
+			continue;
+		if (expr && eval(expr, ml->m)) {
+			ml->m->matched = 1;
+			thr->matched++;
+		}
+	}
+	prune = 0;
+
+	for (ml = thr->childs; ml; ml = ml->next) {
+		if (!ml->m)
+			break;
+
+		if (((Tflag && thr->matched) || ml->m->matched) && !ml->m->prune) {
+			int i;
+			for (i = 0; i < ml->m->depth; i++)
+				putchar(' ');
+
+			fputs(ml->m->fpath, stdout);
+			putchar('\n');
+
+			kept++;
+		}
+
+		/* free collected mails */
+		if (ml->m->msg)
+			blaze822_free(ml->m->msg);
+
+		if (ml->m->sb)
+			free(ml->m->sb);
+
+		free(ml->m->fpath);
+		free(ml->m);
+	}
+
+	free(thr);
+}
+
+void
+collect(char *file)
+{
+	struct mailinfo *m;
+	struct mlist *ml;
+
+	if ((m = mailfile(file)) == 0)
+		return;
+
+	if (m->depth == 0) {
+		if (thr)
+			do_thr();
+
+		/* new thread */
+		thr = calloc(1, sizeof *thr);
+		if (!thr) {
+			fprintf(stderr, "calloc");
+			exit(2);
+		}
+
+		thr->matched = 0;
+		thr->cur = thr->childs;
+		thr->cur->m = m;
+	} else {
+		ml = thr->cur + 1;
+		thr->cur->next = ml;
+		thr->cur = ml;
+		ml->m = m;
+	}
+
+	m->fpath = strdup(m->fpath);
+
+	/* already one match in thread */
+	if (Tflag && thr->matched)
+		return;
+
+	if (expr && !eval(expr, m))
+		return;
+
+	thr->matched++;
+}
+
+void
+oneline(char *file)
+{
+	struct mailinfo *m;
+
+	if ((m = mailfile(file)) == 0)
+		return;
+
+	if (expr && !eval(expr, m))
 		goto out;
 
+	printf("%s\n", file);
 	kept++;
-	printf("%s\n", line);
 
 out:
-	free(m.sb);
-	blaze822_free(m.msg);
+	blaze822_free(m->msg);
+	free(m->sb);
+	free(m);
 }
 
 int
@@ -833,11 +970,13 @@ main(int argc, char *argv[])
 {
 	long i;
 	int c;
+	void (*cb)(char *);
 
 	argv0 = argv[0];
 
-	while ((c = getopt(argc, argv, "t:")) != -1)
+	while ((c = getopt(argc, argv, "Tt:")) != -1)
 		switch (c) {
+		case 'T': Tflag = 1; break;
 		case 't': expr = chain(expr, EXPR_AND, parse_expr(optarg)); break;
 		}
 
@@ -845,10 +984,19 @@ main(int argc, char *argv[])
 		for (c = optind; c < argc; c++)
 			expr = chain(expr, EXPR_AND, parse_msglist(argv[c]));
 
+	if (Tflag)
+		cb = collect;
+	else
+		cb = oneline;
+
 	if (isatty(0)) {
-		i = blaze822_loop1(":", oneline);
+		i = blaze822_loop1(":", cb);
 	} else
-		i = blaze822_loop(0, NULL, oneline);
+		i = blaze822_loop(0, NULL, cb);
+
+	/* print and free last thread */
+	if (Tflag && thr)
+		do_thr();
 
 	fprintf(stderr, "%ld mails tested, %ld picked.\n", i, kept);
 	return 0;
