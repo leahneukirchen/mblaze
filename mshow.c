@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "blaze822.h"
@@ -441,6 +442,98 @@ extract(char *file, int argc, char **argv, int use_stdout)
 
 static char *newcur;
 
+static void
+print_date_header(char *v)
+{
+	static time_t now = -1;
+	if (now == -1) {
+		setenv("TZ", "", 1);
+		tzset();
+		now = time(0);
+	}
+
+	printf("Date: %s", v);
+	
+	time_t t = blaze822_date(v);
+	if (t == -1) {
+		printf(" (invalid)");
+	} else {
+		printf(" (");
+		time_t d = t < now ? now - t : t - now;
+
+		int l;
+		if (d > 60*60*24*7*52) l = 'y';
+		else if (d > 60*60*24*7) l = 'w';
+		else if (d > 60*60*24) l = 'd';
+		else if (d > 60*60) l = 'h';
+		else if (d > 60) l = 'm';
+		else l = 's';
+		int p = 3;
+		
+		int z;
+		switch(l) {
+		case 'y':
+			z = d / (60*60*24*7*52);
+			d = d % (60*60*24*7*52);
+			if (z > 0) {
+				printf("%d year%s", z, z>1 ? "s" : "");
+				if (!--p) break;
+				printf(", ");
+			}
+		case 'w':
+			z = d / (60*60*24*7);
+			d = d % (60*60*24*7);
+			if (z > 0) {
+				printf("%d week%s", z, z>1 ? "s" : "");
+				if (!--p) break;
+				printf(", ");
+			}
+		case 'd':
+			z = d / (60*60*24);
+			d = d % (60*60*24);
+			if (z > 0) {
+				printf("%d day%s", z, z>1 ? "s" : "");
+				if (!--p) break;
+				printf(", ");
+			}
+		case 'h':
+			z = d / (60*60);
+			d = d % (60*60);
+			if (z > 0) {
+				printf("%d hour%s", z, z>1 ? "s" : "");
+				if (!--p) break;
+				printf(", ");
+			}
+		case 'm':
+			z = d / (60);
+			d = d % (60);
+			if (z > 0) {
+				printf("%d minute%s", z, z>1 ? "s" : "");
+				if (!--p) break;
+				printf(", ");
+			}
+		case 's':
+			z = d;
+			printf("%d second%s", z, z>1 ? "s" : "");
+		}
+
+		if (t < now)
+			printf(" ago)");
+		else
+			printf(" in the future)");
+	}
+	printf("\n");
+}
+
+static void
+print_decode_header(char *h, char *v)
+{
+	char d[4096];
+	blaze822_decode_rfc2047(d, v, sizeof d, "UTF-8");
+	printhdr(h);
+	printf(": %s\n", d);
+}
+
 void
 show(char *file)
 {
@@ -492,10 +585,10 @@ show(char *file)
 				*n = 0;
 			v = blaze822_chdr(msg, h);
 			if (v) {
-				char d[4096];
-				blaze822_decode_rfc2047(d, v, sizeof d, "UTF-8");
-				printhdr(h);
-				printf(": %s\n", d);
+				if (strcmp("date", h) == 0)
+					print_date_header(v);
+				else
+					print_decode_header(h, v);
 			}
 			if (n) {
 				*n = ':';
