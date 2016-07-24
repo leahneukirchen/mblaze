@@ -49,6 +49,7 @@ enum prop {
 	PROP_DEPTH,
 	PROP_MTIME,
 	PROP_PATH,
+	PROP_REPLIES,
 	PROP_SIZE,
 	PROP_TOTAL,
 	PROP_SUBJECT,
@@ -106,6 +107,7 @@ struct mailinfo {
 
 struct mlist {
 	struct mailinfo *m;
+	struct mlist *parent;
 	struct mlist *next;
 };
 
@@ -430,7 +432,10 @@ parse_cmp()
 		prop = PROP_DEPTH;
 	else if (token("index"))
 		prop = PROP_INDEX;
-	else if (token("size"))
+	else if (token("replies")) {
+		prop = PROP_REPLIES;
+		need_thr = 1;
+	} else if (token("size"))
 		prop = PROP_SIZE;
 	else if (token("total"))
 		prop = PROP_TOTAL;
@@ -690,7 +695,7 @@ msg_date(struct mailinfo *m)
 		return m->date;
 
 	char *b;
-	if ((b = blaze822_hdr(m->msg, "date")))
+	if (m->msg && (b = blaze822_hdr(m->msg, "date")))
 		return (m->date = blaze822_date(b));
 
 	return -1;
@@ -703,7 +708,7 @@ msg_subject(struct mailinfo *m)
 		return m->subject;
 
 	char *b;
-	if ((b = blaze822_hdr(m->msg, "subject")) == '\0')
+	if (m->msg == 0 || (b = blaze822_hdr(m->msg, "subject")) == 0)
 		return "";
 
 	blaze822_decode_rfc2047(m->subject, b, sizeof m->subject - 1, "UTF-8");
@@ -751,6 +756,7 @@ eval(struct expr *e, struct mailinfo *m)
 		case PROP_ATIME: v = m->sb->st_atime; break;
 		case PROP_CTIME: v = m->sb->st_ctime; break;
 		case PROP_MTIME: v = m->sb->st_mtime; break;
+		case PROP_REPLIES: v = m->replies; break;
 		case PROP_SIZE: v = m->sb->st_size; break;
 		case PROP_DATE: v = msg_date(m);
 		case PROP_FLAG: v = m->flags; break;
@@ -819,6 +825,7 @@ mailfile(char *file)
 	m->fpath = file;
 	m->index = num++;
 	m->flags = 0;
+	m->replies = 0;
 	m->depth = 0;
 	m->sb = 0;
 	m->msg = 0;
@@ -834,7 +841,7 @@ mailfile(char *file)
 
 	m->msg = blaze822(m->fpath);
 	if (!m->msg)
-		return 0;
+		return m;
 
 	if ((e = strrchr(m->fpath, '/') - 1) && (e - m->fpath) >= 2 &&
 	    *e-- == 'w' && *e-- == 'e' && *e-- == 'n')
@@ -909,6 +916,7 @@ do_thr()
 	}
 
 	free(thr);
+	thr = 0;
 }
 
 void
@@ -935,28 +943,33 @@ collect(char *file)
 		ml = thr->cur = thr->childs;
 		thr->cur->m = m;
 	} else {
-		/* previous mail is a prent, current one is a child */
-		if (thr->cur->m->depth < m->depth)
+		ml = thr->cur + 1;
+
+		if (thr->cur->m->depth < m->depth) {
+			/* previous mail is a prent */
 			thr->cur->m->flags |= FLAG_PARENT;
+			ml->parent = thr->cur;
+		} else if (thr->cur->m->depth == m->depth) {
+			/* same depth == same parent */
+			ml->parent = thr->cur->parent;
+		} else if (thr->cur->m->depth > m->depth) {
+			/* find parent mail */
+			struct mlist *pl;
+			for (pl = thr->cur; pl->m->depth >= m->depth; pl--);
+			ml->parent = pl;
+		}
+
 		m->flags |= FLAG_CHILD;
 
-		ml = thr->cur + 1;
 		thr->cur->next = ml;
 		thr->cur = ml;
 		ml->m = m;
 	}
 
+	for (ml = ml->parent; ml; ml = ml->parent)
+		ml->m->replies++;
+
 	m->fpath = strdup(m->fpath);
-
-	if (Tflag) {
-		if (thr->matched)
-			return;
-
-		if (expr && !eval(expr, m))
-			return;
-
-		thr->matched++;
-	}
 }
 
 void
@@ -964,18 +977,19 @@ oneline(char *file)
 {
 	struct mailinfo *m;
 
-	if ((m = mailfile(file)) == 0)
-		return;
-
+	m = mailfile(file);
 	if (expr && !eval(expr, m))
 		goto out;
 
-	printf("%s\n", file);
+	fputs(file, stdout);
+	putchar('\n');
 	kept++;
 
 out:
-	blaze822_free(m->msg);
-	free(m->sb);
+	if (m->msg)
+		blaze822_free(m->msg);
+	if (m->sb)
+		free(m->sb);
 	free(m);
 }
 
