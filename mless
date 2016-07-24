@@ -3,15 +3,8 @@
 
 PATH="${0%/*}:$PATH"
 
-if [ "$1" = --filter ]; then
-	[ "$2" = //scan ] && exec mscan :
-
-	if ! [ -f $(mseq "$2") ]; then
-		mseq "$2"
-		exit
-	fi
-
-	mshow "$2" | awk '
+colormsg() {
+awk '
 function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
 function so(s) { return sprintf("\033[1m%s\033[0m", s) }
 BEGIN { hdr = 1 }
@@ -21,6 +14,33 @@ hdr { print fg(120, $0); next }
 /^--- .* ---/ { print fg(242, $0); next }
 /^>/ { print fg(151, $0); next }
 { print }'
+}
+
+colorscan() {
+awk '
+function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
+function so(s) { return sprintf("\033[1m%s\033[0m", s) }
+/^>/ { print so(fg(119, $0)); next }
+/^ *\\_/ { print fg(242, $0); next }
+{ print }'
+}
+
+if [ "$1" = --filter ]; then
+	if [ "$2" = //scan ]; then
+		mscan : 2>/dev/null | colorscan
+		exit $?
+	fi
+
+	mshow -q "$2" > /dev/null
+	mscan .-2:.+3 2>/dev/null | colorscan
+	echo
+
+	if ! [ -f $(mseq "$2") ]; then
+		mseq "$2"
+		exit
+	fi
+
+	mshow "$2" | colormsg
 	exit $?
 fi
 
