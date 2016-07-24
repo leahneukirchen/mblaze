@@ -25,6 +25,10 @@ function so(s) { return sprintf("\033[1m%s\033[0m", s) }
 { print }'
 }
 
+mnums() {
+	mscan "$@" 2>/dev/null | awk '/^...[^ ]/{print $2}'
+}
+
 if [ "$1" = --filter ]; then
 	if [ "$2" = //scan ]; then
 		mscan : 2>/dev/null | colorscan
@@ -58,7 +62,7 @@ case "$0" in
 	*prev*) d=-1;;
 	*) d=0;;
 esac
-curcmd=$(mseq -n "$@" |
+curcmd=$(mnums "$@" |
 	awk -v cur=$(mseq -n .) -v d=$d '$1 == cur {print "+" FNR+d ":x"; quit}')
 
-LESSOPEN="|$0 --filter %s" exec less -Ps"mless %f?m (message %i of %m).." -R $curcmd $(mseq -n "$@")
+LESSOPEN="|$0 --filter %s" exec less -Ps"mless %f?m (message %i of %m).." -R $curcmd $(mnums "$@")
