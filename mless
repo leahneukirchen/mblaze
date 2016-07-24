@@ -26,7 +26,7 @@ function so(s) { return sprintf("\033[1m%s\033[0m", s) }
 }
 
 mnums() {
-	mscan "$@" 2>/dev/null | awk '/^...[^ ]/{print $2}'
+	mscan "$@" 2>/dev/null | awk '$2 ~ /^[0-9]*$/ { print $2 }'
 }
 
 if [ "$1" = --filter ]; then
