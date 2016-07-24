@@ -166,6 +166,8 @@ parse_relnum(char *a, long cur, long last, long *out)
 		a = ".+1";
 	else if (strcmp(a, "-") == 0)
 		a = ".-1";
+	else if (strcmp(a, ".") == 0)
+		a = ".+0";
 	else if (strcmp(a, "$") == 0)
 		a = "-1";
 
