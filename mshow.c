@@ -492,8 +492,10 @@ show(char *file)
 				*n = 0;
 			v = blaze822_chdr(msg, h);
 			if (v) {
+				char d[4096];
+				blaze822_decode_rfc2047(d, v, sizeof d, "UTF-8");
 				printhdr(h);
-				printf(": %s\n", v);
+				printf(": %s\n", d);
 			}
 			if (n) {
 				*n = ':';
