@@ -298,6 +298,5 @@ main(int argc, char *argv[])
 		for (i = 0; i < idx; i++)
 			printf("%s\n", mails[i].file);
 
-	fprintf(stderr, "%d mails sorted\n", i);
 	return 0;
 }
