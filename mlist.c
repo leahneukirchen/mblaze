@@ -123,7 +123,7 @@ listdir(char *dir)
 			break;
 
 		for (bpos = 0; bpos < nread;) {
-			d = (struct linux_dirent64 *) (buf + bpos);
+			d = (struct linux_dirent64 *)(buf + bpos);
 			if (d->d_type != DT_REG && d->d_type != DT_UNKNOWN)
 				goto next;
 			if (d->d_name[0] == '.')
