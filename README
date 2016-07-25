@@ -82,7 +82,7 @@ EXAMPLES
 
 CONCEPTS
      Santoku deals with messages (which are files), folders (which are Maildir
-     folders), sequences (which are newline-seperated lists of messages,
+     folders), sequences (which are newline-separated lists of messages,
      possibly persisted on disk in ~/.santoku/map), and the current message
      (kept as a symlink in ~/.santoku/cur).
 
