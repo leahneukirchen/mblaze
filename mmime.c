@@ -54,7 +54,7 @@ int gen_b64(uint8_t *s, off_t size)
 	return 0;
 }
 
-int gen_qp(uint8_t *s, off_t size)
+int gen_qp(uint8_t *s, off_t size, int maxlinelen, int header)
 {
 	off_t i;
 	int linelen = 0;
@@ -67,8 +67,17 @@ int gen_qp(uint8_t *s, off_t size)
 			printf("=%02X", s[i]);
 			linelen += 3;
 			prev = s[i];
+		} else if (header &&
+			   (s[i] == '\n' || s[i] == '\t' || s[i] == '_')) {
+			printf("=%02X", s[i]);
+			linelen += 3;
+			prev = '_';
+		} else if (header && s[i] == ' ') {
+			putc_unlocked('_', stdout);
+			linelen++;
+			prev = '_';
 		} else if (s[i] == '\n') {
-			if (i > 1 && (prev == ' ' || prev == '\t'))
+			if (prev == ' ' || prev == '\t')
 				puts("=");
 			putc_unlocked('\n', stdout);
 			linelen = 0;
@@ -79,15 +88,15 @@ int gen_qp(uint8_t *s, off_t size)
 			prev = s[i];
 		}
 		
-		if (linelen >= 75) {
+		if (linelen >= maxlinelen-3) {
 			linelen = 0;
 			prev = '\n';
 			puts("=");
 		}
 	}
-	if (linelen > 0)
+	if (linelen > 0 && !header)
 		puts("=");
-	return 0;
+	return linelen;
 }
 
 static const char *
@@ -146,7 +155,8 @@ int gen_file(char *file, char *ct)
 			ct = "text/plain";
 		printf("Content-Type: %s\n", ct);
 		printf("Content-Transfer-Encoding: quoted-printable\n\n");
-		return gen_qp(content, st.st_size);
+		gen_qp(content, st.st_size, 78, 0);
+		return 0;
 	} else if (bitlow > st.st_size/10 || bithigh > st.st_size/4) {
 		if (!ct)
 			ct = "application/binary";
@@ -158,7 +168,8 @@ int gen_file(char *file, char *ct)
 			ct = "text/plain";
 		printf("Content-Type: %s\n", ct);
 		printf("Content-Transfer-Encoding: quoted-printable\n\n");
-		return gen_qp(content, st.st_size);
+		gen_qp(content, st.st_size, 78, 0);
+		return 0;
 	}
 }
 
@@ -180,6 +191,84 @@ gen_mixed(int argc, char *argv[])
 	printf("--%s--\n", sep);
 
 	return 0;
+}
+
+void
+print_header(char *line) {
+	char *s, *e;
+	size_t l = strlen(line);
+
+	if (line[l-1] == '\n')
+		line[l-1] = 0;
+
+	/* iterate word-wise, encode words when needed. */
+
+	s = line;
+	e = s;
+
+	if (!(*s == ' ' || *s == '\t')) {
+		// raw header name
+		while (*s && *s != ':')
+			putc_unlocked(*s++, stdout);
+		if (*s == ':')
+			putc_unlocked(*s++, stdout);
+	}
+
+	int prevq = 0;
+
+	int linelen = s - line;
+
+	while (*s) {
+		size_t highbit = 0;
+		e = s;
+		while (*e && *e == ' ')
+			e++;
+		for (; *e && *e != ' '; e++) {
+			if ((uint8_t) *e >= 127)
+				highbit++;
+		}
+		// use qp for lines with high bit, for long lines, or
+		// for more than two spaces
+		if (highbit ||
+		    e-s > 78-linelen ||
+		    (prevq && s[0] == ' ' && s[1] == ' ')) {
+			if (!prevq && s[0] == ' ')
+				s++;
+
+			// 13 = strlen(" =?UTF-8?Q??=")
+			int w;
+			while (s < e && (w = (78-linelen-13) / (highbit?3:1)) < e-s && w>0) {
+				printf(" =?UTF-8?Q?");
+				gen_qp((uint8_t *)s, w>e-s?e-s:w, 999, 1);
+				printf("?=\n");
+				s += w;
+				linelen = 0;
+			}
+			if (s < e) {
+				if (linelen + (e-s)+13 > 78) {
+					printf("\n");
+					linelen = 0;
+				}
+				printf(" =?UTF-8?Q?");
+				linelen += 13;
+				linelen += gen_qp((uint8_t *)s, e-s, 999, 1);
+				printf("?=");
+			}
+			prevq = 1;
+		} else {
+			if (linelen + (e-s) > 78) {
+				printf("\n");
+				if (*s != ' ')
+					printf(" ");
+				linelen = 0;
+			}
+			fwrite(s, 1, e-s, stdout);
+			linelen += e-s;
+			prevq = 0;
+		}
+		s = e;
+	}
+	printf("\n");
 }
 
 int
@@ -210,7 +299,7 @@ gen_build()
 				printf("\n");
 				printf("This is a multipart message in MIME format.\n\n");
 			} else {
-				printf("%s", line);
+				print_header(line);
 			}
 			continue;
 		}
@@ -237,7 +326,7 @@ gen_build()
 			intext = 1;
 		}
 
-		gen_qp((uint8_t *)line, strlen(line));
+		gen_qp((uint8_t *)line, strlen(line), 78, 0);
 	}
 	printf("--%s--\n", sep);
 
