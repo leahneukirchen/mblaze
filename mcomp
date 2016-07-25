@@ -19,6 +19,8 @@ draft="snd.$i"
 		echo "Cc: "
 		echo "Bcc: "
 		echo "Subject: "
+		from=$(mhdr -local-mailbox ~/.santoku/profile)
+		[ "$from" ] && echo "From: $from"
 		cat ~/.santoku/headers 2>/dev/null
 		echo
 		echo
