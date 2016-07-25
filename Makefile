@@ -17,6 +17,9 @@ mshow: mshow.o blaze822.o seq.o rfc2045.o rfc2047.c
 msort: msort.o blaze822.o seq.o mystrverscmp.c
 mthread: mthread.o blaze822.o seq.o
 
+README: man/mintro.7
+	mandoc -Tutf8 $< | col -bx >$@
+
 clean: FRC
 	-rm -f $(ALL) *.o
 

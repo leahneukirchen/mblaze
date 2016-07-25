@@ -1,0 +1,110 @@
+MINTRO(7)              Miscellaneous Information Manual              MINTRO(7)
+
+NAME
+     mintro – Santoku introduction
+
+DESCRIPTION
+     The Santoku message system is a set of Unix utilities to deal with mail
+     kept in Maildir folders.
+
+     Its design is roughly inspired by MH, the RAND Message Handling System,
+     but its is a complete implementation from scratch.
+
+     Santoku consists of a set of Unix tools that each do one job:
+     maddr(1)    to extract addresses from mail
+     mcomp(1)    to write and send mail
+     mdirs(1)    to find Maildirs
+     mflag(1)    to change flags (marks) of mail
+     mhdr(1)     to extract mail headers
+     minc(1)     to incorporate new mail
+     mless(1)    to conveniently read mail in less(1)
+     mlist(1)    to list and filter mail messages
+     mmime(1)    to create MIME messages
+     mrepl(1)    to reply to mail
+     mscan(1)    to generate single line summaries of mail
+     mseq(1)     to deal with mail sequences
+     msetseq(1)  to set the mail sequence
+     mshow(1)    to render mail and extract attachments
+     msort(1)    to sort mail
+     mthread(1)  to arrange mail into discussions
+
+PRINCIPLES
+     Santoku is a classic command line MUA with no features related to
+     receiving and transferring mail.  You are expected to fetch your mail
+     using offlineimap(1), fdm(1), procmail(1), getmail(1) or similar and send
+     it using sendmail(8), as provided by OpenSMTPD, Postfix, msmtp(1), dma(8)
+     or similar.  Santoku expects your mail to reside in Maildir folders.
+
+     Santoku operates directly on Maildir and doesn't use caches or database.
+     There is no setup needed for many uses.  All tools have been written with
+     performance in mind.  Enumeration of all mails in a Maildir is avoided
+     unless necessary, and then optimized to use few syscalls.  Parsing mail
+     metadata is optimized to use few I/O requests.  Initial operations on big
+     Maildir may feel slow, but as soon as they are in cache, everything is
+     blazing fast.  The tools are written to be memory efficient (i.e. not
+     wasteful), but whole messages are assumed to fit into RAM easily (at a
+     time).
+
+     Santoku has been written from scratch and tested on a big pile of
+     personal mail, but is not actually 100% RFC conforming (which is neither
+     worth it nor desirable).  There may be issues with very old,
+     nonconforming, messages.
+
+     Santoku is written in portable C, using only POSIX functions (apart from
+     a tiny Linux-only optimization).  It supports MIME and more than 7-bit
+     messages (everything the host iconv(3) can decode).  It assumes you work
+     in a UTF-8 environment.  Santoku works well together with other Unix mail
+     tools such as offlineimap(1), mairix(1), or mu(1).
+
+EXAMPLES
+     Santoku tools are designed to be composed together into a pipe.  It is
+     suitable for interactive use and for scripting.  It integrates well into
+     a Unix workflow.
+
+     For example, you could decide you want to look at all unseen mail in your
+     INBOX, oldest first.
+           mlist -s ~/Maildir/INBOX | msort -d | mscan
+     To operate on a set of mails in multiple steps, you can save a list of
+     mail as a sequence.  E.g. add a call to ‘msetseq’ to above command:
+           mlist -s ~/Maildir/INBOX | msort -d | msetseq | mscan
+     Now mscan will show message numbers and you could look at the first five
+     mails at once, for example:
+           mshow 1:5
+     Likewise, you could decide to look at all freshly received mail in all
+     folders, thread it and look at it interactively:
+           mdirs ~/Maildir | xargs minc | mthread | mless
+     Or you could look at the attachments of the 20 largest mails in your
+     INBOX:
+           mlist ~/Maildir/INBOX | msort -s | tail -20 | mshow -t
+     Or apply the patches from the current mail:
+           mshow -O. '*.diff' | patch
+     As usual with pipes, the sky is the limit.
+
+CONCEPTS
+     Santoku deals with messages (which are files), folders (which are Maildir
+     folders), sequences (which are newline-seperated lists of messages,
+     possibly persisted on disk in ~/.santoku/map), and the current message
+     (kept as a symlink in ~/.santoku/cur).
+
+     Messages in the persisted sequence can be referred to using special
+     syntax as explained in mmsg(7).
+
+     Many utilities have a default behavior when used interactively from a
+     terminal (e.g. operate on the current message or the current sequence).
+     For scripting, you must make these arguments explicit.
+
+SEE ALSO
+     mailx(1), nmh(7)
+
+AUTHORS
+     Christian Neukirchen <chneukirchen@gmail.com>
+
+LICENSE
+     Santoku is in the public domain.
+
+     To the extent possible under law, the creator of this work has waived all
+     copyright and related or neighboring rights to this work.
+
+     http://creativecommons.org/publicdomain/zero/1.0/
+
+Void Linux                       July 22, 2016                      Void Linux
