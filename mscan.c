@@ -50,6 +50,19 @@ u8putstr(FILE *out, char *s, size_t l, int pad)
 			putc(' ', out);
 }
 
+int
+itsme(char *v)
+{
+	int i;
+
+	char *disp, *addr;
+	while ((v = blaze822_addr(v, &disp, &addr)))
+		for (i = 0; addr && i < alias_idx; i++)
+			if (strcmp(aliases[i], addr) == 0)
+				return 1;
+	return 0;
+}
+
 void
 oneline(char *file)
 {
@@ -82,7 +95,7 @@ oneline(char *file)
 		return;
 	}
 
-	char flag1, flag2;
+	char flag1, flag2, flag3;
 
 	char *f = strstr(file, ":2,");
         if (!f)
@@ -121,24 +134,32 @@ oneline(char *file)
 		// mtime perhaps?
 	}
 
+	flag3 = ' ';
+	if (alias_idx) {
+		if ((v = blaze822_hdr(msg, "to")) && itsme(v))
+			flag3 = '>';
+		else if ((v = blaze822_hdr(msg, "cc")) && itsme(v))
+			flag3 = '+';
+		else if ((v = blaze822_hdr(msg, "resent-to")) && itsme(v))
+			flag3 = ':';
+	}
+
 	char *from = "(unknown)";
 	char to[256];
 
         if ((v = blaze822_hdr(msg, "from"))) {
+		if (itsme(v)) {
+			snprintf(to, sizeof to, "TO:%s", v);
+			from = to;
+			flag3 = '<';
+		}
+
 		char *disp, *addr;
 		blaze822_addr(v, &disp, &addr);
 		if (disp)
 			from = disp;
 		else if (addr)
 			from = addr;
-
-		int i;
-		for (i = 0; addr && i < alias_idx; i++)
-			if (strcmp(aliases[i], addr) == 0 &&
-			    (v = blaze822_hdr(msg, "to"))) {
-				snprintf(to, sizeof to, "TO:%s", v);
-				from = to;
-			}
 	}
 
 	char fromdec[17];
@@ -158,7 +179,7 @@ oneline(char *file)
 	else
 		printf("%c%c     %-10s  ", flag1, flag2, date);
 	u8putstr(stdout, fromdec, 17, 1);
-	printf("  ");
+	printf("%c ", flag3);
 	int z;
 	if (indent > 18) {
 		printf("..%2d..              ", indent/2);
