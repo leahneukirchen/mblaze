@@ -29,7 +29,7 @@ the sequence number (if applicable),
 the date,
 the originator,
 and the subject of the message.
-.Sh FLAGS
+.Sh MESSAGE FLAGS
 .Bl -tag -width 2n -compact
 .It Li \&>
 The current message
@@ -41,6 +41,18 @@ A trashed message
 A flagged message
 .It Li \&-
 A replied-to message
+.El
+.Sh SUBJECT FLAGS
+.Bl -tag -width 2n -compact
+.It Li \&>
+You are in
+.Sq Li "To:" .
+.It Li \&+
+You are in
+.Sq Li "Cc:" .
+.It Li \&:
+You are in
+.Sq Li "Resent-To:" .
 .El
 .Sh EXIT STATUS
 .Ex -std
