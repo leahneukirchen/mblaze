@@ -146,14 +146,16 @@ blaze822_addr(char *s, char **dispo, char **addro)
 {
 	static char disp[1024];
 	static char addr[1024];
-//	char *disp = disp+sizeof disp;
-//	char *addr = addr+sizeof addr;
 	char *c, *e;
 
-//	printf("RAW : |%s|\n", s);
-	
 	while (iswsp(*s))
 		s++;
+
+	if (!*s) {
+		if (dispo) *dispo = 0;
+		if (addro) *addro = 0;
+		return 0;
+	}
 	
 	c = disp;
 	e = disp + sizeof disp;
@@ -213,11 +215,8 @@ blaze822_addr(char *s, char **dispo, char **addro)
 		*disp = 0;
 	}
 
-//	printf("DISP :: |%s|\n", disp);
-//	printf("ADDR :: |%s|\n", addr);
-
-	if (dispo) *dispo = disp;
-	if (addro) *addro = addr;
+	if (dispo) *dispo = *disp ? disp : 0;
+	if (addro) *addro = *addr ? addr : 0;
 
 	return s;
 }

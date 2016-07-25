@@ -123,9 +123,9 @@ oneline(char *file)
         if ((v = blaze822_hdr(msg, "from"))) {
 		char *disp, *addr;
 		blaze822_addr(v, &disp, &addr);
-		if (*disp)
+		if (disp)
 			from = disp;
-		else if (*addr)
+		else if (addr)
 			from = addr;
 		else
 			from = "(unknown)";

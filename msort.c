@@ -74,9 +74,9 @@ fetch_from(char *file)
 	if (v) {
 		char *disp, *addr;
                 blaze822_addr(v, &disp, &addr);
-                if (*disp)
+                if (disp)
                         from = strdup(disp);
-                else if (*addr)
+                else if (addr)
 			from = strdup(addr);
 	}
 
