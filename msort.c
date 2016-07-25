@@ -13,19 +13,23 @@
 struct mail {
 	char *file;
 	long idx;
-	union {
-		long intkey;
-		char *strkey;
-	} k;
+	char *from;
+	char *subj;
+	time_t date;
+	time_t mtime;
+	off_t size;
 };
 
 struct mail *mails;
 ssize_t mailalloc = 1024;
 
-int idx = 0;
-
-int (*sortorder)(const void *, const void *);
+int idx;
 int rflag;
+
+static int (*sortorders[16])(const void *, const void *);
+int order_idx;
+
+int mystrverscmp(const char *, const char *);
 
 char *
 fetch_subj(char *file)
@@ -122,15 +126,12 @@ subjorder(const void *a, const void *b)
 	struct mail *ia = (struct mail *)a;
 	struct mail *ib = (struct mail *)b;
 
-	if (!ia->k.strkey)
-		ia->k.strkey = fetch_subj(ia->file);
-	if (!ib->k.strkey)
-		ib->k.strkey = fetch_subj(ib->file);
+	if (!ia->subj)
+		ia->subj = fetch_subj(ia->file);
+	if (!ib->subj)
+		ib->subj = fetch_subj(ib->file);
 
-	int k = strcasecmp(ia->k.strkey, ib->k.strkey);
-	if (k == 0)
-		return ia->idx - ib->idx;   // XXX verify
-	return k;
+	return strcasecmp(ia->subj, ib->subj);
 }
 
 int
@@ -139,15 +140,12 @@ fromorder(const void *a, const void *b)
 	struct mail *ia = (struct mail *)a;
 	struct mail *ib = (struct mail *)b;
 
-	if (!ia->k.strkey)
-		ia->k.strkey = fetch_from(ia->file);
-	if (!ib->k.strkey)
-		ib->k.strkey = fetch_from(ib->file);
+	if (!ia->from)
+		ia->from = fetch_from(ia->file);
+	if (!ib->from)
+		ib->from = fetch_from(ib->file);
 
-	int k = strcasecmp(ia->k.strkey, ib->k.strkey);
-	if (k == 0)
-		return ia->idx - ib->idx;   // XXX verify
-	return k;
+	return strcasecmp(ia->from, ib->from);
 }
 
 int
@@ -156,15 +154,16 @@ sizeorder(const void *a, const void *b)
 	struct mail *ia = (struct mail *)a;
 	struct mail *ib = (struct mail *)b;
 
-	if (!ia->k.intkey)
-		ia->k.intkey = fetch_size(ia->file);
-	if (!ib->k.intkey)
-		ib->k.intkey = fetch_size(ib->file);
+	if (!ia->size)
+		ia->size = fetch_size(ia->file);
+	if (!ib->size)
+		ib->size = fetch_size(ib->file);
 
-	int k = ia->k.intkey - ib->k.intkey;
-	if (k == 0)
-		return ia->idx - ib->idx;   // XXX verify
-	return k;
+	if (ia->size > ib->size)
+		return 1;
+	else if (ia->size < ib->size)
+		return -1;
+	return 0;
 }
 
 int
@@ -173,15 +172,16 @@ mtimeorder(const void *a, const void *b)
 	struct mail *ia = (struct mail *)a;
 	struct mail *ib = (struct mail *)b;
 
-	if (!ia->k.intkey)
-		ia->k.intkey = fetch_mtime(ia->file);
-	if (!ib->k.intkey)
-		ib->k.intkey = fetch_mtime(ib->file);
+	if (!ia->mtime)
+		ia->mtime = fetch_mtime(ia->file);
+	if (!ib->mtime)
+		ib->mtime = fetch_mtime(ib->file);
 
-	int k = ia->k.intkey - ib->k.intkey;
-	if (k == 0)
-		return ia->idx - ib->idx;   // XXX verify
-	return k;
+	if (ia->mtime > ib->mtime)
+		return 1;
+	else if (ia->mtime < ib->mtime)
+		return -1;
+	return 0;
 }
 
 int
@@ -190,47 +190,16 @@ dateorder(const void *a, const void *b)
 	struct mail *ia = (struct mail *)a;
 	struct mail *ib = (struct mail *)b;
 
-	if (!ia->k.intkey)
-		ia->k.intkey = fetch_date(ia->file);
-	if (!ib->k.intkey)
-		ib->k.intkey = fetch_date(ib->file);
+	if (!ia->date)
+		ia->date = fetch_date(ia->file);
+	if (!ib->date)
+		ib->date = fetch_date(ib->file);
 
-	int k = ia->k.intkey - ib->k.intkey;
-	if (k == 0)
-		return ia->idx - ib->idx;   // XXX verify
-	return k;
-}
-
-// taken straight from musl@a593414
-int mystrverscmp(const char *l0, const char *r0)
-{
-	const unsigned char *l = (const void *)l0;
-	const unsigned char *r = (const void *)r0;
-	size_t i, dp, j;
-	int z = 1;
-
-	/* Find maximal matching prefix and track its maximal digit
-	 * suffix and whether those digits are all zeros. */
-	for (dp=i=0; l[i]==r[i]; i++) {
-		int c = l[i];
-		if (!c) return 0;
-		if (!isdigit(c)) dp=i+1, z=1;
-		else if (c!='0') z=0;
-	}
-
-	if (l[dp]!='0' && r[dp]!='0') {
-		/* If we're not looking at a digit sequence that began
-		 * with a zero, longest digit string is greater. */
-		for (j=i; isdigit(l[j]); j++)
-			if (!isdigit(r[j])) return 1;
-		if (isdigit(r[j])) return -1;
-	} else if (z && dp<i && (isdigit(l[i]) || isdigit(r[i]))) {
-		/* Otherwise, if common prefix of digit sequence is
-		 * all zeros, digits order less than non-digits. */
-		return (unsigned char)(l[i]-'0') - (unsigned char)(r[i]-'0');
-	}
-
-	return l[i] - r[i];
+	if (ia->date > ib->date)
+		return 1;
+	else if (ia->date < ib->date)
+		return -1;
+	return 0;
 }
 
 int
@@ -273,20 +242,37 @@ add(char *file)
 }
 
 int
+order(const void *a, const void *b)
+{
+	int i, r;
+	for (i = 0, r = 0; i < order_idx; i++) {
+		r = (sortorders[i])(a, b);
+		if (r != 0)
+			return r;
+	}
+	return idxorder(a, b);
+}
+
+void
+addorder(int (*sortorder)(const void *, const void *))
+{
+	if (order_idx < (int) sizeof sortorders)
+		sortorders[order_idx++] = sortorder;
+}
+
+int
 main(int argc, char *argv[])
 {
 	int c, i;
 
-	sortorder = idxorder;
-
 	while ((c = getopt(argc, argv, "fdsFMSr")) != -1)
 		switch(c) {
-		case 'f': sortorder = fromorder; break;
-		case 'd': sortorder = dateorder; break;
-		case 's': sortorder = subjorder; break;
-		case 'F': sortorder = fileorder; break;
-		case 'M': sortorder = mtimeorder; break;
-		case 'S': sortorder = sizeorder; break;
+		case 'f': addorder(fromorder); break;
+		case 'd': addorder(dateorder); break;
+		case 's': addorder(subjorder); break;
+		case 'F': addorder(fileorder); break;
+		case 'M': addorder(mtimeorder); break;
+		case 'S': addorder(sizeorder); break;
 		case 'r': rflag = !rflag; break;
 		default:
 			// XXX usage
@@ -303,7 +289,7 @@ main(int argc, char *argv[])
 	else
 		blaze822_loop(argc-optind, argv+optind, add);
 
-	qsort(mails, idx, sizeof (struct mail), sortorder);
+	qsort(mails, idx, sizeof (struct mail), order);
 
 	if (rflag)
 		for (i = idx-1; i >= 0; i--)

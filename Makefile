@@ -14,7 +14,7 @@ mmime: mmime.o
 mscan: mscan.o blaze822.o seq.o rfc2047.o
 mseq: mseq.o seq.o
 mshow: mshow.o blaze822.o seq.o rfc2045.o rfc2047.c
-msort: msort.o blaze822.o seq.o
+msort: msort.o blaze822.o seq.o mystrverscmp.c
 mthread: mthread.o blaze822.o seq.o
 
 clean: FRC
