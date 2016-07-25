@@ -204,7 +204,6 @@ print_header(char *line) {
 	/* iterate word-wise, encode words when needed. */
 
 	s = line;
-	e = s;
 
 	if (!(*s == ' ' || *s == '\t')) {
 		// raw header name
