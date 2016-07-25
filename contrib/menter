@@ -1,0 +1,14 @@
+#!/bin/sh -e
+# menter [MSG] - run subshell in temporary directory with MSG extracted
+
+[ "$#" -eq 0 ] && set -- :
+
+dir=$(mktemp -d -t menter.XXXXXX)
+cd "$dir"
+mshow -t "$1"
+mshow -x "$1" 2>/dev/null
+ls -l
+ln -s "$(mseq "$1")" msg
+"${SHELL:-/bin/sh}" || true
+echo rm -r "$dir"
+rm -r "$dir"
