@@ -256,7 +256,7 @@ order(const void *a, const void *b)
 void
 addorder(int (*sortorder)(const void *, const void *))
 {
-	if (order_idx < (int) sizeof sortorders)
+	if (order_idx < (int)(sizeof sortorders / sizeof sortorders[0]))
 		sortorders[order_idx++] = sortorder;
 }
 
