@@ -20,6 +20,9 @@ static int cols;
 static wchar_t replacement = L'?';
 static char *cur;
 
+static char *aliases[32];
+static int alias_idx;
+
 void
 u8putstr(FILE *out, char *s, size_t l, int pad)
 {
@@ -118,8 +121,9 @@ oneline(char *file)
 		// mtime perhaps?
 	}
 
-
 	char *from = "(unknown)";
+	char to[256];
+
         if ((v = blaze822_hdr(msg, "from"))) {
 		char *disp, *addr;
 		blaze822_addr(v, &disp, &addr);
@@ -127,8 +131,14 @@ oneline(char *file)
 			from = disp;
 		else if (addr)
 			from = addr;
-		else
-			from = "(unknown)";
+
+		int i;
+		for (i = 0; addr && i < alias_idx; i++)
+			if (strcmp(aliases[i], addr) == 0 &&
+			    (v = blaze822_hdr(msg, "to"))) {
+				snprintf(to, sizeof to, "TO:%s", v);
+				from = to;
+			}
 	}
 
 	char fromdec[17];
@@ -137,7 +147,7 @@ oneline(char *file)
 
 	char *subj = "(no subject)";
 	char subjdec[100];
-        if ((v = blaze822_hdr(msg, "subject"))) {
+	if ((v = blaze822_hdr(msg, "subject"))) {
 		subj = v;
 	}
 	blaze822_decode_rfc2047(subjdec, subj, sizeof subjdec - 1, "UTF-8");
@@ -177,6 +187,23 @@ main(int argc, char *argv[])
 		cols = atoi(getenv("COLUMNS"));
 	if (cols <= 40)
 		cols = 80;
+
+	char *f = blaze822_home_file(".santoku/profile");
+	struct message *config = blaze822(f);
+
+	if (config) {
+		char *v, *d, *a;
+		if ((v = blaze822_hdr(config, "local-mailbox")))
+			while (alias_idx < (int)(sizeof aliases / sizeof aliases[0]) &&
+			       (v = blaze822_addr(v, &d, &a)))
+				if (a)
+					aliases[alias_idx++] = strdup(a);
+		if ((v = blaze822_hdr(config, "alternate-mailboxes")))
+			while (alias_idx < (int)(sizeof aliases / sizeof aliases[0]) &&
+			       (v = blaze822_addr(v, &d, &a)))
+				if (a)
+					aliases[alias_idx++] = strdup(a);
+	}
 
 	long i;
 	if (argc == 1 && isatty(0))
