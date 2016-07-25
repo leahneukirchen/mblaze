@@ -152,14 +152,14 @@ oneline(char *file)
 			snprintf(to, sizeof to, "TO:%s", v);
 			from = to;
 			flag3 = '<';
+		} else {
+			char *disp, *addr;
+			blaze822_addr(v, &disp, &addr);
+			if (disp)
+				from = disp;
+			else if (addr)
+				from = addr;
 		}
-
-		char *disp, *addr;
-		blaze822_addr(v, &disp, &addr);
-		if (disp)
-			from = disp;
-		else if (addr)
-			from = addr;
 	}
 
 	char fromdec[17];
