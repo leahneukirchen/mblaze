@@ -1,3 +1,7 @@
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 700
+#endif
+
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
