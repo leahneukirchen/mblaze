@@ -211,11 +211,12 @@ nofilter:
 		} else if (strncmp(ct, "message/rfc822", 14) == 0) {
 			struct message *imsg = blaze822_mem(body, bodylen);
 			char *h = 0;
-			if (imsg) {
-				while ((h = blaze822_next_header(imsg, h)))
-					printf("%s\n", h);
-				printf("\n");
+			while (imsg && (h = blaze822_next_header(imsg, h))) {
+				char d[4096];
+				blaze822_decode_rfc2047(d, h, sizeof d, "UTF-8");
+				printhdr(d);
 			}
+			printf("\n");
 		} else if (strncmp(ct, "multipart/", 10) == 0) {
 			;
 		} else {
