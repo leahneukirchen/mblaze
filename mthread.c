@@ -370,7 +370,7 @@ main(int argc, char *argv[])
  		switch(c) {
  		case 'v': vflag = 1; break;
  		default:
- 			// XXX usage
+			fprintf(stderr, "Usage: mthread [-v] [msgs...]\n");
  			exit(1);
  		}
 
