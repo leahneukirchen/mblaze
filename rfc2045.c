@@ -136,7 +136,7 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 	char *part = mymemmem(prevpart, msg->bodyend - prevpart, mboundary, boundarylen);
 	if (!part)
 		return 0;
-	/// XXX access to stuff before first boundary?
+
 	part += boundarylen;
 	if (*part == '\r')
 		part++;

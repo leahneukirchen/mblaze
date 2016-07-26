@@ -24,12 +24,10 @@ parse_posint(char **s, size_t minn, size_t maxn)
 
         errno = 0;
         n = strtol(*s, &end, 10);
-        if (errno) {
-//                perror("strtol");
+        if (errno)
 		return -1;
-        }
         if (n < (long)minn || n > (long)maxn) {
-//                fprintf(stderr, "number outside %zd <= n < %zd\n", minn, maxn);
+		errno = ERANGE;
 		return -1;
         }
         *s = end;
@@ -40,17 +38,6 @@ time_t
 blaze822_date(char *s) {
 	struct tm tm;
 	int c;
-
-#if 0
-#define i4(m) (s[0] && (s[0]|0x20) == m[0] && \
-               s[1] && (s[1]|0x20) == m[1] && \
-               s[2] && (s[2]|0x20) == m[2] && \
-               s[3] && (s[3]|0x20) == m[3] && (s = s+4) )
-
-#define i3(m) (s[0] && (s[0]|0x20) == m[0] && \
-               s[1] && (s[1]|0x20) == m[1] && \
-               s[2] && (s[2]|0x20) == m[2] && (s = s+3) )
-#endif
 
 #define i4(m) (((uint32_t) m[0]<<24 | m[1]<<16 | m[2]<<8 | m[3]) == \
 	       ((uint32_t) s[0]<<24 | s[1]<<16 | s[2]<<8 | s[3] | 0x20202020) \
@@ -86,6 +73,9 @@ blaze822_date(char *s) {
 	else if (i3("nov")) tm.tm_mon = 10;
 	else if (i3("dec")) tm.tm_mon = 11;
 	else goto fail;
+
+#undef i3
+#undef i4
 
 	while (iswsp(*s))
 		s++;
@@ -308,7 +298,6 @@ blaze822(char *file)
 
 	fd = open(file, O_RDONLY);
 	if (fd < 0) {
-//		perror("open");
 		free(mesg);
 		return 0;
 	}
