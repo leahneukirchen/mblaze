@@ -13,3 +13,5 @@ struct message {
 
 // ASCII lowercase without alpha check (wrong for "@[\]^_")
 #define lc(c) ((c) | 0x20)
+
+void *mymemmem(const void *h0, size_t k, const void *n0, size_t l);

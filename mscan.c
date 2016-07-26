@@ -1,5 +1,3 @@
-#define _GNU_SOURCE
-
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>

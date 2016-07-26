@@ -6,4 +6,5 @@ has waived all copyright and related or neighboring rights to this work.
 http://creativecommons.org/publicdomain/zero/1.0/
 
 
-The file mystrverscmp.c is MIT-licensed and based on code by Rich Felker.
+The files mystrverscmp.c and mymemmem.c
+are MIT-licensed and were written by Rich Felker.

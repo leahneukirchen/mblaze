@@ -1,6 +1,3 @@
-// memmem
-#define _GNU_SOURCE
-
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -343,11 +340,11 @@ blaze822(char *file)
 			return 0;
 		}
 
-		if ((end = memmem(buf-overlap+used, rd+overlap, "\n\n", 2))) {
+		if ((end = mymemmem(buf-overlap+used, rd+overlap, "\n\n", 2))) {
 			end++;
 			break;
 		}
-		if ((end = memmem(buf-overlap+used, rd+overlap, "\r\n\r\n", 4))) {
+		if ((end = mymemmem(buf-overlap+used, rd+overlap, "\r\n\r\n", 4))) {
 			end++;
 			end++;
 			break;
@@ -378,9 +375,9 @@ blaze822_mem(char *src, size_t len)
 	if (!mesg)
 		return 0;
 
-	if ((end = memmem(src, len, "\n\n", 2))) {
+	if ((end = mymemmem(src, len, "\n\n", 2))) {
 		mesg->body = end+2;
-	} else if ((end = memmem(src, len, "\r\n\r\n", 4))) {
+	} else if ((end = mymemmem(src, len, "\r\n\r\n", 4))) {
 		mesg->body = end+4;
 	} else {
 		end = src + len;
@@ -435,7 +432,7 @@ blaze822_hdr_(struct message *mesg, const char *hdr, size_t hdrlen)
 	if (memcmp(mesg->msg, hdr+1, hdrlen-1) == 0)
 		v = mesg->msg;
 	else
-		v = memmem(mesg->msg, mesg->end - mesg->msg, hdr, hdrlen);
+		v = mymemmem(mesg->msg, mesg->end - mesg->msg, hdr, hdrlen);
 	if (!v)
 		return 0;
 	v += hdrlen;
@@ -512,9 +509,9 @@ blaze822_mmap(char *file)
 	close(fd);
 
 	char *end;
-	if ((end = memmem(buf, len, "\n\n", 2))) {
+	if ((end = mymemmem(buf, len, "\n\n", 2))) {
 		mesg->body = end+2;
-	} else if ((end = memmem(buf, len, "\r\n\r\n", 4))) {
+	} else if ((end = mymemmem(buf, len, "\r\n\r\n", 4))) {
 		mesg->body = end+4;
 	} else {
 		end = buf + len;

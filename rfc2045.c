@@ -1,5 +1,3 @@
-#define _GNU_SOURCE
-
 #include <sys/types.h>
 
 #include <string.h>
@@ -134,7 +132,7 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 	else
 		prevpart = msg->body;
 
-	char *part = memmem(prevpart, msg->bodyend - prevpart, mboundary, boundarylen);
+	char *part = mymemmem(prevpart, msg->bodyend - prevpart, mboundary, boundarylen);
 	if (!part)
 		return 0;
 	/// XXX access to stuff before first boundary?
@@ -148,7 +146,7 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 	else
 		return 0;   // XXX error condition?
 
-	char *nextpart = memmem(part, msg->bodyend - part, mboundary, boundarylen);
+	char *nextpart = mymemmem(part, msg->bodyend - part, mboundary, boundarylen);
 	if (!nextpart)
 		return 0;   // XXX error condition
 
