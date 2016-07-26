@@ -262,7 +262,7 @@ main(int argc, char *argv[])
 		}
 
 	if (Cflag) {
-		blaze822_seq_setcur(Cflag);
+		blaze822_loop1(Cflag, (void (*)(char *))blaze822_seq_setcur);
 		return 0;
 	}
 
