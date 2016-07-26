@@ -453,6 +453,9 @@ blaze822_chdr(struct message *mesg, const char *chdr)
 struct message *
 blaze822_file(char *file)
 {
+	char *buf = 0;
+	ssize_t rd = 0, n;
+
 	int fd = open(file, O_RDONLY);
 	if (fd < 0)
 		return 0;
@@ -461,26 +464,62 @@ blaze822_file(char *file)
 	if (fstat(fd, &st) < 0)
 		goto error;
 
-	size_t s = st.st_size;
+	if (S_ISFIFO(st.st_mode)) {  // unbounded read, grow buffer
+		ssize_t bufalloc = 16384;
+		buf = malloc(bufalloc);
+		if (!buf)
+			goto error;
 
-	char *buf = malloc(s+1);
-	if (read(fd, buf, s) < 0) {
-		// XXX handle short reads?
-		perror("read");
-		goto error;
+		do {
+			if (bufalloc <= rd) {
+				bufalloc *= 2;
+				buf = realloc(buf, bufalloc);
+				if (!buf)
+					goto error;
+			}
+			if ((n = read(fd, buf + rd, 16384)) < 0) {
+				if (errno == EINTR) {
+					continue;
+				} else {
+					perror("read");
+					goto error;
+				}
+			}
+			rd += n;
+		} while (n > 0);
+	} else {  // file size known
+		ssize_t s = st.st_size;
+
+		buf = malloc(s+1);
+		if (!buf)
+			goto error;
+
+		do {
+			if ((n = read(fd, buf + rd, s - rd)) < 0) {
+				if (errno == EINTR) {
+					continue;
+				} else {
+					perror("read");
+					goto error;
+				}
+			}
+			rd += n;
+		} while (rd < s && n > 0);
 	}
+
 	close(fd);
 
-	buf[s] = 0;
+	buf[rd] = 0;
 
 	// XXX duplicate header in ram...
-	struct message *mesg = blaze822_mem(buf, s);
+	struct message *mesg = blaze822_mem(buf, rd);
 	if (mesg)
 		mesg->bodychunk = buf;
 	return mesg;
 
 error:
 	close(fd);
+	free(buf);
 	return 0;
 }
 
