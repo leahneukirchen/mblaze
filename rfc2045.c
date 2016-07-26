@@ -1,5 +1,6 @@
 #include <sys/types.h>
 
+#include <strings.h>
 #include <string.h>
 
 #include "blaze822.h"
