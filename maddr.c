@@ -19,7 +19,7 @@ addr(char *file)
 		file++;
 	
 	struct message *msg = blaze822(file);
-        if (!msg)
+	if (!msg)
 		return;
 
 	char *h = hflag;
@@ -58,19 +58,19 @@ addr(char *file)
 int
 main(int argc, char *argv[])
 {
-        int c;
-        while ((c = getopt(argc, argv, "h:")) != -1)
-                switch(c) {
-                case 'h': hflag = optarg; break;
-                default:
-                        // XXX usage
-                        exit(1);
-                }			
+	int c;
+	while ((c = getopt(argc, argv, "h:")) != -1)
+		switch(c) {
+		case 'h': hflag = optarg; break;
+		default:
+			fprintf(stderr, "Usage: maddr [-h headers] [msgs...]\n");
+			exit(1);
+		}
 
-        if (argc == optind && isatty(0))
-                blaze822_loop1(":", addr);
-        else
+	if (argc == optind && isatty(0))
+		blaze822_loop1(":", addr);
+	else
 		blaze822_loop(argc-optind, argv+optind, addr);
 
-        return 0;
+	return 0;
 }
