@@ -3,15 +3,21 @@
 .Os
 .Sh NAME
 .Nm mseq
-.Nd print messages from mail sequence
+.Nd manipulate mail sequence
 .Sh SYNOPSIS
 .Nm
+.Op Fl f
 .Op Fl n
 .Op Fl r
 .Ar msgs\ ...
+.Nm
+.Op Fl f
+.Op Fl S | Fl A
+<
+.Ar sequence
 .Sh DESCRIPTION
 .Nm
-prints messages in the mail sequence.
+prints, fixes and sets messages in the mail sequence.
 See
 .Xr mmsg 7
 for the message argument syntax.
@@ -24,13 +30,38 @@ is used interactively,
 .Nm
 prints all messages in the sequence.
 .Pp
+.Pp
+With
+.Fl S
+or
+.Fl A ,
+.Nm
+will replace (resp. append) the default sequence.
+If standard output is not a terminal, the new sequence is also printed.
+.Pp
 The options are as follows:
 .Bl -tag -width Ds
+.It Fl f
+Fix non-existing filenames by searching for a message with the same
+Maildir id (but different flags).
 .It Fl n
 Print the sequence numbers of the
 .Ar msgs .
 .It Fl r
 Remove leading indentation from the file names.
+.It Fl S
+Set the mail sequence to the file names passed on standard input.
+.It Fl A
+Like
+.Fl S ,
+but append to the mail sequence instead of replacing it.
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width Ds
+.It Ev MAILMAP
+File were the sequence is stored.
+(Default:
+.Pa ~/.santoku/map )
 .El
 .Sh EXIT STATUS
 .Ex -std
