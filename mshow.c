@@ -571,6 +571,7 @@ show(char *file)
 		}
 		hl = read(fd, header, hl);
 		fwrite(header, 1, hl, stdout);
+		printf("\n");
 	} else if (Lflag) {  // all headers
 		char *h = 0;
 		while ((h = blaze822_next_header(msg, h))) {
