@@ -209,11 +209,7 @@ fileorder(const void *a, const void *b)
 	struct mail *ia = (struct mail *)a;
 	struct mail *ib = (struct mail *)b;
 
-	int x = mystrverscmp(a, b);
-
-	if (x != 0)
-		return x;
-	return ia->idx - ib->idx;   // XXX verify
+	return mystrverscmp(ia->file, ib->file);
 }
 
 int
@@ -222,7 +218,12 @@ idxorder(const void *a, const void *b)
 	struct mail *ia = (struct mail *)a;
 	struct mail *ib = (struct mail *)b;
 
-	return ia->idx - ib->idx;   // XXX verify
+	if (ia->idx > ib->idx)
+		return 1;
+	else if (ia->idx < ib->idx)
+		return -1;
+	else
+		return 0;
 }
 
 void
