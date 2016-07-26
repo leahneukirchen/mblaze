@@ -636,7 +636,13 @@ main(int argc, char *argv[])
 		case 'R': Rflag = 1; break;
 		case 'n': nflag = 1; break;
                 default:
-                        // XXX usage
+			fprintf(stderr,
+			    "Usage: mshow [-h headers] [-qrHL] [msgs...]\n"
+			    "       mshow -x msg parts...\n"
+			    "       mshow -O msg parts...\n"
+			    "       mshow -t msgs...\n"
+			    "       mshow -R msg\n"
+			);
                         exit(1);
                 }
 
