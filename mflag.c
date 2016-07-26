@@ -125,7 +125,11 @@ main(int argc, char *argv[])
 			break;
 		case 'v': vflag = 1; break;
 		default:
-			// XXX usage
+			fprintf(stderr,
+			    "Usage: mflag [-DFPRST] [-X str]\n"
+			    "             [-dfprst] [-x str]\n"
+			    "             [-v] [msgs...]\n"
+			);
 			exit(1);
 		}
 
