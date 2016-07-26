@@ -161,7 +161,7 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "PRSTDFprstdfX:x:NnCcim:")) != -1)
+	while ((c = getopt(argc, argv, "PRSTDFprstdfX:x:NnCci")) != -1)
 		switch(c) {
 		case 'P': case 'R': case 'S': case 'T': case 'D': case 'F':
 			flags[(unsigned int)c] = 1;
@@ -182,11 +182,19 @@ main(int argc, char *argv[])
 		case 'C': Cflag = 1; break;
 		case 'c': Cflag = -1; break;
 		case 'i': iflag = 1; break;
-		case 'm': // XXX todo
 		default:
-			// XXX usage
+		usage:
+			fprintf(stderr,
+			    "Usage: mlist [-DFPRST] [-X str]\n"
+			    "             [-dfprst] [-x str]\n"
+			    "             [-N | -n | -C | -c]\n"
+			    "             [-i] dirs...\n"
+			);
 			exit(1);
 		}
+
+	if (optind == argc)
+		goto usage;
 
         int i;
 	
