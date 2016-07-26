@@ -1,3 +1,6 @@
+#include <dirent.h>
+#include <limits.h>
+#include <search.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,21 +8,194 @@
 
 #include "blaze822.h"
 
+static int fflag;
 static int nflag;
 static int rflag;
+
+struct name {
+	char *id;
+	char *file;
+};
+
+static void *names;
+
+int
+nameorder(const void *a, const void *b)
+{
+	struct name *ia = (struct name *)a;
+	struct name *ib = (struct name *)b;
+
+	return strcmp(ia->id, ib->id);
+}
+
+char *
+namefind(char *id)
+{
+	struct name key, **result;
+	key.id = id;
+
+	if (!(result = tfind(&key, &names, nameorder)))
+		return 0;
+
+	return (*result)->file;
+}
+
+void
+namescan(char *dir)
+{
+	DIR *fd;
+	struct dirent *d;
+
+	fd = opendir(dir);
+	if (!fd)
+		return;
+	while ((d = readdir(fd))) {
+		if (d->d_type != DT_REG && d->d_type != DT_UNKNOWN)
+			continue;
+		if (d->d_name[0] == '.')
+			continue;
+
+		char file[PATH_MAX];
+		snprintf(file, sizeof file, "%s/%s", dir, d->d_name);
+
+		char *e;
+		if ((e = strstr(d->d_name, ":2,")))
+			*e = 0;
+
+		struct name *c = malloc(sizeof (struct name));
+		c->id = strdup(d->d_name);
+		c->file = strdup(file);
+		tsearch(c, &names, nameorder);
+	}
+	closedir(fd);
+
+	// add dir so know we scanned it already
+	struct name *c = malloc(sizeof (struct name));
+	c->id = c->file = strdup(dir);
+	tsearch(c, &names, nameorder);
+}
+
+char *
+search(char *file)
+{
+	char dir[PATH_MAX];
+	char *e;
+	if ((e = strrchr(file, '/'))) {
+		snprintf(dir, sizeof dir, "%.*s", (int)(e-file), file);
+		file = e+1;
+	} else {
+		snprintf(dir, sizeof dir, ".");
+	}
+
+	if (!namefind(dir))
+		namescan(dir);
+
+	return namefind(file);
+}
+
+/* strategy to find a Maildir file name:
+   - if file exists, all good
+   - try a few common different flags
+   - index the containing dir, try to search for the id
+   - if its in new/, try the same in cur/
+ */
+int
+fix(char *file)
+{
+	int i;
+	for (i = 0; *file == ' '; i++, file++)
+		;
+
+	char buf[PATH_MAX];
+	char *bufptr = buf;
+
+	if (*file == '<' || access(file, F_OK) == 0) {
+		bufptr = file;
+		goto ok;
+	}
+
+	char *e;
+	char *sep;
+
+	if ((e = strstr(file, ":2,"))) {
+		sep = "";
+		e[3] = 0;
+	} else {
+		sep = ":2,";
+	}
+	snprintf(buf, sizeof buf, "%s%s", file, sep);
+	if (access(buf, F_OK) == 0) goto ok;
+	snprintf(buf, sizeof buf, "%s%sS", file, sep);
+	if (access(buf, F_OK) == 0) goto ok;
+	snprintf(buf, sizeof buf, "%s%sRS", file, sep);
+	if (access(buf, F_OK) == 0) goto ok;
+	snprintf(buf, sizeof buf, "%s%sFS", file, sep);
+	if (access(buf, F_OK) == 0) goto ok;
+
+	if ((bufptr = search(file))) goto ok;
+
+	char *ee = strrchr(file, '/');
+	if (ee >= file + 3 && ee[-3] == 'n' && ee[-2] == 'e' && ee[-1] == 'w') {
+		ee[-3] = 'c'; ee[-2] = 'u'; ee[-1] = 'r';
+		return fix(file);
+	}
+
+	return 0;
+ok:
+	while(i--)
+		putchar(' ');
+	printf("%s\n", bufptr);
+	return 1;
+}
+
+int
+stdinmode()
+{
+	char *line = 0;
+	char *l;
+	size_t linelen = 0;
+	ssize_t rd;
+	long i = 0;
+
+	while ((rd = getline(&line, &linelen, stdin)) != -1) {
+		if (line[rd-1] == '\n')
+			line[rd-1] = 0;
+
+		if (nflag) {
+			printf("%ld\n", ++i);
+			break;
+		}
+
+		l = line;
+		if (rflag)
+			while (*l == ' ' || *l == '\t')
+				l++;
+		if (fflag)
+			fix(l);
+		else
+			printf("%s\n", l);
+	}
+
+	free(line);
+	return 0;
+}
 
 int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "rn")) != -1)
+	while ((c = getopt(argc, argv, "fnr")) != -1)
 		switch(c) {
+		case 'f': fflag = 1; break;
 		case 'n': nflag = 1; break;
 		case 'r': rflag = 1; break;
 		default:
 			// XXX usage
 			exit(1);
 		}
+
+	if (optind == argc && !isatty(0))
+		return stdinmode();
 
 	char *map = blaze822_seq_open(0);
 	if (!map)
@@ -30,7 +206,7 @@ main(int argc, char *argv[])
 	char *a;
 	struct blaze822_seq_iter iter = { 0 };
 
-	if (optind == argc && isatty(0)) {
+	if (optind == argc) {
 		a = ":";
 		i = argc;
 		goto hack;
@@ -50,7 +226,10 @@ hack:
 				if (rflag)
 					while (*s == ' ' || *s == '\t')
 						s++;
-				printf("%s\n", s);
+				if (fflag)
+					fix(s);
+				else
+					printf("%s\n", s);
 			}
 			free(f);
 		}
