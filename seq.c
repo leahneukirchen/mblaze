@@ -297,7 +297,7 @@ blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
 }
 
 static void
-iterfile(char *dir, void (*cb)(char *))
+iterdir(char *dir, void (*cb)(char *))
 {
 	DIR *fd, *fd2;
         struct dirent *d;
@@ -355,7 +355,7 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 	int j = 0;
 	for (i = 0; i < argc; i++) {
 		if (strchr(argv[i], '/')) {  // a file name
-			iterfile(argv[i], cb);
+			iterdir(argv[i], cb);
 			j++;
 		} else {
 			while ((line = blaze822_seq_next(map, argv[i], &iter))) {
