@@ -11,6 +11,8 @@
 static int fflag;
 static int nflag;
 static int rflag;
+static int Sflag;
+static int Aflag;
 
 struct name {
 	char *id;
@@ -100,7 +102,7 @@ search(char *file)
    - if its in new/, try the same in cur/
  */
 int
-fix(char *file)
+fix(FILE *out, char *file)
 {
 	int i;
 	for (i = 0; *file == ' '; i++, file++)
@@ -137,15 +139,30 @@ fix(char *file)
 	char *ee = strrchr(file, '/');
 	if (ee >= file + 3 && ee[-3] == 'n' && ee[-2] == 'e' && ee[-1] == 'w') {
 		ee[-3] = 'c'; ee[-2] = 'u'; ee[-1] = 'r';
-		return fix(file);
+		return fix(out, file);
 	}
 
 	return 0;
 ok:
 	while(i--)
-		putchar(' ');
-	printf("%s\n", bufptr);
+		putc(' ', out);
+	fprintf(out, "%s\n", bufptr);
 	return 1;
+}
+
+void
+cat(FILE *src, FILE *dst)
+{
+	char buf[4096];
+	size_t rd;
+
+	rewind(src);
+	while ((rd = fread(buf, 1, sizeof buf, src)) > 0)
+		fwrite(buf, 1, rd, dst);
+	if (!feof(src)) {
+		perror("fread");
+		exit(2);
+	}
 }
 
 int
@@ -156,14 +173,42 @@ stdinmode()
 	size_t linelen = 0;
 	ssize_t rd;
 	long i = 0;
+	FILE *outfile;
+
+	char tmpfile[PATH_MAX];
+	char oldfile[PATH_MAX];
+	char *seqfile = 0;
+
+	if (Sflag) {
+		// XXX locking?
+		seqfile = getenv("MAILMAP");
+		if (!seqfile)
+			seqfile = blaze822_home_file(".santoku/map");
+		snprintf(tmpfile, sizeof tmpfile, "%s-", seqfile);
+		snprintf(oldfile, sizeof oldfile, "%s.old", seqfile);
+		outfile = fopen(tmpfile, "w+");
+		if (!outfile) {
+			perror("fopen");
+			exit(2);
+		}
+		if (Aflag) {
+			FILE *seq = fopen(seqfile, "r");
+			if (seq) {
+				cat(seq, outfile);
+				fclose(seq);
+			}
+		}
+	} else {
+		outfile = stdout;
+	}
 
 	while ((rd = getline(&line, &linelen, stdin)) != -1) {
 		if (line[rd-1] == '\n')
 			line[rd-1] = 0;
 
 		if (nflag) {
-			printf("%ld\n", ++i);
-			break;
+			printf("%ld\n", ++i);  // always stdout
+			continue;
 		}
 
 		l = line;
@@ -171,9 +216,26 @@ stdinmode()
 			while (*l == ' ' || *l == '\t')
 				l++;
 		if (fflag)
-			fix(l);
+			fix(outfile, l);
 		else
-			printf("%s\n", l);
+			fprintf(outfile, "%s\n", l);
+	}
+
+	if (Sflag) {
+		fflush(outfile);
+		if (rename(seqfile, oldfile) < 0) {
+			perror("rename");
+			exit(2);
+		}
+		if (rename(tmpfile, seqfile) < 0) {
+			perror("rename");
+			exit(2);
+		}
+
+		if (!isatty(1))
+			cat(outfile, stdout);
+
+		fclose(outfile);
 	}
 
 	free(line);
@@ -184,15 +246,26 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "fnr")) != -1)
+	while ((c = getopt(argc, argv, "fnrSA")) != -1)
 		switch(c) {
 		case 'f': fflag = 1; break;
 		case 'n': nflag = 1; break;
 		case 'r': rflag = 1; break;
+		case 'S': Sflag = 1; break;
+		case 'A': Sflag = Aflag = 1; break;
 		default:
 			// XXX usage
 			exit(1);
 		}
+
+	if (nflag && Sflag) {
+		fprintf(stderr, "-n and -S/-A doesn't make sense.\n");
+		exit(1);
+	}
+	if (Sflag && optind != argc) {
+		fprintf(stderr, "-S/-A doesn't take arguments.\n");
+		exit(1);
+	}
 
 	if (optind == argc && !isatty(0))
 		return stdinmode();
@@ -227,7 +300,7 @@ hack:
 					while (*s == ' ' || *s == '\t')
 						s++;
 				if (fflag)
-					fix(s);
+					fix(stdout, s);
 				else
 					printf("%s\n", s);
 			}
