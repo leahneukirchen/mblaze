@@ -259,7 +259,13 @@ main(int argc, char *argv[])
 		case 'C': Cflag = optarg; break;
 		case 'S': Sflag = 1; break;
 		default:
-			// XXX usage
+		usage:
+			fprintf(stderr,
+			    "Usage: mseq [-fnr] [msgs...]\n"
+			    "       mseq -S [-fr] < sequence\n"
+			    "       mseq -A [-fr] < sequence\n"
+			    "       mseq -C msg\n"
+			);
 			exit(1);
 		}
 
@@ -269,12 +275,12 @@ main(int argc, char *argv[])
 	}
 
 	if (nflag && Sflag) {
-		fprintf(stderr, "-n and -S/-A doesn't make sense.\n");
-		exit(1);
+		fprintf(stderr, "error: -n and -S/-A doesn't make sense.\n");
+		goto usage;
 	}
 	if (Sflag && optind != argc) {
-		fprintf(stderr, "-S/-A doesn't take arguments.\n");
-		exit(1);
+		fprintf(stderr, "error: -S/-A doesn't take arguments.\n");
+		goto usage;
 	}
 
 	if (optind == argc && !isatty(0))
