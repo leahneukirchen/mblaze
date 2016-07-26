@@ -69,7 +69,17 @@ mdirs(char *fpath)
 int
 main(int argc, char *argv[])
 {
-	int i;
+	int c, i;
+	while ((c = getopt(argc, argv, "")) != -1)
+		switch(c) {
+		default:
+		usage:
+			fprintf(stderr, "Usage: mdirs dirs...\n");
+			exit(1);
+		}
+
+	if (argc == optind)
+		goto usage;
 
 	for (i = 0; i < argc; i++)
 		mdirs(argv[i]);
