@@ -277,7 +277,8 @@ main(int argc, char *argv[])
 		case 'S': addorder(sizeorder); break;
 		case 'r': rflag = !rflag; break;
 		default:
-			// XXX usage
+			fprintf(stderr,
+			    "Usage: msort [-r] [-fdsFMS] [msgs...]\n");
 			exit(1);
 		}
 
