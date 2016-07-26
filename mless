@@ -48,9 +48,11 @@ if [ "$1" = --filter ]; then
 	exit $?
 fi
 
+scantab=
 if [ "$#" -eq 0 ] && ! [ -t 0 ]; then
 	msetseq >/dev/null
-	set -- //scan :
+	set -- :
+	scantab=//scan
 fi
 
 if ! [ -t 1 ]; then
@@ -65,4 +67,4 @@ esac
 curcmd=$(mnums "$@" |
 	awk -v cur=$(mseq -n .) -v d=$d '$1 == cur {print "+" FNR+d ":x"; quit}')
 
-LESSOPEN="|$0 --filter %s" exec less -Ps"mless %f?m (message %i of %m).." -R $curcmd $(mnums "$@")
+LESSOPEN="|$0 --filter %s" exec less -Ps"mless %f?m (message %i of %m).." -R $curcmd $scantab $(mnums "$@")
