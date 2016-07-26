@@ -162,7 +162,7 @@ oneline(char *file)
 		}
 	}
 
-	char fromdec[17];
+	char fromdec[64];
 	blaze822_decode_rfc2047(fromdec, from, sizeof fromdec - 1, "UTF-8");
 	fromdec[sizeof fromdec - 1] = 0;
 
