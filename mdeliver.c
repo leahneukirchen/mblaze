@@ -178,7 +178,10 @@ main(int argc, char *argv[])
 		case 'v': vflag = 1; break;
 		case 'X': Xflag = optarg; break;
 		default:
-			// XXX usage
+			fprintf(stderr,
+"Usage: mdeliver [-n] [-v] [-X flags] dir < message\n"
+"       mdeliver -M [-n] [-v] [-X flags] dir < mbox\n"
+				);
 			exit(1);
 		}
 
