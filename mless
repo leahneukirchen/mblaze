@@ -50,7 +50,7 @@ fi
 
 scantab=
 if [ "$#" -eq 0 ] && ! [ -t 0 ]; then
-	msetseq >/dev/null
+	mseq -S >/dev/null
 	set -- :
 	scantab=//scan
 fi

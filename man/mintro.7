@@ -43,9 +43,7 @@ to reply to mail
 .It Xr mscan 1
 to generate single line summaries of mail
 .It Xr mseq 1
-to deal with mail sequences
-.It Xr msetseq 1
-to set the mail sequence
+to manipulate mail sequences
 .It Xr mshow 1
 to render mail and extract attachments
 .It Xr msort 1
@@ -117,9 +115,9 @@ INBOX, oldest first.
 To operate on a set of mails in multiple steps, you can save a list of mail
 as a sequence.
 E.g. add a call to
-.Ql msetseq
+.Ql mseq -S
 to above command:
-.Dl mlist -s ~/Maildir/INBOX | msort -d | msetseq | mscan
+.Dl mlist -s ~/Maildir/INBOX | msort -d | mseq -S | mscan
 Now mscan will show message numbers and you could look at the first
 five mails at once, for example:
 .Dl mshow 1:5
