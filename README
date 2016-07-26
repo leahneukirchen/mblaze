@@ -11,21 +11,22 @@ DESCRIPTION
      but its is a complete implementation from scratch.
 
      Santoku consists of a set of Unix tools that each do one job:
-     maddr(1)    to extract addresses from mail
-     mcomp(1)    to write and send mail
-     mdirs(1)    to find Maildirs
-     mflag(1)    to change flags (marks) of mail
-     mhdr(1)     to extract mail headers
-     minc(1)     to incorporate new mail
-     mless(1)    to conveniently read mail in less(1)
-     mlist(1)    to list and filter mail messages
-     mmime(1)    to create MIME messages
-     mrepl(1)    to reply to mail
-     mscan(1)    to generate single line summaries of mail
-     mseq(1)     to manipulate mail sequences
-     mshow(1)    to render mail and extract attachments
-     msort(1)    to sort mail
-     mthread(1)  to arrange mail into discussions
+     maddr(1)     to extract addresses from mail
+     mcomp(1)     to write and send mail
+     mdeliver(1)  to deliver messages or import mailboxes
+     mdirs(1)     to find Maildirs
+     mflag(1)     to change flags (marks) of mail
+     mhdr(1)      to extract mail headers
+     minc(1)      to incorporate new mail
+     mless(1)     to conveniently read mail in less(1)
+     mlist(1)     to list and filter mail messages
+     mmime(1)     to create MIME messages
+     mrepl(1)     to reply to mail
+     mscan(1)     to generate single line summaries of mail
+     mseq(1)      to manipulate mail sequences
+     mshow(1)     to render mail and extract attachments
+     msort(1)     to sort mail
+     mthread(1)   to arrange mail into discussions
 
 PRINCIPLES
      Santoku is a classic command line MUA with no features related to

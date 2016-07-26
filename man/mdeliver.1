@@ -1,0 +1,88 @@
+.Dd July 26, 2016
+.Dt MDELIVER 1
+.Os
+.Sh NAME
+.Nm mdeliver
+.Nd deliver message or mailbox into Maildir
+.Sh SYNOPSIS
+.Nm
+.Op Fl n
+.Op Fl v
+.Op Fl X Ar flags
+.Ar dir
+<
+.Ar message
+.Nm
+.Fl M
+.Op Fl n
+.Op Fl v
+.Op Fl X Ar flags
+.Ar dir
+<
+.Ar mbox
+.Sh DESCRIPTION
+.Nm
+adds a the message given on standard input as a new message
+into the Maildir
+.Ar dir .
+.Pp
+When
+.Fl M
+is used,
+.Nm
+will regard standard input as
+a MBOXRD mailbox, split it on
+.Dq Li "From "
+and deliver each message,
+decoding it according to the MBOXRD convention.
+Also,
+.Nm
+will set the mtime according to the value of
+.Sq Li "Date:"
+and the Maildir flags according to the value of
+.Sq Li "Status:"
+or
+.Sq Li "X-Status:" .
+.Pp
+The messages are delivered in a reliable way and use default
+.Xr umask 2 .
+.Pp
+.Em Beware :
+no syntactical checks are performed on the messages.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl M
+Deliver each message of an mbox.
+.It Fl n
+Deliver messages into
+.Pa new/ ,
+not
+.Pa cur/
+(the default).
+.It Fl v
+Print each message filename after delivery.
+.It Fl X Ar flg
+.Em Override
+the flags of the new message file to be
+.Ar flg .
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr maildir 5 ,
+.Xr mbox 5
+.Pp
+.Lk http://www.digitalpreservation.gov/formats/fdd/fdd000385.shtml "MBOXRD Email Format"
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/
