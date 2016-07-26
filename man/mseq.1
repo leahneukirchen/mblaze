@@ -6,15 +6,20 @@
 .Nd manipulate mail sequence
 .Sh SYNOPSIS
 .Nm
-.Op Fl f
-.Op Fl n
-.Op Fl r
+.Op Fl fnr
 .Ar msgs\ ...
 .Nm
-.Op Fl f
-.Op Fl S | Fl A
+.Fl S
+.Op Fl fr
 <
 .Ar sequence
+.Nm
+.Fl A
+.Op Fl fr
+<
+.Ar sequence
+.Nm
+.Fl C Ar msg
 .Sh DESCRIPTION
 .Nm
 prints, fixes and sets messages in the mail sequence.
@@ -55,6 +60,10 @@ Set the mail sequence to the file names passed on standard input.
 Like
 .Fl S ,
 but append to the mail sequence instead of replacing it.
+.It Fl C Ar msg
+Set the current message to
+.Ar msg
+and exit.
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width Ds
@@ -62,6 +71,10 @@ but append to the mail sequence instead of replacing it.
 File were the sequence is stored.
 (Default:
 .Pa ~/.santoku/seq )
+.It Ev MAILCUR
+Symbolic link referring to the current message.
+(Default:
+.Pa ~/.santoku/cur )
 .El
 .Sh EXIT STATUS
 .Ex -std

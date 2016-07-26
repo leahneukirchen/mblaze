@@ -12,8 +12,9 @@
 static int fflag;
 static int nflag;
 static int rflag;
-static int Sflag;
 static int Aflag;
+static char *Cflag;
+static int Sflag;
 
 struct name {
 	char *id;
@@ -247,17 +248,23 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "fnrSA")) != -1)
+	while ((c = getopt(argc, argv, "fnrAC:S")) != -1)
 		switch(c) {
 		case 'f': fflag = 1; break;
 		case 'n': nflag = 1; break;
 		case 'r': rflag = 1; break;
-		case 'S': Sflag = 1; break;
 		case 'A': Sflag = Aflag = 1; break;
+		case 'C': Cflag = optarg; break;
+		case 'S': Sflag = 1; break;
 		default:
 			// XXX usage
 			exit(1);
 		}
+
+	if (Cflag) {
+		blaze822_seq_setcur(Cflag);
+		return 0;
+	}
 
 	if (nflag && Sflag) {
 		fprintf(stderr, "-n and -S/-A doesn't make sense.\n");
