@@ -33,8 +33,10 @@ inc(char *dir)
 	}
 
 	while ((d = readdir(fd))) {
+#if defined(DT_REG) && defined(DT_UNKNOWN)
 		if (d->d_type != DT_REG && d->d_type != DT_UNKNOWN)
 			continue;
+#endif
 		if (d->d_name[0] == '.')
 			continue;
 

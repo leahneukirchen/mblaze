@@ -42,8 +42,10 @@ mdirs(char *fpath)
 	}
 
 	while ((d = readdir(dir))) {
+#if defined(DT_DIR) && defined(DT_UNKNOWN)
 		if (d->d_type != DT_DIR && d->d_type != DT_UNKNOWN)
 			continue;
+#endif
 		if (d->d_name[0] == '.' &&
 		    d->d_name[1] == 0)
 			continue;
