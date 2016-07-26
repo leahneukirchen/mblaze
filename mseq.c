@@ -141,7 +141,7 @@ fix(FILE *out, char *file)
 	char *ee = strrchr(file, '/');
 	if (ee >= file + 3 && ee[-3] == 'n' && ee[-2] == 'e' && ee[-1] == 'w') {
 		ee[-3] = 'c'; ee[-2] = 'u'; ee[-1] = 'r';
-		return fix(out, file);
+		return fix(out, file-i);
 	}
 
 	return 0;
