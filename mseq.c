@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <errno.h>
 #include <limits.h>
 #include <search.h>
 #include <string.h>
@@ -181,9 +182,9 @@ stdinmode()
 
 	if (Sflag) {
 		// XXX locking?
-		seqfile = getenv("MAILMAP");
+		seqfile = getenv("MAILSEQ");
 		if (!seqfile)
-			seqfile = blaze822_home_file(".santoku/map");
+			seqfile = blaze822_home_file(".santoku/seq");
 		snprintf(tmpfile, sizeof tmpfile, "%s-", seqfile);
 		snprintf(oldfile, sizeof oldfile, "%s.old", seqfile);
 		outfile = fopen(tmpfile, "w+");
@@ -223,7 +224,7 @@ stdinmode()
 
 	if (Sflag) {
 		fflush(outfile);
-		if (rename(seqfile, oldfile) < 0) {
+		if (rename(seqfile, oldfile) < 0 && errno != ENOENT) {
 			perror("rename");
 			exit(2);
 		}
@@ -270,8 +271,8 @@ main(int argc, char *argv[])
 	if (optind == argc && !isatty(0))
 		return stdinmode();
 
-	char *map = blaze822_seq_open(0);
-	if (!map)
+	char *seq = blaze822_seq_open(0);
+	if (!seq)
 		return 1;
 
 	int i;
@@ -291,7 +292,7 @@ hack:
 			printf("%s\n", a);
 			continue;
 		}
-		while ((f = blaze822_seq_next(map, a, &iter))) {
+		while ((f = blaze822_seq_next(seq, a, &iter))) {
 			if (nflag) {
 				printf("%ld\n", iter.line-1);
 			} else {

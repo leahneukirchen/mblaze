@@ -40,9 +40,9 @@ blaze822_seq_open(char *file)
 
 	// env $SEQ or something
 	if (!file)
-		file = getenv("MAILMAP");
+		file = getenv("MAILSEQ");
 	if (!file)
-		file = blaze822_home_file(".santoku/map");
+		file = blaze822_home_file(".santoku/seq");
 	fd = open(file, O_RDONLY);
 	if (!fd)
 		return 0;

@@ -69,10 +69,10 @@ oneline(char *file)
 {
 	static int init;
 	if (!init) {
-		// delay loading of the seqmap until we need to scan the first
+		// delay loading of the seq until we need to scan the first
 		// file, in case someone in the pipe updated the map before
-		char *seqmap = blaze822_seq_open(0);
-		blaze822_seq_load(seqmap);
+		char *seq = blaze822_seq_open(0);
+		blaze822_seq_load(seq);
 		cur = blaze822_seq_cur();
 		init = 1;
 	}
