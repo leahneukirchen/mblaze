@@ -66,9 +66,13 @@ main(int argc, char *argv[])
 		switch(c) {
 		case 'q': qflag = 1; break;
 		default:
-			// XXX usage
+		usage:
+			fprintf(stderr, "Usage: minc [-q] dirs...\n");
 			exit(1);
 		}
+
+	if (optind == argc)
+		goto usage;
 
 	status = 0;
 	for (i = optind; i < argc; i++)
