@@ -24,9 +24,9 @@ static char *aliases[32];
 static int alias_idx;
 
 void
-u8putstr(FILE *out, char *s, size_t l, int pad)
+u8putstr(FILE *out, char *s, ssize_t l, int pad)
 {
-	while (*s && l) {
+	while (*s && l > 0) {
 		if (*s == '\t')
 			*s = ' ';
 		if (*s >= 32 && *s < 127) {
@@ -41,8 +41,9 @@ u8putstr(FILE *out, char *s, size_t l, int pad)
 				wc = replacement;
 			}
 			s += r;
-			fprintf(out, "%lc", wc);
 			l -= wcwidth(wc);
+			if (l >= 0)
+				fprintf(out, "%lc", wc);
 		}
 	}
 	if (pad)
@@ -178,8 +179,8 @@ oneline(char *file)
 		printf("%c%c %-3ld %-10s  ", flag1, flag2, lineno, date);
 	else
 		printf("%c%c     %-10s  ", flag1, flag2, date);
-	u8putstr(stdout, fromdec, 17, 1);
-	printf("%c ", flag3);
+	u8putstr(stdout, fromdec, 16, 1);
+	printf(" %c ", flag3);
 	int z;
 	if (indent > 18) {
 		printf("..%2d..              ", indent/2);
