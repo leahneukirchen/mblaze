@@ -35,7 +35,7 @@ if [ "$1" = --filter ]; then
 		exit $?
 	fi
 
-	mshow -q "$2" > /dev/null
+	mseq -C "$2"
 	mscan .-2:.+3 2>/dev/null | colorscan
 	echo
 
