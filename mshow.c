@@ -354,11 +354,20 @@ writefile(char *name, char *buf, ssize_t len)
 		perror("open");
 		return -1;
 	}
-	if (write(fd, buf, len) != len) {
-		// XXX partial write
-		perror("write");
-		return -1;
-	}
+
+	ssize_t wr = 0, n;
+	do {
+		if ((n = write(fd, buf + wr, len - wr)) == -1) {
+			if (errno == EINTR) {
+				continue;
+			} else {
+				perror("write");
+				return -1;
+			}
+		}
+		wr += n;
+	} while (wr < len);
+
 	close(fd);
 	return 0;
 }
