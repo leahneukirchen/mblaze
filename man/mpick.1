@@ -1,0 +1,156 @@
+.Dd July 27, 2016
+.Dt MPICK 1
+.Os
+.Sh NAME
+.Nm mpick
+.Nd filter mail messages
+.Sh SYNOPSIS
+.Nm
+.Op Fl T
+.Op Fl t Ar test
+.Op Ar msglist\ ...
+.Sh DESCRIPTION
+.Nm
+prints all matching messages.
+.Pp
+If used interactively,
+.Nm
+will default to the current sequence.
+Else,
+.Nm
+will read filenames from standard input.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl T
+Include whole thread.
+.It Fl t Ar test
+Only show messages matching the expression
+.Ar test ,
+see
+.Sx TESTS .
+.El
+.Sh MSGLISTS
+.Nm
+message lists (msglist) mostly compatible with
+.Xr mailx 1
+are message
+specifications used as shortened
+.Sx TESTS
+and can include:
+.Bl -tag -width Ds
+.It Ar n
+Message number
+.Ar n .
+.It Ar n Ns - Ns Ar m
+An inclusive range of message numbers between
+.Ar n
+and
+.Ar m .
+.It Ar address
+All messages from
+.Ar address .
+.It / Ns Ar string
+All messages with
+.Ar string
+in the subject line (case ignored).
+.It : Ns Ar c
+All message of type
+.Ar c ,
+where
+.Ar c
+shall be one of:
+.Bl -tag -width Ds
+.It D
+Drafted messages.
+.It P
+Passed (resent, forwarded or bounced) messages.
+.It R
+Replied messages.
+.It F
+Flagged messages.
+.It d, T
+Deleted messages.
+.It n
+New messages.
+.It o
+Old messages.
+.It r, S
+Read messages.
+.It u
+Unread messages.
+.El
+.El
+.Sh TESTS
+.Nm
+tests are given by the following EBNF:
+.Bd -literal
+<expr>     ::= <expr> || <expr>  -- disjunction
+             | <expr> && <expr>  -- conjunction
+             | ! <expr>          -- negation
+             | ( <expr )
+             | <flagprop>
+             | <timeprop> <numop> <dur>
+             | <numprop> <numop> <num>
+             | <strprop> <strop> <str>
+             | prune             -- do not match futher messages in thread
+             | print             -- always true value
+
+<flagprop> ::= child | draft | flagged | new | parent | passed
+             | replied  | seen | selected | trashed
+
+<timeprop> ::= atime | ctime | mtime | date
+
+<numprop>  ::= depth | replies | index | size | total
+
+<numop>    ::= <= | < | >= | > | == | = | !=
+
+<dur>      ::= "./path"          -- mtime of relative path
+             | "/path"           -- mtime of absolute path
+             | "YYYY-MM-DD HH:MM:SS"
+             | "YYYY-MM-DD"      -- at midnight
+             | "HH:MM:SS"        -- today
+             | "HH:MM"           -- today
+             | "-[0-9]+d"        -- n days ago at midnight
+             | "-[0-9]+h"        -- n hours before now
+             | "-[0-9]+m"        -- n minutes before now
+             | "-[0-9]+s"        -- n seconds before now
+             | [0-9]+            -- absolute epoch time
+
+<num>      ::= [0-9]+ ( c        -- *1
+                      | b        -- *512
+                      | k        -- *1024
+                      | M        -- *1024*1024
+                      | G        -- *1024*1024*1024
+                      | T )?     -- *1024*1024*1024*1024
+
+<strprop>  ::= from | subject | to
+
+<strop>    ::= == | =            -- string equality
+             | ===               -- case insensitive string equality
+             | ~~                -- glob (fnmatch)
+             | ~~~               -- case insensitive glob (fnmatch)
+             | =~                -- POSIX Extended Regular Expressions
+             | =~~               -- case insensitive POSIX Extended Regular Expressions
+
+<str>      ::= " ([^"] | "")+ "  -- use "" for a single " inside "
+             | $[A-Za-z0-9_]+    -- environment variable
+.Ed
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr lr 1 ,
+.Xr mailx 1
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.An Duncan Overbruck Aq Mt mail@duncano.de
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

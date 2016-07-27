@@ -1005,6 +1005,9 @@ main(int argc, char *argv[])
 		switch (c) {
 		case 'T': Tflag = need_thr = 1; break;
 		case 't': expr = chain(expr, EXPR_AND, parse_expr(optarg)); break;
+		default:
+			fprintf(stderr, "Usage: %s [-T] [-t test] [msglist ...]\n", argv0);
+			exit(1);
 		}
 
 	if (optind != argc)
