@@ -25,6 +25,10 @@ static char *cur;
 static char *aliases[32];
 static int alias_idx;
 
+static int Iflag;
+static int curyear;
+static int curyday;
+
 void
 u8putstr(FILE *out, char *s, ssize_t l, int pad)
 {
@@ -69,6 +73,8 @@ itsme(char *v)
 void
 oneline(char *file)
 {
+	int metawidth = 38;
+
 	static int init;
 	if (!init) {
 		// delay loading of the seq until we need to scan the first
@@ -92,8 +98,8 @@ oneline(char *file)
 	
 	struct message *msg = blaze822(file);
 	if (!msg) {
-		int p = cols-38-3-indent;
-		printf("%*.*s\\_ %*.*s\n", -38 - indent, 38 + indent, "",
+		int p = cols-metawidth-3-indent;
+		printf("%*.*s\\_ %*.*s\n", -metawidth - indent, metawidth + indent, "",
 		    -p, p, file);
 		return;
 	}
@@ -120,7 +126,7 @@ oneline(char *file)
 	else
 		flag2 = ' ';
 
-	char date[16];
+	char date[32];
         char *v;
 
         if ((v = blaze822_hdr(msg, "date"))) {
@@ -128,7 +134,17 @@ oneline(char *file)
 		if (t != -1) {
 			struct tm *tm;
 			tm = localtime(&t);
-			strftime(date, sizeof date, "%Y-%m-%d", tm);
+
+			if (Iflag > 1) {
+				strftime(date, sizeof date,
+					 "%Y-%m-%d %H:%M:%S", tm);
+				metawidth += 9;
+			} else if (Iflag || tm->tm_year != curyear)
+				strftime(date, sizeof date, "%Y-%m-%d", tm);
+			else if (tm->tm_yday != curyday)
+				strftime(date, sizeof date, "%a %b %e", tm);
+			else
+				strftime(date, sizeof date, "%a  %H:%M", tm);
 		} else {
 			strcpy(date, "(invalid)");
 		}
@@ -191,7 +207,7 @@ oneline(char *file)
 		for (z = 0; z < indent; z++)
 			printf(" ");
 	}
-	u8putstr(stdout, subjdec, cols-38-indent, 0);
+	u8putstr(stdout, subjdec, cols-metawidth-indent, 0);
 	printf("\n");
 
 	blaze822_free(msg);
@@ -200,6 +216,22 @@ oneline(char *file)
 int
 main(int argc, char *argv[])
 {
+	int c;
+	while ((c = getopt(argc, argv, "I")) != -1)
+		switch(c) {
+		case 'I': Iflag++; break;
+		default:
+			fprintf(stderr, "Usage: mscan [-I] [msgs...]\n");
+			exit(1);
+		}
+
+	time_t now = time(0);
+	struct tm *tm = localtime(&now);
+	curyear = tm->tm_year;
+	curyday = tm->tm_yday;
+	setenv("TZ", "", 1);
+	tzset();
+
 	setlocale(LC_ALL, "");  // for wcwidth later
 	if (wcwidth(0xFFFD) > 0)
 		replacement = 0xFFFD;
@@ -230,10 +262,10 @@ main(int argc, char *argv[])
 	}
 
 	long i;
-	if (argc == 1 && isatty(0))
+	if (argc == optind && isatty(0))
 		i = blaze822_loop1(":", oneline);
 	else
-		i = blaze822_loop(argc-1, argv+1, oneline);
+		i = blaze822_loop(argc-optind, argv+optind, oneline);
 	fprintf(stderr, "%ld mails scanned\n", i);
 
 	return 0;
