@@ -246,6 +246,12 @@ stdinmode()
 	return 0;
 }
 
+void
+setcur(char *c)
+{
+	blaze822_seq_setcur(c);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -270,7 +276,7 @@ main(int argc, char *argv[])
 		}
 
 	if (Cflag) {
-		blaze822_loop1(Cflag, (void (*)(char *))blaze822_seq_setcur);
+		blaze822_loop1(Cflag, setcur);
 		return 0;
 	}
 
