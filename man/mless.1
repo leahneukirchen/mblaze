@@ -6,14 +6,17 @@
 .Nd interactive wrapper around mshow
 .Sh SYNOPSIS
 .Nm
-.Op Ar msgs\ ...
+.Op Ar msg
 .Sh DESCRIPTION
 .Nm
 runs
 .Xr less 1
 on the output of
 .Xr mshow 1
-for the given messages.
+for the current sequence.
+Display starts with the current message, or
+.Ar msg
+if passed.
 See
 .Xr mmsg 7
 for the message argument syntax.

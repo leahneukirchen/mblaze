@@ -1,5 +1,5 @@
 #!/bin/sh
-# mless RANGES... - less(1)-wrapper around mshow
+# mless [MSG] - less(1)-wrapper around mshow
 
 PATH="${0%/*}:$PATH"
 
@@ -31,10 +31,6 @@ function so(s) { return sprintf("\033[1m%s\033[0m", s) }
 { print }'
 }
 
-mnums() {
-	mscan "$@" 2>/dev/null | awk '$2 ~ /^[0-9]*$/ { print $2 }'
-}
-
 if [ "$1" = --filter ]; then
 	if [ "$2" = //scan ]; then
 		mscan : 2>/dev/null | colorscan
@@ -45,7 +41,7 @@ if [ "$1" = --filter ]; then
 	mscan .-2:.+3 2>/dev/null | colorscan
 	echo
 
-	if ! [ -f $(mseq "$2") ]; then
+	if ! [ -f "$(mseq -r "$2")" ]; then
 		mseq "$2"
 		exit
 	fi
@@ -54,23 +50,26 @@ if [ "$1" = --filter ]; then
 	exit $?
 fi
 
-scantab=
 if [ "$#" -eq 0 ] && ! [ -t 0 ]; then
 	mseq -S >/dev/null
 	set -- :
-	scantab=//scan
 fi
 
 if ! [ -t 1 ]; then
-	exec mseq "$@"
+	exec mseq :
 fi
 
 case "$0" in
-	*next*) d=1;;
-	*prev*) d=-1;;
-	*) d=0;;
+	*mnext) set -- +;;
+	*mprev) set -- -;;
+	*) set -- ${1:-.};;
 esac
-curcmd=$(mnums "$@" |
-	awk -v cur=$(mseq -n .) -v d=$d '$1 == cur {print "+" FNR+d ":x"; quit}')
 
-LESSOPEN="|$0 --filter %s" exec less -Ps"mless %f?m (message %i of %m).." -R $curcmd $scantab $(mnums "$@")
+if [ "$#" -eq 1 ]; then
+	mseq -C "$1"
+fi
+
+nl="
+"
+LESSOPEN="|$0 --filter %s" exec less -Ps"mless %f?m (message %i of %m).." -R \
+	"+:e $(mseq -n .)$nl" //scan $(mseq -n :)
