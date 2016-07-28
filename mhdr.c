@@ -169,7 +169,7 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "h:ADMdv)) != -1)
+	while ((c = getopt(argc, argv, "h:ADMd")) != -1)
 		switch(c) {
 		case 'h': hflag = optarg; break;
 		case 'A': Aflag = 1; break;
