@@ -8,3 +8,6 @@ http://creativecommons.org/publicdomain/zero/1.0/
 
 The files mystrverscmp.c and mymemmem.c
 are MIT-licensed and were written by Rich Felker.
+
+mpick.c is largely based on code by Christian Neukirchen
+and has been contributed by Duncan Overbruck <mail@duncano.de>
