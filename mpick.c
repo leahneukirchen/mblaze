@@ -151,7 +151,7 @@ ws()
 }
 
 static int
-token(const char *token)
+token(char *token)
 {
 	if (strncmp(pos, token, strlen(token)) == 0) {
 		pos += strlen(token);
@@ -163,7 +163,7 @@ token(const char *token)
 }
 
 static void
-parse_error(const char *msg, ...)
+parse_error(char *msg, ...)
 {
 	va_list ap;
 	va_start(ap, msg);
@@ -282,7 +282,7 @@ parse_string(char **s)
 			buf[len] = 0;
 		pos++;
 		ws();
-		*s = buf ? buf : (char *) "";
+		*s = buf ? buf : "";
 		return 1;
 	} else if (*pos == '$') {
 		char t;
@@ -297,7 +297,7 @@ parse_string(char **s)
 		*pos = 0;
 		*s = getenv(e);
 		if (!*s)
-			*s = (char *) "";
+			*s = "";
 		*pos = t;
 		ws();
 		return 1;
@@ -607,9 +607,9 @@ parse_or()
 }
 
 static struct expr *
-parse_expr(const char *s)
+parse_expr(char *s)
 {
-	pos = (char *)s;
+	pos = s;
 	struct expr *e = parse_or();
 	if (*pos)
 		parse_error("trailing garbage at '%.15s'", pos);
@@ -617,7 +617,7 @@ parse_expr(const char *s)
 }
 
 static struct expr *
-parse_msglist(const char *s)
+parse_msglist(char *s)
 {
 	int64_t n, m;
 	int r;
@@ -669,10 +669,10 @@ parse_msglist(const char *s)
 		e2->a.expr = e1;
 		return e2;
 	default:
-		pos = (char *)s;
+		pos = s;
 
 		if (((d = strchr(s, ':')) || (d = strchr(s, '-')))
-		    && parse_num(&n) && (pos = (char *)d + 1) && parse_num(&m)) {
+		    && parse_num(&n) && (pos = d + 1) && parse_num(&m)) {
 			/* index >= n */
 			e1 = mkexpr(EXPR_GE);
 			e1->a.prop = PROP_INDEX;
