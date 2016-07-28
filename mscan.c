@@ -229,8 +229,6 @@ main(int argc, char *argv[])
 	struct tm *tm = localtime(&now);
 	curyear = tm->tm_year;
 	curyday = tm->tm_yday;
-	setenv("TZ", "", 1);
-	tzset();
 
 	setlocale(LC_ALL, "");  // for wcwidth later
 	if (wcwidth(0xFFFD) > 0)
