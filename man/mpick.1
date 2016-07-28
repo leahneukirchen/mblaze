@@ -42,7 +42,7 @@ and can include:
 .It Ar n
 Message number
 .Ar n .
-.It Ar n Ns - Ns Ar m
+.It Ar n Ns Cm "-" Ns Ar m
 An inclusive range of message numbers between
 .Ar n
 and
@@ -50,34 +50,34 @@ and
 .It Ar address
 All messages from
 .Ar address .
-.It / Ns Ar string
+.It Cm "/" Ns Ar string
 All messages with
 .Ar string
 in the subject line (case ignored).
-.It : Ns Ar c
+.It Cm ":" Ns Ar c
 All message of type
 .Ar c ,
 where
 .Ar c
 shall be one of:
 .Bl -tag -width Ds
-.It D
+.It Cm D
 Drafted messages.
-.It P
+.It Cm P
 Passed (resent, forwarded or bounced) messages.
-.It R
+.It Cm R
 Replied messages.
-.It F
+.It Cm F
 Flagged messages.
-.It d, T
+.It Cm d , Cm T
 Deleted messages.
-.It n
+.It Cm n
 New messages.
-.It o
+.It Cm o
 Old messages.
-.It r, S
+.It Cm r, Cm S
 Read messages.
-.It u
+.It Cm u
 Unread messages.
 .El
 .El
