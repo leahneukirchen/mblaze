@@ -21,6 +21,7 @@ DESCRIPTION
      mless(1)     to conveniently read mail in less(1)
      mlist(1)     to list and filter mail messages
      mmime(1)     to create MIME messages
+     mpick(1)     to filter mail
      mrepl(1)     to reply to mail
      mscan(1)     to generate single line summaries of mail
      mseq(1)      to manipulate mail sequences
