@@ -671,8 +671,8 @@ parse_msglist(const char *s)
 	default:
 		pos = (char *)s;
 
-		if ((d = strchr(s, '-')) && parse_num(&n) &&
-		    (pos = (char *)d + 1) && parse_num(&m)) {
+		if (((d = strchr(s, ':')) || (d = strchr(s, '-')))
+		    && parse_num(&n) && (pos = (char *)d + 1) && parse_num(&m)) {
 			/* index >= n */
 			e1 = mkexpr(EXPR_GE);
 			e1->a.prop = PROP_INDEX;
