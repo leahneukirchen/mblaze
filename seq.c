@@ -179,11 +179,18 @@ parse_relnum(char *a, long cur, long last, long *out)
 	} else {
 		base = 0;
 	}
-	errno = 0;
-	long d = strtol(a, &b, 10);
-	if (errno != 0) {
-		perror("strtol");
-		exit(1);
+
+	long d;
+	if (*a == ':') {
+		d = 0;
+		b = a;
+	} else {
+		errno = 0;
+		d = strtol(a, &b, 10);
+		if (errno != 0) {
+			perror("strtol");
+			exit(1);
+		}
 	}
 
 	*out = base + d;
