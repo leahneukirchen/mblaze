@@ -1,4 +1,13 @@
+// FNM_CASEFOLD, strptime
 #define _GNU_SOURCE
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 700
+#endif
+
+/* For Solaris. */
+#if !defined(FNM_CASEFOLD) && defined(FNM_IGNORECASE)
+#define FNM_CASEFOLD FNM_IGNORECASE
+#endif
 
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -11,6 +20,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <strings.h>
 #include <time.h>
 #include <unistd.h>
 #include <wchar.h>
