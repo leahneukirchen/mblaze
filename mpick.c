@@ -695,7 +695,7 @@ parse_msglist(const char *s)
 			expr = chain(parse_expr("from.addr == 's'"), EXPR_AND, expr);
 		}
 	}
-	return NULL;
+	return 0;
 }
 
 time_t
@@ -714,7 +714,7 @@ msg_date(struct mailinfo *m)
 char *
 msg_subject(struct mailinfo *m)
 {
-	if (*m->subject != '\0')
+	if (!*m->subject)
 		return m->subject;
 
 	char *b;
@@ -751,12 +751,12 @@ eval(struct expr *e, struct mailinfo *m)
 	case EXPR_ANYSET: {
 		long v = 0;
 
-		if (m->sb == '\0' && (
+		if (!m->sb && (
 		    e->a.prop == PROP_ATIME ||
 		    e->a.prop == PROP_CTIME ||
 		    e->a.prop == PROP_MTIME ||
 		    e->a.prop == PROP_SIZE) &&
-		    (m->sb = calloc(1, sizeof *m->sb)) != NULL &&
+		    (m->sb = calloc(1, sizeof *m->sb)) &&
 		    stat(m->fpath, m->sb) != 0) {
 			fprintf(stderr, "stat");
 			exit(2);
@@ -1024,10 +1024,10 @@ main(int argc, char *argv[])
 		for (c = optind; c < argc; c++)
 			expr = chain(expr, EXPR_AND, parse_msglist(argv[c]));
 
-	if (isatty(0)) {
+	if (isatty(0))
 		i = blaze822_loop1(":", need_thr ? collect : oneline);
-	} else
-		i = blaze822_loop(0, NULL, need_thr ? collect : oneline);
+	else
+		i = blaze822_loop(0, 0, need_thr ? collect : oneline);
 
 	/* print and free last thread */
 	if (Tflag && thr)
