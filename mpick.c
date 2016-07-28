@@ -64,11 +64,7 @@ enum prop {
 	PROP_TOTAL,
 	PROP_SUBJECT,
 	PROP_FROM,
-	PROP_FROM_NAME,
-	PROP_FROM_ADDR,
 	PROP_TO,
-	PROP_TO_NAME,
-	PROP_TO_ADDR,
 	PROP_INDEX,
 	PROP_DATE,
 	PROP_FLAG,
@@ -100,6 +96,7 @@ struct expr {
 		int64_t num;
 		regex_t *regex;
 	} a, b;
+	int addr;
 };
 
 struct mailinfo {
@@ -341,32 +338,42 @@ parse_strcmp()
 		parse_error("invalid string operator at '%.15s'", pos);
 
 	char *s;
-	if (parse_string(&s)) {
-		int r = 0;
-		struct expr *e = mkexpr(op);
-		e->a.prop = prop;
-		if (op == EXPR_REGEX) {
-			e->b.regex = malloc(sizeof (regex_t));
-			r = regcomp(e->b.regex, s, REG_EXTENDED | REG_NOSUB);
-		} else if (op == EXPR_REGEXI) {
-			e->b.regex = malloc(sizeof (regex_t));
-			r = regcomp(e->b.regex, s, REG_EXTENDED | REG_NOSUB | REG_ICASE);
-		} else {
-			e->b.string = s;
-		}
-
-		if (r != 0) {
-			char msg[256];
-			regerror(r, e->b.regex, msg, sizeof msg);
-			parse_error("invalid regex '%s': %s", s, msg);
-			exit(2);
-		}
-
-		return e;
+	if (!parse_string(&s)) {
+		parse_error("invalid string at '%.15s'", pos);
+		return 0;
 	}
 
-	parse_error("invalid string at '%.15s'", pos);
-	return 0;
+	int r = 0;
+	struct expr *e = mkexpr(op);
+	e->a.prop = prop;
+
+	if (prop == PROP_FROM || prop == PROP_TO) {
+		char *disp, *addr;
+		s = blaze822_addr(s, &disp, &addr);
+		if (!disp && !addr)
+			parse_error("invalid address at '%.15s'", pos);
+		s = strdup((disp) ? disp : addr);
+		e->addr = (disp) ? 0 : 1;
+	}
+
+	if (op == EXPR_REGEX) {
+		e->b.regex = malloc(sizeof (regex_t));
+		r = regcomp(e->b.regex, s, REG_EXTENDED | REG_NOSUB);
+	} else if (op == EXPR_REGEXI) {
+		e->b.regex = malloc(sizeof (regex_t));
+		r = regcomp(e->b.regex, s, REG_EXTENDED | REG_NOSUB | REG_ICASE);
+	} else {
+		e->b.string = s;
+	}
+
+	if (r != 0) {
+		char msg[256];
+		regerror(r, e->b.regex, msg, sizeof msg);
+		parse_error("invalid regex '%s': %s", s, msg);
+		exit(2);
+	}
+
+	return e;
 }
 
 static int64_t
@@ -729,6 +736,27 @@ msg_subject(struct mailinfo *m)
 	return m->subject;
 }
 
+char *
+msg_addr(struct mailinfo *m, char *h, int t)
+{
+	char *b;
+	if (m->msg == 0 || (b = blaze822_chdr(m->msg, h)) == 0)
+		return "";
+
+	char *disp, *addr;
+	b = blaze822_addr(b, &disp, &addr);
+
+	if (t) {
+		if (!addr)
+			return "";
+		return addr;
+	} else {
+		if (!disp)
+			return "";
+		return disp;
+	}
+}
+
 int
 eval(struct expr *e, struct mailinfo *m)
 {
@@ -801,6 +829,8 @@ eval(struct expr *e, struct mailinfo *m)
 		switch(e->a.prop) {
 		case PROP_PATH: s = m->fpath; break;
 		case PROP_SUBJECT: s = msg_subject(m); break;
+		case PROP_FROM: s = msg_addr(m, "from", e->addr); break;
+		case PROP_TO: s = msg_addr(m, "to", e->addr); break;
 		}
 		switch (e->op) {
 		case EXPR_STREQ: return strcmp(e->b.string, s) == 0;
