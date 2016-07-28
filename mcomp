@@ -1,6 +1,14 @@
 #!/bin/sh
 # mcomp [TO] - compose mail
 
+commajoin() {
+	sed ':a;N;s/\n/, /;$!b a'
+}
+
+reffmt() {
+	sed 's/^[^<]*//g;s/[^>]*$//g;s/>[^<]*</>\n</g' | uniq | sed 's/^/ /'
+}
+
 i=0
 while [ -f "snd.$i" ]; do
 	i=$((i+1))
@@ -27,9 +35,10 @@ draft="snd.$i"
 		;;
 	*mrepl*)
 		[ "$#" -eq 0 ] && set -- .
-		# XXX reply-all
-		echo "To: $(mhdr -h from "$1")"
-		echo "Cc: "
+		to=$(mhdr -h reply-to "$1")
+		[ -z "$to" ] && to=$(mhdr -h from "$1")
+		echo "To: $to"
+		echo "Cc: $(mhdr -d -A -h to:cc: "$1" | commajoin)"
 		echo "Bcc: "
 		s=$(mhdr -d -h subject "$1")
 		os=
@@ -46,8 +55,7 @@ draft="snd.$i"
 		{
 			mhdr -h references "$1"
 			mhdr -h message-id "$1"
-		} | sed 's/^[^<]*//g;s/[^>]*$//g;s/>[^<]*</>\n</g' |
-			uniq | sed 's/^/ /'
+		} | reffmt
 		echo "In-Reply-To: $(mhdr -h message-id "$1")"
 		echo
 
