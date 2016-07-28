@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <wchar.h>
 #include <locale.h>
+#include <limits.h>
 #include <regex.h>
 #include <fnmatch.h>
 
@@ -87,6 +88,10 @@ enum flags {
 	FLAG_INFO = 1024,
 };
 
+enum var {
+	VAR_CUR = 1,
+};
+
 struct expr {
 	enum op op;
 	union {
@@ -95,8 +100,9 @@ struct expr {
 		char *string;
 		int64_t num;
 		regex_t *regex;
+		enum var var;
 	} a, b;
-	int addr;
+	int extra;
 };
 
 struct mailinfo {
@@ -137,6 +143,7 @@ static long kept;
 static long num;
 
 static struct expr *expr;
+static long cur_idx;
 static char *cur;
 static char *pos;
 static time_t now;
@@ -353,7 +360,7 @@ parse_strcmp()
 		if (!disp && !addr)
 			parse_error("invalid address at '%.15s'", pos);
 		s = strdup((disp) ? disp : addr);
-		e->addr = (disp) ? 0 : 1;
+		e->extra = (disp) ? 0 : 1;
 	}
 
 	if (op == EXPR_REGEX) {
@@ -471,6 +478,12 @@ parse_cmp()
 		struct expr *e = mkexpr(op);
 		e->a.prop = prop;
 		e->b.num = n;
+		return e;
+	} else if(token("cur")) {
+		struct expr *e = mkexpr(op);
+		e->a.prop = prop;
+		e->b.var = VAR_CUR;
+		e->extra = 1;
 		return e;
 	}
 
@@ -781,7 +794,7 @@ eval(struct expr *e, struct mailinfo *m)
 	case EXPR_GT:
 	case EXPR_ALLSET:
 	case EXPR_ANYSET: {
-		long v = 0;
+		long v = 0, num;
 
 		if (!m->sb && (
 		    e->a.prop == PROP_ATIME ||
@@ -792,6 +805,20 @@ eval(struct expr *e, struct mailinfo *m)
 		    stat(m->fpath, m->sb) != 0) {
 			fprintf(stderr, "stat");
 			exit(2);
+		}
+
+		if (e->extra) {
+			switch (e->b.var) {
+			case VAR_CUR:
+				if (!cur_idx)
+					num = (EXPR_LT || EXPR_LE) ? LONG_MAX : -1;
+				else
+					num = cur_idx;
+				break;
+			default: num = 0;
+			}
+		} else {
+			num = e->b.num;
 		}
 
 		switch (e->a.prop) {
@@ -809,14 +836,14 @@ eval(struct expr *e, struct mailinfo *m)
 		}
 
 		switch (e->op) {
-		case EXPR_LT: return v < e->b.num;
-		case EXPR_LE: return v <= e->b.num;
-		case EXPR_EQ: return v == e->b.num;
-		case EXPR_NEQ: return v != e->b.num;
-		case EXPR_GE: return v >= e->b.num;
-		case EXPR_GT: return v > e->b.num;
-		case EXPR_ALLSET: return (v & e->b.num) == e->b.num;
-		case EXPR_ANYSET: return (v & e->b.num) > 0;
+		case EXPR_LT: return v < num;
+		case EXPR_LE: return v <= num;
+		case EXPR_EQ: return v == num;
+		case EXPR_NEQ: return v != num;
+		case EXPR_GE: return v >= num;
+		case EXPR_GT: return v > num;
+		case EXPR_ALLSET: return (v & num) == num;
+		case EXPR_ANYSET: return (v & num) > 0;
 		}
 	}
 	case EXPR_STREQ:
@@ -829,8 +856,8 @@ eval(struct expr *e, struct mailinfo *m)
 		switch(e->a.prop) {
 		case PROP_PATH: s = m->fpath; break;
 		case PROP_SUBJECT: s = msg_subject(m); break;
-		case PROP_FROM: s = msg_addr(m, "from", e->addr); break;
-		case PROP_TO: s = msg_addr(m, "to", e->addr); break;
+		case PROP_FROM: s = msg_addr(m, "from", e->extra); break;
+		case PROP_TO: s = msg_addr(m, "to", e->extra); break;
 		}
 		switch (e->op) {
 		case EXPR_STREQ: return strcmp(e->b.string, s) == 0;
@@ -896,8 +923,10 @@ mailfile(char *file)
 	    *e-- == 'w' && *e-- == 'e' && *e-- == 'n')
 		m->flags |= FLAG_NEW;
 
-	if (cur && strcmp(cur, m->fpath) == 0)
+	if (cur && strcmp(cur, m->fpath) == 0) {
 		m->flags |= FLAG_CUR;
+		cur_idx = m->index;
+	}
 
 	char *f = strstr(m->fpath, ":2,");
 	if (f) {
