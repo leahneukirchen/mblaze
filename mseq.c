@@ -247,9 +247,11 @@ stdinmode()
 }
 
 void
-setcur(char *c)
+setcur(char *file)
 {
-	blaze822_seq_setcur(c);
+	while (*file == ' ')
+		file++;
+	blaze822_seq_setcur(file);
 }
 
 int
