@@ -19,7 +19,7 @@ draft="snd.$i"
 		echo "Cc: "
 		echo "Bcc: "
 		echo "Subject: "
-		from=$(mhdr -local-mailbox ~/.santoku/profile)
+		from=$(mhdr -h local-mailbox ~/.santoku/profile)
 		[ "$from" ] && echo "From: $from"
 		cat ~/.santoku/headers 2>/dev/null
 		echo
@@ -28,30 +28,30 @@ draft="snd.$i"
 	*mrepl*)
 		[ "$#" -eq 0 ] && set -- .
 		# XXX reply-all
-		echo "To: $(mhdr -from "$1")"
+		echo "To: $(mhdr -h from "$1")"
 		echo "Cc: "
 		echo "Bcc: "
-		s=$(mhdr -subject "$1")
+		s=$(mhdr -d -h subject "$1")
 		os=
 		while [ "$os" != "$s" ]; do
 			os=$s
-			s=${s% }
-			s=${s%[Rr][Ee]:}
-			s=${s%[Aa][Ww]:}
-			s=${s%[Ff][Ww][Dd]:}
+			s=${s# }
+			s=${s#[Rr][Ee]:}
+			s=${s#[Aa][Ww]:}
+			s=${s#[Ff][Ww][Dd]:}
 		done
 		echo "Subject: Re: $s"
 		cat ~/.santoku/headers 2>/dev/null
 		echo -n "References:"
 		{
-			mhdr -references "$1"
-			mhdr -message-id "$1"
+			mhdr -h references "$1"
+			mhdr -h message-id "$1"
 		} | sed 's/^[^<]*//g;s/[^>]*$//g;s/>[^<]*</>\n</g' |
 			uniq | sed 's/^/ /'
-		echo "In-Reply-To: $(mhdr -message-id "$1")"
+		echo "In-Reply-To: $(mhdr -h message-id "$1")"
 		echo
 
-		echo "$(mhdr -from "$1") wrote:"
+		echo "$(mhdr -d -h from "$1") wrote:"
 		mshow -R "$1" |
 			sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' |
 			sed 's/^/> /'

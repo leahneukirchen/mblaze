@@ -1,4 +1,4 @@
-.Dd July 22, 2016
+.Dd July 28, 2016
 .Dt MHDR 1
 .Os
 .Sh NAME
@@ -6,7 +6,10 @@
 .Nd show mail headers
 .Sh SYNOPSIS
 .Nm
-.Op Fl Ar header
+.Op Fl h Ar header
+.Op Fl d
+.Op Fl M
+.Op Fl A | Fl D
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
@@ -24,16 +27,36 @@ will default to the current message.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
-.It Fl Ar header
-Only print the value of the header
-.Sq Ar header Ns Li \&: .
-.Pp
-By default, print all headers in normalized form (lowercase and unfolded).
+.It Fl h Ar header
+Only print the values of the headers in the colon-separated list
+.Ar header .
+.It Fl d
+Decode the headers according to RFC 2047.
+.It Fl M
+Search for all occurrences of the headers
+(default: only the first).
+.It Fl A
+Scan for RFC 5322 addresses in the headers and print them line by line.
+.It Fl D
+Assume header contains RFC 5322 date and print as Unix timestamp.
 .El
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
 .Xr mmsg 7
+.Rs
+.%A N. Freed
+.%A N. Borenstein
+.%B MIME (Multipurpose Internet Mail Extensions) Part Three: Message Header Extensions for Non-ASCII Text
+.%R RFC 2047
+.%D November 1996
+.Re
+.Rs
+.%A P. Resnick (ed.)
+.%B Internet Message Format
+.%R RFC 5322
+.%D October 2008
+.Re
 .Sh AUTHORS
 .An Christian Neukirchen Aq Mt chneukirchen@gmail.com
 .Sh LICENSE

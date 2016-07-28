@@ -11,22 +11,11 @@
 
 #include "blaze822.h"
 
-static size_t l;
-static char *hdr;
-
-void
-header(char *file)
-{
-	struct message *msg;
-
-	msg = blaze822(file);
-	if (!msg)
-		return;
-
-	char *v = blaze822_hdr_(msg, hdr, l);
-	if (v)
-		printf("%s\n", v);
-}
+static char *hflag;
+static int Aflag;
+static int Dflag;
+static int Mflag;
+static int dflag;
 
 static void
 printhdr(char *hdr)
@@ -43,47 +32,160 @@ printhdr(char *hdr)
 }
 
 void
-headerall(char *file)
+headerall(struct message *msg)
+{
+	char *h = 0;
+	while ((h = blaze822_next_header(msg, h))) {
+		if (dflag) {
+			char d[4096];
+			blaze822_decode_rfc2047(d, h, sizeof d, "UTF-8");
+			printhdr(d);
+		} else {
+			printhdr(h);
+		}
+	}
+
+	blaze822_free(msg);
+}
+
+void
+print_addresses(char *s)
+{
+	char *disp, *addr;
+	while ((s = blaze822_addr(s, &disp, &addr))) {
+		if (disp && addr) {
+			if (dflag) {
+				char d[4096];
+				blaze822_decode_rfc2047(d, disp, sizeof d,
+				    "UTF-8");
+				printf("%s <%s>\n", d, addr);
+			} else {
+				printf("%s <%s>\n", disp, addr);
+			}
+		} else if (addr) {
+			printf("%s\n", addr);
+		}
+	}
+}
+
+void
+print_date(char *s)
+{
+	time_t t = blaze822_date(s);
+	if (t == -1)
+		return;
+	printf("%ld\n", t);
+}
+
+void
+print_decode_header(char *s)
+{
+	char d[4096];
+	blaze822_decode_rfc2047(d, s, sizeof d, "UTF-8");
+	printf("%s\n", d);
+}
+
+void
+print_header(char *v)
+{
+	if (Aflag)
+		print_addresses(v);
+	else if (Dflag)
+		print_date(v);
+	else if (dflag)
+		print_decode_header(v);
+	else
+		printf("%s\n", v);
+}
+
+void
+headermany(struct message *msg)
+{
+	char *hdr = 0;
+	while ((hdr = blaze822_next_header(msg, hdr))) {
+		char *h = hflag;
+		while (*h) {
+			char *n = strchr(h, ':');
+			if (n)
+				*n = 0;
+
+			size_t l = strlen(h);
+			if (strncmp(hdr, h, l) == 0 && hdr[l] == ':') {
+				hdr += l + 1;
+				while (*hdr == ' ' || *hdr == '\t')
+					hdr++;
+				print_header(hdr);
+			}
+
+			if (n) {
+				*n = ':';
+				h = n + 1;
+			} else {
+				break;
+			}
+		}
+	}
+
+	blaze822_free(msg);
+}
+
+void
+header(char *file)
 {
 	struct message *msg;
+
+	while (*file == ' ' || *file == '\t')
+		file++;
 
 	msg = blaze822(file);
 	if (!msg)
 		return;
 
-	char *h = 0;
-	while ((h = blaze822_next_header(msg, h))) {
-		char d[4096];
-		blaze822_decode_rfc2047(d, h, sizeof d, "UTF-8");
+	if (!hflag)
+		return headerall(msg);
+	if (Mflag)
+		return headermany(msg);
 
-		printhdr(d);
+	char *h = hflag;
+	while (*h) {
+		char *n = strchr(h, ':');
+		if (n)
+			*n = 0;
+		char *v = blaze822_chdr(msg, h);
+		if (v)
+			print_header(v);
+		if (n) {
+			*n = ':';
+			h = n + 1;
+		} else {
+			break;
+		}
 	}
+
+	blaze822_free(msg);
 }
 
 int
 main(int argc, char *argv[])
 {
-	void (*cb)(char *) = headerall;
+	int c;
+	while ((c = getopt(argc, argv, "h:ADMdv)) != -1)
+		switch(c) {
+		case 'h': hflag = optarg; break;
+		case 'A': Aflag = 1; break;
+		case 'D': Dflag = 1; break;
+		case 'M': Mflag = 1; break;
+		case 'd': dflag = 1; break;
+		default:
+			fprintf(stderr,
+"Usage: mhdr [-h header] [-d] [-M] [-A|-D] [msgs...]\n");
+			exit(1);
+		}
 
-	if (argc >= 2 && argv[1][0] == '-') {
-		l = strlen(argv[1])+1;
-		hdr = malloc(l);
-		hdr[0] = 0;
-		char *s = hdr+1;
-		char *t = argv[1]+1;
-		while (*t)
-			*s++ = tolower(*t++);
-		*s = ':';
-
-		cb = header;
-		argc--;
-		argv++;
-	}
-
-	if (argc == 1 && isatty(0))
-		blaze822_loop1(".", cb);
+	if (argc == optind && isatty(0))
+		blaze822_loop1(".", header);
 	else
-		blaze822_loop(argc-1, argv+1, cb);
+		blaze822_loop(argc-optind, argv+optind, header);
 	
 	return 0;
 }
