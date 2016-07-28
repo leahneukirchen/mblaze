@@ -85,7 +85,7 @@ while :; do
 		mseq -C "$(mseq .+1: | grep -m1 '^[^ <]')";;
 	100) # d mark read
 		mflag -S .
-		mseq -f | mseq -S
+		mseq -f : | mseq -S
 		mseq -C +
 	esac
 done
