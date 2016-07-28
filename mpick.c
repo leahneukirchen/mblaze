@@ -87,6 +87,8 @@ enum flags {
 
 	FLAG_PARENT = 256,
 	FLAG_CHILD = 512,
+
+	FLAG_INFO = 1024,
 };
 
 struct expr {
@@ -413,6 +415,8 @@ parse_flag()
 		flag = FLAG_NEW;
 	} else if (token("cur")) {
 		flag = FLAG_CUR;
+	} else if (token("info")) {
+		flag = FLAG_INFO;
 	} else if (token("parent")) {
 		flag = FLAG_PARENT;
 		need_thr = 1;
@@ -848,6 +852,11 @@ mailfile(char *file)
 	char *e = m->fpath + strlen(m->fpath) - 1;
 	while (m->fpath < e && (*e == ' ' || *e == '\t'))
 		*e-- = 0;
+
+	if (m->fpath[0] == '<') {
+		m->flags |= FLAG_SEEN | FLAG_INFO;
+		return m;
+	}
 
 	m->msg = blaze822(m->fpath);
 	if (!m->msg)
