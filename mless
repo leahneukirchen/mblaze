@@ -71,5 +71,21 @@ fi
 
 nl="
 "
-LESSOPEN="|$0 --filter %s" exec less -Ps"mless %f?m (message %i of %m).." -R \
-	"+:e $(mseq -n .)$nl" //scan $(mseq -n :)
+while :; do
+	[ -f $HOME/.mless ] && export LESSKEY=$HOME/.mless
+	LESSOPEN="|$0 --filter %s" \
+		less -Ps"mless %f?m (message %i of %m).." -R \
+			"+:e $(mseq -n .)$nl" //scan $(mseq -n :)
+	case "$?" in
+	0|1) exit $?;;
+	78) # N go to next unsen message
+		mseq -C "$(mseq -r .: |
+			awk -F':2,' '$1 !~ /^</ && $2 !~ /S/ { print; exit }')";;
+	107) # k next thread
+		mseq -C "$(mseq .+1: | grep -m1 '^[^ <]')";;
+	100) # d mark read
+		mflag -S .
+		mseq -f | mseq -S
+		mseq -C +
+	esac
+done
