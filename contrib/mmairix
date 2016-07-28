@@ -1,4 +1,4 @@
 #!/bin/sh
 # mmairix QUERY - santoku wrapper around mairix
 
-mairix -r "$@" | mless
+mairix -r "$@" | sed 's,//*,/,g' | mless
