@@ -263,7 +263,8 @@ blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
 	if (strcmp(range, ".") == 0) {
 		if (!iter->lines) {
 			iter->lines = 1;
-			iter->start = iter->stop = 0;
+			find_cur(map, iter);
+			iter->start = iter->stop = iter->line = iter->cur + 1;
 			return strdup(blaze822_seq_cur());
 		} else {
 			return 0;
