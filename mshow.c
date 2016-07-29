@@ -47,6 +47,26 @@ printhdr(char *hdr)
 	}
 }
 
+int
+print_ascii(char *body, size_t bodylen)
+{
+	if (!memchr(body, '\r', bodylen))
+		return fwrite(body, 1, bodylen, stdout);
+
+	// crlf normalization required
+	size_t i;
+	for (i = 0; i < bodylen; i++) {
+		if (body[i] == '\r') {
+			if (!(i+1 < bodylen && body[i+1] == '\n'))
+				putc_unlocked('\n', stdout);
+			continue;
+		}
+		putc_unlocked(body[i], stdout);
+	}
+
+	return bodylen;
+}
+
 void
 print_u8recode(char *body, size_t bodylen, char *srcenc)
 {
@@ -67,7 +87,7 @@ print_u8recode(char *body, size_t bodylen, char *srcenc)
 		size_t r = iconv(ic, &body, &bodylen, &bufptr, &buflen);
 
 		if (bufptr != buf) {
-			fwrite(buf, 1, bufptr-buf, stdout);
+			print_ascii(buf, bufptr-buf);
 			final_char = bufptr[-1];
 		}
 
@@ -76,7 +96,7 @@ print_u8recode(char *body, size_t bodylen, char *srcenc)
 			buflen = sizeof buf;
 			r = iconv(ic, 0, 0, &bufptr, &buflen);
 			if (bufptr != buf) {
-				fwrite(buf, 1, bufptr-buf, stdout);
+				print_ascii(buf, bufptr-buf);
 				final_char = bufptr[-1];
 			}
 			if (r != (size_t)-1)
@@ -205,7 +225,7 @@ nofilter:
 			    strcasecmp(charset, "utf-8") == 0 ||
 			    strcasecmp(charset, "utf8") == 0 ||
 			    strcasecmp(charset, "us-ascii") == 0)
-				fwrite(body, 1, bodylen, stdout);
+				print_ascii(body, bodylen);
 			else
 				print_u8recode(body, bodylen, charset);
 			free(charset);
@@ -248,7 +268,7 @@ reply_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		    strcasecmp(charset, "utf-8") == 0 ||
 		    strcasecmp(charset, "utf8") == 0 ||
 		    strcasecmp(charset, "us-ascii") == 0)
-			fwrite(body, 1, bodylen, stdout);
+			print_ascii(body, bodylen);
 		else
 			print_u8recode(body, bodylen, charset);
 		free(charset);
