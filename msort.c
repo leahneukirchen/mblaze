@@ -234,6 +234,8 @@ add(char *file)
 		if (mailalloc < 0)
 			exit(-1);
 		mails = realloc(mails, sizeof (struct mail) * mailalloc);
+		if (!mails)
+			exit(-1);
 		memset(mails+mailalloc/2, 0, sizeof (struct mail) * mailalloc/2);
 	}
 	if (!mails)
