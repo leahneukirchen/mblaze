@@ -34,6 +34,8 @@ blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno)
 	while (s < stop) {
 		if (*s == '=' && s[1] == '\n') {
 			s += 2;
+		} else if (*s == '=' && s[1] == '\r' && s[2] == '\n') {
+			s += 3;
 		} else if (*s == '=' && s+2 < stop) {
 			unsigned char c1 = s[1];
 			unsigned char c2 = s[2];
