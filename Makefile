@@ -15,7 +15,7 @@ mmime: mmime.o
 mpick: mpick.o blaze822.o seq.o rfc2047.c mymemmem.o
 mscan: mscan.o blaze822.o seq.o rfc2047.o mymemmem.o
 mseq: mseq.o seq.o
-mshow: mshow.o blaze822.o seq.o rfc2045.o rfc2047.c mymemmem.o
+mshow: mshow.o blaze822.o seq.o rfc2045.o rfc2047.c mymemmem.o filter.o
 msort: msort.o blaze822.o seq.o mystrverscmp.o mymemmem.o
 mthread: mthread.o blaze822.o seq.o mymemmem.o
 

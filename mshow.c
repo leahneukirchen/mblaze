@@ -149,6 +149,8 @@ typedef enum {
 
 typedef mime_action (*mime_callback)(int, struct message *, char *, size_t);
 
+mime_action walk_mime(struct message *msg, int depth, mime_callback visit);
+
 char *
 mime_filename(struct message *msg)
 {
@@ -199,19 +201,29 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 			setenv("PIPE_CHARSET", charset, 1);
 			free(charset);
 		}
-		printf(" filter=\"%s\" ---\n", cmd);
-		FILE *p;
-		fflush(stdout);
-		p = popen(cmd, "w");
-		if (!p) {
-			perror("popen");
+		setenv("PIPE_CONTENTTYPE", ct, 1);
+
+		char *output;
+		size_t outlen;
+		int e = filter(body, bodylen, cmd, &output, &outlen);
+
+		if (e == 0) {
+			printf(" render=\"%s\" ---\n", cmd);
+			print_ascii(output, outlen);
+		} else if (e == 64) { // decode output again
+			printf(" filter=\"%s\" ---\n", cmd);
+			struct message *imsg = blaze822_mem(output, outlen);
+			if (imsg)
+				walk_mime(imsg, depth+1, render_mime);
+			blaze822_free(imsg);
+		} else {
+			printf(" filter=\"%s\" FAILED status=%d", cmd, e);
+			free(output);
 			goto nofilter;
 		}
-		fwrite(body, 1, bodylen, p);
-		if (pclose(p) != 0) {
-			perror("pclose");
-			goto nofilter;
-		}
+
+		free(output);
+
 		r = MIME_PRUNE;
 	} else {
 nofilter:
