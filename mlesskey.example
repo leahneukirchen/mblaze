@@ -7,5 +7,6 @@ Q quit \1
 S noaction E//scan\n
 ` noaction E\#\n
 N quit N
+R quit R
 k quit k
 d quit d

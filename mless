@@ -46,7 +46,13 @@ if [ "$1" = --filter ]; then
 		exit
 	fi
 
-	mshow "$2" | colormsg
+	if [ $MLESS_RAW -eq 0 ]; then
+		mshow "$2" | colormsg
+	else
+		mseq -r $2
+		echo
+		cat "$(mseq -r $2)"
+	fi
 	exit $?
 fi
 
@@ -71,6 +77,7 @@ fi
 
 nl="
 "
+export MLESS_RAW=0
 while :; do
 	[ -f $HOME/.mless ] && export LESSKEY=$HOME/.mless
 	LESSOPEN="|$0 --filter %s" \
@@ -87,5 +94,8 @@ while :; do
 		mflag -S .
 		mseq -f : | mseq -S
 		mseq -C +
+		;;
+	82) # R toggle raw mode
+		MLESS_RAW=$((1-$MLESS_RAW))
 	esac
 done
