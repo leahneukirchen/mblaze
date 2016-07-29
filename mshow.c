@@ -210,11 +210,23 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		if (e == 0) {
 			printf(" render=\"%s\" ---\n", cmd);
 			print_ascii(output, outlen);
+		} else if (e == 63) { // skip filter
+			free(output);
+			goto nofilter;
 		} else if (e == 64) { // decode output again
 			printf(" filter=\"%s\" ---\n", cmd);
 			struct message *imsg = blaze822_mem(output, outlen);
 			if (imsg)
 				walk_mime(imsg, depth+1, render_mime);
+			blaze822_free(imsg);
+		} else if (e >= 65 && e <= 80) { // choose N-64th part
+			struct message *imsg = 0;
+			int n = e - 64;
+			printf(" selector=\"%s\" part=%d ---\n", cmd, n);
+			while (blaze822_multipart(msg, &imsg)) {
+				if (--n == 0)
+					walk_mime(imsg, depth+1, render_mime);
+			}
 			blaze822_free(imsg);
 		} else {
 			printf(" filter=\"%s\" FAILED status=%d", cmd, e);
