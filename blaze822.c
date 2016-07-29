@@ -418,10 +418,12 @@ blaze822_hdr_(struct message *mesg, const char *hdr, size_t hdrlen)
 		return 0;  // header too small for the key, probably empty
 
 	// special case: first header, no leading nul
-	if (memcmp(mesg->msg, hdr+1, hdrlen-1) == 0)
+	if (memcmp(mesg->msg, hdr+1, hdrlen-1) == 0) {
 		v = mesg->msg;
-	else
+		hdrlen--;
+	} else {
 		v = mymemmem(mesg->msg, mesg->end - mesg->msg, hdr, hdrlen);
+	}
 	if (!v)
 		return 0;
 	v += hdrlen;
