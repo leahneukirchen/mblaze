@@ -679,7 +679,7 @@ parse_msglist(char *s)
 		case 'S': flag = FLAG_SEEN; break;
 		case 'o': n = 1; /* FALL TROUGH */
 		case 'n': flag = FLAG_NEW; break;
-		default: parse_error("unknown type at '%.15s'", s);
+		default: flag = 0; parse_error("unknown type at '%.15s'", s);
 		}
 
 		e1 = mkexpr(EXPR_ANYSET);
@@ -811,7 +811,7 @@ eval(struct expr *e, struct mailinfo *m)
 			switch (e->b.var) {
 			case VAR_CUR:
 				if (!cur_idx)
-					num = (EXPR_LT || EXPR_LE) ? LONG_MAX : -1;
+					num = (e->op == EXPR_LT || e->op == EXPR_LE) ? LONG_MAX : -1;
 				else
 					num = cur_idx;
 				break;
