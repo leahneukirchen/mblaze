@@ -13,11 +13,16 @@ int
 blaze822_check_mime(struct message *msg)
 {
         char *v = blaze822_hdr(msg, "mime-version");
-	return (v &&
+	if (v &&
 	    v[0] && v[0] == '1' &&
 	    v[1] && v[1] == '.' &&
 	    v[2] && v[2] == '0' &&
-	    (!v[3] || iswsp(v[3])));
+	    (!v[3] || iswsp(v[3])))
+		return 1;
+	v = blaze822_hdr(msg, "content-transfer-encoding");
+	if (v)
+		return 1;
+	return 0;
 }
 
 int
