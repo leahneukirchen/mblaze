@@ -454,19 +454,20 @@ blaze822_file(char *file)
 		goto error;
 
 	if (S_ISFIFO(st.st_mode)) {  // unbounded read, grow buffer
-		ssize_t bufalloc = 16384;
+		const ssize_t bufblk = 16384;
+		ssize_t bufalloc = bufblk;
 		buf = malloc(bufalloc);
 		if (!buf)
 			goto error;
 
 		do {
-			if (bufalloc <= rd) {
+			if (bufalloc < rd + bufblk) {
 				bufalloc *= 2;
 				buf = realloc(buf, bufalloc);
 				if (!buf)
 					goto error;
 			}
-			if ((n = read(fd, buf + rd, 16384)) < 0) {
+			if ((n = read(fd, buf + rd, bufblk)) < 0) {
 				if (errno == EINTR) {
 					continue;
 				} else {
