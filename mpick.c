@@ -827,7 +827,7 @@ eval(struct expr *e, struct mailinfo *m)
 		case PROP_MTIME: v = m->sb->st_mtime; break;
 		case PROP_REPLIES: v = m->replies; break;
 		case PROP_SIZE: v = m->sb->st_size; break;
-		case PROP_DATE: v = msg_date(m);
+		case PROP_DATE: v = msg_date(m); break;
 		case PROP_FLAG: v = m->flags; break;
 		case PROP_INDEX: v = m->index; break;
 		case PROP_DEPTH: v = m->depth; break;
@@ -1078,6 +1078,7 @@ main(int argc, char *argv[])
 	int c;
 
 	argv0 = argv[0];
+	now = time(0);
 
 	while ((c = getopt(argc, argv, "Tt:")) != -1)
 		switch (c) {
