@@ -47,7 +47,11 @@ if [ "$1" = --filter ]; then
 	fi
 
 	if [ $MLESS_RAW -eq 0 ]; then
-		mshow "$2" | colormsg
+		if [ $MLESS_HTML -eq 1 ]; then
+			mshow -A text/html "$2"
+		else
+			mshow "$2"
+		fi | colormsg
 	else
 		mseq -r $2
 		echo
@@ -78,6 +82,7 @@ fi
 nl="
 "
 export MLESS_RAW=0
+export MLESS_HTML=0
 while :; do
 	[ -f $HOME/.mless ] && export LESSKEY=$HOME/.mless
 	LESSOPEN="|$0 --filter %s" \
@@ -97,5 +102,9 @@ while :; do
 		;;
 	82) # R toggle raw mode
 		MLESS_RAW=$((1-$MLESS_RAW))
+		;;
+	72) # H toggle HTML mode
+		MLESS_HTML=$((1-$MLESS_HTML))
+		;;
 	esac
 done

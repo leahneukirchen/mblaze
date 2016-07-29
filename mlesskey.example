@@ -6,6 +6,7 @@ Q quit \1
 ] next-file
 S noaction E//scan\n
 ` noaction E\#\n
+H quit H
 N quit N
 R quit R
 k quit k
