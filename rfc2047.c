@@ -164,7 +164,7 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		char enc = lc(*e++);
 		if (*e++ != '?')
 			goto nocode;
-		char *start = e++;
+		char *start = e;
 		char *stop = strstr(e, "?=");
 		if (!stop)
 			goto nocode;
