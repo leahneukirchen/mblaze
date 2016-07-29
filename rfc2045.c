@@ -6,6 +6,9 @@
 #include "blaze822.h"
 #include "blaze822_priv.h"
 
+// needs to be writable
+char textplain[] = "text/plain; charset=US-ASCII";
+
 int
 blaze822_check_mime(struct message *msg)
 {
@@ -32,7 +35,7 @@ blaze822_mime_body(struct message *msg,
 	char *cte = blaze822_hdr(msg, "content-transfer-encoding");
 
 	if (!ct)
-		ct = "text/plain; charset=US-ASCII";
+		ct = textplain;
 
 	char *s = ct;
 	while (*s && *s != ';') {
