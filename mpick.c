@@ -738,11 +738,11 @@ msg_date(struct mailinfo *m)
 char *
 msg_subject(struct mailinfo *m)
 {
-	if (!*m->subject)
+	if (!m->subject)
 		return m->subject;
 
 	char *b;
-	if (m->msg == 0 || (b = blaze822_hdr(m->msg, "subject")) == 0)
+	if (!m->msg || !(b = blaze822_hdr(m->msg, "subject")))
 		return "";
 
 	blaze822_decode_rfc2047(m->subject, b, sizeof m->subject - 1, "UTF-8");
