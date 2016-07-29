@@ -35,8 +35,10 @@ blaze822_mime_body(struct message *msg,
 		ct = "text/plain; charset=US-ASCII";
 
 	char *s = ct;
-	while (*s && *s != ';')
+	while (*s && *s != ';') {
+		*s = lc(*s);
 		s++;
+	}
 
 	*cto = ct;
 
