@@ -9,7 +9,7 @@ int
 filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 {
 	char *output;
-	size_t outlen;
+	ssize_t outlen;
 	ssize_t outalloc = 4096;
 	pid_t pid;
 	
