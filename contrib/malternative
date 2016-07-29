@@ -1,0 +1,16 @@
+#!/bin/sh
+# malternative - multipart/alternative decoding policy
+
+{
+	echo "Content-Type: $PIPE_CONTENTTYPE"
+	echo
+	cat
+} | mshow -t /dev/stdin | awk '
+	BEGIN { split("", ct) }
+	/^    [0-9]/ { ct[++n] = $2 }
+	function prefer(t) { for (i in ct) if (ct[i] == t) exit(64+i) }
+	END {
+		prefer("text/plain")
+		prefer("text/html")
+		exit 64+1  # default to first part
+	}'
