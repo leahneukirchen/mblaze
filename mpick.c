@@ -796,7 +796,7 @@ eval(struct expr *e, struct mailinfo *m)
 	case EXPR_GT:
 	case EXPR_ALLSET:
 	case EXPR_ANYSET: {
-		long v = 0, num;
+		long v = 0, n;
 
 		if (!m->sb && (
 		    e->a.prop == PROP_ATIME ||
@@ -813,14 +813,14 @@ eval(struct expr *e, struct mailinfo *m)
 			switch (e->b.var) {
 			case VAR_CUR:
 				if (!cur_idx)
-					num = (e->op == EXPR_LT || e->op == EXPR_LE) ? LONG_MAX : -1;
+					n = (e->op == EXPR_LT || e->op == EXPR_LE) ? LONG_MAX : -1;
 				else
-					num = cur_idx;
+					n = cur_idx;
 				break;
-			default: num = 0;
+			default: n = 0;
 			}
 		} else {
-			num = e->b.num;
+			n = e->b.num;
 		}
 
 		switch (e->a.prop) {
@@ -838,14 +838,14 @@ eval(struct expr *e, struct mailinfo *m)
 		}
 
 		switch (e->op) {
-		case EXPR_LT: return v < num;
-		case EXPR_LE: return v <= num;
-		case EXPR_EQ: return v == num;
-		case EXPR_NEQ: return v != num;
-		case EXPR_GE: return v >= num;
-		case EXPR_GT: return v > num;
-		case EXPR_ALLSET: return (v & num) == num;
-		case EXPR_ANYSET: return (v & num) > 0;
+		case EXPR_LT: return v < n;
+		case EXPR_LE: return v <= n;
+		case EXPR_EQ: return v == n;
+		case EXPR_NEQ: return v != n;
+		case EXPR_GE: return v >= n;
+		case EXPR_GT: return v > n;
+		case EXPR_ALLSET: return (v & n) == n;
+		case EXPR_ANYSET: return (v & n) > 0;
 		}
 	}
 	case EXPR_STREQ:
