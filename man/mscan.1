@@ -6,6 +6,7 @@
 .Nd print a one line per message mail listing
 .Sh SYNOPSIS
 .Nm
+.Op Fl n
 .Op Fl I
 .Ar msgs\ ...
 .Sh DESCRIPTION
@@ -33,6 +34,9 @@ and the subject of the message.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
+.It Fl n
+Only print message numbers
+(or file names, if the message is not in the current sequence).
 .It Fl I
 Force ISO date output.
 Use twice to force ISO date and time output.

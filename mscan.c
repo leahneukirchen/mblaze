@@ -26,6 +26,7 @@ static char *aliases[32];
 static int alias_idx;
 
 static int Iflag;
+static int nflag;
 static int curyear;
 static int curyday;
 
@@ -70,12 +71,35 @@ itsme(char *v)
 	return 0;
 }
 
+static int init;
+
+void
+numline(char *file)
+{
+	if (!init) {
+		// delay loading of the seq until we need to scan the first
+		// file, in case someone in the pipe updated the map before
+		char *seq = blaze822_seq_open(0);
+		blaze822_seq_load(seq);
+		cur = blaze822_seq_cur();
+		init = 1;
+	}
+
+	while (*file == ' ' || *file == '\t')
+		file++;
+
+	long lineno = blaze822_seq_find(file);
+	if (lineno)
+		printf("%ld\n", lineno);
+	else
+		printf("%s\n", file);
+}
+
 void
 oneline(char *file)
 {
 	int metawidth = 38;
 
-	static int init;
 	if (!init) {
 		// delay loading of the seq until we need to scan the first
 		// file, in case someone in the pipe updated the map before
@@ -217,13 +241,22 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "I")) != -1)
+	while ((c = getopt(argc, argv, "In")) != -1)
 		switch(c) {
 		case 'I': Iflag++; break;
+		case 'n': nflag = 1; break;
 		default:
-			fprintf(stderr, "Usage: mscan [-I] [msgs...]\n");
+			fprintf(stderr, "Usage: mscan [-n] [-I] [msgs...]\n");
 			exit(1);
 		}
+
+	if (nflag) {
+		if (argc == optind && isatty(0))
+			blaze822_loop1(":", numline);
+		else
+			blaze822_loop(argc-optind, argv+optind, numline);
+		return 0;
+	}
 
 	time_t now = time(0);
 	struct tm *tm = localtime(&now);
