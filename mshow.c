@@ -683,7 +683,7 @@ show(char *file)
 				*n = 0;
 			v = blaze822_chdr(msg, h);
 			if (v) {
-				if (strcmp("date", h) == 0)
+				if (strcasecmp("date", h) == 0)
 					print_date_header(v);
 				else
 					print_decode_header(h, v);
