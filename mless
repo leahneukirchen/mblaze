@@ -87,7 +87,7 @@ while :; do
 	[ -f $HOME/.mless ] && export LESSKEY=$HOME/.mless
 	LESSOPEN="|$0 --filter %s" \
 		less -Ps"mless %f?m (message %i of %m).." -R \
-			"+:e $(mseq -n .)$nl" //scan $(mseq -n :)
+			"+:e $(mscan -n .)$nl" //scan $(mscan -n :)
 	case "$?" in
 	0|1) exit $?;;
 	78) # N go to next unseen message

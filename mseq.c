@@ -10,7 +10,6 @@
 #include "blaze822.h"
 
 static int fflag;
-static int nflag;
 static int rflag;
 static int Aflag;
 static char *Cflag;
@@ -176,7 +175,6 @@ stdinmode()
 	char *l;
 	size_t linelen = 0;
 	ssize_t rd;
-	long i = 0;
 	FILE *outfile;
 
 	char tmpfile[PATH_MAX];
@@ -209,11 +207,6 @@ stdinmode()
 	while ((rd = getline(&line, &linelen, stdin)) != -1) {
 		if (line[rd-1] == '\n')
 			line[rd-1] = 0;
-
-		if (nflag) {
-			printf("%ld\n", ++i);  // always stdout
-			continue;
-		}
 
 		l = line;
 		if (rflag)
@@ -258,10 +251,9 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "fnrAC:S")) != -1)
+	while ((c = getopt(argc, argv, "frAC:S")) != -1)
 		switch(c) {
 		case 'f': fflag = 1; break;
-		case 'n': nflag = 1; break;
 		case 'r': rflag = 1; break;
 		case 'A': Sflag = Aflag = 1; break;
 		case 'C': Cflag = optarg; break;
@@ -269,7 +261,7 @@ main(int argc, char *argv[])
 		default:
 		usage:
 			fprintf(stderr,
-			    "Usage: mseq [-fnr] [msgs...]\n"
+			    "Usage: mseq [-fr] [msgs...]\n"
 			    "       mseq -S [-fr] < sequence\n"
 			    "       mseq -A [-fr] < sequence\n"
 			    "       mseq -C msg\n"
@@ -282,10 +274,6 @@ main(int argc, char *argv[])
 		return 0;
 	}
 
-	if (nflag && Sflag) {
-		fprintf(stderr, "error: -n and -S/-A doesn't make sense.\n");
-		goto usage;
-	}
 	if (Sflag && optind != argc) {
 		fprintf(stderr, "error: -S/-A doesn't take arguments.\n");
 		goto usage;
@@ -316,18 +304,14 @@ hack:
 			continue;
 		}
 		while ((f = blaze822_seq_next(seq, a, &iter))) {
-			if (nflag) {
-				printf("%ld\n", iter.line-1);
-			} else {
-				char *s = f;
-				if (rflag)
-					while (*s == ' ' || *s == '\t')
-						s++;
-				if (fflag)
-					fix(stdout, s);
-				else
-					printf("%s\n", s);
-			}
+			char *s = f;
+			if (rflag)
+				while (*s == ' ' || *s == '\t')
+					s++;
+			if (fflag)
+				fix(stdout, s);
+			else
+				printf("%s\n", s);
 			free(f);
 		}
 	}
