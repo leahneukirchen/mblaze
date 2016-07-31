@@ -60,6 +60,7 @@ enum prop {
 	PROP_ATIME = 1,
 	PROP_CTIME,
 	PROP_DEPTH,
+	PROP_KEPT,
 	PROP_MTIME,
 	PROP_PATH,
 	PROP_REPLIES,
@@ -460,6 +461,8 @@ parse_cmp()
 
 	if (token("depth"))
 		prop = PROP_DEPTH;
+	else if (token("kept"))
+		prop = PROP_KEPT;
 	else if (token("index"))
 		prop = PROP_INDEX;
 	else if (token("replies")) {
@@ -827,6 +830,7 @@ eval(struct expr *e, struct mailinfo *m)
 		case PROP_ATIME: v = m->sb->st_atime; break;
 		case PROP_CTIME: v = m->sb->st_ctime; break;
 		case PROP_MTIME: v = m->sb->st_mtime; break;
+		case PROP_KEPT: v = kept; break;
 		case PROP_REPLIES: v = m->replies; break;
 		case PROP_SIZE: v = m->sb->st_size; break;
 		case PROP_DATE: v = msg_date(m); break;
