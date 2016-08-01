@@ -242,6 +242,7 @@ print_header(char *line) {
 				printf("?=\n");
 				s += w;
 				linelen = 0;
+				prevq = 1;
 			}
 			if (s < e) {
 				if (linelen + (e-s)+13 > 78) {
@@ -253,13 +254,13 @@ print_header(char *line) {
 					linelen += 13;
 					linelen += gen_qp((uint8_t *)s, e-s, 999, 1);
 					printf("?=");
+					prevq = 1;
 				} else {
 					fwrite(s, 1, e-s, stdout);
 					linelen += e-s;
 					prevq = 0;
 				}
 			}
-			prevq = 1;
 		} else {
 			if (linelen + (e-s) > 78) {
 				printf("\n");
