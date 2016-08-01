@@ -24,6 +24,7 @@ DESCRIPTION
      mpick(1)     to filter mail
      mrepl(1)     to reply to mail
      mscan(1)     to generate single line summaries of mail
+     msed(1)      to manipulate mail headers
      mseq(1)      to manipulate mail sequences
      mshow(1)     to render mail and extract attachments
      msort(1)     to sort mail
@@ -52,10 +53,11 @@ PRINCIPLES
      nonconforming, messages.
 
      Santoku is written in portable C, using only POSIX functions (apart from
-     a tiny Linux-only optimization).  It supports MIME and more than 7-bit
-     messages (everything the host iconv(3) can decode).  It assumes you work
-     in a UTF-8 environment.  Santoku works well together with other Unix mail
-     tools such as offlineimap(1), mairix(1), or mu(1).
+     a tiny Linux-only optimization), and has no external dependencies.  It
+     supports MIME and more than 7-bit messages (everything the host iconv(3)
+     can decode).  It assumes you work in a UTF-8 environment.  Santoku works
+     well together with other Unix mail tools such as offlineimap(1),
+     mairix(1), or mu(1).
 
 EXAMPLES
      Santoku tools are designed to be composed together into a pipe.  It is
