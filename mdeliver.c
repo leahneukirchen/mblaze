@@ -37,7 +37,7 @@ gethost() {
 	gethostname(host, sizeof host);
 	// termination not posix guaranteed
 	host[sizeof host - 1] = 0;
-	// replace / and : with _
+	// replace / and : with -
 	char *s;
 	for (s = host; *s; s++)
 		if (*s == '/' || *s == ':')
