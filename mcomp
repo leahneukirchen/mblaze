@@ -20,7 +20,7 @@ if [ -z "$outbox" ]; then
 		i=$((i+1))
 	done
 	draft="snd.$i"
-	draftmime="snd.$i.mime"
+	draftmime="./snd.$i.mime"
 else
 	draft="$(true | mdeliver -v -XD "$outbox")"
 	if [ -z "$draft" ]; then
@@ -130,8 +130,15 @@ while :; do
 		exit 1
 		;;
 	m|mime)
-		mmime <$draft >$draftmime
-		mshow -t ./$draftmime
+		(
+			IFS='
+'
+			msed '/attach/d' $draft
+			for f in $(mhdr -M -h attach $draft); do
+				echo "#$(file -Lbi $f | sed 's/ //g') $f"
+			done
+		) | tee /tmp/v | mmime >$draftmime
+		mshow -t $draftmime
 		c=
 		;;
 	e|edit)
