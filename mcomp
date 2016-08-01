@@ -76,10 +76,7 @@ fi
 		msgid
 		echo
 
-		echo "$(mhdr -d -h from "$1") wrote:"
-		mshow -R "$1" |
-			sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' |
-			sed 's/^/> /'
+		mquote "$1"
 		echo
 	esac
 
