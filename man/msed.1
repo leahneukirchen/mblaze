@@ -1,0 +1,129 @@
+.Dd August 1, 2016
+.Dt MSED 1
+.Os
+.Sh NAME
+.Nm msed
+.Nd stream editor for transforming mail
+.Sh SYNOPSIS
+.Nm
+.Ar script
+.Op Ar msgs\ ...
+.Sh DESCRIPTION
+.Nm
+prints the messages
+.Ar msgs
+with mail headers transformed by the commands in
+.Ar scripts .
+See
+.Xr mmsg 7
+for the message argument syntax.
+If no
+.Ar msgs
+are passed,
+.Nm
+will default to the current message.
+.Pp
+.Nm
+scripts are akin to a subset of
+.Xr sed 1
+scripts, but optimized for modifying mail.
+Note that
+.Nm
+unfolds and normalizes the mail headers, so they may need to be
+passed through
+.Xr mmime 7
+to ensure RFC 5322 conformance.
+The mail body is copied as-is.
+.Pp
+.Nm
+supports the following commands.
+The separators
+.Em after
+the command letter may be subsituted with an arbitrary symbol, just as in
+.Xr sed 1 .
+Multiple commands can be separated by
+.Sq Cm ";" .
+.Bl -tag -width Ds
+.It Cm "/" Ns Ar header Ns Cm "/" Ns Ic a Ns Cm "/" Ns Ar value Ns Cm "/"
+If the header
+.Sq Ar header Ns Cm ":"
+is not set in the message, add it with given
+.Ar value .
+.It Cm "/" Ns Ar headers Ns Cm "/" Ns Ic c Ns Cm "/" Ns Ar value Ns Cm "/"
+Change colon-separated headers matching the regular expression
+.Ar headers ,
+with implicit anchoring to the header name,
+to the value given in
+.Ar value .
+.It Cm "/" Ns Ar headers Ns Cm "/" Ns Ic d
+Delete colon-separated headers matching the regular expression
+.Ar headers ,
+with implicit anchoring to the header name.
+Use explicit
+.Sq Li ".*"
+to match arbitrary strings at the beginning or end of the headers.
+.Pp
+For example,
+.Sq Li "/x-.*/d"
+will delete all headers starting with
+.Sq Li "X-"
+(always case insensitive),
+and
+.Sq Li "/from:to:cc/d"
+will delete the headers
+.Sq Li "From:" ,
+.Sq Li "To:" ,
+and
+.Sq Li "Cc:" .
+.It Oo Cm "/" Ns Ar headers Ns Cm "/" Oc Ns Ic s Ns Cm "/" Ns Ar regex Ns Cm "/" Ns Ar replacement Ns Cm "/" Ns Op Ar flags
+Substitute matches of the POSIX Basic Regular Expression
+.Ar regex
+in headers matching the POSIX Basic Regular Expression
+.Ar headers ,
+with implicit anchoring to the header name
+(or all headers, if omitted),
+with the string
+.Ar replacement ,
+expanding
+.Sq Li "&"
+to the matched string,
+and
+.Sq Li "\\" Ns Ar N
+to the
+.Ar N Ns
+th
+sub-expression,
+where
+.Ar N
+is between 1 and 9.
+.Pp
+By default, only the first match is replaced, unless
+.Ar flags
+contains the letter
+.Sq Cm g .
+.Pp
+By default,
+.Ar regex
+is matched case sensitively, unless
+.Ar flags
+contains the letter
+.Sq Cm i .
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr sed 1 ,
+.Xr mmsg 7 ,
+.Xr regex 7
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/
