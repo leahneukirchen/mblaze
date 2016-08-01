@@ -245,13 +245,19 @@ print_header(char *line) {
 			}
 			if (s < e) {
 				if (linelen + (e-s)+13 > 78) {
-					printf("\n");
-					linelen = 0;
+					printf("\n ");
+					linelen = 1;
 				}
-				printf(" =?UTF-8?Q?");
-				linelen += 13;
-				linelen += gen_qp((uint8_t *)s, e-s, 999, 1);
-				printf("?=");
+				if (highbit || s[0] == ' ') {
+					printf("=?UTF-8?Q?");
+					linelen += 13;
+					linelen += gen_qp((uint8_t *)s, e-s, 999, 1);
+					printf("?=");
+				} else {
+					fwrite(s, 1, e-s, stdout);
+					linelen += e-s;
+					prevq = 0;
+				}
 			}
 			prevq = 1;
 		} else {
