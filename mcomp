@@ -9,11 +9,26 @@ reffmt() {
 	sed 's/^[^<]*//g;s/[^>]*$//g;s/>[^<]*</>\n</g' | uniq | sed 's/^/ /'
 }
 
-i=0
-while [ -f "snd.$i" ]; do
-	i=$((i+1))
-done
-draft="snd.$i"
+msgid() {
+	mgenmid 2>/dev/null | sed 's/.*/Message-Id: &/'
+}
+
+outbox=$(mhdr -h outbox ~/.santoku/profile)
+if [ -z "$outbox" ]; then
+	i=0
+	while [ -f "snd.$i" ]; do
+		i=$((i+1))
+	done
+	draft="snd.$i"
+	draftmime="snd.$i.mime"
+else
+	draft="$(true | mdeliver -v -XD "$outbox")"
+	if [ -z "$draft" ]; then
+		echo "$0: failed to create draft in outbox $outbox." 1>&2
+		exit 1
+	fi
+	draftmime="$(echo $draft | sed 's,\(.*\)/cur/,\1/tmp/mime-,')"
+fi
 
 {
 	case "$0" in
@@ -30,6 +45,7 @@ draft="snd.$i"
 		from=$(mhdr -h local-mailbox ~/.santoku/profile)
 		[ "$from" ] && echo "From: $from"
 		cat ~/.santoku/headers 2>/dev/null
+		msgid
 		echo
 		echo
 		;;
@@ -57,6 +73,7 @@ draft="snd.$i"
 			mhdr -h message-id "$1"
 		} | reffmt
 		echo "In-Reply-To: $(mhdr -h message-id "$1")"
+		msgid
 		echo
 
 		echo "$(mhdr -d -h from "$1") wrote:"
@@ -76,10 +93,15 @@ c=e
 while :; do
 	case "$c" in
 	s|send)
-		if [ -e $draft.mime ]; then
-			if [ $draft -ot $draft.mime ]; then
-				if sendmail -t <$draft.mime; then
-					rm $draft $draft.mime
+		if [ -e $draftmime ]; then
+			if [ $draft -ot $draftmime ]; then
+				if sendmail -t <$draftmime; then
+					if [ "$outbox" ]; then
+						mv $draftmime $draft
+						mflag -d $draft
+					else
+						rm $draft $draftmime
+					fi
 					exit 0
 				else
 					echo "mcomp: sendmail failed, kept draft $draft"
@@ -91,7 +113,11 @@ while :; do
 			fi
 		else
 			if sendmail -t <$draft; then
-				rm $draft
+				if [ "$outbox" ]; then
+					mflag -d $draft
+				else
+					rm $draft
+				fi
 				exit 0
 			else
 				echo "mcomp: sendmail failed, kept draft $draft"
@@ -104,8 +130,8 @@ while :; do
 		exit 1
 		;;
 	m|mime)
-		mmime <$draft >$draft.mime
-		mshow -t ./$draft.mime
+		mmime <$draft >$draftmime
+		mshow -t ./$draftmime
 		c=
 		;;
 	e|edit)
