@@ -185,7 +185,7 @@ stdinmode()
 		// XXX locking?
 		seqfile = getenv("MAILSEQ");
 		if (!seqfile)
-			seqfile = blaze822_home_file(".santoku/seq");
+			seqfile = blaze822_home_file(".mblaze/seq");
 		snprintf(tmpfile, sizeof tmpfile, "%s-", seqfile);
 		snprintf(oldfile, sizeof oldfile, "%s.old", seqfile);
 		outfile = fopen(tmpfile, "w+");

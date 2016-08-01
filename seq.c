@@ -42,7 +42,7 @@ blaze822_seq_open(char *file)
 	if (!file)
 		file = getenv("MAILSEQ");
 	if (!file)
-		file = blaze822_home_file(".santoku/seq");
+		file = blaze822_home_file(".mblaze/seq");
 	fd = open(file, O_RDONLY);
 	if (!fd)
 		return 0;
@@ -127,7 +127,7 @@ blaze822_seq_cur()
 
 	char *curlink = getenv("MAILCUR");
 	if (!curlink)
-		curlink = blaze822_home_file(".santoku/cur");
+		curlink = blaze822_home_file(".mblaze/cur");
 
 	int r = readlink(curlink, b, sizeof b - 1);
 	if (r < 0)
@@ -142,7 +142,7 @@ blaze822_seq_setcur(char *s)
 	char curtmplink[PATH_MAX];
 	char *curlink = getenv("MAILCUR");
 	if (!curlink)
-		curlink = blaze822_home_file(".santoku/cur");
+		curlink = blaze822_home_file(".mblaze/cur");
 
 	if (snprintf(curtmplink, sizeof curtmplink, "%s-", curlink) >= PATH_MAX)
 		return -1;  // truncation

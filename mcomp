@@ -13,7 +13,7 @@ msgid() {
 	mgenmid 2>/dev/null | sed 's/.*/Message-Id: &/'
 }
 
-outbox=$(mhdr -h outbox ~/.santoku/profile)
+outbox=$(mhdr -h outbox ~/.mblaze/profile)
 if [ -z "$outbox" ]; then
 	i=0
 	while [ -f "snd.$i" ]; do
@@ -42,9 +42,9 @@ fi
 		echo "Cc: "
 		echo "Bcc: "
 		echo "Subject: "
-		from=$(mhdr -h local-mailbox ~/.santoku/profile)
+		from=$(mhdr -h local-mailbox ~/.mblaze/profile)
 		[ "$from" ] && echo "From: $from"
-		cat ~/.santoku/headers 2>/dev/null
+		cat ~/.mblaze/headers 2>/dev/null
 		msgid
 		echo
 		echo
@@ -66,7 +66,7 @@ fi
 			s=${s#[Ff][Ww][Dd]:}
 		done
 		echo "Subject: Re: $s"
-		cat ~/.santoku/headers 2>/dev/null
+		cat ~/.mblaze/headers 2>/dev/null
 		echo -n "References:"
 		{
 			mhdr -h references "$1"

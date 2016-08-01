@@ -87,8 +87,8 @@ EXAMPLES
 CONCEPTS
      mblaze deals with messages (which are files), folders (which are Maildir
      folders), sequences (which are newline-separated lists of messages,
-     possibly persisted on disk in ~/.santoku/seq), and the current message
-     (kept as a symlink in ~/.santoku/cur).
+     possibly persisted on disk in ~/.mblaze/seq), and the current message
+     (kept as a symlink in ~/.mblaze/cur).
 
      Messages in the persisted sequence can be referred to using special
      syntax as explained in mmsg(7).
