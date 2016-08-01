@@ -4,10 +4,11 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <regex.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "blaze822.h"
@@ -147,19 +148,22 @@ sed(char *file)
 					break;
 				case 'a':
 					// skipped here;
-					sep = *++e;
+					e++;
+					if ((*e == ' ' || *e == ';' || *e == '\n' || !*e)) {
+						break;
+					}
+					sep = *e;
 					if (!sep) {
 						fprintf(stderr, "unterminated a command\n");
 						exit(1);
 					}
 					while (*e && *e != sep)
 						e++;
-					break;
 					if (!(*e == ' ' || *e == ';' || *e == '\n' || !*e)) {
 						fprintf(stderr, "unterminated a command\n");
 						exit(1);
 					}
-
+					break;
 				case 'c':
 					sep = *++e;
 					s = ++e;
@@ -204,7 +208,7 @@ sed(char *file)
 					exit(1);
 				}
 			}
-			while (*e && *e != ';')
+			while (*e && *e != ';' && *e != '\n')
 				e++;
 		}
 		if (v) {
@@ -237,23 +241,48 @@ sed(char *file)
 		
 		char sep;
 		char *s;
+		char *h = 0;
+		char *v = 0;
+		char buf[255];
 		switch (*e) {
 			case 'a':
-				sep = *++e;
-				if (!sep) {
-					fprintf(stderr, "unterminated a command\n");
+				if (he != hs) {
+					h = strndup(hs, he-hs);
+				} else {
+					fprintf(stderr, "used command a without header name\n");
 					exit(1);
 				}
 
-				s = ++e;
-				while (*e && *e != sep)
-					e++;
-				if (he != hs) {
-					char *h = strndup(hs, he-hs);
-					char *v = strndup(s, e-s);
-					printhdr(h, 0);
-					printf(": %s\n", v);
+				e++;
+				if (*e == ' ' || *e == '\t' || *e == '\n' || *e == ';' || !*e) {
+					if (strcasecmp(h, "date") == 0) {
+						time_t now = time(0);
+						strftime(buf, sizeof buf,
+						    "%a, %d %b %Y %T %z",
+						    localtime(&now));
+						v = buf;
+					} else {
+						fprintf(stderr, "no header value for %s\n", h);
+						exit(1);
+					}
+				} else {
+					sep = *e;
+					if (!sep) {
+						fprintf(stderr, "unterminated a command\n");
+						exit(1);
+					}
+					s = ++e;
+					while (*e && *e != sep)
+						e++;
+					v = strndup(s, e-s);
 				}
+
+				if (blaze822_chdr(msg, h))
+					break;
+
+				printhdr(h, 0);
+				printf(": %s\n", v);
+
 				break;
 
 			case 'c':
@@ -262,7 +291,7 @@ sed(char *file)
 				// ignore here;
 				break;
 		}
-		while (*e && *e != ';')
+		while (*e && *e != ';' && *e != '\n')
 			e++;
         }
 
