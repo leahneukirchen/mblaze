@@ -87,7 +87,7 @@ fi
 		printf '%s\n' '-- '
 		cat ~/.signature
 	fi
-} >$draft
+} | msed '/date/a' /dev/stdin >$draft
 
 c=e
 while :; do
