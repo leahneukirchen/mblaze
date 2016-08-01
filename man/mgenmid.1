@@ -1,0 +1,58 @@
+.Dd August 1, 2016
+.Dt MGENMID 1
+.Os
+.Sh NAME
+.Nm mgenmid
+.Nd generate a Message-ID
+.Sh SYNOPSIS
+.Nm
+.Sh DESCRIPTION
+.Nm
+generates a fresh Message-ID and prints it.
+The Message-ID consists of a timestamp,
+a random value,
+and a fully qualified domain name.
+.Pp
+The fully qualified domain name is computed by:
+.Bl -enum
+.It
+Using
+.Sq Li "FQDN:"
+from
+.Pa "~/.santoku/profile"
+(if set).
+.It
+Resolving the current hostname.
+.It
+Using the host part of the address in
+.Sq Li "Local-Mailbox:"
+from
+.Pa "~/.santoku/profile"
+(if set).
+.El
+.Pp
+If these steps don't result in a fully qualified domain name,
+.Nm
+fails.
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Rs
+.%A M. Curtin
+.%A J. Zawinski
+.%D July 1998
+.%R draft-ietf-usefor-message-id-01.txt
+.%T Recommendations for generating Message IDs
+.Re
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/
