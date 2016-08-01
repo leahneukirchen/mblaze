@@ -16,6 +16,7 @@ DESCRIPTION
      mdeliver(1)  to deliver messages or import mailboxes
      mdirs(1)     to find Maildirs
      mflag(1)     to change flags (marks) of mail
+     mgenmid(1)   to generate Message-IDs
      mhdr(1)      to extract mail headers
      minc(1)      to incorporate new mail
      mless(1)     to conveniently read mail in less(1)
