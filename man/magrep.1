@@ -20,11 +20,21 @@ where the value of
 .Ar header
 matches the POSIX Extended Regular Expression
 .Ar regex .
+.Pp
 If
 .Ar header
 is empty,
 .Nm
 will instead match against the Maildir flags of the messages.
+.Pp
+If
+.Ar header
+is
+.Sq Li "/" ,
+.Nm
+will instead match inside the text parts of the
+.Em body
+of the messages.
 .Pp
 See
 .Xr mmsg 7

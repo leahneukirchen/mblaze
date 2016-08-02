@@ -5,7 +5,7 @@ ALL = maddr magrep mdeliver mdirs mflag mgenmid mhdr minc mlist mmime mpick msca
 all: $(ALL)
 
 maddr: maddr.o blaze822.o seq.o rfc2047.o mymemmem.o
-magrep: magrep.o blaze822.o seq.o rfc2047.o mymemmem.o
+magrep: magrep.o blaze822.o seq.o rfc2045.o rfc2047.o mymemmem.o
 mdeliver: mdeliver.o blaze822.o mymemmem.o
 mdirs: mdirs.o
 mflag: mflag.o blaze822.o seq.o mymemmem.o

@@ -21,6 +21,7 @@ static long matches;
 
 static regex_t pattern;
 static char *header;
+static char *curfile;
 
 int
 match(char *file, char *s)
@@ -37,6 +38,49 @@ match(char *file, char *s)
 	return 0;
 }
 
+blaze822_mime_action
+match_part(int depth, struct message *msg, char *body, size_t bodylen)
+{
+	(void) depth;
+
+	char *ct = blaze822_hdr(msg, "content-type");
+
+	blaze822_mime_action r = MIME_CONTINUE;
+
+	if (!ct || strncmp(ct, "text/plain", 10) == 0) {
+		char *charset = 0, *cs, *cse;
+		if (blaze822_mime_parameter(ct, "charset", &cs, &cse))
+			charset = strndup(cs, cse-cs);
+		if (!charset ||
+		    strcasecmp(charset, "utf-8") == 0 ||
+		    strcasecmp(charset, "utf8") == 0 ||
+		    strcasecmp(charset, "us-ascii") == 0) {
+			(void) bodylen;  /* XXX */
+			if (match(curfile, body))
+				r = MIME_STOP;
+		} else {
+			/* XXX decode here */
+		}
+		free(charset);
+	}
+
+	return r;
+}
+
+void
+match_body(char *file)
+{
+	curfile = file;
+	while (*curfile == ' ' || *curfile == '\t')
+                curfile++;
+
+	struct message *msg = blaze822_file(curfile);
+	if (!msg)
+		return;
+
+	blaze822_walk_mime(msg, 0, match_part);
+}
+
 void
 magrep(char *file)
 {
@@ -44,6 +88,9 @@ magrep(char *file)
 		char *flags = strstr(file, ":2,");
 		if (flags)
 			match(file, flags+3);
+		return;
+	} else if (strcmp(header, "/") == 0) {
+		match_body(file);
 		return;
 	}
 
