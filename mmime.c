@@ -17,6 +17,8 @@
 
 #include "blaze822.h"
 
+static int rflag;
+
 int gen_b64(uint8_t *s, off_t size)
 {
 	static char *b64 =
@@ -281,16 +283,22 @@ gen_build()
 			if (line[0] == '\n') {
 				inheader = 0;
 				printf("MIME-Version: 1.0\n");
-				printf("Content-Type: multipart/mixed; boundary=\"%s\"\n", sep);
-				printf("\n");
-				printf("This is a multipart message in MIME format.\n\n");
+				if (rflag) {
+					printf("Content-Type: text/plain; charset=UTF-8\n");
+					printf("Content-Transfer-Encoding: quoted-printable\n\n");
+
+				} else {
+					printf("Content-Type: multipart/mixed; boundary=\"%s\"\n", sep);
+					printf("\n");
+					printf("This is a multipart message in MIME format.\n\n");
+				}
 			} else {
 				print_header(line);
 			}
 			continue;
 		}
 
-		if (line[0] == '#') {
+		if (!rflag && line[0] == '#') {
 			char *f = strchr(line, ' ');
 			*f = 0;
 			if (strchr(line, '/')) {
@@ -303,9 +311,9 @@ gen_build()
 			}
 		}
 
-		if (!intext) {
+		if (!rflag && !intext) {
 			printf("--%s\n", sep);
-			printf("Content-Type: text/plain\n");
+			printf("Content-Type: text/plain; charset=UTF-8\n");
 			printf("Content-Disposition: inline\n");
 			printf("Content-Transfer-Encoding: quoted-printable\n\n");
 			
@@ -314,7 +322,8 @@ gen_build()
 
 		gen_qp((uint8_t *)line, strlen(line), 78, 0);
 	}
-	printf("--%s--\n", sep);
+	if (!rflag)
+		printf("--%s--\n", sep);
 
 	free(line);
 	return 0;
@@ -325,6 +334,18 @@ main(int argc, char *argv[])
 {
 	srand48(time(0) ^ getpid());
 
-	if (argc == 1)
-		return gen_build();
+	int c;
+	while ((c = getopt(argc, argv, "r")) != -1)
+		switch(c) {
+		case 'r': rflag = 1; break;
+		default:
+		usage:
+			fprintf(stderr, "Usage: mmime [-r] < message\n");
+			exit(1);
+		}
+
+	if (argc != optind)
+		goto usage;
+
+	return gen_build();
 }

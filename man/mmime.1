@@ -6,6 +6,9 @@
 .Nd encode MIME mails
 .Sh SYNOPSIS
 .Nm
+.Op Fl r
+<
+.Ar message
 .Sh DESCRIPTION
 .Nm
 encodes the standard input into a MIME message.
@@ -23,6 +26,14 @@ with a MIME part having Content-Type
 .Ar type
 consisting of the contents of
 .Pa filename .
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl r
+Raw mode: don't expand MIME parts in the body, generate a
+.Sq Li text/plain
+message.
+.El
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
