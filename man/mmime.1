@@ -6,7 +6,7 @@
 .Nd encode MIME mails
 .Sh SYNOPSIS
 .Nm
-.Op Fl r
+.Op Fl c | Fl r
 <
 .Ar message
 .Sh DESCRIPTION
@@ -29,6 +29,10 @@ consisting of the contents of
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
+.It Fl c
+Check mode: don't output anything,
+exit with status 1 if MIME-encoding the message is required,
+or with status 0 else.
 .It Fl r
 Raw mode: don't expand MIME parts in the body, generate a
 .Sq Li text/plain

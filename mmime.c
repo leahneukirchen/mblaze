@@ -17,6 +17,7 @@
 
 #include "blaze822.h"
 
+static int cflag;
 static int rflag;
 
 int gen_b64(uint8_t *s, off_t size)
@@ -322,11 +323,43 @@ gen_build()
 
 		gen_qp((uint8_t *)line, strlen(line), 78, 0);
 	}
-	if (!rflag)
+	if (!rflag && !inheader)
 		printf("--%s--\n", sep);
 
 	free(line);
 	return 0;
+}
+
+int
+check()
+{
+	off_t bithigh = 0;
+	off_t bitlow = 0;
+	off_t linelen = 0;
+	off_t maxlinelen = 0;
+
+	int c;
+	int l = -1;
+
+	while ((c = getchar()) != EOF) {
+		if (c == '\n') {
+			if (maxlinelen < linelen)
+				maxlinelen = linelen;
+			linelen = 0;
+		} else {
+			linelen++;
+		}
+		if (c != '\t' && c != '\n' && c < 32)
+			bitlow++;
+		if (c > 127)
+			bithigh++;
+		l = c;
+	}
+
+	if (bitlow == 0 && bithigh == 0 && maxlinelen <= 72 && l == '\n')
+		return 0;
+	else
+		return 1;
 }
 
 int
@@ -335,17 +368,21 @@ main(int argc, char *argv[])
 	srand48(time(0) ^ getpid());
 
 	int c;
-	while ((c = getopt(argc, argv, "r")) != -1)
+	while ((c = getopt(argc, argv, "cr")) != -1)
 		switch(c) {
 		case 'r': rflag = 1; break;
+		case 'c': cflag = 1; break;
 		default:
 		usage:
-			fprintf(stderr, "Usage: mmime [-r] < message\n");
+			fprintf(stderr, "Usage: mmime [-c|-r] < message\n");
 			exit(1);
 		}
 
 	if (argc != optind)
 		goto usage;
+
+	if (cflag)
+		return check();
 
 	return gen_build();
 }
