@@ -144,16 +144,6 @@ tlmimetype(char *ct)
 	return strndup(ct, s-ct);
 }
 
-typedef enum {
-	MIME_CONTINUE,
-	MIME_STOP,
-	MIME_PRUNE,
-} mime_action;
-
-typedef mime_action (*mime_callback)(int, struct message *, char *, size_t);
-
-mime_action walk_mime(struct message *msg, int depth, mime_callback visit);
-
 char *
 mime_filename(struct message *msg)
 {
@@ -172,7 +162,7 @@ mime_filename(struct message *msg)
 
 static void choose_alternative(struct message *msg, int depth);
 
-mime_action
+blaze822_mime_action
 render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
 	char *ct = blaze822_hdr(msg, "content-type");
@@ -194,7 +184,7 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 	}
 
 	char *cmd;
-	mime_action r = MIME_CONTINUE;
+	blaze822_mime_action r = MIME_CONTINUE;
 
 	if (filters &&
 	    ((cmd = blaze822_chdr(filters, mt)) ||
@@ -222,7 +212,7 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 			printf(" filter=\"%s\" ---\n", cmd);
 			struct message *imsg = blaze822_mem(output, outlen);
 			if (imsg)
-				walk_mime(imsg, depth+1, render_mime);
+				blaze822_walk_mime(imsg, depth+1, render_mime);
 			blaze822_free(imsg);
 		} else if (e >= 65 && e <= 80) { // choose N-64th part
 			struct message *imsg = 0;
@@ -230,7 +220,7 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 			printf(" selector=\"%s\" part=%d ---\n", cmd, n);
 			while (blaze822_multipart(msg, &imsg)) {
 				if (--n == 0)
-					walk_mime(imsg, depth+1, render_mime);
+					blaze822_walk_mime(imsg, depth+1, render_mime);
 			}
 			blaze822_free(imsg);
 		} else {
@@ -272,7 +262,7 @@ nofilter:
 
 			r = MIME_PRUNE;
 		} else if (strncmp(ct, "multipart/", 10) == 0) {
-			; // default mime_walk action
+			; // default blaze822_mime_walk action
 		} else {
 			printf("no filter or default handler\n");
 		}
@@ -313,11 +303,11 @@ choose_alternative(struct message *msg, int depth)
 	imsg = 0;
 	while (blaze822_multipart(msg, &imsg))
 		if (--n == 0)
-			walk_mime(imsg, depth+1, render_mime);
+			blaze822_walk_mime(imsg, depth+1, render_mime);
 	blaze822_free(imsg);
 }
 
-mime_action
+blaze822_mime_action
 reply_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
 	(void) depth;
@@ -346,7 +336,7 @@ reply_mime(int depth, struct message *msg, char *body, size_t bodylen)
 	return MIME_CONTINUE;
 }
 
-mime_action
+blaze822_mime_action
 list_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
 	(void) body;
@@ -367,39 +357,6 @@ list_mime(int depth, struct message *msg, char *body, size_t bodylen)
 	return MIME_CONTINUE;
 }
 
-mime_action
-walk_mime(struct message *msg, int depth, mime_callback visit)
-{
-	char *ct, *body, *bodychunk;
-	size_t bodylen;
-
-	mime_action r = MIME_CONTINUE;
-
-	if (blaze822_mime_body(msg, &ct, &body, &bodylen, &bodychunk)) {
-
-		mime_action r = visit(depth, msg, body, bodylen);
-
-		if (r == MIME_CONTINUE) {
-			if (strncmp(ct, "multipart/", 10) == 0) {
-				struct message *imsg = 0;
-				while (blaze822_multipart(msg, &imsg)) {
-					r = walk_mime(imsg, depth+1, visit);
-					if (r == MIME_STOP)
-						break;
-				}
-			} else if (strncmp(ct, "message/rfc822", 14) == 0) {
-				struct message *imsg = blaze822_mem(body, bodylen);
-				if (imsg)
-					walk_mime(imsg, depth+1, visit);
-			}
-		}
-
-		free(bodychunk);
-	}
-
-	return r;
-}
-
 void
 list(char *file)
 {
@@ -408,7 +365,7 @@ list(char *file)
 		return;
 	mimecount = 0;
 	printf("%s\n", file);
-	walk_mime(msg, 0, list_mime);
+	blaze822_walk_mime(msg, 0, list_mime);
 }
 
 void
@@ -417,7 +374,7 @@ reply(char *file)
 	struct message *msg = blaze822_file(file);
 	if (!msg)
 		return;
-	walk_mime(msg, 0, reply_mime);
+	blaze822_walk_mime(msg, 0, reply_mime);
 }
 
 static int extract_argc;
@@ -458,7 +415,7 @@ writefile(char *name, char *buf, ssize_t len)
 	return 0;
 }
 
-mime_action
+blaze822_mime_action
 extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
 	(void) body;
@@ -525,7 +482,7 @@ extract_cb(char *file)
 	if (!msg)
 		return;
 	mimecount = 0;
-	walk_mime(msg, 0, extract_mime);
+	blaze822_walk_mime(msg, 0, extract_mime);
 }
 
 void
@@ -708,7 +665,7 @@ show(char *file)
 	}
 
 	mimecount = 0;
-	walk_mime(msg, 0, render_mime);
+	blaze822_walk_mime(msg, 0, render_mime);
 
 done:
 	blaze822_free(msg);

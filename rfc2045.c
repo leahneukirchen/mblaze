@@ -2,6 +2,7 @@
 
 #include <strings.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "blaze822.h"
 #include "blaze822_priv.h"
@@ -164,4 +165,37 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 	*imsg = blaze822_mem(part, nextpart-part);
 
 	return 1;
+}
+
+blaze822_mime_action
+blaze822_walk_mime(struct message *msg, int depth, blaze822_mime_callback visit)
+{
+	char *ct, *body, *bodychunk;
+	size_t bodylen;
+
+	blaze822_mime_action r = MIME_CONTINUE;
+
+	if (blaze822_mime_body(msg, &ct, &body, &bodylen, &bodychunk)) {
+
+		r = visit(depth, msg, body, bodylen);
+
+		if (r == MIME_CONTINUE) {
+			if (strncmp(ct, "multipart/", 10) == 0) {
+				struct message *imsg = 0;
+				while (blaze822_multipart(msg, &imsg)) {
+					r = blaze822_walk_mime(imsg, depth+1, visit);
+					if (r == MIME_STOP)
+						break;
+				}
+			} else if (strncmp(ct, "message/rfc822", 14) == 0) {
+				struct message *imsg = blaze822_mem(body, bodylen);
+				if (imsg)
+					blaze822_walk_mime(imsg, depth+1, visit);
+			}
+		}
+
+		free(bodychunk);
+	}
+
+	return r;
 }

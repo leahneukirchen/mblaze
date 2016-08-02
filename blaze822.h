@@ -37,6 +37,10 @@ int blaze822_mime_body(struct message *msg, char **cto, char **bodyo, size_t *bo
 int blaze822_multipart(struct message *msg, struct message **imsg);
 int blaze822_mime_parameter(char *s, char *name, char **starto, char **stopo);
 
+typedef enum { MIME_CONTINUE, MIME_STOP, MIME_PRUNE } blaze822_mime_action;
+typedef blaze822_mime_action (*blaze822_mime_callback)(int, struct message *, char *, size_t);
+blaze822_mime_action blaze822_walk_mime(struct message *, int, blaze822_mime_callback);
+
 // seq.c
 
 char *blaze822_seq_open(char *file);
