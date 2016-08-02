@@ -7,7 +7,8 @@ true + /; exec awk -f "$0"; exit; / {}
 function co(n, c) { e = ENVIRON["MCOLOR_" n]; return e ? e : c }
 function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
 function so(s) { return sprintf("\033[1m%s\033[0m", s) }
-BEGIN { hdr = 1 }
+BEGIN { hdr = 1; if (match(ENVIRON["TERM"], "^(dumb|network|9term)")) dumb = 1 }
+dumb { print; next }
 /^$/ { hdr = 0 }
 /^-- $/ { ftr = 1 }
 /^--- .* ---/ { print fg(co("SEP",242), $0); ftr = 0; sig = 0; next }
