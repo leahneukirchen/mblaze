@@ -1,0 +1,88 @@
+.Dd August 2, 2016
+.Dt MAGREP 1
+.Os
+.Sh NAME
+.Nm magrep
+.Nd print mails matching a pattern
+.Sh SYNOPSIS
+.Nm
+.Op Fl c | Fl q
+.Op Fl v
+.Op Fl i
+.Op Fl a | Fl d
+.Ar header Ns Cm ":" Ns Ar regex
+.Op Ar msgs\ ...
+.Sh DESCRIPTION
+.Nm
+prints the messages
+.Ar msgs
+where the value of
+.Ar header
+matches the POSIX Extended Regular Expression
+.Ar regex .
+If
+.Ar header
+is empty,
+.Nm
+will instead match against the Maildir flags of the messages.
+.Pp
+See
+.Xr mmsg 7
+for the message argument syntax.
+If no
+.Ar msgs
+are passed, and
+.Nm
+is used interactively,
+.Nm
+will default to the current sequence.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl a
+Search for
+.Ar regex
+only in all RFC 2822 address parts in
+.Ar header .
+.It Fl c
+Don't print matching messages,
+just display the number of matched messages.
+.It Fl d
+Decode the
+.Ar header
+according to RFC 2047 first.
+.It Fl i
+Match
+.Ar regex
+case insensitively.
+.It Fl q
+Quiet mode: do not print anything,
+quit as soon as possible.
+.It Fl v
+Invert the match, print (or count) all messages where
+.Ar regex
+does not match.
+.Sh EXIT STATUS
+.Nm
+returns with exit status 0 if a match was found,
+with exit status 1 if no match was found,
+and with exit status higher than 1 if an error occurred.
+.Sh SEE ALSO
+.Xr grep 1 ,
+.Xr mmsg 7 ,
+.Xr regex 7
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh TRIVIA
+.Nm
+is not called mgrep because many tools with this name already exist.
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/
