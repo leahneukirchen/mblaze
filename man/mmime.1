@@ -6,23 +6,15 @@
 .Nd encode MIME mails
 .Sh SYNOPSIS
 .Nm
-.Ar files\ ...
 .Sh DESCRIPTION
 .Nm
-encodes the
-.Ar files
-given as arguments into a MIME message.
+encodes the standard input into a MIME message.
 .Pp
-If there is more than one file, a
-.Sq Li multipart/mixed
-mail is generated.
-.Pp
-With no arguments,
 .Nm
 generates a
 .Sq Li multipart/mixed
 mail from standard input,
-extending the header as neccessary,
+extending, wrapping, and encoding the header as neccessary,
 and replacing body lines looking like
 .Pp
 .D1 Li # Ns Ar type Pa filename

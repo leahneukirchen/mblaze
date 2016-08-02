@@ -173,26 +173,6 @@ int gen_file(char *file, char *ct)
 	}
 }
 
-int
-gen_mixed(int argc, char *argv[])
-{
-	char sep[100];
-	snprintf(sep, sizeof sep, "----_=_%08lx%08lx%08lx_=_",
-	    lrand48(), lrand48(), lrand48());
-	int i;
-
-	printf("Content-Type: multipart/mixed; boundary=\"%s\"\n", sep);
-	printf("\n");
-	printf("This is a multipart message in MIME format.\n\n");
-	for (i = 0; i < argc; i++) {
-		printf("--%s\n", sep);
-		gen_file(argv[i], 0);
-	}
-	printf("--%s--\n", sep);
-
-	return 0;
-}
-
 void
 print_header(char *line) {
 	char *s, *e;
@@ -347,10 +327,4 @@ main(int argc, char *argv[])
 
 	if (argc == 1)
 		return gen_build();
-
-	printf("MIME-Version: 1.0\n");
-	if (argc >= 2)
-		return gen_mixed(argc-1, argv+1);
-	else
-		return gen_file(argv[1], 0);
 }
