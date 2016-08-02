@@ -1,0 +1,22 @@
+#!/bin/sh
+# mcolor - colorize rendered mail
+
+# restart as awk script
+true + /; exec awk -f "$0"; exit; / {}
+
+function co(n, c) { e = ENVIRON["MCOLOR_" n]; return e ? e : c }
+function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
+function so(s) { return sprintf("\033[1m%s\033[0m", s) }
+BEGIN { hdr = 1 }
+/^$/ { hdr = 0 }
+/^-- $/ { ftr = 1 }
+/^--- .* ---/ { print fg(co("SEP",242), $0); ftr = 0; sig = 0; next }
+/^-----BEGIN .* SIGNATURE-----/ { sig = 1 }
+hdr && /^From:/ { print so(fg(co("FROM",119), $0)); next }
+hdr { print fg(co("HEADER",120), $0); next }
+ftr { print fg(co("FOOTER",244), $0); next }
+/^-----BEGIN .* MESSAGE-----/ ||
+/^-----END .* SIGNATURE-----/ { print fg(co("SIG",244), $0); sig = 0; next }
+sig { print fg(co("SIG",244), $0); next }
+/^>/ { print fg(co("QUOTE",151), $0); next }
+{ print }

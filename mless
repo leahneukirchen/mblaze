@@ -3,25 +3,6 @@
 
 PATH="${0%/*}:$PATH"
 
-colormsg() {
-awk '
-function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
-function so(s) { return sprintf("\033[1m%s\033[0m", s) }
-BEGIN { hdr = 1 }
-/^$/ { hdr = 0 }
-/^-- $/ { ftr = 1 }
-/^--- .* ---/ { print fg(242, $0); ftr = 0; sig = 0; next }
-/^-----BEGIN .* SIGNATURE-----/ { sig = 1 }
-hdr && /^From:/ { print so(fg(119, $0)); next }
-hdr { print fg(120, $0); next }
-ftr { print fg(244, $0); next }
-/^-----BEGIN .* MESSAGE-----/  ||
-/^-----END .* SIGNATURE-----/ { print fg(244, $0); sig = 0; next }
-sig { print fg(244, $0); next }
-/^>/ { print fg(151, $0); next }
-{ print }'
-}
-
 colorscan() {
 awk '
 function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
@@ -51,7 +32,7 @@ if [ "$1" = --filter ]; then
 			mshow -A text/html "$2"
 		else
 			mshow "$2"
-		fi | colormsg
+		fi | mcolor
 	else
 		mseq -r $2
 		echo
@@ -72,10 +53,10 @@ fi
 case "$0" in
 	*mnext) set -- +;;
 	*mprev) set -- -;;
-	*) set -- ${1:-.};;
+	*) [ "$#" -eq 1 ] && set -- ${1:-.};;
 esac
 
-if [ "$#" -eq 1 ]; then
+if [ "$#" -ge 1 ]; then
 	mseq -C "$1"
 fi
 
