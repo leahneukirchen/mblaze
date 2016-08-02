@@ -146,7 +146,7 @@ int gen_file(char *file, char *ct)
 	printf("Content-Disposition: attachment; filename=\"%s\"\n",
 	       basenam(file));
 	if (bitlow == 0 && bithigh == 0 &&
-	    maxlinelen <= 72 && content[st.st_size-1] == '\n') {
+	    maxlinelen <= 78 && content[st.st_size-1] == '\n') {
 		if (!ct)
 			ct = "text/plain";
 		printf("Content-Type: %s\n", ct);
@@ -356,7 +356,7 @@ check()
 		l = c;
 	}
 
-	if (bitlow == 0 && bithigh == 0 && maxlinelen <= 72 && l == '\n')
+	if (bitlow == 0 && bithigh == 0 && maxlinelen <= 78 && l == '\n')
 		return 0;
 	else
 		return 1;
