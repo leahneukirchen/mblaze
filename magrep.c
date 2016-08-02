@@ -40,6 +40,13 @@ match(char *file, char *s)
 void
 magrep(char *file)
 {
+	if (!*header) {
+		char *flags = strstr(file, ":2,");
+		if (flags)
+			match(file, flags+3);
+		return;
+	}
+
 	char *filename = file;
 	while (*filename == ' ' || *filename == '\t')
                 filename++;
