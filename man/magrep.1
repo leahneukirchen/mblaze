@@ -6,7 +6,7 @@
 .Nd print mails matching a pattern
 .Sh SYNOPSIS
 .Nm
-.Op Fl c | Fl q
+.Op Fl c | Fl q | Fl m Ar max
 .Op Fl v
 .Op Fl i
 .Op Fl a | Fl d
@@ -32,7 +32,7 @@ If
 is
 .Sq Li "/" ,
 .Nm
-will instead match inside the text parts of the
+will instead search the plain text parts of the
 .Em body
 of the messages.
 .Pp
@@ -65,6 +65,10 @@ according to RFC 2047 first.
 Match
 .Ar regex
 case insensitively.
+.It Fl m Ar max
+Do not show more than
+.Ar max
+matches.
 .It Fl q
 Quiet mode: do not print anything,
 quit as soon as possible.

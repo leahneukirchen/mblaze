@@ -17,6 +17,7 @@ static int dflag;
 static int iflag;
 static int qflag;
 static int vflag;
+static long mflag;
 static long matches;
 
 static regex_t pattern;
@@ -29,9 +30,11 @@ match(char *file, char *s)
 	if (vflag ^ (regexec(&pattern, s, 0, 0, 0) == 0)) {
 		if (qflag)
 			exit(0);
+		matches++;
 		if (!cflag)
 			printf("%s\n", file);
-		matches++;
+		if (mflag && matches >= mflag)
+			exit(0);
 		return 1;
 	}
 
@@ -55,7 +58,7 @@ match_part(int depth, struct message *msg, char *body, size_t bodylen)
 		    strcasecmp(charset, "utf-8") == 0 ||
 		    strcasecmp(charset, "utf8") == 0 ||
 		    strcasecmp(charset, "us-ascii") == 0) {
-			(void) bodylen;  /* XXX */
+			(void) bodylen;	 /* XXX */
 			if (match(curfile, body))
 				r = MIME_STOP;
 		} else {
@@ -72,7 +75,7 @@ match_body(char *file)
 {
 	curfile = file;
 	while (*curfile == ' ' || *curfile == '\t')
-                curfile++;
+		curfile++;
 
 	struct message *msg = blaze822_file(curfile);
 	if (!msg)
@@ -96,7 +99,7 @@ magrep(char *file)
 
 	char *filename = file;
 	while (*filename == ' ' || *filename == '\t')
-                filename++;
+		filename++;
 
 	struct message *msg = blaze822(filename);
 	if (!msg)
@@ -110,7 +113,7 @@ magrep(char *file)
 			match(file, d);
 		} else if (aflag) {
 			char *disp, *addr;
-                        while ((v = blaze822_addr(v, &disp, &addr))) {
+			while ((v = blaze822_addr(v, &disp, &addr))) {
 				if (addr && match(file, addr))
 					break;
 			}
@@ -126,18 +129,19 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "acdiqv")) != -1)
+	while ((c = getopt(argc, argv, "acdim:qv")) != -1)
 		switch(c) {
-                case 'a': aflag = 1; break;
-                case 'c': cflag = 1; break;
-                case 'd': dflag = 1; break;
-                case 'i': iflag = REG_ICASE; break;
-                case 'q': qflag = 1; break;
-                case 'v': vflag = 1; break;
+		case 'a': aflag = 1; break;
+		case 'c': cflag = 1; break;
+		case 'd': dflag = 1; break;
+		case 'i': iflag = REG_ICASE; break;
+		case 'm': mflag = atol(optarg); break;
+		case 'q': qflag = 1; break;
+		case 'v': vflag = 1; break;
 		default:
 		usage:
 			fprintf(stderr,
-"Usage: magrep [-c|-q] [-v] [-i] [-a|-d] header:regex [msgs...]\n");
+"Usage: magrep [-c|-q|-m max] [-v] [-i] [-a|-d] header:regex [msgs...]\n");
 			exit(2);
 		}
 
@@ -163,7 +167,7 @@ main(int argc, char *argv[])
 	else
 		blaze822_loop(argc-optind, argv+optind, magrep);
 	
-	if (cflag)
+	if (cflag && !qflag && !mflag)
 		printf("%ld\n", matches);
 
 	return !matches;
