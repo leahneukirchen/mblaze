@@ -109,16 +109,21 @@ while :; do
 				c=
 			fi
 		else
-			if sendmail -t <$draft; then
-				if [ "$outbox" ]; then
-					mflag -d $draft
+			if mmime -c <$draft; then
+				if sendmail -t <$draft; then
+					if [ "$outbox" ]; then
+						mflag -d $draft
+					else
+						rm $draft
+					fi
+					exit 0
 				else
-					rm $draft
+					echo "mcomp: sendmail failed, kept draft $draft"
+					exit 2
 				fi
-				exit 0
 			else
-				echo "mcomp: sendmail failed, kept draft $draft"
-				exit 2
+				echo "mcomp: message needs to be MIME-encoded first."
+				c=
 			fi
 		fi
 		;;
