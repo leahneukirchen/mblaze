@@ -1,4 +1,4 @@
-CFLAGS=-g -O1 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
+CFLAGS=-g -O2 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
 
 ALL = maddr mdeliver mdirs mflag mgenmid mhdr minc mlist mmime mpick mscan msed mseq mshow msort mthread
 
