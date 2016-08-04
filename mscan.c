@@ -242,7 +242,6 @@ oneline(char *file)
 	
 	struct message *msg = blaze822(file);
 	char *flags = msg ? strstr(file, ":2,") : "";
-	long lineno = msg ? blaze822_seq_find(file) : 0;
 
 	int wleft = cols;
 
@@ -320,11 +319,15 @@ oneline(char *file)
 			wleft -= printf("%.*s", w, flags);
 			break;
 		case 'n':
-			if (lineno)
-				printf("%*ld", w, lineno);
-			else
-				printf("%*s", w, "");
-			wleft -= w > 0 ? w : -w;
+			{
+				long lineno = msg ? blaze822_seq_find(file) : 0;
+
+				if (lineno)
+					printf("%*ld", w, lineno);
+				else
+					printf("%*s", w, "");
+				wleft -= w > 0 ? w : -w;
+			}
 			break;
 		case 'd':
 		case 'D':
