@@ -248,6 +248,7 @@ oneline(char *file)
 nomsg:
 		flag1 = flag2 = flag3 = ' ';
 		*fromdec = 0;
+		flags = "";
 		snprintf(subjdec, sizeof subjdec, "\\_ %s", file);
 		lineno = 0;
 	}
@@ -256,6 +257,17 @@ nomsg:
 
 	char *f;
 	for (f = fflag; *f; f++) {
+		if (*f == '\\') {
+			f++;
+			switch (*f) {
+			case 'n': putchar('\n'); wleft = cols; break;
+			case 't': putchar('\t'); wleft -= (8 - wleft % 8); break;
+			default:
+				putchar('\\'); wleft--;
+				putchar(*f); wleft--;
+			}
+			continue;
+		}
 		if (*f != '%') {
 			putchar(*f);
 			wleft--;
@@ -277,7 +289,7 @@ nomsg:
 		if (!*f)
 			break;
 
-		switch(*f) {
+		switch (*f) {
 		case '%':
 			putchar('%');
 			wleft--;
