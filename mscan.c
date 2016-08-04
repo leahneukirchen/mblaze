@@ -470,6 +470,9 @@ main(int argc, char *argv[])
 			       (v = blaze822_addr(v, &d, &a)))
 				if (a)
 					aliases[alias_idx++] = strdup(a);
+		if ((v = blaze822_hdr(config, "scan-format")))
+			if (fflag == default_fflag)  // NB. ==
+				fflag = v;
 	}
 
 	long i;
