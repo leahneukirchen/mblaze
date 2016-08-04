@@ -367,9 +367,13 @@ oneline(char *file)
 		case 'b':
 			{
 				struct stat st;
-				if (stat(file, &st) != 0)
-					st.st_size = 0;
-				print_human(st.st_size);
+				if (msg) {
+					if (stat(file, &st) != 0)
+						st.st_size = 0;
+					print_human(st.st_size);
+				} else {
+					printf("    ");
+				}
 				wleft -= 5;
 			}
 			break;
