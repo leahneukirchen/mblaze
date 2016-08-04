@@ -315,17 +315,19 @@ blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
 	return r;
 }
 
-static void
+static long
 iterdir(char *dir, void (*cb)(char *))
 {
 	DIR *fd, *fd2;
         struct dirent *d;
 
+	long i = 0;
+
 	fd = opendir(dir);
 	if (!fd) {
 		if (errno == ENOTDIR)
 			cb(dir);
-		return;
+		return 1;
 	}
 
 	char sub[PATH_MAX];
@@ -348,8 +350,11 @@ iterdir(char *dir, void (*cb)(char *))
 		else
 			snprintf(sub, sizeof sub, "%s/%s", dir, d->d_name);
 		cb(sub);
+		i++;
 	}
 	closedir(fd);
+
+	return i;
 }
 
 int
@@ -376,8 +381,7 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 	int j = 0;
 	for (i = 0; i < argc; i++) {
 		if (strchr(argv[i], '/')) {  // a file name
-			iterdir(argv[i], cb);
-			j++;
+			j += iterdir(argv[i], cb);
 		} else {
 			while ((line = blaze822_seq_next(map, argv[i], &iter))) {
 				cb(line);
