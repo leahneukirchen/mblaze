@@ -168,14 +168,14 @@ fmt_from(struct message *msg)
 	static char fromdec[64];
 	char *from = "(unknown)";
 	char to[256];
-	char *v;
+	char *v, *w;
 
 	if (!msg)
 		return "";
 
         if ((v = blaze822_hdr(msg, "from"))) {
-		if (itsme(v)) {
-			snprintf(to, sizeof to, "TO:%s", v);
+		if (itsme(v) && ((w = blaze822_hdr(msg, "to")))) {
+			snprintf(to, sizeof to, "TO:%s", w);
 			from = to;
 		} else {
 			char *disp, *addr;
