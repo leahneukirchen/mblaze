@@ -1,0 +1,4 @@
+#!/bin/sh
+# mtwoscan - mscan with a two-line format
+
+exec mscan -f '%-4n%c%2i%s\n     %2i%-3M %16D (%b) %f' "$@"
