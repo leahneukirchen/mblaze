@@ -29,7 +29,7 @@ static int Iflag;
 static int nflag;
 static int curyear;
 static int curyday;
-static char default_fflag[] = "%c%m %-3n %10d %17f %t %2i%s";
+static char default_fflag[] = "%c%u%r %-3n %10d %17f %t %2i%s";
 static char *fflag = default_fflag;
 
 void
@@ -131,6 +131,77 @@ fmt_date(struct message *msg, int w, int iso)
 	return date;
 }
 
+static char *
+fmt_subject(struct message *msg, char *file)
+{
+	static char subjdec[100];
+	char *subj = "(no subject)";
+	char *v;
+
+	if (!msg) {
+		snprintf(subjdec, sizeof subjdec, "\\_ %s", file);
+		return subjdec;
+	}
+
+	if ((v = blaze822_hdr(msg, "subject")))
+		subj = v;
+
+	blaze822_decode_rfc2047(subjdec, subj, sizeof subjdec - 1, "UTF-8");
+
+	return subjdec;
+}
+
+static char *
+fmt_from(struct message *msg)
+{
+	static char fromdec[64];
+	char *from = "(unknown)";
+	char to[256];
+	char *v;
+
+	if (!msg)
+		return "";
+
+        if ((v = blaze822_hdr(msg, "from"))) {
+		if (itsme(v)) {
+			snprintf(to, sizeof to, "TO:%s", v);
+			from = to;
+		} else {
+			char *disp, *addr;
+			blaze822_addr(v, &disp, &addr);
+			if (disp)
+				from = disp;
+			else if (addr)
+				from = addr;
+		}
+	}
+
+	blaze822_decode_rfc2047(fromdec, from, sizeof fromdec - 1, "UTF-8");
+	fromdec[sizeof fromdec - 1] = 0;
+
+	return fromdec;
+}
+
+static char *
+fmt_to_flag(struct message *msg)
+{
+	char *v;
+
+	if (!msg || !alias_idx)
+		return " ";
+
+	if ((v = blaze822_hdr(msg, "to")) && itsme(v))
+		return ">";
+	else if ((v = blaze822_hdr(msg, "cc")) && itsme(v))
+		return "+";
+	else if ((v = blaze822_hdr(msg, "resent-to")) && itsme(v))
+		return ":";
+	else if ((v = blaze822_hdr(msg, "from")) && itsme(v))
+		return "<";
+	else
+		return " ";
+}
+
 static void
 print_human(intmax_t i)
 {
@@ -168,90 +239,10 @@ oneline(char *file)
 		indent++;
 		file++;
 	}
-
-	char *e = file + strlen(file) - 1;
-	while (file < e && (*e == ' ' || *e == '\t'))
-		*e-- = 0;
 	
 	struct message *msg = blaze822(file);
-	if (!msg)
-		goto nomsg;
-
-	char flag1, flag2, flag3;
-
-	char *flags = strstr(file, ":2,");
-        if (!flags)
-		flags = "";
-	else
-		flags += 3;
-
-	if (cur && strcmp(cur, file) == 0)
-		flag1 = '>';
-	else if (!strchr(flags, 'S'))
-		flag1 = '.';
-	else if (strchr(flags, 'T'))
-		flag1 = 'x';
-	else
-		flag1 = ' ';
-
-	if (strchr(flags, 'F'))
-		flag2 = '*';
-	else if (strchr(flags, 'R'))
-		flag2 = '-';
-	else
-		flag2 = ' ';
-
-        char *v;
-
-	flag3 = ' ';
-	if (alias_idx) {
-		if ((v = blaze822_hdr(msg, "to")) && itsme(v))
-			flag3 = '>';
-		else if ((v = blaze822_hdr(msg, "cc")) && itsme(v))
-			flag3 = '+';
-		else if ((v = blaze822_hdr(msg, "resent-to")) && itsme(v))
-			flag3 = ':';
-	}
-
-	char *from = "(unknown)";
-	char to[256];
-
-        if ((v = blaze822_hdr(msg, "from"))) {
-		if (itsme(v)) {
-			snprintf(to, sizeof to, "TO:%s", v);
-			from = to;
-			flag3 = '<';
-		} else {
-			char *disp, *addr;
-			blaze822_addr(v, &disp, &addr);
-			if (disp)
-				from = disp;
-			else if (addr)
-				from = addr;
-		}
-	}
-
-	char fromdec[64];
-	blaze822_decode_rfc2047(fromdec, from, sizeof fromdec - 1, "UTF-8");
-	fromdec[sizeof fromdec - 1] = 0;
-
-	char *subj = "(no subject)";
-	char subjdec[100];
-	if ((v = blaze822_hdr(msg, "subject"))) {
-		subj = v;
-	}
-	blaze822_decode_rfc2047(subjdec, subj, sizeof subjdec - 1, "UTF-8");
-
-	long lineno = blaze822_seq_find(file);
-
-	if (0) {
-nomsg:
-		flag1 = flag2 = flag3 = ' ';
-		*fromdec = 0;
-		flags = "";
-		snprintf(subjdec, sizeof subjdec, "\\_ %s", file);
-		lineno = 0;
-	}
+	char *flags = msg ? strstr(file, ":2,") : "";
+	long lineno = msg ? blaze822_seq_find(file) : 0;
 
 	int wleft = cols;
 
@@ -295,14 +286,36 @@ nomsg:
 			wleft--;
 			break;
 		case 'c':
-			putchar(flag1);
+			if (cur && strcmp(cur, file) == 0)
+				putchar('>');
+			else
+				putchar(' ');
 			wleft--;
 			break;
-		case 'm':
-			putchar(flag2);
+		case 'u':  // unseen
+			if (strchr(flags, 'F'))
+				putchar('*');
+			else if (!strchr(flags, 'S'))
+				putchar('.');
+			else if (strchr(flags, 'T'))
+				putchar('x');
+			else
+				putchar(' ');
 			wleft--;
 			break;
-		case 'M':
+		case 'r':  // replied
+			if (strchr(flags, 'R'))
+				putchar('-');
+			else if (strchr(flags, 'P'))
+				putchar(':');
+			else
+				putchar(' ');
+			wleft--;
+			break;
+		case 't':  // to-flag
+			wleft -= printf("%s", fmt_to_flag(msg));
+			break;
+		case 'M':  // raw Maildir flags
 			if (!w) w = -3;
 			wleft -= printf("%.*s", w, flags);
 			break;
@@ -320,12 +333,8 @@ nomsg:
 			    fmt_date(msg, w, Iflag || *f == 'D'));
 			break;
 		case 'f':
-			u8putstr(stdout, fromdec, w ? w : 16, 1);
+			u8putstr(stdout, fmt_from(msg), w ? w : 16, 1);
 			wleft -= w > 0 ? w : -w;
-			break;
-		case 't':
-			putchar(flag3);
-			wleft--;
 			break;
 		case 'i':
 			{
@@ -345,7 +354,7 @@ nomsg:
 			break;
 		case 's':
 			if (!w) w = wleft;
-			u8putstr(stdout, subjdec, wleft, 0);
+			u8putstr(stdout, fmt_subject(msg, file), wleft, 0);
 			wleft -= w;
 			break;
 		case 'b':
