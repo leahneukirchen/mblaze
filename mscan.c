@@ -114,6 +114,8 @@ fmt_date(struct message *msg, int w, int iso)
 
 			if (iso && w >= 19)
 				strftime(date, sizeof date, "%Y-%m-%d %H:%M:%S", tm);
+			else if (iso && w >= 16)
+				strftime(date, sizeof date, "%Y-%m-%d %H:%M", tm);
 			else if (iso || tm->tm_year != curyear)
 				strftime(date, sizeof date, "%Y-%m-%d", tm);
 			else if (tm->tm_yday != curyday)
