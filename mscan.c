@@ -401,7 +401,7 @@ oneline(char *file)
 					b++;
 				if (*b == '.')
 					b++;
-				wleft -= printf("%*.*s", w, e-b, b);
+				wleft -= printf("%*.*s", w, (int)(e-b), b);
 			}
 			break;
 		default:
