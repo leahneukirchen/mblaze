@@ -7,6 +7,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl n
+.Op Fl f Ar format
 .Op Fl I
 .Ar msgs\ ...
 .Sh DESCRIPTION
@@ -23,14 +24,18 @@ are passed,
 reads file names from standard input,
 or uses the mails in the current sequence when used interactively.
 .Pp
-For each message,
+By default,
+.Ar format
+is
+.Sq Li "%c%u%r %-3n %10d %17f %t %2i%s" ,
+that is, for each message,
 .Nm
 prints
 flags,
 the sequence number (if applicable),
 the date,
 the originator,
-and the subject of the message.
+and the subject of the message (possibly indented).
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -38,9 +43,92 @@ The options are as follows:
 Only print message numbers
 (or file names, if the message is not in the current sequence).
 .It Fl I
-Force ISO date output.
-Use twice to force ISO date and time output.
-By default, an adaptive date display is used.
+Force ISO date output,
+even for
+.Sq Cm "%d".
+.It Fl f Ar format
+Format according to the string
+.Ar format ,
+inspired by
+.Xr printf 3 .
+.Pp
+The following formatting codes can be used
+.Ar ( wd
+overrides the default width):
+.Bl -tag -width Ds
+.It Cm "\\n"
+Newline
+.It Cm "\\t"
+Tab
+.It Cm "%%"
+A plain
+.Sq Li "%" .
+.It Cm "%c"
+A
+.Sq Li ">"
+on the current message, else a blank.
+.It Cm "%u"
+A
+.Sq Li "*"
+on a flagged message, or a
+.Sq Li "."
+on an unseen message, or a
+.Sq Li "x"
+on a trashed message, or a blank.
+.It Cm "%r"
+A
+.Sq Li "-"
+on a replied-to message, or a
+.Sq Li ":"
+on a forwarded message, or a blank.
+.It Cm "%t"
+A
+.Sq Li ">"
+if you are in
+.Sq Li "To:" ,
+a
+.Sq Li "+"
+if you are in
+.Sq Li "Cc:" ,
+a
+.Sq Li ":"
+if you are in
+.Sq Li "Resent-To:" ,
+or a blank else.
+.It Cm "%M"
+The raw Maildir flags of the message.
+.It Cm "%" Ns Oo Ar wd Oc Ns Cm "n"
+The number of the message in the current sequence.
+.It Cm "%" Ns Oo Ar wd Oc Ns Cm "d"
+Adaptive date of the message.
+.It Cm "%" Ns Oo Ar wd Oc Ns Cm "D"
+ISO date of the message (year, month, day).
+When
+.Ar wd
+is greater or equal 16,
+the hour-minute timestamp will be shown, too.
+When
+.Ar wd
+is greater or equal 19,
+seconds will be shown, too.
+.It Cm "%" Ns Oo Ar wd Oc Ns Cm "f"
+The
+.Sq Li From
+(or
+.Sq Li To ,
+if the message is from us).
+.It Cm "%" Ns Oo Ar wd Oc Ns Cm "i"
+.Ar wd
+(default: 1)
+spaces per indentation depth in the thread tree.
+.It Cm "%" Ns Oo Ar wd Oc Ns Cm "s"
+The subject of the message (defaults to remaining width).
+.It Cm "%b"
+Human-readable size of the message (in kilobytes).
+.It Cm "%" Ns Oo Ar wd Oc Ns Cm "F"
+The Maildir folder the message resides in.
+.El
+.El
 .Sh MESSAGE FLAGS
 .Bl -tag -width 2n -compact
 .It Li \&>
