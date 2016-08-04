@@ -244,6 +244,8 @@ oneline(char *file)
 	
 	struct message *msg = blaze822(file);
 	char *flags = msg ? strstr(file, ":2,") : "";
+	if (*flags)
+		flags += 3;
 
 	int wleft = cols;
 
@@ -318,7 +320,7 @@ oneline(char *file)
 			break;
 		case 'M':  // raw Maildir flags
 			if (!w) w = -3;
-			wleft -= printf("%.*s", w, flags);
+			wleft -= printf("%*s", w, flags);
 			break;
 		case 'n':
 			{
