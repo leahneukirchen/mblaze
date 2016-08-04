@@ -106,28 +106,37 @@ fmt_date(struct message *msg, int w, int iso)
 	if (!msg)
 		return "";
 
-        if ((v = blaze822_hdr(msg, "date"))) {
-		time_t t = blaze822_date(v);
-		if (t != -1) {
-			struct tm *tm;
-			tm = localtime(&t);
+	v = blaze822_hdr(msg, "date");
+	if (!v)
+		return "(unknown)";
+	time_t t = blaze822_date(v);
+	if (t == -1)
+		return "(invalid)";
 
-			if (iso && w >= 19)
-				strftime(date, sizeof date, "%Y-%m-%d %H:%M:%S", tm);
-			else if (iso && w >= 16)
-				strftime(date, sizeof date, "%Y-%m-%d %H:%M", tm);
-			else if (iso || tm->tm_year != curyear)
-				strftime(date, sizeof date, "%Y-%m-%d", tm);
-			else if (tm->tm_yday != curyday)
-				strftime(date, sizeof date, "%a %b %e", tm);
-			else
-				strftime(date, sizeof date, "%a  %H:%M", tm);
-		} else {
-			strcpy(date, "(invalid)");
-		}
+	struct tm *tm;
+	tm = localtime(&t);
+
+	if (iso) {
+		if (w >= 19)
+			strftime(date, sizeof date, "%Y-%m-%d %H:%M:%S", tm);
+		else if (w >= 16)
+			strftime(date, sizeof date, "%Y-%m-%d %H:%M", tm);
+		else
+			strftime(date, sizeof date, "%Y-%m-%d", tm);
+	} else if (w < 10) {
+		if (tm->tm_year != curyear)
+			strftime(date, sizeof date, "%b%y", tm);
+		else if (tm->tm_yday != curyday)
+			strftime(date, sizeof date, "%d%b", tm);
+		else
+			strftime(date, sizeof date, "%H:%M", tm);
 	} else {
-		strcpy(date, "(unknown)");
-		// mtime perhaps?
+		if (tm->tm_year != curyear)
+			strftime(date, sizeof date, "%Y-%m-%d", tm);
+		else if (tm->tm_yday != curyday)
+			strftime(date, sizeof date, "%a %b %e", tm);
+		else
+			strftime(date, sizeof date, "%a  %H:%M", tm);
 	}
 
 	return date;
@@ -327,10 +336,9 @@ oneline(char *file)
 				long lineno = msg ? blaze822_seq_find(file) : 0;
 
 				if (lineno)
-					printf("%*ld", w, lineno);
+					wleft -= printf("%*ld", w, lineno);
 				else
-					printf("%*s", w, "");
-				wleft -= w > 0 ? w : -w;
+					wleft -= printf("%*s", w, "");
 			}
 			break;
 		case 'd':
