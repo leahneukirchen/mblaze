@@ -387,7 +387,7 @@ oneline(char *file)
 			break;
 		case 'F':
 			{
-				if (!w) w = 10;
+				if (!w) w = -10;
 				char *e = file + strlen(file);
 				while (file < e && *e != '/')
 					e--;
