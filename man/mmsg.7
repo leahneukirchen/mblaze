@@ -8,6 +8,7 @@
 This manpage documents the message syntax used
 by the tools
 .Xr maddr 1 ,
+.Xr magrep 1 ,
 .Xr mflag 1 ,
 .Xr mhdr 1 ,
 .Xr mless 1 ,
@@ -31,7 +32,7 @@ to all messages in the
 directory.
 .Pp
 Sequences have the format
-.Sq Ar start Ns Li \&: Ns Ar stop ,
+.Sq Ar start Ns Cm ":" Ns Ar stop ,
 where
 .Ar start
 and
@@ -49,13 +50,27 @@ is the empty string,
 .Li \&-1
 will be used instead.
 Thus,
-.Sq Li \&:
+.Sq Cm ":"
 represents the whole sequence.
 If the sequence does not contain a
-.Sq Li \&: ,
+.Sq Cm ":" ,
 it is considered to be a single message, equivalent to the range
-.Sq Ar start Ns Li \&: Ns Ar start
+.Sq Ar start Ns Cm ":" Ns Ar start
 of size one.
+.Pp
+If the sequence is threaded, the following
+syntax may be used:
+.Sq Ar msg Ns Cm "="
+refers to the whole thread that contains
+.Ar msg .
+.Sq Ar msg Ns Cm "^"
+refers to the parent of the message
+.Ar msg
+and may be repeated to refer to grand-parents.
+.Sq Ar msg Ns Cm "_"
+refers to the subthread headed by
+.Ar msg
+(i.e. all messages below with more indentation).
 .Pp
 There are four special shortcuts:
 .Bl -tag -width 3n

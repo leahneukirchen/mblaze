@@ -203,16 +203,135 @@ parse_relnum(char *a, long cur, long last, long *out)
 }
 
 static int
-parse_range(char *a, long *start, long *stop, long cur, long lines)
+parse_thread(char *map, long a, long *starto, long *stopo)
+{
+	char *s, *t;
+	long line;
+
+	long start = 0, stop = 0, state = 0;
+
+	for (s = map, line = 0; s; s = t+1) {
+		t = strchr(s, '\n');
+		if (!t)
+			break;
+		line++;
+		if (!iswsp(*s)) {
+			if (state == 0) {
+				start = line;
+			} else if (state == 1) {
+				stop = line - 1;
+				state = 2;
+				break;
+			}
+		}
+		if (line == a)
+			state = 1;
+		while (*s && iswsp(*s))
+			s++;
+	}
+
+	if (state == 1) {
+		stop = line;
+		state = 2;
+	}
+	if (state == 2) {
+		*starto = start;
+		*stopo = stop;
+		return 1;
+	}
+	return 0;
+}
+
+static int
+parse_subthread(char *map, long a, long *stopo)
+{
+	char *s, *t;
+	long line;
+
+	long stop = 0;
+	int minindent = -1;
+
+	for (s = map, line = 0; s; s = t+1) {
+		t = strchr(s, '\n');
+		if (!t)
+			break;
+		line++;
+		int indent = 0;
+		while (*s && iswsp(*s)) {
+			s++;
+			indent++;
+		}
+		if (line == a)
+			minindent = indent;
+		if (line > a && indent <= minindent) {
+			stop = line - 1;
+			break;
+		}
+	}
+
+	if (line < a)
+		return 0;
+
+	if (minindent == -1)
+		stop = line;
+
+	*stopo = stop;
+
+	return 1;
+}
+
+static int
+parse_parent(char *map, long *starto, long *stopo)
+{
+	char *s, *t;
+	long line;
+
+	int previndent[32] = { 0 };
+
+	for (s = map, line = 0; s; s = t+1) {
+		t = strchr(s, '\n');
+		if (!t)
+			break;
+		line++;
+		int indent = 0;
+		while (*s && iswsp(*s)) {
+			s++;
+			indent++;
+		}
+		if (indent > 31)
+			indent = 31;
+		previndent[indent] = line;
+		if (line == *starto) {
+			if (previndent[indent-1]) {
+				*starto = *stopo = previndent[indent-1];
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+	}
+
+	return 0;
+}
+
+static int
+parse_range(char *map, char *a, long *start, long *stop, long cur, long lines)
 {
 	*start = *stop = 1;
 
-	while (*a && *a != ':') {
+	while (*a && *a != ':' && *a != '=' && *a != '_' && *a != '^') {
 		char *b = parse_relnum(a, cur, lines, start);
 		if (a == b)
 			return 0;
 		a = b;
 	}
+
+	while (*a == '^') {
+		a++;
+		if (!parse_parent(map, start, stop))
+			return 0;
+	}
+
 	if (*a == ':') {
 		a++;
 		if (!*a) {
@@ -222,6 +341,10 @@ parse_range(char *a, long *start, long *stop, long cur, long lines)
 			if (a == b)
 				return 0;
 		}
+	} else if (*a == '=') {
+		return parse_thread(map, *start, start, stop);
+	} else if (*a == '_') {
+		return parse_subthread(map, *start, stop);
 	} else if (!*a) {
 		*stop = *start;
 	} else {
@@ -279,7 +402,7 @@ blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
 		find_cur(map, iter);
 
 	if (!iter->start) {
-		if (!parse_range(range, &iter->start, &iter->stop,
+		if (!parse_range(map, range, &iter->start, &iter->stop,
 				 iter->cur, iter->lines)) {
 			fprintf(stderr, "can't parse range: %s\n", range);
 			return 0;
