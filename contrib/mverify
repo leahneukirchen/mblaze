@@ -1,0 +1,33 @@
+#!/bin/sh
+# mverify MSG - verify a OpenPGP or SMIME message
+
+# Needs bash, gpg and openssl.
+
+[ "$#" -eq 0 ] && set -- .
+
+mshow -t "$1" | awk -v "msg=$1" '
+{ match($0, "^ *"); indent = RLENGTH }
+$2 == "text/plain" { plain++ }
+$2 == "multipart/signed" { signed = +$1; si = indent; next }
+signed && !content && indent == si+2 { content = +$1; next }
+signed && content && !signature && indent == si+2 { signature = +$1; type = $2 }
+function q(a) { gsub("\\47", "\47\\\47\47", a); return "\47"a"\47" }
+END {
+	if (type == "" && plain) {  // guess plain text armored signature
+		exit(system("mshow -R " q(msg) " | gpg --verify"));
+	} else if (type == "") {
+		print("No signature found.")
+		exit(100)
+	} else if (type == "application/pgp-signature") {
+		exit(system("bash -c " q("mshow -r -O " q(msg) " " q(content) \
+			" | sed 's/$/\\r/' | gpg --verify <(mshow -O " q(msg) \
+			" " q(signature) " ) -")))
+	} else if (type == "application/pkcs7-signature") {
+		exit(system("mshow -r -O " q(msg) " " q(signed) \
+			" | openssl smime -verify"))
+	} else {
+		print("Cant verify signatures of type " type ".")
+		exit(2)
+	}
+}
+'
