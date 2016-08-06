@@ -4,6 +4,7 @@ struct message {
 	char *body;
 	char *bodyend;
 	char *bodychunk;
+	char *orig_header;
 };
 
 //          WSP            =  SP / HTAB

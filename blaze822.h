@@ -24,6 +24,8 @@ char *blaze822_body(struct message *mesg);
 size_t blaze822_bodylen(struct message *mesg);
 size_t blaze822_headerlen(struct message *mesg);
 
+char *blaze822_orig_header(struct message *mesg);
+
 // rfc2047.c
 
 int blaze822_decode_rfc2047(char *, char *, size_t, char *);

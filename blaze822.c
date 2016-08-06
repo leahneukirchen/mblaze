@@ -349,7 +349,7 @@ blaze822(char *file)
 
 	mesg->msg = buf;
 	mesg->end = end;
-	mesg->body = mesg->bodyend = mesg->bodychunk = 0;
+	mesg->body = mesg->bodyend = mesg->bodychunk = mesg->orig_header = 0;
 
 	return mesg;
 }
@@ -391,6 +391,7 @@ blaze822_mem(char *src, size_t len)
 	mesg->msg = buf;
 	mesg->end = end;
 	mesg->bodychunk = 0;   // src is not ours
+	mesg->orig_header = src;
 
 	return mesg;
 }
@@ -558,6 +559,7 @@ blaze822_mmap(char *file)
 	mesg->msg = mesg->bodychunk = buf;
 	mesg->end = end;
 	mesg->bodyend = buf + len;
+	mesg->orig_header = 0;
 
 	return mesg;
 
@@ -576,6 +578,12 @@ char *
 blaze822_body(struct message *mesg)
 {
 	return mesg->body;
+}
+
+char *
+blaze822_orig_header(struct message *mesg)
+{
+	return mesg->orig_header;
 }
 
 size_t
