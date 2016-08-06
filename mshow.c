@@ -443,6 +443,12 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 			if (errno == 0 && !*b && d == mimecount) {
 				// extract by id
 				if (extract_stdout) {
+					if (Hflag) {
+						fwrite(blaze822_orig_header(msg),
+						    1, blaze822_headerlen(msg),
+						    stdout);
+						printf("\n\n");
+					}
 					fwrite(body, 1, bodylen, stdout);
 				} else {
 					char buf[255];
@@ -461,6 +467,12 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 				   fnmatch(a, filename, FNM_PATHNAME) == 0) {
 				// extract by name
 				if (extract_stdout) {
+					if (Hflag) {
+						fwrite(blaze822_orig_header(msg),
+						    1, blaze822_headerlen(msg),
+						    stdout);
+						printf("\n\n");
+					}
 					fwrite(body, 1, bodylen, stdout);
 				} else {
 					printf("%s\n", filename);
