@@ -162,6 +162,11 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 	if (!nextpart)
 		return 0;   // XXX error condition
 
+	if (*(nextpart-1) == '\n')
+		nextpart--;
+	if (*(nextpart-1) == '\r')
+		nextpart--;
+
 	*imsg = blaze822_mem(part, nextpart-part);
 
 	return 1;
