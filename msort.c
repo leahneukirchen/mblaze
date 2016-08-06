@@ -213,6 +213,36 @@ fileorder(const void *a, const void *b)
 }
 
 int
+unreadorder(const void *a, const void *b)
+{
+	struct mail *ia = (struct mail *)a;
+	struct mail *ib = (struct mail *)b;
+
+	char *fa = strstr(ia->file, ":2,");
+	char *fb = strstr(ib->file, ":2,");
+
+	int unreada = fa ? !strchr(fa, 'S') : 0;
+	int unreadb = fb ? !strchr(fb, 'S') : 0;
+
+	return unreada - unreadb;
+}
+
+int
+flaggedorder(const void *a, const void *b)
+{
+	struct mail *ia = (struct mail *)a;
+	struct mail *ib = (struct mail *)b;
+
+	char *fa = strstr(ia->file, ":2,");
+	char *fb = strstr(ib->file, ":2,");
+
+	int unreada = fa ? !!strchr(fa, 'F') : 0;
+	int unreadb = fb ? !!strchr(fb, 'F') : 0;
+
+	return unreadb - unreada;
+}
+
+int
 idxorder(const void *a, const void *b)
 {
 	struct mail *ia = (struct mail *)a;
@@ -269,7 +299,7 @@ main(int argc, char *argv[])
 {
 	int c, i;
 
-	while ((c = getopt(argc, argv, "fdsFMSr")) != -1)
+	while ((c = getopt(argc, argv, "fdsFMSUIr")) != -1)
 		switch(c) {
 		case 'f': addorder(fromorder); break;
 		case 'd': addorder(dateorder); break;
@@ -277,10 +307,12 @@ main(int argc, char *argv[])
 		case 'F': addorder(fileorder); break;
 		case 'M': addorder(mtimeorder); break;
 		case 'S': addorder(sizeorder); break;
+		case 'U': addorder(unreadorder); break;
+		case 'I': addorder(flaggedorder); break;
 		case 'r': rflag = !rflag; break;
 		default:
 			fprintf(stderr,
-			    "Usage: msort [-r] [-fdsFMS] [msgs...]\n");
+			    "Usage: msort [-r] [-fdsFMSUI] [msgs...]\n");
 			exit(1);
 		}
 

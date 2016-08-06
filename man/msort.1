@@ -7,7 +7,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl r
-.Op Fl f | Fl d | Fl s | Fl F | Fl M | Fl S
+.Op Fl f | Fl d | Fl s | Fl F | Fl M | Fl S | Fl U | Fl I
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
@@ -44,6 +44,10 @@ Sort by file name, using proper order for numbers in file names.
 Sort by message file modification time.
 .It Fl S
 Sort by message file size.
+.It Fl U
+Sort unread messages after read messages.
+.It Fl I
+Sort flagged messages before unflagged messages.
 .El
 .Sh EXIT STATUS
 .Ex -std
