@@ -601,7 +601,7 @@ show(char *file)
 	}
 	newcur = strdup(file);
 
-	if (qflag)
+	if (qflag && !Hflag)
 		msg = blaze822(file);
 	else
 		msg = blaze822_file(file);
@@ -611,17 +611,8 @@ show(char *file)
 	}
 
 	if (Hflag) {  // raw headers
-		size_t hl = blaze822_headerlen(msg);
-		char *header = malloc(hl);
-		if (!header)
-			return;
-		int fd = open(file, O_RDONLY);
-		if (fd == -1) {
-			free(header);
-			return;
-		}
-		hl = read(fd, header, hl);
-		fwrite(header, 1, hl, stdout);
+		fwrite(blaze822_orig_header(msg), 1, blaze822_headerlen(msg),
+		    stdout);
 		printf("\n");
 	} else if (Lflag) {  // all headers
 		char *h = 0;
