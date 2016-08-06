@@ -418,7 +418,6 @@ writefile(char *name, char *buf, ssize_t len)
 blaze822_mime_action
 extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
-	(void) body;
 	(void) depth;
 
 	char *filename = mime_filename(msg);
