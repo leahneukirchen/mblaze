@@ -291,7 +291,7 @@ gen_build()
 				} else {
 					printf("Content-Type: multipart/mixed; boundary=\"%s\"\n", sep);
 					printf("\n");
-					printf("This is a multipart message in MIME format.\n\n");
+					printf("This is a multipart message in MIME format.\n");
 				}
 			} else {
 				print_header(line);
@@ -303,7 +303,7 @@ gen_build()
 			char *f = strchr(line, ' ');
 			*f = 0;
 			if (strchr(line, '/')) {
-				printf("--%s\n", sep);
+				printf("\n--%s\n", sep);
 				if (line[read-1] == '\n')
 					line[read-1] = 0;
 				gen_file(f+1, (char *)line+1);
@@ -313,7 +313,7 @@ gen_build()
 		}
 
 		if (!rflag && !intext) {
-			printf("--%s\n", sep);
+			printf("\n--%s\n", sep);
 			printf("Content-Type: text/plain; charset=UTF-8\n");
 			printf("Content-Disposition: inline\n");
 			printf("Content-Transfer-Encoding: quoted-printable\n\n");
@@ -324,7 +324,7 @@ gen_build()
 		gen_qp((uint8_t *)line, strlen(line), 78, 0);
 	}
 	if (!rflag && !inheader)
-		printf("--%s--\n", sep);
+		printf("\n--%s--\n", sep);
 
 	free(line);
 	return 0;
