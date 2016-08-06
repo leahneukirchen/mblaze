@@ -307,7 +307,7 @@ oneline(char *file)
 		case 'u':  // unseen
 			if (strchr(flags, 'F'))
 				putchar('*');
-			else if (!strchr(flags, 'S'))
+			else if (msg && !strchr(flags, 'S'))
 				putchar('.');
 			else if (strchr(flags, 'T'))
 				putchar('x');
