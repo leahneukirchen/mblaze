@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <unistd.h>
 
 #include "blaze822.h"
@@ -129,7 +128,7 @@ sed(char *file)
 				while (*e && *e != '/')
 					e++;
 				snprintf(headersel, sizeof headersel,
-				    "^(%.*s)*:", e-s, s);
+				    "^(%.*s)*:", (int)(e-s), s);
 				for (s = headersel; *s && *(s+1); s++)
 					if (*s == ':')
 						*s = '|';
@@ -243,7 +242,6 @@ sed(char *file)
 		char *s;
 		char *h = 0;
 		char *v = 0;
-		char buf[255];
 		switch (*e) {
 			case 'a':
 				if (he != hs) {
@@ -255,16 +253,8 @@ sed(char *file)
 
 				e++;
 				if (*e == ' ' || *e == '\t' || *e == '\n' || *e == ';' || !*e) {
-					if (strcasecmp(h, "date") == 0) {
-						time_t now = time(0);
-						strftime(buf, sizeof buf,
-						    "%a, %d %b %Y %T %z",
-						    localtime(&now));
-						v = buf;
-					} else {
-						fprintf(stderr, "no header value for %s\n", h);
-						exit(1);
-					}
+					fprintf(stderr, "no header value for %s\n", h);
+					exit(1);
 				} else {
 					sep = *e;
 					if (!sep) {
