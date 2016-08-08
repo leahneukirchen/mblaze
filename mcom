@@ -159,8 +159,17 @@ while :; do
 			c=c
 		fi
 		;;
+	d|delete)
+		rm -i $draft
+		if ! [ -f $draft ]; then
+			rm -f $draftmime
+			echo "mcom: deleted draft $draft"
+			exit 0
+		fi
+		c=
+		;;
 	*)
-		echo -n "What now? ([s]end, [c]ancel, [e]dit, [m]ime) "
+		echo -n "What now? ([s]end, [c]ancel, [d]elete, [e]dit, [m]ime) "
 		read -r c
 		;;
 	esac
