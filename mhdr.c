@@ -17,6 +17,8 @@ static int Dflag;
 static int Mflag;
 static int dflag;
 
+static int status;
+
 static void
 printhdr(char *hdr)
 {
@@ -29,6 +31,8 @@ printhdr(char *hdr)
 	}
 	fputs(hdr, stdout);
 	fputc('\n', stdout);
+
+	status = 0;
 }
 
 void
@@ -88,6 +92,8 @@ print_decode_header(char *s)
 void
 print_header(char *v)
 {
+	status = 0;
+
 	if (Aflag)
 		print_addresses(v);
 	else if (Dflag)
@@ -179,13 +185,15 @@ main(int argc, char *argv[])
 		default:
 			fprintf(stderr,
 "Usage: mhdr [-h header] [-d] [-M] [-A|-D] [msgs...]\n");
-			exit(1);
+			exit(2);
 		}
+
+	status = 1;
 
 	if (argc == optind && isatty(0))
 		blaze822_loop1(".", header);
 	else
 		blaze822_loop(argc-optind, argv+optind, header);
 	
-	return 0;
+	return status;
 }

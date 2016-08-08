@@ -41,7 +41,11 @@ Scan for RFC 5322 addresses in the headers and print them line by line.
 Assume header contains RFC 5322 date and print as Unix timestamp.
 .El
 .Sh EXIT STATUS
-.Ex -std
+The
+.Nm
+utility exits 0 on success,
+1 when no header was printed,
+and >1 if an error occurs.
 .Sh SEE ALSO
 .Xr mmsg 7
 .Rs
