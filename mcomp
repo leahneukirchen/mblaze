@@ -12,6 +12,10 @@ reffmt() {
 msgid() {
 	mgenmid 2>/dev/null | sed 's/^/Message-Id: /'
 }
+
+msgdate() {
+	echo -n "Date: "
+	mdate
 }
 
 outbox=$(mhdr -h outbox ~/.mblaze/profile)
@@ -47,6 +51,7 @@ fi
 		[ "$from" ] && echo "From: $from"
 		cat ~/.mblaze/headers 2>/dev/null
 		msgid
+		msgdate
 		echo
 		echo
 		;;
@@ -78,6 +83,7 @@ fi
 			echo "In-Reply-To: $mid"
 		fi
 		msgid
+		msgdate
 		echo
 
 		mquote "$1"
@@ -88,7 +94,7 @@ fi
 		printf '%s\n' '-- '
 		cat ~/.signature
 	fi
-} | msed '/date/a' /dev/stdin >$draft
+} >$draft
 
 c=e
 while :; do
