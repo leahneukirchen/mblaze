@@ -10,7 +10,8 @@ reffmt() {
 }
 
 msgid() {
-	mgenmid 2>/dev/null | sed 's/.*/Message-Id: &/'
+	mgenmid 2>/dev/null | sed 's/^/Message-Id: /'
+}
 }
 
 outbox=$(mhdr -h outbox ~/.mblaze/profile)
