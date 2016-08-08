@@ -252,8 +252,10 @@ oneline(char *file)
 	}
 	
 	struct message *msg = blaze822(file);
-	char *flags = msg ? strstr(file, ":2,") : "";
-	if (*flags)
+	char *flags = msg ? strstr(file, ":2,") : 0;
+	if (!flags)
+		flags = "";
+	else
 		flags += 3;
 
 	int wleft = cols;
