@@ -13,7 +13,7 @@ DESCRIPTION
      mblaze consists of a set of Unix tools that each do one job:
      maddr(1)     to extract addresses from mail
      magrep(1)    to find mails matching a pattern
-     mcomp(1)     to write and send mail
+     mcom(1)      to write and send mail
      mdeliver(1)  to deliver messages or import mailboxes
      mdirs(1)     to find Maildirs
      mflag(1)     to change flags (marks) of mail
@@ -24,7 +24,7 @@ DESCRIPTION
      mlist(1)     to list and filter mail messages
      mmime(1)     to create MIME messages
      mpick(1)     to filter mail
-     mrepl(1)     to reply to mail
+     mrep(1)      to reply to mail
      mscan(1)     to generate single line summaries of mail
      msed(1)      to manipulate mail headers
      mseq(1)      to manipulate mail sequences

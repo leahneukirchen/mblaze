@@ -1,24 +1,24 @@
 .Dd July 22, 2016
-.Dt MCOMP 1
+.Dt MCOM 1
 .Os
 .Sh NAME
-.Nm mcomp ,
-.Nm mrepl
+.Nm mcom ,
+.Nm mrep
 .Nd compose new, reply to, and send mail
 .Sh SYNOPSIS
-.Nm mcomp
+.Nm mcom
 .Op Ar recipient
-.Nm mrepl
+.Nm mrep
 .Ar msg
 .Sh DESCRIPTION
-.Nm mcomp
+.Nm mcom
 creates a new draft mail and runs an editor.
 After editing, a loop is started where the user can re-edit, send or
 cancel the mail.
 .Pp
-.Nm mrepl
+.Nm mrep
 behaves like
-.Nm mcomp
+.Nm mcom
 but fills the draft such that the mail will be a reply to the message
 .Ar msg .
 See

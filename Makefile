@@ -6,7 +6,7 @@ BINDIR=$(PREFIX)/bin
 MANDIR=$(PREFIX)/share/man
 
 ALL = maddr magrep mdate mdeliver mdirs mflag mgenmid mhdr minc mlist mmime mpick mscan msed mseq mshow msort mthread
-SCRIPT = mcolor mcomp mless mquote
+SCRIPT = mcolor mcom mless mquote
 
 all: $(ALL)
 
@@ -40,7 +40,7 @@ install: FRC all
 	install -m0755 $(ALL) $(SCRIPT) $(DESTDIR)$(BINDIR)
 	ln -sf mless $(DESTDIR)$(BINDIR)/mnext
 	ln -sf mless $(DESTDIR)$(BINDIR)/mprev
-	ln -sf mrepl $(DESTDIR)$(BINDIR)/mcomp
+	ln -sf mrep $(DESTDIR)$(BINDIR)/mcom
 	install -m0644 man/*.[0-9] $(DESTDIR)$(MANDIR)/man1
 
 FRC:

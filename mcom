@@ -1,5 +1,5 @@
 #!/bin/sh
-# mcomp [TO] - compose mail
+# mcom [TO] - compose mail
 
 commajoin() {
 	sed ':a;N;s/\n/, /;$!b a'
@@ -37,7 +37,7 @@ fi
 
 {
 	case "$0" in
-	*mcomp*)
+	*mcom*)
 		echo -n "To: $1"
 		[ "$#" -ge 1 ] && shift
 		for rcpt; do
@@ -55,7 +55,7 @@ fi
 		echo
 		echo
 		;;
-	*mrepl*)
+	*mrep*)
 		[ "$#" -eq 0 ] && set -- .
 		to=$(mhdr -h reply-to "$1")
 		[ -z "$to" ] && to=$(mhdr -h from "$1")
@@ -111,11 +111,11 @@ while :; do
 					fi
 					exit 0
 				else
-					echo "mcomp: sendmail failed, kept draft $draft"
+					echo "mcom: sendmail failed, kept draft $draft"
 					exit 2
 				fi
 			else
-				echo "mcomp: re-run mmime first."
+				echo "mcom: re-run mmime first."
 				c=
 			fi
 		else
@@ -128,17 +128,17 @@ while :; do
 					fi
 					exit 0
 				else
-					echo "mcomp: sendmail failed, kept draft $draft"
+					echo "mcom: sendmail failed, kept draft $draft"
 					exit 2
 				fi
 			else
-				echo "mcomp: message needs to be MIME-encoded first."
+				echo "mcom: message needs to be MIME-encoded first."
 				c=
 			fi
 		fi
 		;;
 	c|cancel)
-		echo "mcomp: cancelled draft $draft"
+		echo "mcom: cancelled draft $draft"
 		exit 1
 		;;
 	m|mime)
