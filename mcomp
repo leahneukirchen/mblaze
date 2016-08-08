@@ -67,12 +67,15 @@ fi
 		done
 		echo "Subject: Re: $s"
 		cat ~/.mblaze/headers 2>/dev/null
-		echo -n "References:"
-		{
-			mhdr -h references "$1"
-			mhdr -h message-id "$1"
-		} | reffmt
-		echo "In-Reply-To: $(mhdr -h message-id "$1")"
+		mid=$(mhdr -h message-id "$1")
+		if [ "$mid" ]; then
+			echo -n "References:"
+			{
+				mhdr -h references "$1"
+				printf "%s\n" "$mid"
+			} | reffmt
+			echo "In-Reply-To: $mid"
+		fi
 		msgid
 		echo
 
