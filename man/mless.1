@@ -23,7 +23,7 @@ for the message argument syntax.
 .Pp
 When no messages are passed and standard input is from a pipe,
 .Ql mseq -S
-will be called and
+will be called to set the current sequence and
 .Nm
 is run on the resulting sequence.
 The first "file" of the less instance will be the output of
@@ -36,6 +36,11 @@ convenient for use at the end of a pipe.
 will start
 .Xr less 1
 displaying the current message if possible.
+Use
+.Sq Ic ":n"
+and
+.Sq Ic ":p"
+to read the next (resp. previous) message.
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
