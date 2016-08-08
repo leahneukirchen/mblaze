@@ -38,12 +38,8 @@ fi
 {
 	case "$0" in
 	*mcom*)
-		echo -n "To: $1"
-		[ "$#" -ge 1 ] && shift
-		for rcpt; do
-			echo -n ", $rcpt"
-		done
-		echo
+		echo -n "To: "
+		printf '%s\n' "$@" | commajoin
 		echo "Cc: "
 		echo "Bcc: "
 		echo "Subject: "
