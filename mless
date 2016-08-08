@@ -88,5 +88,8 @@ while :; do
 	72) # H toggle HTML mode
 		MLESS_HTML=$((1-$MLESS_HTML))
 		;;
+	94) # ^ goto parent
+		mseq -C '.^' 2>/dev/null
+		;;
 	esac
 done
