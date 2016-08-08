@@ -1,6 +1,12 @@
 CFLAGS=-g -O2 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
 
+DESTDIR=
+PREFIX=/usr/local
+BINDIR=$(PREFIX)/bin
+MANDIR=$(PREFIX)/share/man
+
 ALL = maddr magrep mdate mdeliver mdirs mflag mgenmid mhdr minc mlist mmime mpick mscan msed mseq mshow msort mthread
+SCRIPT = mcolor mcomp mless mquote
 
 all: $(ALL)
 
@@ -28,5 +34,13 @@ README: man/mblaze.7
 
 clean: FRC
 	-rm -f $(ALL) *.o
+
+install: FRC all
+	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
+	install -m0755 $(ALL) $(SCRIPT) $(DESTDIR)$(BINDIR)
+	ln -sf mless $(DESTDIR)$(BINDIR)/mnext
+	ln -sf mless $(DESTDIR)$(BINDIR)/mprev
+	ln -sf mrepl $(DESTDIR)$(BINDIR)/mcomp
+	install -m0644 man/*.[0-9] $(DESTDIR)$(MANDIR)/man1
 
 FRC:
