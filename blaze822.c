@@ -121,7 +121,7 @@ blaze822_date(char *s) {
 
 	tm.tm_isdst = -1;
 
-	time_t r = mktime(&tm);
+	time_t r = tm_to_secs(&tm);
 	return r;
 
 fail:

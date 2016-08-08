@@ -10,24 +10,24 @@ SCRIPT = mcolor mcom mless mquote
 
 all: $(ALL)
 
-maddr: maddr.o blaze822.o seq.o rfc2047.o mymemmem.o
-magrep: magrep.o blaze822.o seq.o rfc2045.o rfc2047.o mymemmem.o
+maddr: maddr.o blaze822.o seq.o rfc2047.o mymemmem.o mytimegm.o
+magrep: magrep.o blaze822.o seq.o rfc2045.o rfc2047.o mymemmem.o mytimegm.o
 mdate: mdate.o
-mdeliver: mdeliver.o blaze822.o mymemmem.o
+mdeliver: mdeliver.o blaze822.o mymemmem.o mytimegm.o
 mdirs: mdirs.o
-mflag: mflag.o blaze822.o seq.o mymemmem.o
-mgenmid: mgenmid.o blaze822.o seq.o mymemmem.o
-mhdr: mhdr.o blaze822.o seq.o rfc2047.o mymemmem.o
+mflag: mflag.o blaze822.o seq.o mymemmem.o mytimegm.o
+mgenmid: mgenmid.o blaze822.o seq.o mymemmem.o mytimegm.o
+mhdr: mhdr.o blaze822.o seq.o rfc2047.o mymemmem.o mytimegm.o
 minc: minc.o
 mlist: mlist.o
 mmime: mmime.o
-mpick: mpick.o blaze822.o seq.o rfc2047.c mymemmem.o
-mscan: mscan.o blaze822.o seq.o rfc2047.o mymemmem.o
-msed: msed.o blaze822.o seq.o mymemmem.o
+mpick: mpick.o blaze822.o seq.o rfc2047.c mymemmem.o mytimegm.o
+mscan: mscan.o blaze822.o seq.o rfc2047.o mymemmem.o mytimegm.o
+msed: msed.o blaze822.o seq.o mymemmem.o mytimegm.o
 mseq: mseq.o seq.o
-mshow: mshow.o blaze822.o seq.o rfc2045.o rfc2047.c mymemmem.o filter.o
-msort: msort.o blaze822.o seq.o mystrverscmp.o mymemmem.o
-mthread: mthread.o blaze822.o seq.o mymemmem.o
+mshow: mshow.o blaze822.o seq.o rfc2045.o rfc2047.c mymemmem.o filter.o mytimegm.o
+msort: msort.o blaze822.o seq.o mystrverscmp.o mymemmem.o mytimegm.o
+mthread: mthread.o blaze822.o seq.o mymemmem.o mytimegm.o
 
 README: man/mblaze.7
 	mandoc -Tutf8 $< | col -bx >$@

@@ -1,5 +1,7 @@
-#include <stdint.h>
 #include <sys/types.h>
+
+#include <stdint.h>
+#include <time.h>
 
 struct message;
 
@@ -71,3 +73,7 @@ char *blaze822_home_file(char *basename);
 // filter.c
 
 int filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno);
+
+// mygmtime.c
+
+time_t tm_to_secs(const struct tm *tm);
