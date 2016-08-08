@@ -189,7 +189,7 @@ parse_relnum(char *a, long cur, long last, long *out)
 		d = strtol(a, &b, 10);
 		if (errno != 0) {
 			perror("strtol");
-			exit(1);
+			exit(2);
 		}
 	}
 
