@@ -125,6 +125,10 @@ blaze822_seq_cur()
 {
         static char b[PATH_MAX];
 
+	char *override = getenv("MAILDOT");
+	if (override)
+		return override;
+
 	char *curlink = getenv("MAILCUR");
 	if (!curlink)
 		curlink = blaze822_home_file(".mblaze/cur");
@@ -139,6 +143,10 @@ blaze822_seq_cur()
 int
 blaze822_seq_setcur(char *s)
 {
+	char *override = getenv("MAILDOT");
+	if (override)
+		return 0;
+
 	char curtmplink[PATH_MAX];
 	char *curlink = getenv("MAILCUR");
 	if (!curlink)
