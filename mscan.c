@@ -35,6 +35,8 @@ static char *fflag = default_fflag;
 int
 u8putstr(FILE *out, char *s, ssize_t l, int pad)
 {
+	if (l < 0)
+		l = -l;
 	ssize_t ol = l;
 
 	while (*s && l > 0) {
