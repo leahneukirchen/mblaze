@@ -8,6 +8,7 @@
 
 #include "blaze822.h"
 
+static int aflag;
 static char defaulthflags[] = "from:sender:reply-to:to:cc:bcc:"
     "resent-from:resent-sender:resent-to:resent-cc:resent-bcc:";
 static char *hflag = defaulthflags;
@@ -40,7 +41,11 @@ addr(char *file)
 					    sizeof dispdec - 1, "UTF-8");
 					dispdec[sizeof dispdec - 1] = 0;
 
-					printf("%s <%s>\n", dispdec, addr);
+					if (aflag)
+						printf("%s\n", addr);
+					else
+						printf("%s <%s>\n",
+						    dispdec, addr);
 				} else if (addr) {
 					printf("%s\n", addr);
 				}
@@ -59,11 +64,13 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "h:")) != -1)
+	while ((c = getopt(argc, argv, "ah:")) != -1)
 		switch(c) {
+		case 'a': aflag = 1; break;
 		case 'h': hflag = optarg; break;
 		default:
-			fprintf(stderr, "Usage: maddr [-h headers] [msgs...]\n");
+			fprintf(stderr,
+			    "Usage: maddr [-a] [-h headers] [msgs...]\n");
 			exit(1);
 		}
 

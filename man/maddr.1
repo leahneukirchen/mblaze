@@ -6,6 +6,7 @@
 .Nd extract mail addresses from messages
 .Sh SYNOPSIS
 .Nm
+.Op Fl a
 .Op Fl h Ar headers
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
@@ -33,6 +34,8 @@ will read filenames from standard input.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
+.It Fl a
+Only print the address part of the address, not the display name.
 .It Fl h Ar headers
 Only search the colon-separated list of
 .Ar headers
