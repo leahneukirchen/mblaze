@@ -151,13 +151,26 @@ blaze822_addr(char *s, char **dispo, char **addro)
 	*addr = 0;
 
 	while (*s) {
+	startover:
 		if (*s == '<') {
 			char *c = addr;
 			char *e = addr + sizeof addr;
 
 			s++;
-			while (*s && c < e && *s != '>')
-				*c++ = *s++;
+			while (*s && c < e && *s != '>') {
+				if (*s == '<') {
+					goto startover;
+				} else if (*s == '"') {
+					// local part may be quoted, allow all
+					s++;
+					while (*s && c < e && *s != '"')
+						*c++ = *s++;
+					if (*s == '"')
+						s++;
+				} else {
+					*c++ = *s++;
+				}
+			}
 			if (*s == '>')
 				s++;
 			*c = 0;
