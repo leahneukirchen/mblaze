@@ -403,7 +403,6 @@ oneline(char *file)
 			break;
 		case 'F':
 			{
-				if (!w) w = -10;
 				char *e = file + strlen(file);
 				while (file < e && *e != '/')
 					e--;
@@ -417,8 +416,21 @@ oneline(char *file)
 					b++;
 				if (*b == '.')
 					b++;
-				wleft -= printf("%*.*s", w, (int)(e-b), b);
+				if (w) {
+					if (w < 0)
+						w = -w;
+					wleft -= printf("%*.*s",
+					    -w, (int)(e-b < w ? e-b : w), b);
+				} else {
+					wleft -= printf("%.*s", (int)(e-b), b);
+				}
 			}
+			break;
+		case 'R':
+			if (w)
+				wleft -= printf("%*.*s", w, w, file);
+			else
+				wleft -= printf("%s", file);
 			break;
 		default:
 			putchar('%');
