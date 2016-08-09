@@ -45,9 +45,8 @@ printhdr(char *hdr)
 		hdr++;
 	}
 
-	if (*hdr) {
+	if (*hdr)
 		printf("%s\n", hdr);
-	}
 }
 
 int
@@ -205,6 +204,8 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		if (e == 0) { // replace output
 			printf(" render=\"%s\" ---\n", cmd);
 			print_ascii(output, outlen);
+			if (output[outlen-1] != '\n')
+				putchar('\n');
 		} else if (e == 63) { // skip filter
 			free(output);
 			goto nofilter;
@@ -243,10 +244,13 @@ nofilter:
 			if (!charset ||
 			    strcasecmp(charset, "utf-8") == 0 ||
 			    strcasecmp(charset, "utf8") == 0 ||
-			    strcasecmp(charset, "us-ascii") == 0)
+			    strcasecmp(charset, "us-ascii") == 0) {
 				print_ascii(body, bodylen);
-			else
+				if (body[bodylen-1] != '\n')
+					putchar('\n');
+			} else {
 				print_u8recode(body, bodylen, charset);
+			}
 			free(charset);
 		} else if (strncmp(ct, "message/rfc822", 14) == 0) {
 			struct message *imsg = blaze822_mem(body, bodylen);
