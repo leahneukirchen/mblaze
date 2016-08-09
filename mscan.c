@@ -221,8 +221,8 @@ fmt_to_flag(struct message *msg)
 		return " ";
 }
 
-static void
-print_human(intmax_t i)
+static ssize_t
+print_human(intmax_t i, int w)
 {
 	double d = i / 1024.0;
 	const char *u = "\0\0M\0G\0T\0P\0E\0Z\0Y\0";
@@ -232,13 +232,13 @@ print_human(intmax_t i)
 	}
 
 	if (d < 1.0)
-		printf("%4.2f", d);
+		return printf("%*.2f", w, d);
 	else if (!*u)
-		printf("%4.0f", d);
+		return printf("%*.0f", w, d);
 	else if (d < 10.0)
-		printf("%3.1f%s", d, u);
+		return printf("%*.1f%s", w-1, d, u);
 	else
-		printf("%3.0f%s", d, u);
+		return printf("%*.0f%s", w-1, d, u);
 }
 
 void
@@ -395,11 +395,10 @@ oneline(char *file)
 				if (msg) {
 					if (stat(file, &st) != 0)
 						st.st_size = 0;
-					print_human(st.st_size);
+					wleft -= print_human(st.st_size, w);
 				} else {
-					printf("    ");
+					wleft -= printf("%.*s", w, "");
 				}
-				wleft -= 5;
 			}
 			break;
 		case 'F':
