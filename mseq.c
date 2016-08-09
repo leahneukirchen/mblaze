@@ -251,8 +251,9 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "frAC:S")) != -1)
+	while ((c = getopt(argc, argv, "c:frAC:S")) != -1)
 		switch(c) {
+		case 'c': setenv("MAILDOT", optarg, 1); break;
 		case 'f': fflag = 1; break;
 		case 'r': rflag = 1; break;
 		case 'A': Sflag = Aflag = 1; break;
@@ -261,7 +262,7 @@ main(int argc, char *argv[])
 		default:
 		usage:
 			fprintf(stderr,
-			    "Usage: mseq [-fr] [msgs...]\n"
+			    "Usage: mseq [-fr] [-c file] [msgs...]\n"
 			    "       mseq -S [-fr] < sequence\n"
 			    "       mseq -A [-fr] < sequence\n"
 			    "       mseq -C msg\n"
