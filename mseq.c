@@ -253,6 +253,7 @@ setcur(char *file)
 {
 	while (*file == ' ')
 		file++;
+	unsetenv("MAILDOT");
 	blaze822_seq_setcur(file);
 }
 
