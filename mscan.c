@@ -32,9 +32,11 @@ static int curyday;
 static char default_fflag[] = "%c%u%r %-3n %10d %17f %t %2i%s";
 static char *fflag = default_fflag;
 
-void
+int
 u8putstr(FILE *out, char *s, ssize_t l, int pad)
 {
+	ssize_t ol = l;
+
 	while (*s && l > 0) {
 		if (*s == '\t')
 			*s = ' ';
@@ -58,6 +60,10 @@ u8putstr(FILE *out, char *s, ssize_t l, int pad)
 	if (pad)
 		while (l-- > 0)
 			putc(' ', out);
+
+	if (l < 0)
+		l = 0;
+	return ol - l;
 }
 
 int
@@ -350,8 +356,12 @@ oneline(char *file)
 			    fmt_date(msg, w, Iflag || *f == 'D'));
 			break;
 		case 'f':
-			u8putstr(stdout, fmt_from(msg), w ? w : 16, 1);
-			wleft -= w > 0 ? w : -w;
+			if (w)
+				wleft -= u8putstr(stdout,
+				    fmt_from(msg), w, 1);
+			else
+				wleft -= u8putstr(stdout,
+				    fmt_from(msg), wleft, 0);
 			break;
 		case 'i':
 			{
@@ -370,9 +380,12 @@ oneline(char *file)
 			}
 			break;
 		case 's':
-			if (!w) w = wleft;
-			u8putstr(stdout, fmt_subject(msg, file), wleft, 0);
-			wleft -= w;
+			if (w)
+				wleft -= u8putstr(stdout,
+				    fmt_subject(msg, file), w, 1);
+			else
+				wleft -= u8putstr(stdout,
+				    fmt_subject(msg, file), wleft, 0);
 			break;
 		case 'b':
 			{
