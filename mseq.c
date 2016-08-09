@@ -12,6 +12,7 @@
 static int fflag;
 static int rflag;
 static int Aflag;
+static char *cflag;
 static char *Cflag;
 static int Sflag;
 
@@ -240,6 +241,14 @@ stdinmode()
 }
 
 void
+overridecur(char *file)
+{
+	while (*file == ' ')
+		file++;
+	setenv("MAILDOT", file, 1);
+}
+
+void
 setcur(char *file)
 {
 	while (*file == ' ')
@@ -253,7 +262,7 @@ main(int argc, char *argv[])
 	int c;
 	while ((c = getopt(argc, argv, "c:frAC:S")) != -1)
 		switch(c) {
-		case 'c': setenv("MAILDOT", optarg, 1); break;
+		case 'c': cflag = optarg; break;
 		case 'f': fflag = 1; break;
 		case 'r': rflag = 1; break;
 		case 'A': Sflag = Aflag = 1; break;
@@ -262,13 +271,16 @@ main(int argc, char *argv[])
 		default:
 		usage:
 			fprintf(stderr,
-			    "Usage: mseq [-fr] [-c file] [msgs...]\n"
+			    "Usage: mseq [-fr] [-c msg] [msgs...]\n"
 			    "       mseq -S [-fr] < sequence\n"
 			    "       mseq -A [-fr] < sequence\n"
 			    "       mseq -C msg\n"
 			);
 			exit(1);
 		}
+
+	if (cflag)
+		blaze822_loop1(cflag, overridecur);
 
 	if (Cflag) {
 		blaze822_loop1(Cflag, setcur);

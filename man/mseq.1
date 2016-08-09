@@ -7,7 +7,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl fr
-.Op Fl c Ar file
+.Op Fl c Ar msg
 .Ar msgs\ ...
 .Nm
 .Fl S
@@ -46,9 +46,9 @@ If standard output is not a terminal, the new sequence is also printed.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
-.It Fl c Ar file
+.It Fl c Ar msg
 Behave as if
-.Ar file
+.Ar msg
 was the current message.
 .It Fl f
 Fix non-existing filenames by searching for a message with the same
@@ -73,7 +73,7 @@ Symbolic link referring to the current message.
 (Default:
 .Pa ~/.mblaze/cur )
 .It Ev MAILDOT
-When set, overrides the current message.
+When set to a file name, overrides the current message.
 (Prefer using
 .Fl c
 instead.)
