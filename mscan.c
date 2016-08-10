@@ -36,8 +36,6 @@ static char *fflag = default_fflag;
 int
 u8putstr(FILE *out, char *s, ssize_t l, int pad)
 {
-	if (l < 0)
-		l = -l;
 	ssize_t ol = l;
 
 	while (*s && l > 0) {
@@ -378,6 +376,8 @@ oneline(char *file)
 			    fmt_date(msg, w, Iflag || *f == 'D'));
 			break;
 		case 'f':
+			if (w < 0)
+				w += wleft;
 			if (w)
 				wleft -= u8putstr(stdout,
 				    fmt_from(msg), w, 1);
@@ -403,6 +403,8 @@ oneline(char *file)
 			break;
 		case 's':
 		case 'S':
+			if (w < 0)
+				w += wleft;
 			if (w)
 				wleft -= u8putstr(stdout,
 				    fmt_subject(msg, file, *f == 'S'), w, 1);
