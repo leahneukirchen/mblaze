@@ -58,16 +58,7 @@ fi
 		echo "To: $to"
 		echo "Cc: $(mhdr -d -A -h to:cc: "$1" | commajoin)"
 		echo "Bcc: "
-		s=$(mhdr -d -h subject "$1")
-		os=
-		while [ "$os" != "$s" ]; do
-			os=$s
-			s=${s# }
-			s=${s#[Rr][Ee]:}
-			s=${s#[Aa][Ww]:}
-			s=${s#[Ff][Ww][Dd]:}
-		done
-		echo "Subject: Re: $s"
+		echo "Subject: Re: $(mscan -f '%S' "$1")"
 		cat ~/.mblaze/headers 2>/dev/null
 		mid=$(mhdr -h message-id "$1")
 		if [ "$mid" ]; then
