@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <time.h>
 #include <unistd.h>
 #include <wchar.h>
@@ -151,7 +152,7 @@ fmt_date(struct message *msg, int w, int iso)
 }
 
 static char *
-fmt_subject(struct message *msg, char *file)
+fmt_subject(struct message *msg, char *file, int strip)
 {
 	static char subjdec[100];
 	char *subj = "(no subject)";
@@ -166,6 +167,25 @@ fmt_subject(struct message *msg, char *file)
 		subj = v;
 
 	blaze822_decode_rfc2047(subjdec, subj, sizeof subjdec - 1, "UTF-8");
+
+	if (strip) {
+		size_t i;
+		for (i = 0; subjdec[i]; ) {
+			if (subjdec[i] == ' ') {
+				i++;
+				continue;
+			} else if (strncasecmp("re:", subjdec+i, 3) == 0 ||
+			    	   strncasecmp("aw:", subjdec+i, 3) == 0) {
+				i += 3;
+				continue;
+			} else if (strncasecmp("fwd:", subjdec+i, 4) == 0) {
+				i += 4;
+				continue;
+			}
+			break;
+		}
+		return subjdec + i;
+	}
 
 	return subjdec;
 }
@@ -382,12 +402,13 @@ oneline(char *file)
 			}
 			break;
 		case 's':
+		case 'S':
 			if (w)
 				wleft -= u8putstr(stdout,
-				    fmt_subject(msg, file), w, 1);
+				    fmt_subject(msg, file, *f == 'S'), w, 1);
 			else
 				wleft -= u8putstr(stdout,
-				    fmt_subject(msg, file), wleft, 0);
+				    fmt_subject(msg, file, *f == 'S'), wleft, 0);
 			break;
 		case 'b':
 			{
