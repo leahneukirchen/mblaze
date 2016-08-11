@@ -455,10 +455,21 @@ oneline(char *file)
 			else
 				wleft -= printf("%s", file);
 			break;
+		case 'I':
+			{
+				char *m = msg ? blaze822_hdr(msg, "message-id") : 0;
+				if (!m)
+					m = "(unknown)";
+				if (w)
+					wleft -= printf("%*.*s", w, w, m);
+				else
+					wleft -= printf("%s", m);
+			}
+			break;
 		default:
 			putchar('%');
 			putchar(*f);
-			wleft -=2;
+			wleft -= 2;
 		}
 	}
 
