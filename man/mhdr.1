@@ -1,4 +1,4 @@
-.Dd July 28, 2016
+.Dd August 17, 2016
 .Dt MHDR 1
 .Os
 .Sh NAME
@@ -8,6 +8,7 @@
 .Nm
 .Op Fl h Ar header
 .Op Fl d
+.Op Fl H
 .Op Fl M
 .Op Fl A | Fl D
 .Op Ar msgs\ ...
@@ -32,6 +33,9 @@ Only print the values of the headers in the colon-separated list
 .Ar header .
 .It Fl d
 Decode the headers according to RFC 2047.
+.It Fl H
+Prefix all output lines with the file name of the message, separated
+by a tab.
 .It Fl M
 Search for all occurrences of the headers
 (default: only the first).

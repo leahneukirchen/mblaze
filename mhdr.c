@@ -14,15 +14,20 @@
 static char *hflag;
 static int Aflag;
 static int Dflag;
+static int Hflag;
 static int Mflag;
 static int dflag;
 
+static char *curfile;
 static int status;
 
 static void
 printhdr(char *hdr)
 {
 	int uc = 1;
+
+	if (Hflag)
+		printf("%s\t", curfile);
 
 	while (*hdr && *hdr != ':') {
 		putc(uc ? toupper(*hdr) : *hdr, stdout);
@@ -57,6 +62,8 @@ print_addresses(char *s)
 {
 	char *disp, *addr;
 	while ((s = blaze822_addr(s, &disp, &addr))) {
+		if (Hflag && (disp || addr))
+			printf("%s\t", curfile);
 		if (disp && addr) {
 			if (dflag) {
 				char d[4096];
@@ -93,6 +100,9 @@ void
 print_header(char *v)
 {
 	status = 0;
+
+	if (Hflag && !Aflag)
+		printf("%s\t", curfile);
 
 	if (Aflag)
 		print_addresses(v);
@@ -143,6 +153,8 @@ header(char *file)
 	while (*file == ' ' || *file == '\t')
 		file++;
 
+	curfile = file;
+
 	msg = blaze822(file);
 	if (!msg)
 		return;
@@ -175,16 +187,17 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "h:ADMd")) != -1)
+	while ((c = getopt(argc, argv, "h:ADHMd")) != -1)
 		switch(c) {
 		case 'h': hflag = optarg; break;
 		case 'A': Aflag = 1; break;
 		case 'D': Dflag = 1; break;
+		case 'H': Hflag = 1; break;
 		case 'M': Mflag = 1; break;
 		case 'd': dflag = 1; break;
 		default:
 			fprintf(stderr,
-"Usage: mhdr [-h header] [-d] [-M] [-A|-D] [msgs...]\n");
+"Usage: mhdr [-h header] [-d] [-H] [-M] [-A|-D] [msgs...]\n");
 			exit(2);
 		}
 
