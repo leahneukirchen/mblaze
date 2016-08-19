@@ -92,6 +92,10 @@ tryagain:
 
 		outfile = fdopen(outfd, "w");
 
+		char statusflags[5] = { 0 };
+
+		int in_header = 1;
+		int is_old = 0;
 		while (1) {
 			errno = 0;
 			ssize_t rd = getline(&line, &linelen, infile);
@@ -101,8 +105,24 @@ tryagain:
 				break;
 			}
 
+			if (line[0] == '\n' && !line[1])
+				in_header = 0;
+
 			if (Mflag && strncmp("From ", line, 5) == 0)
 				break;
+
+			if (Mflag && in_header &&
+			    (strncasecmp("status:", line, 6) == 0 ||
+			     strncasecmp("x-status:", line, 8) == 0)) {
+				char *v = strchr(line, ':');
+				if (strchr(v, 'F')) statusflags[0] = 'F';
+				if (strchr(v, 'A')) statusflags[1] = 'R';
+				if (strchr(v, 'R')) statusflags[2] = 'S';
+				if (strchr(v, 'D')) statusflags[3] = 'T';
+				if (strchr(v, 'O')) is_old = 1;
+
+				continue;  // drop header
+			}
 
 			if (Mflag) {
 				// MBOXRD: strip first > from >>..>>From
@@ -125,8 +145,12 @@ tryagain:
 		if (fclose(outfile) == EOF)
 			return -1;
 
-		char statusflags[5] = { 0 };
-		char *f = statusflags;
+		// compress flags
+		int i, j;
+		for (i = sizeof statusflags - 1; i >= 0; i--)
+			if (!statusflags[i])
+				for (j = i+1; j < (int) sizeof statusflags; j++)
+					statusflags[j-1] = statusflags[j];
 
 		if (Mflag) {
 			struct message *msg = blaze822_file(tmp);
@@ -143,19 +167,10 @@ tryagain:
 					utimes(tmp, times);
 				}
 			}
-			if (msg && ((v = blaze822_hdr(msg, "status")) ||
-				    (v = blaze822_hdr(msg, "x-status")))) {
-				if (strchr(v, 'F')) *f++ = 'F';
-				if (strchr(v, 'A')) *f++ = 'R';
-				if (strchr(v, 'R') || strchr(v, 'O'))
-					*f++ = 'S';
-				if (strchr(v, 'D')) *f++ = 'T';
-			}
 		}
-		*f = 0;
 
 		snprintf(dst, sizeof dst, "%s/%s/%s:2,%s",
-			 targetdir, cflag ? "cur" : "new", id,
+			 targetdir, (cflag || is_old) ? "cur" : "new", id,
 			 Xflag ? Xflag : statusflags);
 		if (rename(tmp, dst) != 0)
 			return -1;
