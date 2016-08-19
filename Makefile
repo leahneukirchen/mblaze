@@ -5,7 +5,7 @@ PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
 MANDIR=$(PREFIX)/share/man
 
-ALL = maddr magrep mdate mdeliver mdirs mflag mgenmid mhdr minc mlist mmime mpick mscan msed mseq mshow msort mthread
+ALL = maddr magrep mdate mdeliver mdirs mexport mflag mgenmid mhdr minc mlist mmime mpick mscan msed mseq mshow msort mthread
 SCRIPT = mcolor mcom mless mquote
 
 all: $(ALL)
@@ -15,6 +15,7 @@ magrep: magrep.o blaze822.o seq.o rfc2045.o rfc2047.o mymemmem.o mytimegm.o
 mdate: mdate.o
 mdeliver: mdeliver.o blaze822.o mymemmem.o mytimegm.o
 mdirs: mdirs.o
+mexport: mexport.c blaze822.o seq.o mymemmem.o mytimegm.o
 mflag: mflag.o blaze822.o seq.o mymemmem.o mytimegm.o
 mgenmid: mgenmid.o blaze822.o seq.o mymemmem.o mytimegm.o
 mhdr: mhdr.o blaze822.o seq.o rfc2047.o mymemmem.o mytimegm.o

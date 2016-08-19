@@ -16,6 +16,7 @@ DESCRIPTION
      mcom(1)      to write and send mail
      mdeliver(1)  to deliver messages or import mailboxes
      mdirs(1)     to find Maildirs
+     mexport(1)   to export mailboxes
      mflag(1)     to change flags (marks) of mail
      mgenmid(1)   to generate Message-IDs
      mhdr(1)      to extract mail headers

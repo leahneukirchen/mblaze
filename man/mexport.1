@@ -1,0 +1,66 @@
+.Dd August 19, 2016
+.Dt MEXPORT 1
+.Os
+.Sh NAME
+.Nm mexport
+.Nd export messages as mbox file
+.Sh SYNOPSIS
+.Nm
+.Op Fl S
+.Ar msgs\ ...
+.Sh DESCRIPTION
+.Nm
+exports the given messages as a MBOXRD file to standard output.
+See
+.Xr mmsg 7
+for the message argument syntax.
+.Pp
+If no
+.Ar msgs
+are passed,
+.Nm
+reads file names from standard input,
+or uses the mails in the current sequence when used interactively.
+.Pp
+.Nm
+uses the
+.Sq Li "Return-Path:"
+(or
+.Sq Li "X-Envelope-To:" )
+and the
+.Sq Li "Date:"
+from the message for the
+.Sq Li "From "
+line.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl S
+Add
+.Sq Li "Status:"
+and
+.Sq Li "X-Status:"
+headers according to the Maildir flags.
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr mdeliver 1 ,
+.Xr maildir 5 ,
+.Xr mbox 5
+.Pp
+.Lk http://www.digitalpreservation.gov/formats/fdd/fdd000385.shtml "MBOXRD Email Format"
+.Pp
+.Lk https://cr.yp.to/proto/maildir.html "Using maildir format"
+.Sh AUTHORS
+.An Christian Neukirchen Aq Mt chneukirchen@gmail.com
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/
