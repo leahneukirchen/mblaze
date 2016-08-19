@@ -6,7 +6,7 @@
 .Nd deliver message or mailbox into Maildir
 .Sh SYNOPSIS
 .Nm
-.Op Fl n
+.Op Fl c
 .Op Fl v
 .Op Fl X Ar flags
 .Ar dir
@@ -14,7 +14,7 @@
 .Ar message
 .Nm
 .Fl M
-.Op Fl n
+.Op Fl c
 .Op Fl v
 .Op Fl X Ar flags
 .Ar dir
@@ -54,11 +54,11 @@ The options are as follows:
 .Bl -tag -width Ds
 .It Fl M
 Deliver each message of an mbox.
-.It Fl n
+.It Fl c
 Deliver messages into
-.Pa new/ ,
+.Pa cur/ ,
 not
-.Pa cur/
+.Pa new/
 (the default).
 .It Fl v
 Print each message filename after delivery.

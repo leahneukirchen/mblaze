@@ -19,12 +19,11 @@ design rationale:
   MBOX-O fine
 - date from Date: since From lines are usually crap
 - proper maildir delivery because it's not that hard
-- messages end up in cur/ by default because you are usually importing archives
 - no creation of maildirs, should be a separate tool
 */
 
+static int cflag;
 static int Mflag;
-static int nflag;
 static int vflag;
 static char *Xflag;
 
@@ -156,7 +155,7 @@ tryagain:
 		*f = 0;
 
 		snprintf(dst, sizeof dst, "%s/%s/%s:2,%s",
-			 targetdir, nflag ? "new" : "cur", id,
+			 targetdir, cflag ? "cur" : "new", id,
 			 Xflag ? Xflag : statusflags);
 		if (rename(tmp, dst) != 0)
 			return -1;
@@ -171,16 +170,16 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "MnvX:")) != -1)
+	while ((c = getopt(argc, argv, "cMvX:")) != -1)
 		switch(c) {
+		case 'c': cflag = 1; break;
 		case 'M': Mflag = 1; break;
-		case 'n': nflag = 1; break;
 		case 'v': vflag = 1; break;
 		case 'X': Xflag = optarg; break;
 		default:
 			fprintf(stderr,
-"Usage: mdeliver [-n] [-v] [-X flags] dir < message\n"
-"       mdeliver -M [-n] [-v] [-X flags] dir < mbox\n"
+"Usage: mdeliver [-c] [-v] [-X flags] dir < message\n"
+"       mdeliver -M [-c] [-v] [-X flags] dir < mbox\n"
 				);
 			exit(1);
 		}
