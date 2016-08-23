@@ -10,25 +10,15 @@ SCRIPT = mcolor mcom mless mquote
 
 all: $(ALL)
 
-maddr: maddr.o blaze822.o seq.o rfc2047.o mymemmem.o mytimegm.o
-magrep: magrep.o blaze822.o seq.o rfc2045.o rfc2047.o mymemmem.o mytimegm.o
-mdate: mdate.o
-mdeliver: mdeliver.o blaze822.o mymemmem.o mytimegm.o
-mdirs: mdirs.o
-mexport: mexport.c blaze822.o seq.o mymemmem.o mytimegm.o
-mflag: mflag.o blaze822.o seq.o mymemmem.o mytimegm.o
-mgenmid: mgenmid.o blaze822.o seq.o mymemmem.o mytimegm.o
-mhdr: mhdr.o blaze822.o seq.o rfc2047.o mymemmem.o mytimegm.o
-minc: minc.o
-mlist: mlist.o
-mmime: mmime.o
-mpick: mpick.o blaze822.o seq.o rfc2047.c mymemmem.o mytimegm.o
-mscan: mscan.o blaze822.o seq.o rfc2047.o mymemmem.o mytimegm.o
-msed: msed.o blaze822.o seq.o mymemmem.o mytimegm.o
-mseq: mseq.o seq.o
-mshow: mshow.o blaze822.o seq.o rfc2045.o rfc2047.c mymemmem.o filter.o mytimegm.o
-msort: msort.o blaze822.o seq.o mystrverscmp.o mymemmem.o mytimegm.o
-mthread: mthread.o blaze822.o seq.o mymemmem.o mytimegm.o
+$(ALL) : % : %.o
+maddr magrep mdeliver mexport mflag mgenmid mhdr mpick mscan msed mshow \
+  msort mthread : blaze822.o mymemmem.o mytimegm.o
+maddr magrep mexport mflag mgenmid mhdr mpick mscan msed mseq mshow msort \
+  mthread : seq.o
+maddr magrep mhdr mpick mscan mshow : rfc2047.o
+magrep mshow : rfc2045.o
+mshow : filter.o
+msort : mystrverscmp.o
 
 README: man/mblaze.7
 	mandoc -Tutf8 $< | col -bx >$@
