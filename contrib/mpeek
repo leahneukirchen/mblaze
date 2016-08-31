@@ -1,7 +1,15 @@
 #!/bin/sh
 # mpeek - wrapper around mscan with a different seq
 
-export MAILSEQ=$HOME/.mblaze/peek.seq
+if [ -z "$XDG_CONFIG_HOME" ]; then
+	MAILSEQ="$XDG_CONFIG_HOME/mblaze"
+else
+	MAILSEQ="$HOME/.config/mblaze"
+fi
+
+[ ! -d "$MAILSEQ" ] && MAILSEQ="$HOME/.mblaze"
+
+export MAILSEQ=$MAILSEQ/peek.seq
 
 if [ -t 0 ]; then
 	mseq "$@"

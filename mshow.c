@@ -728,7 +728,7 @@ main(int argc, char *argv[])
 		if (!(qflag || rflag)) {
 			char *f = getenv("MAILFILTER");
 			if (!f)
-				f = blaze822_home_file(".mblaze/filter");
+				f = blaze822_home_file("filter");
 			if (f)
 				filters = blaze822(f);
 		}

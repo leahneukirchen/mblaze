@@ -18,7 +18,15 @@ msgdate() {
 	mdate
 }
 
-outbox=$(mhdr -h outbox ~/.mblaze/profile)
+if [ -z "$XDG_CONFIG_HOME" ]; then
+	mblaze_home = "$HOME/.config/mblaze"
+else
+	mblaze_home = "$XDG_CONFIG_HOME/mblaze"
+fi
+
+[ -d "$mblaze_home" ] || mblaze_home = "$HOME/.mblaze"
+
+outbox=$(mhdr -h outbox "$mblaze_home/profile")
 if [ -z "$outbox" ]; then
 	i=0
 	while [ -f "snd.$i" ]; do
@@ -43,9 +51,9 @@ fi
 		echo "Cc: "
 		echo "Bcc: "
 		echo "Subject: "
-		from=$(mhdr -h local-mailbox ~/.mblaze/profile)
+		from=$(mhdr -h local-mailbox $mblaze_home/profile)
 		[ "$from" ] && echo "From: $from"
-		cat ~/.mblaze/headers 2>/dev/null
+		cat "$mblaze_home/headers" 2>/dev/null
 		msgid
 		msgdate
 		echo
@@ -59,7 +67,7 @@ fi
 		echo "Cc: $(mhdr -d -A -h to:cc: "$1" | commajoin)"
 		echo "Bcc: "
 		echo "Subject: Re: $(mscan -f '%S' "$1")"
-		cat ~/.mblaze/headers 2>/dev/null
+		cat "$mblaze_home/headers" 2>/dev/null
 		mid=$(mhdr -h message-id "$1")
 		if [ "$mid" ]; then
 			echo -n "References:"
