@@ -47,17 +47,21 @@ Delete the draft and quit.
 .Bl -tag -width Ds
 .It Ev EDITOR
 Editor used to compose mail.
+.It Ev MBLAZE
+Directory containing mblaze configuration.
+(Default:
+.Pa $HOME/.mblaze)
 .El
 .Sh FILES
 .Bl -tag -width Ds
 .It Pa snd.*
 Draft messages (kept in current directory)
-.It Pa ~/.mblaze/headers
+.It Pa ${MBLAZE:-$HOME/.mblaze}/headers
 Default headers for each mail.
 (Put your
 .Sq Li From\&:
 line there.)
-.It Pa ~/.signature
+.It Pa ${MBLAZE:-$HOME/.mblaze}/signature || ~/.signature
 Default signature.
 .El
 .Sh EXIT STATUS
