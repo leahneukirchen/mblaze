@@ -2,7 +2,8 @@
 #include <unistd.h>
 
 int
-main() {
+main()
+{
 	char buf[64];
 	time_t now = time(0);
 
