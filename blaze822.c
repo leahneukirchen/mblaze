@@ -150,7 +150,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 	*disp = 0;
 	*addr = 0;
 
-	while (*s) {
+	while (*s && c < e) {
 	startover:
 		if (*s == '<') {
 			char *c = addr;
