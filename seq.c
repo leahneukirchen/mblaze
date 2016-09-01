@@ -121,7 +121,7 @@ blaze822_seq_load(char *map)
 }
 
 char *
-blaze822_seq_cur()
+blaze822_seq_cur(void)
 {
         static char b[PATH_MAX];
 

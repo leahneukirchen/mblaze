@@ -52,7 +52,7 @@ int blaze822_seq_load(char *map);
 long blaze822_seq_find(char *ref);
 
 
-char *blaze822_seq_cur();
+char *blaze822_seq_cur(void);
 int blaze822_seq_setcur(char *s);
 
 struct blaze822_seq_iter {
