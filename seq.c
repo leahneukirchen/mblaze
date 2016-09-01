@@ -24,8 +24,15 @@ blaze822_home_file(char *basename)
 
 	if (!homedir)
 		homedir = getenv("HOME");
+	if (homedir && !*homedir)
+		homedir = 0;
+	if (!homedir) {
+		struct passwd *pw = getpwuid(getuid());
+		if (pw)
+			homedir = pw->pw_dir;
+	}
 	if (!homedir)
-		homedir = getpwuid(getuid())->pw_dir;
+		return "/dev/null/homeless";
 
 	snprintf(path, sizeof path, "%s/%s", homedir, basename);
 
