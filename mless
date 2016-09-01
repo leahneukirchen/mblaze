@@ -62,10 +62,19 @@ fi
 
 nl="
 "
+
+if [ -z "$XDG_CONFIG_HOME" ]; then
+	LESSKEY = "$HOME/.config/mblaze/mless"
+else
+	LESSKEY = "$XDG_CONFIG_HOME/mblaze/mless"
+fi
+
+[ -f "$LESSKEY" ] || LESSKEY = "$HOME/.mless"
+[ -f "$LESSKEY" ] && export LESSKEY
+
 export MLESS_RAW=0
 export MLESS_HTML=0
 while :; do
-	[ -f $HOME/.mless ] && export LESSKEY=$HOME/.mless
 	LESSOPEN="|$0 --filter %s" \
 		less -Ps"mless %f?m (message %i of %m).." -R \
 			"+:e $(mscan -n .)$nl" //scan $(mscan -n :)

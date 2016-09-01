@@ -31,7 +31,7 @@ int main()
 	char hostbuf[1024];
 	char *host = 0;
 
-	char *f = blaze822_home_file(".mblaze/profile");
+	char *f = blaze822_home_file("profile");
 	struct message *config = blaze822(f);
 
 	if (config) // try FQDN: first
@@ -74,7 +74,7 @@ int main()
 	if (!host) {
 		fprintf(stderr,
 		    "mgenmid: failed to find a FQDN for the Message-ID.\n"
-		    " Define 'FQDN:' or 'Local-Mailbox:' in ~/.mblaze/profile\n"
+		    " Define 'FQDN:' or 'Local-Mailbox:' in $XDG_CONFIG_HOME/mblaze/profile\n"
 		    " or add a FQDN to /etc/hosts.\n");
 		exit(1);
 	}
