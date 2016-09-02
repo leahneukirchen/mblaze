@@ -19,7 +19,7 @@ msgdate() {
 }
 
 MBLAZE=${MBLAZE:-$HOME/.mblaze}
-outbox=$(mhdr -h outbox $MBLAZE/profile)
+outbox=$(mhdr -h outbox "$MBLAZE/profile")
 if [ -z "$outbox" ]; then
 	i=0
 	while [ -f "snd.$i" ]; do
@@ -44,9 +44,9 @@ fi
 		echo "Cc: "
 		echo "Bcc: "
 		echo "Subject: "
-		from=$(mhdr -h local-mailbox $MBLAZE/profile)
+		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
 		[ "$from" ] && echo "From: $from"
-		cat $MBLAZE/headers 2>/dev/null
+		cat "$MBLAZE/headers" 2>/dev/null
 		msgid
 		msgdate
 		echo
@@ -60,7 +60,7 @@ fi
 		echo "Cc: $(mhdr -d -A -h to:cc: "$1" | commajoin)"
 		echo "Bcc: "
 		echo "Subject: Re: $(mscan -f '%S' "$1")"
-		cat $MBLAZE/headers 2>/dev/null
+		cat "$MBLAZE/headers" 2>/dev/null
 		mid=$(mhdr -h message-id "$1")
 		if [ "$mid" ]; then
 			echo -n "References:"
@@ -78,17 +78,15 @@ fi
 		echo
 	esac
 
-	if [ -f $MBLAZE/signature ]; then
-		SIGNATURE=$MBLAZE/signature
-	elif [ -f $HOME/.mblaze/signature ]; then
-		SIGNATURE=$HOME/.mblaze/signature
+	if [ -f "$MBLAZE/signature" ]; then
+		SIGNATURE="$MBLAZE/signature"
 	elif [ -f ~/.signature ]; then
-		SIGNATURE=$HOME/.signature
+		SIGNATURE="$HOME/.signature"
 	fi
 
-	if [ ! -z $SIGNATURE ]; then
+	if [ -n "$SIGNATURE" ]; then
 		printf '%s\n' '-- '
-		cat $SIGNATURE
+		cat "$SIGNATURE"
 	fi
 } >$draft
 
