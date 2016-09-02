@@ -21,6 +21,14 @@ blaze822_home_file(char *basename)
 {
 	static char path[PATH_MAX];
 	static char *homedir;
+	static char *profile;
+
+	if (!profile)
+		profile = getenv("MBLAZE");
+	if (profile) {
+		snprintf(path, sizeof path, "%s/%s", profile, basename);
+		return path;
+	}
 
 	if (!homedir)
 		homedir = getenv("HOME");
@@ -34,7 +42,7 @@ blaze822_home_file(char *basename)
 	if (!homedir)
 		return "/dev/null/homeless";
 
-	snprintf(path, sizeof path, "%s/%s", homedir, basename);
+	snprintf(path, sizeof path, "%s/.mblaze/%s", homedir, basename);
 
 	return path;
 }
@@ -49,7 +57,7 @@ blaze822_seq_open(char *file)
 	if (!file)
 		file = getenv("MAILSEQ");
 	if (!file)
-		file = blaze822_home_file(".mblaze/seq");
+		file = blaze822_home_file("seq");
 	fd = open(file, O_RDONLY);
 	if (!fd)
 		return 0;
@@ -138,7 +146,7 @@ blaze822_seq_cur(void)
 
 	char *curlink = getenv("MAILCUR");
 	if (!curlink)
-		curlink = blaze822_home_file(".mblaze/cur");
+		curlink = blaze822_home_file("cur");
 
 	int r = readlink(curlink, b, sizeof b - 1);
 	if (r < 0)
@@ -157,7 +165,7 @@ blaze822_seq_setcur(char *s)
 	char curtmplink[PATH_MAX];
 	char *curlink = getenv("MAILCUR");
 	if (!curlink)
-		curlink = blaze822_home_file(".mblaze/cur");
+		curlink = blaze822_home_file("cur");
 
 	if (snprintf(curtmplink, sizeof curtmplink, "%s-", curlink) >= PATH_MAX)
 		return -1;  // truncation

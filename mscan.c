@@ -517,7 +517,7 @@ main(int argc, char *argv[])
 	if (cols <= 40)
 		cols = 80;
 
-	char *f = blaze822_home_file(".mblaze/profile");
+	char *f = blaze822_home_file("profile");
 	struct message *config = blaze822(f);
 
 	if (config) {
