@@ -1,6 +1,5 @@
-CFLAGS=-g -O2 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
+CFLAGS+=-g -O2 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
 
-DESTDIR=
 PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
 MANDIR=$(PREFIX)/share/man
@@ -27,11 +26,13 @@ clean: FRC
 	-rm -f $(ALL) *.o
 
 install: FRC all
-	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1
+	mkdir -p $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/man1 \
+		$(DESTDIR)$(MANDIR)/man7
 	install -m0755 $(ALL) $(SCRIPT) $(DESTDIR)$(BINDIR)
 	ln -sf mless $(DESTDIR)$(BINDIR)/mnext
 	ln -sf mless $(DESTDIR)$(BINDIR)/mprev
-	ln -sf mrep $(DESTDIR)$(BINDIR)/mcom
-	install -m0644 man/*.[0-9] $(DESTDIR)$(MANDIR)/man1
+	ln -sf mcom $(DESTDIR)$(BINDIR)/mrep
+	install -m0644 man/*.1 $(DESTDIR)$(MANDIR)/man1
+	install -Dm0644 man/*.7 $(DESTDIR)$(MANDIR)/man7
 
 FRC:
