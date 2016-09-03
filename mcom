@@ -28,7 +28,7 @@ if [ -z "$outbox" ]; then
 	draft="snd.$i"
 	draftmime="./snd.$i.mime"
 else
-	draft="$(true | mdeliver -v -XD "$outbox")"
+	draft="$(true | mdeliver -v -c -XD "$outbox")"
 	if [ -z "$draft" ]; then
 		echo "$0: failed to create draft in outbox $outbox." 1>&2
 		exit 1
