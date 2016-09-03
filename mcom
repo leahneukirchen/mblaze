@@ -33,7 +33,7 @@ else
 		echo "$0: failed to create draft in outbox $outbox." 1>&2
 		exit 1
 	fi
-	draftmime="$(echo $draft | sed 's,\(.*\)/cur/,\1/tmp/mime-,')"
+	draftmime="$(echo $draft | sed 's,\(.*\)/new/,\1/tmp/mime-,')"
 fi
 
 {
