@@ -205,7 +205,7 @@ stdinmode()
 		outfile = stdout;
 	}
 
-	while ((rd = getline(&line, &linelen, stdin)) != -1) {
+	while ((rd = getdelim(&line, &linelen, '\n', stdin)) != -1) {
 		if (line[rd-1] == '\n')
 			line[rd-1] = 0;
 

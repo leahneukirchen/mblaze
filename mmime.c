@@ -273,7 +273,7 @@ gen_build()
 	int intext = 0;
 
 	while (1) {
-		int read = getline(&line, &linelen, stdin);
+		int read = getdelim(&line, &linelen, '\n', stdin);
 		if (read == -1) {
 			if (feof(stdin))
 				break;

@@ -62,7 +62,7 @@ export(char *file)
 
 	while (1) {
 		errno = 0;
-		ssize_t rd = getline(&line, &linelen, infile);
+		ssize_t rd = getdelim(&line, &linelen, '\n', infile);
 		if (rd == -1) {
 			if (errno == 0)
 				break;

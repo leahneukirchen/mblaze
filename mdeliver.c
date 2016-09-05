@@ -60,7 +60,7 @@ deliver(FILE *infile)
 		// skip to first "From " line
 		while (1) {
 			errno = 0;
-			ssize_t rd = getline(&line, &linelen, infile);
+			ssize_t rd = getdelim(&line, &linelen, '\n', infile);
 			if (rd == -1) {
 				if (errno == 0)
 					// invalid mbox file
@@ -98,7 +98,7 @@ tryagain:
 		int is_old = 0;
 		while (1) {
 			errno = 0;
-			ssize_t rd = getline(&line, &linelen, infile);
+			ssize_t rd = getdelim(&line, &linelen, '\n', infile);
 			if (rd == -1) {
 				if (errno != 0)
 					return -1;
