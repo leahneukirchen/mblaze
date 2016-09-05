@@ -1,5 +1,8 @@
-// FNM_CASEFOLD, strptime
+// FNM_CASEFOLD
 #define _GNU_SOURCE
+#include <fnmatch.h>
+
+// strptime
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 700
 #endif
@@ -27,7 +30,6 @@
 #include <locale.h>
 #include <limits.h>
 #include <regex.h>
-#include <fnmatch.h>
 
 #include "blaze822.h"
 
