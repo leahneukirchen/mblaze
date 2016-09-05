@@ -1,3 +1,5 @@
+.error : This Makefile needs GNU make
+
 CFLAGS+=-g -O2 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
 LDLIBS=-lrt
 ifdef OPENBSD
