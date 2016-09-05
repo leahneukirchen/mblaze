@@ -40,15 +40,15 @@ PRINCIPLES
      it using sendmail(8), as provided by OpenSMTPD, Postfix, msmtp(1), dma(8)
      or similar.  mblaze expects your mail to reside in Maildir folders.
 
-     mblaze operates directly on Maildir and doesn't use caches or database.
-     There is no setup needed for many uses.  All tools have been written with
-     performance in mind.  Enumeration of all mails in a Maildir is avoided
-     unless necessary, and then optimized to use few syscalls.  Parsing mail
-     metadata is optimized to use few I/O requests.  Initial operations on big
-     Maildir may feel slow, but as soon as they are in cache, everything is
-     blazing fast.  The tools are written to be memory efficient (i.e. not
-     wasteful), but whole messages are assumed to fit into RAM easily (at a
-     time).
+     mblaze operates directly on Maildir and doesn't use own caches or
+     databases.  There is no setup needed for many uses.  All tools have been
+     written with performance in mind.  Enumeration of all mails in a Maildir
+     is avoided unless necessary, and then optimized to use few syscalls.
+     Parsing mail metadata is optimized to use few I/O requests.  Initial
+     operations on big Maildir may feel slow, but as soon as they are in file
+     system cache, everything is blazing fast.  The tools are written to be
+     memory efficient (i.e. not wasteful), but whole messages are assumed to
+     fit into RAM easily (at a time).
 
      mblaze has been written from scratch and tested on a big pile of personal
      mail, but is not actually 100% RFC conforming (which is neither worth it
