@@ -82,14 +82,14 @@ or similar.
 expects your mail to reside in Maildir folders.
 .Pp
 .Nm
-operates directly on Maildir and doesn't use caches or database.
+operates directly on Maildir and doesn't use own caches or databases.
 There is no setup needed for many uses.
 All tools have been written with performance in mind.
 Enumeration of all mails in a Maildir is avoided unless necessary,
 and then optimized to use few syscalls.
 Parsing mail metadata is optimized to use few I/O requests.
 Initial operations on big Maildir may feel slow, but as soon as they
-are in cache, everything is blazing fast.
+are in file system cache, everything is blazing fast.
 The tools are written to be memory efficient (i.e. not wasteful), but
 whole messages are assumed to fit into RAM easily (at a time).
 .Pp
