@@ -1,8 +1,5 @@
-#!/bin/sh
+#!/usr/bin/awk -f
 # mcolor - colorize rendered mail
-
-# restart as awk script
-true + /; exec awk -f "$0"; exit; / {}
 
 function co(n, c) { e = ENVIRON["MCOLOR_" n]; return e ? e : c }
 function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
