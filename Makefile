@@ -1,5 +1,9 @@
 CFLAGS+=-g -O2 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
 LDLIBS=-lrt
+ifdef OPENBSD
+CFLAGS+=-I/usr/local/include
+LDLIBS=-L/usr/local/lib -liconv
+endif
 
 DESTDIR=
 PREFIX=/usr/local
