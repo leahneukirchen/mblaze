@@ -1,5 +1,7 @@
 # Compiling and installing mblaze
 
+You must use GNU make to build.
+
 Use `make all` to build, `make install` to install relative to `PREFIX`
 (`/usr/local` by default).  The `DESTDIR` convention is respected.
 
