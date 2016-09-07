@@ -506,8 +506,8 @@ main(int argc, char *argv[])
 	curyday = tm->tm_yday;
 
 	setlocale(LC_ALL, "");  // for wcwidth later
-	if (wcwidth(0xFFFD) > 0)
-		replacement = 0xFFFD;
+	if (wcwidth(0xfffd) > 0)
+		replacement = 0xfffd;
 
 	struct winsize w;
 	if (ioctl(1, TIOCGWINSZ, &w) == 0)
