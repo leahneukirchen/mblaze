@@ -196,7 +196,12 @@ blaze822_addr(char *s, char **dispo, char **addro)
 				*c++ = *s++;
 			if (*s == ')')
 				s++;
-		} else if (*s == ',') {
+		} else if (*s == ':') {
+			s++;
+			while (iswsp(*s))
+				s++;
+			c = disp;  // forget already read group name
+		} else if (*s == ',' || *s == ';') {
 			s++;
 			break;
 		} else {
