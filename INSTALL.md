@@ -11,5 +11,6 @@ Use `make all` to build, `make install` to install relative to `PREFIX`
 - Linux 3.2 (glibc 2.13)
 - FreeBSD 11.0
 - OpenBSD 5.9
+- Windows 10 (Version 1151) with Cygwin 2.3.1(0.291/5/3)
 
 On OpenBSD, you must use `make OPENBSD=1` and provide `libiconv`.
