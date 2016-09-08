@@ -1,7 +1,6 @@
 #define _GNU_SOURCE
 
 #include <sys/stat.h>
-#include <sys/syscall.h>
 
 #include <dirent.h>
 #include <fcntl.h>
@@ -88,6 +87,8 @@ list(char *prefix, char *file)
 
 #ifdef __linux__
 // faster implementation of readdir using a bigger getdents buffer
+
+#include <sys/syscall.h>
 
 struct linux_dirent64 {
 	ino64_t        d_ino;    /* 64-bit inode number */
