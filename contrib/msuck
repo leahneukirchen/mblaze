@@ -86,7 +86,7 @@ ARGV.each { |group|
     low = ourhigh + 1
   end
 
-  next  if low >= high
+  next  if low > high
   
   printf "%s %d-%d ", group, low, high
 
