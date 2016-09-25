@@ -59,12 +59,19 @@ fi
 		;;
 	*mrep*)
 		[ "$#" -eq 0 ] && set -- .
-		to=$(mhdr -h reply-to "$1")
-		[ -z "$to" ] && to=$(mhdr -h from "$1")
-		echo "To: $to"
-		echo "Cc: $(mhdr -d -A -h to:cc: "$1" | commajoin)"
-		echo "Bcc: "
+		ng=$(mhdr -h newsgroups "$1")
+		if [ "$ng" ]; then
+			echo "Newsgroups: $ng"
+		else
+			to=$(mhdr -h reply-to "$1")
+			[ -z "$to" ] && to=$(mhdr -h from "$1")
+			echo "To: $to"
+			echo "Cc: $(mhdr -d -A -h to:cc: "$1" | commajoin)"
+			echo "Bcc: "
+		fi
 		echo "Subject: Re: $(mscan -f '%S' "$1")"
+		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
+		[ "$from" ] && echo "From: $from"
 		cat "$MBLAZE/headers" 2>/dev/null
 		mid=$(mhdr -h message-id "$1")
 		if [ "$mid" ]; then
@@ -99,6 +106,11 @@ c=e
 while :; do
 	case "$c" in
 	s|send)
+		case "$(mhdr -h newsgroups "$draft")" in
+			*gmane.*) sendmail="mblow -s news.gmane.org";;
+			*.*) sendmail="mblow";;
+		esac
+
 		if [ -e $draftmime ]; then
 			if [ $draft -ot $draftmime ]; then
 				if $sendmail <$draftmime; then
