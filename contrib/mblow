@@ -34,3 +34,4 @@ nntp.write(".\r\n")
 msg = nntp.gets
 
 abort msg  unless msg =~ /^240 /
+puts msg
