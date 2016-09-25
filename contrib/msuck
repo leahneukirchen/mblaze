@@ -1,0 +1,137 @@
+#!/usr/bin/ruby
+# msuck - suck NNTP groups into Maildirs
+#
+# msuck [-s NNTPSERVER[:PORT]] [-d BASEDIR] [-l LIMIT] GROUPS...  to fetch GROUPS
+# msuck [-s NNTPSERVER[:PORT]] -L    to list all groups
+
+require 'socket'
+require 'fileutils'
+require 'optparse'
+
+$delivery = 0
+HOST = Socket.gethostname
+def genname(id)
+  $delivery += 1
+  t = Time.now
+  "%d.M%06dP%dQ%d.%s,N=%d" % [t.tv_sec, t.tv_usec, $$, $delivery, HOST, id]
+end
+
+params = ARGV.getopts("d:fl:s:L")
+dir = params["d"] || '.'
+LIMIT = if params["l"]
+          Integer(params["l"])
+        else
+          10
+        end
+
+port = 119
+if params["s"] =~ /(.*):(.*)/
+  params["s"] = $1
+  port = Integer($2)
+end
+
+SERVER = params["s"] || ENV["NNTPSERVER"] || "news"
+
+nntp = TCPSocket.new SERVER, port
+
+msg = nntp.gets
+abort msg  unless msg =~ /^20[01] /
+
+if params["L"]  # list all groups
+  nntp.write("LIST NEWSGROUPS\r\n")
+  msg = nntp.gets
+  if msg !~ /^215 /
+    abort msg
+  end
+
+  loop {
+    msg = nntp.gets
+    break  if msg == ".\r\n"
+    puts msg
+  }
+
+  exit
+end
+
+STDOUT.sync = true
+
+ARGV.each { |group|
+
+  FileUtils.mkdir_p(File.join(dir, group, "cur"))
+  FileUtils.mkdir_p(File.join(dir, group, "new"))
+  FileUtils.mkdir_p(File.join(dir, group, "tmp"))
+
+  nntp.write("GROUP #{group}\r\n")
+
+  msg = nntp.gets
+  unless msg =~ /^211 /
+    STDERR.puts msg
+    next
+  end
+
+  _, number, low, high, _ = msg.split(" ", 5)
+
+  number = number.to_i
+  low = low.to_i
+  high = high.to_i
+
+  low = high - LIMIT + 1  if number > LIMIT - 1
+  low = 1  if low <= 0
+
+  have = Dir.entries(File.join(dir, group, "cur")).
+           map { |f| $1.to_i if f =~ /N=(\d+)/ }.compact
+
+  ourhigh = have.max
+  if ourhigh && low < ourhigh && !params["f"]
+    low = ourhigh + 1
+  end
+
+  next  if low >= high
+  
+  printf "%s %d-%d ", group, low, high
+
+  nntp.write("STAT #{low}\r\n")
+  msg = nntp.gets
+  _, num, mid, _ = msg.split(" ", 4)
+
+  loop {
+    unless have.include? num.to_i
+      nntp.write("ARTICLE\r\n")
+      msg = nntp.gets
+
+      if msg =~ /^220 /
+        _, num, mid, _ = msg.split(" ", 4)
+    
+        text = ["X-Msuck: nntp://#{SERVER}/#{group}/#{num}\n"]
+        loop {
+          msg = nntp.gets
+          break  if msg == ".\r\n"
+          msg.sub!(/\A\./, "")
+          msg.sub!(/\r\n\z/, "\n")
+          text << msg
+        }
+        text = text.join
+        
+        name = genname(num)
+        
+        File.write(File.join(dir, group, "tmp", name), text)
+        File.rename(File.join(dir, group, "tmp", name),
+                    File.join(dir, group, "cur", name + ":2,"))
+        print "."
+      else
+        STDERR.puts msg
+      end
+    else
+      print "="
+    end
+    
+    nntp.write("NEXT\r\n")
+    msg = nntp.gets
+    if msg !~ /^223 /
+      break
+    end
+    _, num, mid, _ = msg.split(" ", 4)
+  }
+  
+  puts
+}

@@ -1,0 +1,36 @@
+#!/usr/bin/ruby
+# mblow - post an article via NNTP
+
+require 'socket'
+require 'optparse'
+
+params = ARGV.getopts("s:")
+
+port = 119
+if params["s"] =~ /(.*):(.*)/
+  params["s"] = $1
+  port = Integer($2)
+end
+
+SERVER = params["s"] || ENV["NNTPSERVER"] || "news"
+
+nntp = TCPSocket.new SERVER, port
+
+msg = nntp.gets
+abort msg  unless msg =~ /^200 /
+
+nntp.write "POST\r\n"
+msg = nntp.gets
+
+abort msg  unless msg =~ /^340 /
+
+while line = gets
+  line.chomp!
+  line.sub!(/\A\./, '..')
+  nntp.write(line + "\r\n")
+end
+
+nntp.write(".\r\n")
+msg = nntp.gets
+
+abort msg  unless msg =~ /^240 /
