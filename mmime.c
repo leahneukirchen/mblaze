@@ -1,4 +1,3 @@
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -111,25 +110,22 @@ basenam(const char *s)
 
 int gen_file(char *file, char *ct)
 {
-	int fd = open(file, O_RDONLY);
-	if (!fd)
-		return 0;
+	uint8_t *content;
+	off_t size;
 
-	struct stat st;
-
-	fstat(fd, &st);
-	uint8_t *content = mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	close(fd);
-
-	if (content == MAP_FAILED)
+	int r = slurp(file, (char **)&content, &size);
+	if (r != 0) {
+		fprintf(stderr, "mmime: error attaching file '%s': %s",
+		    file, strerror(r));
 		return -1;
+	}
 	
 	off_t bithigh = 0;
 	off_t bitlow = 0;
 	off_t linelen = 0;
 	off_t maxlinelen = 0;
 	off_t i;
-	for (i = 0; i < st.st_size; i++) {
+	for (i = 0; i < size; i++) {
 		if (content[i] == '\n') {
 			if (maxlinelen < linelen)
 				maxlinelen = linelen;
@@ -146,32 +142,32 @@ int gen_file(char *file, char *ct)
 	printf("Content-Disposition: attachment; filename=\"%s\"\n",
 	       basenam(file));
 	if (bitlow == 0 && bithigh == 0 &&
-	    maxlinelen <= 78 && content[st.st_size-1] == '\n') {
+	    maxlinelen <= 78 && content[size-1] == '\n') {
 		if (!ct)
 			ct = "text/plain";
 		printf("Content-Type: %s\n", ct);
 		printf("Content-Transfer-Encoding: 7bit\n\n");
-		fwrite(content, 1, st.st_size, stdout);
+		fwrite(content, 1, size, stdout);
 		return 0;
 	} else if (bitlow == 0 && bithigh == 0) {
 		if (!ct)
 			ct = "text/plain";
 		printf("Content-Type: %s\n", ct);
 		printf("Content-Transfer-Encoding: quoted-printable\n\n");
-		gen_qp(content, st.st_size, 78, 0);
+		gen_qp(content, size, 78, 0);
 		return 0;
-	} else if (bitlow > st.st_size/10 || bithigh > st.st_size/4) {
+	} else if (bitlow > size/10 || bithigh > size/4) {
 		if (!ct)
 			ct = "application/binary";
 		printf("Content-Type: %s\n", ct);
 		printf("Content-Transfer-Encoding: base64\n\n");
-		return gen_b64(content, st.st_size);
+		return gen_b64(content, size);
 	} else {
 		if (!ct)
 			ct = "text/plain";
 		printf("Content-Type: %s\n", ct);
 		printf("Content-Transfer-Encoding: quoted-printable\n\n");
-		gen_qp(content, st.st_size, 78, 0);
+		gen_qp(content, size, 78, 0);
 		return 0;
 	}
 }
