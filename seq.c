@@ -1,4 +1,3 @@
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -50,23 +49,14 @@ blaze822_home_file(char *basename)
 char *
 blaze822_seq_open(char *file)
 {
-	int fd;
-	struct stat st;
-
-	// env $SEQ or something
 	if (!file)
 		file = getenv("MAILSEQ");
 	if (!file)
 		file = blaze822_home_file("seq");
-	fd = open(file, O_RDONLY);
-	if (!fd)
-		return 0;
 
-	fstat(fd, &st);
-	char *map = mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	close(fd);
-
-	if (map == MAP_FAILED)
+	char *map;
+	off_t len;
+	if (slurp(file, &map, &len) != 0)
 		return 0;
 
 	return map;

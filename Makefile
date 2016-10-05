@@ -21,11 +21,12 @@ $(ALL) : % : %.o
 maddr magrep mdeliver mexport mflag mgenmid mhdr mpick mscan msed mshow \
   msort mthread : blaze822.o mymemmem.o mytimegm.o
 maddr magrep mexport mflag mgenmid mhdr mpick mscan msed mseq mshow msort \
-  mthread : seq.o
+  mthread : seq.o slurp.o
 maddr magrep mhdr mpick mscan mshow : rfc2047.o
 magrep mshow : rfc2045.o
 mshow : filter.o
 msort : mystrverscmp.o
+mmime : slurp.o
 
 README: man/mblaze.7
 	mandoc -Tutf8 $< | col -bx >$@
