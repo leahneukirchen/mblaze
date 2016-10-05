@@ -301,14 +301,16 @@ gen_build()
 
 		if (!rflag && line[0] == '#') {
 			char *f = strchr(line, ' ');
-			*f = 0;
-			if (strchr(line, '/')) {
-				printf("\n--%s\n", sep);
-				if (line[read-1] == '\n')
-					line[read-1] = 0;
-				gen_file(f+1, (char *)line+1);
-				intext = 0;
-				continue;
+			if (f) {
+				*f = 0;
+				if (strchr(line, '/')) {
+					printf("\n--%s\n", sep);
+					if (line[read-1] == '\n')
+						line[read-1] = 0;
+					gen_file(f+1, (char *)line+1);
+					intext = 0;
+					continue;
+				}
 			}
 		}
 
