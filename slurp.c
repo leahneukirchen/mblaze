@@ -29,7 +29,7 @@ slurp(char *filename, char **bufo, off_t *leno)
 		*leno = 0;
 		return 0;
 	}
-	*bufo = malloc(st.st_size);
+	*bufo = malloc(st.st_size + 1);
 	if (!*bufo) {
 		r = ENOMEM;
 		goto out;
@@ -48,7 +48,9 @@ slurp(char *filename, char **bufo, off_t *leno)
 			break;
 		nread += n;
 	} while (nread < st.st_size);
+
 	*leno = nread;
+	(*bufo)[st.st_size] = 0;
 
 out:
 	close(fd);
