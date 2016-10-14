@@ -126,6 +126,7 @@ int
 blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 {
 	iconv_t ic = (iconv_t)-1;
+	char *srcenc = 0;
 
 	char *b = src;
 
@@ -134,11 +135,17 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 	if (!s)
 		goto nocodeok;
 
+	// keep track of partial multibyte sequences
+	char *partial = 0;
+	size_t partiallen = 0;
+
 	do {
 		char *t;
 		t = b;
 		while (t < s)  // strip space-only inbetween encoded words
 			if (!isfws(*t++)) {
+				if (partial)  // mixed up encodings
+					goto nocode;
 				while (b < s && dlen) {
 					*dst++ = *b++;
 					dlen--;
@@ -156,7 +163,17 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 			goto nocode;
 
 		*e = 0;
-		ic = iconv_open(tgtenc, s);
+		if (!srcenc || strcmp(srcenc, s) != 0) {
+			if (partial)  // mixed up encodings
+				goto nocode;
+			free(srcenc);
+			srcenc = strdup(s);
+			if (!srcenc)
+				goto nocode;
+			if (ic != (iconv_t)-1)
+				iconv_close(ic);
+			ic = iconv_open(tgtenc, srcenc);
+		}
 		*e = '?';
 		e++;
 
@@ -180,23 +197,38 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		else
 			goto nocode;
 
+		if (partial) {
+			dec = realloc(dec, declen + partiallen);
+			if (!dec)
+				goto nocode;
+			memmove(dec + partiallen, dec, declen);
+			memcpy(dec, partial, partiallen);
+			declen += partiallen;
+			free(partial);
+			partial = 0;
+			partiallen = 0;
+		}
+
 		decchunk = dec;
 		int r = iconv(ic, &dec, &declen, &dst, &dlen);
 		if (r < 0) {
 			if (errno == E2BIG) {
-				iconv_close(ic);
 				break;
-			} else if (errno == EILSEQ || errno == EINVAL) {
+			} else if (errno == EILSEQ) {
 				goto nocode;
+			} else if (errno == EINVAL) {
+				partial = malloc(declen);
+				if (!partial)
+					goto nocode;
+				memcpy(partial, dec, declen);
+				partiallen = declen;
 			} else {
 				perror("iconv");
 				goto nocode;
 			}
 		}
 
-		iconv_close(ic);
-
-		while (declen && dlen) {
+		while (!partial && declen && dlen) {
 			*dst++ = *dec++;
 			declen--;
 			dlen--;
@@ -214,13 +246,17 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 
 	*dst = 0;
 
+	if (ic != (iconv_t)-1)
+		iconv_close(ic);
+	free(srcenc);
+
 	return 1;
 
 nocode:
+	fprintf(stderr, "error decoding rfc2047\n");
 	if (ic != (iconv_t)-1)
 		iconv_close(ic);
-
-	fprintf(stderr, "error decoding rfc2047\n");
+	free(srcenc);
 nocodeok:
 	while (*src && dlen) {
 		*dst++ = *src++;
@@ -257,6 +293,10 @@ main() {
 	char test4dec[255];
 	blaze822_decode_rfc2047(test4dec, test4, sizeof test4dec, "UTF-8");
 	printf("%s\n", test4dec);
-	
+
+	char test5[] = "=?UTF-8?Q?z=E2=80?= =?UTF-8?Q?=99z?=";
+	char test5dec[255];
+	blaze822_decode_rfc2047(test5dec, test5, sizeof test5dec, "UTF-8");
+	printf("%s\n", test5dec);
 }
 #endif
