@@ -13,7 +13,7 @@ HOST = Socket.gethostname
 def genname(id)
   $delivery += 1
   t = Time.now
-  "%d.M%06dP%dQ%d.%s,N=%d" % [t.tv_sec, t.tv_usec, $$, $delivery, HOST, id]
+  "%d.M%06dP%05dQ%d.%s,N=%d" % [t.tv_sec, t.tv_usec, $$, $delivery, HOST, id]
 end
 
 params = ARGV.getopts("d:fl:s:L")
