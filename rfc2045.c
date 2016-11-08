@@ -53,7 +53,7 @@ blaze822_mime_body(struct message *msg,
 
 	if (cte) {
 		if (strncasecmp(cte, "quoted-printable", 16) == 0) {
-			blaze822_decode_qp(msg->body, msg->bodyend, bodyo, bodyleno);
+			blaze822_decode_qp(msg->body, msg->bodyend, bodyo, bodyleno, 0);
 			*bodychunko = *bodyo;
 		} else if (strncasecmp(cte, "base64", 6) == 0) {
 			blaze822_decode_b64(msg->body, msg->bodyend, bodyo, bodyleno);

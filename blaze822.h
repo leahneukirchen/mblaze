@@ -31,7 +31,7 @@ char *blaze822_orig_header(struct message *mesg);
 // rfc2047.c
 
 int blaze822_decode_rfc2047(char *, char *, size_t, char *);
-int blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno);
+int blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno, int underscore);
 int blaze822_decode_b64(char *start, char *stop, char **deco, size_t *decleno);
 
 // rfc2045.c

@@ -11,7 +11,7 @@
 // XXX keep trying bytewise on invalid iconv
 
 int
-blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno)
+blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno, int underscore)
 {
 	static signed char hex[] = {
 		-1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,
@@ -47,7 +47,7 @@ blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno)
 				continue;
 			}
 			*buf++ = (hex[c1] << 4) | hex[c2];
-		} else if (*s == '_') {
+		} else if (underscore && *s == '_') {
 			*buf++ = ' ';
 			s++;
 		} else {
@@ -191,7 +191,7 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		char *dec = 0, *decchunk;
 		size_t declen = 0;
 		if (enc == 'q')
-			blaze822_decode_qp(start, stop, &dec, &declen);
+			blaze822_decode_qp(start, stop, &dec, &declen, 1);
 		else if (enc == 'b')
 			blaze822_decode_b64(start, stop, &dec, &declen);
 		else
