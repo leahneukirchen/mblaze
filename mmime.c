@@ -298,6 +298,7 @@ gen_build()
 		if (!rflag && line[0] == '#') {
 			char *f = strchr(line, ' ');
 			if (f) {
+				char of = *f;
 				*f = 0;
 				if (strchr(line, '/')) {
 					printf("\n--%s\n", sep);
@@ -307,6 +308,7 @@ gen_build()
 					intext = 0;
 					continue;
 				}
+				*f = of;
 			}
 		}
 
