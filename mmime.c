@@ -229,8 +229,8 @@ print_header(char *line) {
 					linelen = 1;
 				}
 				if (highbit || s[0] == ' ') {
-					printf("=?UTF-8?Q?");
-					linelen += 13;
+					printf(" =?UTF-8?Q?");
+					linelen += 14;
 					linelen += gen_qp((uint8_t *)s, e-s, 999, 1);
 					printf("?=");
 					prevq = 1;
