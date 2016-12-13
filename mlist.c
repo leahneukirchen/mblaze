@@ -11,6 +11,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "blaze822.h"
+
 #define lc(c) ((c) | 0x20)
 #define uc(c) ((c) & 0xdf)
 
@@ -158,6 +160,56 @@ listdir(char *dir)
 }
 #endif
 
+void
+listarg(char *arg)
+{
+	struct stat st;
+	if (stat(arg, &st) < 0)
+		return;
+	if (S_ISDIR(st.st_mode)) {
+		char subdir[PATH_MAX];
+		struct stat st2;
+		int maildir = 0;
+
+		long gcount = icount;
+		long gunseen = iunseen;
+		long gflagged = iflagged;
+		long gmatched = imatched;
+
+		icount = 0;
+		iunseen = 0;
+		iflagged = 0;
+
+		snprintf(subdir, sizeof subdir, "%s/cur", arg);
+		if (stat(subdir, &st2) == 0) {
+			maildir = 1;
+			if (Cflag >= 0 && Nflag <= 0)
+				listdir(subdir);
+		}
+
+		snprintf(subdir, sizeof subdir, "%s/new", arg);
+		if (stat(subdir, &st2) == 0) {
+			maildir = 1;
+			if (Nflag >= 0 && Cflag <= 0)
+				listdir(subdir);
+		}
+
+		if (!maildir)
+			listdir(arg);
+
+		if (iflag && imatched)
+			printf("%6ld unseen  %3ld flagged  %6ld msg  %s\n",
+			    iunseen, iflagged, icount, arg);
+
+		icount = gcount;
+		iunseen = gunseen;
+		iflagged = gflagged;
+		imatched = gmatched;
+	} else if (S_ISREG(st.st_mode)) {
+		list(0, arg);
+	}
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -189,13 +241,10 @@ main(int argc, char *argv[])
 			    "Usage: mlist [-DFPRST] [-X str]\n"
 			    "             [-dfprst] [-x str]\n"
 			    "             [-N | -n | -C | -c]\n"
-			    "             [-i] dirs...\n"
+			    "             [-i] [dirs...]\n"
 			);
 			exit(1);
 		}
-
-	if (optind == argc)
-		goto usage;
 
         int i;
 	
@@ -206,53 +255,10 @@ main(int argc, char *argv[])
 			flagsum++;
 	}
 
-        for (i = optind; i < argc; i++) {
-		struct stat st;
-		if (stat(argv[i], &st) < 0)
-			continue;
-		if (S_ISDIR(st.st_mode)) {
-			char subdir[PATH_MAX];
-			struct stat st2;
-			int maildir = 0;
-
-			long gcount = icount;
-			long gunseen = iunseen;
-			long gflagged = iflagged;
-			long gmatched = imatched;
-
-			icount = 0;
-			iunseen = 0;
-			iflagged = 0;
-
-			snprintf(subdir, sizeof subdir, "%s/cur", argv[i]);
-			if (stat(subdir, &st2) == 0) {
-				maildir = 1;
-				if (Cflag >= 0 && Nflag <= 0)
-					listdir(subdir);
-			}
-
-			snprintf(subdir, sizeof subdir, "%s/new", argv[i]);
-			if (stat(subdir, &st2) == 0) {
-				maildir = 1;
-				if (Nflag >= 0 && Cflag <= 0)
-					listdir(subdir);
-			}
-
-			if (!maildir)
-				listdir(argv[i]);
-
-			if (iflag && imatched)
-				printf("%6ld unseen  %3ld flagged  %6ld msg  %s\n",
-				    iunseen, iflagged, icount, argv[i]);
-
-			icount = gcount;
-			iunseen = gunseen;
-			iflagged = gflagged;
-			imatched = gmatched;
-		} else if (S_ISREG(st.st_mode)) {
-			list(0, argv[i]);
-		}
-        }
+	if (optind == argc && isatty(0))
+		goto usage;
+	else
+		blaze822_loop(argc-optind, argv+optind, listarg);
 
 	if (iflag && imatched)
 		printf("%6ld unseen  %3ld flagged  %6ld msg\n",

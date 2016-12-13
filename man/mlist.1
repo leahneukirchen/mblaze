@@ -1,4 +1,4 @@
-.Dd July 22, 2016
+.Dd December 13, 2016
 .Dt MLIST 1
 .Os
 .Sh NAME
@@ -15,12 +15,15 @@
 .Op Fl N | Fl n | Fl C | Fl c
 .br
 .Op Fl i
-.Ar dirs\ ...
+.Op Ar dirs\ ...
 .Sh DESCRIPTION
 .Nm
 lists all messages in the Maildir folders
 .Ar dirs
 line by line.
+If used non-interactively and no folders are given,
+.Nm
+reads directory names from standard input.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds

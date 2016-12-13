@@ -20,7 +20,7 @@ all: $(ALL)
 $(ALL) : % : %.o
 maddr magrep mdeliver mexport mflag mgenmid mhdr mpick mscan msed mshow \
   msort mthread : blaze822.o mymemmem.o mytimegm.o
-maddr magrep mexport mflag mgenmid mhdr mpick mscan msed mseq mshow msort \
+maddr magrep mexport mflag mgenmid mhdr mlist mpick mscan msed mseq mshow msort \
   mthread : seq.o slurp.o
 maddr magrep mhdr mpick mscan mshow : rfc2047.o
 magrep mshow : rfc2045.o
