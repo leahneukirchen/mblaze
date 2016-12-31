@@ -397,7 +397,7 @@ char *
 blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
 {
 	if (strcmp(range, ".") == 0) {
-		if (!iter->lines) {
+		if (!iter->lines && !iter->start) {
 			iter->lines = 1;
 			find_cur(map, iter);
 			iter->start = iter->stop = iter->line = iter->cur + 1;
