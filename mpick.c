@@ -721,7 +721,27 @@ parse_msglist(char *s)
 
 			return e1;
 		} else {
-			expr = chain(parse_expr("from.addr == 's'"), EXPR_AND, expr);
+			char *disp, *addr;
+
+			d = blaze822_addr(s, &disp, &addr);
+			if (!disp && !addr)
+				parse_error("invalid address at '%.15s'", pos);
+
+			d = strdup((disp) ? disp : addr);
+
+			e1 = mkexpr(EXPR_REGEXI);
+			e1->a.prop = PROP_FROM;
+			e1->b.regex = malloc(sizeof (regex_t));
+			e1->extra = (disp) ? 0 : 1;
+
+			r = regcomp(e1->b.regex, d, REG_EXTENDED | REG_NOSUB | REG_ICASE);
+			if (r != 0) {
+				char msg[256];
+				regerror(r, e1->b.regex, msg, sizeof msg);
+				parse_error("invalid regex '%s': %s", d, msg);
+			}
+
+			return e1;
 		}
 	}
 	return 0;
