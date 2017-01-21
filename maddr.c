@@ -32,20 +32,19 @@ addr(char *file)
 		v = blaze822_chdr(msg, h);
 		if (v) {
 			char *disp, *addr;
+			char vdec[1024];
+			blaze822_decode_rfc2047(vdec, v, sizeof vdec - 1, "UTF-8");
+			vdec[sizeof vdec - 1] = 0;
+			v = vdec;
+			
 			while ((v = blaze822_addr(v, &disp, &addr))) {
 				if (disp && addr && strcmp(disp, addr) == 0)
 					disp = 0;
 				if (disp && addr) {
-					char dispdec[1024];
-					blaze822_decode_rfc2047(dispdec, disp,
-					    sizeof dispdec - 1, "UTF-8");
-					dispdec[sizeof dispdec - 1] = 0;
-
 					if (aflag)
 						printf("%s\n", addr);
 					else
-						printf("%s <%s>\n",
-						    dispdec, addr);
+						printf("%s <%s>\n", disp, addr);
 				} else if (addr) {
 					printf("%s\n", addr);
 				}
