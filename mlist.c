@@ -255,10 +255,14 @@ main(int argc, char *argv[])
 			flagsum++;
 	}
 
-	if (optind == argc && isatty(0))
-		goto usage;
-	else
-		blaze822_loop(argc-optind, argv+optind, listarg);
+	if (optind == argc) {
+		if (isatty(0))
+			goto usage;
+		blaze822_loop(0, 0, listarg);
+	} else {
+		for (i = optind; i < argc; i++)
+			listarg(argv[i]);
+	}
 
 	if (iflag && imatched)
 		printf("%6ld unseen  %3ld flagged  %6ld msg\n",
