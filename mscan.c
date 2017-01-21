@@ -191,21 +191,24 @@ fmt_subject(struct message *msg, char *file, int strip)
 static char *
 fmt_from(struct message *msg)
 {
-	static char fromdec[64];
+	static char fromdec[256];
 	char *from = "(unknown)";
-	char to[256];
 	char *v, *w;
 
 	if (!msg)
 		return "";
 
         if ((v = blaze822_hdr(msg, "from"))) {
-		if (itsme(v) && ((w = blaze822_hdr(msg, "to")))) {
-			snprintf(to, sizeof to, "TO:%s", w);
-			from = to;
+		blaze822_decode_rfc2047(fromdec, v, sizeof fromdec - 1, "UTF-8");
+		fromdec[sizeof fromdec - 1] = 0;
+		from = fromdec;
+
+		if (itsme(fromdec) && ((w = blaze822_hdr(msg, "to")))) {
+			snprintf(fromdec, sizeof fromdec, "TO:%s", w);
+			from = fromdec;
 		} else {
 			char *disp, *addr;
-			blaze822_addr(v, &disp, &addr);
+			blaze822_addr(fromdec, &disp, &addr);
 			if (disp)
 				from = disp;
 			else if (addr)
@@ -213,10 +216,7 @@ fmt_from(struct message *msg)
 		}
 	}
 
-	blaze822_decode_rfc2047(fromdec, from, sizeof fromdec - 1, "UTF-8");
-	fromdec[sizeof fromdec - 1] = 0;
-
-	return fromdec;
+	return from;
 }
 
 static char *
