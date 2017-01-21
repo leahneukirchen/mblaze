@@ -70,7 +70,7 @@ print_addresses(char *s)
 	}
 
 	while ((s = blaze822_addr(s, &disp, &addr))) {
-		if (Hflag && (disp || addr))
+		if (Hflag && addr)
 			printf("%s\t", curfile);
 
 		if (disp && addr)
