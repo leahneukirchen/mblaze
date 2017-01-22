@@ -139,6 +139,9 @@ tests are given by the following EBNF:
 .Ed
 .Sh EXIT STATUS
 .Ex -std
+.Sh EXAMPLE
+You can use mpick to filter mail by moving them across Maildir inboxes.
+.Dl mv $(mlist ./INBOX | mpick -t 'from ~~~ \&"github\&"') ./github/cur
 .Sh SEE ALSO
 .Xr lr 1 ,
 .Xr mailx 1
