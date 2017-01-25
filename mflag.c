@@ -26,16 +26,18 @@ char *curfile;
 void
 add(char *file)
 {
-        if (idx >= argsalloc) {
-                argsalloc *= 2;
-                if (argsalloc < 0)
-                        exit(-1);
-                args = realloc(args, sizeof (char *) * argsalloc);
-        }
-        if (!args)
-                exit(-1);
-        args[idx] = strdup(file);
-        idx++;
+	if (idx >= argsalloc) {
+		argsalloc *= 2;
+		if (argsalloc < 0)
+			exit(-1);
+		args = realloc(args, sizeof (char *) * argsalloc);
+	}
+	if (!args)
+		exit(-1);
+	while (*file == ' ' || *file == '\t')
+		file++;
+	args[idx] = strdup(file);
+	idx++;
 }
 
 void
