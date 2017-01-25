@@ -85,7 +85,7 @@ doit:
 		*t = 0;
 
 		if (rename(file+indent, dst+indent) < 0) {
-			fprintf(stderr, "minc: can't rename '%s' to '%s': %s\n",
+			fprintf(stderr, "mflag: can't rename '%s' to '%s': %s\n",
 			    file+indent, dst+indent, strerror(errno));
 			goto skip;
 		}
