@@ -93,11 +93,11 @@ list(char *prefix, char *file)
 #include <sys/syscall.h>
 
 struct linux_dirent64 {
-	ino64_t        d_ino;    /* 64-bit inode number */
-	off64_t        d_off;    /* 64-bit offset to next structure */
+	ino64_t	       d_ino;	 /* 64-bit inode number */
+	off64_t	       d_off;	 /* 64-bit offset to next structure */
 	unsigned short d_reclen; /* Size of this dirent */
-	unsigned char  d_type;   /* File type */
-	char           d_name[]; /* Filename (null-terminated) */
+	unsigned char  d_type;	 /* File type */
+	char	       d_name[]; /* Filename (null-terminated) */
 };
 #define BUF_SIZE 1024000
 
@@ -144,7 +144,7 @@ void
 listdir(char *dir)
 {
 	DIR *fd;
-        struct dirent *d;
+	struct dirent *d;
 
 	fd = opendir(dir);
 	if (!fd)
@@ -222,11 +222,11 @@ main(int argc, char *argv[])
 		case 'p': case 'r': case 's': case 't': case 'd': case 'f':
 			flags[(unsigned int)uc(c)] = -1;
 			break;
-                case 'X':
+		case 'X':
 			while (*optarg)
 				flags[(unsigned int)*optarg++] = 1;
 			break;
-                case 'x':
+		case 'x':
 			while (*optarg)
 				flags[(unsigned int)*optarg++] = -1;
 			break;
@@ -239,14 +239,14 @@ main(int argc, char *argv[])
 		usage:
 			fprintf(stderr,
 			    "Usage: mlist [-DFPRST] [-X str]\n"
-			    "             [-dfprst] [-x str]\n"
-			    "             [-N | -n | -C | -c]\n"
-			    "             [-i] [dirs...]\n"
+			    "		  [-dfprst] [-x str]\n"
+			    "		  [-N | -n | -C | -c]\n"
+			    "		  [-i] [dirs...]\n"
 			);
 			exit(1);
 		}
 
-        int i;
+	int i;
 	
 	for (i = 0, flagsum = 0, flagset = 0; (size_t)i < sizeof flags; i++) {
 		if (flags[i] != 0)

@@ -103,14 +103,14 @@ fallback:
 
 	rnd |= (1LL << 63);  // set highest bit to force full width
 
-        putchar('<');
+	putchar('<');
 	printb36(((uint64_t)tp.tv_sec << 16) + (tp.tv_nsec >> 16));
-        putchar('.');
+	putchar('.');
 	printb36(rnd);
-        putchar('@');
+	putchar('@');
 	fputs(host, stdout);
-        putchar('>');
-        putchar('\n');
+	putchar('>');
+	putchar('\n');
 
-        return 0;
+	return 0;
 }

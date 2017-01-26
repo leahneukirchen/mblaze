@@ -72,19 +72,19 @@ struct msgnum {
 int
 msgnumorder(const void *a, const void *b)
 {
-        struct msgnum *ia = (struct msgnum *)a;
-        struct msgnum *ib = (struct msgnum *)b;
+	struct msgnum *ia = (struct msgnum *)a;
+	struct msgnum *ib = (struct msgnum *)b;
 
-        return strcmp(ia->file, ib->file);
+	return strcmp(ia->file, ib->file);
 }
 
 long
 blaze822_seq_find(char *file)
 {
 	struct msgnum key, **result;
-        key.file = file;
+	key.file = file;
 
-        if (!(result = tfind(&key, &msgnums, msgnumorder)))
+	if (!(result = tfind(&key, &msgnums, msgnumorder)))
 		return 0;
 
 	return (*result)->pos;
@@ -128,7 +128,7 @@ blaze822_seq_load(char *map)
 char *
 blaze822_seq_cur(void)
 {
-        static char b[PATH_MAX];
+	static char b[PATH_MAX];
 
 	char *override = getenv("MAILDOT");
 	if (override)
@@ -455,7 +455,7 @@ static long
 iterdir(char *dir, void (*cb)(char *))
 {
 	DIR *fd, *fd2;
-        struct dirent *d;
+	struct dirent *d;
 
 	long i = 0;
 

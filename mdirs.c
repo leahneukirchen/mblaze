@@ -19,7 +19,7 @@ void
 mdirs(char *fpath)
 {
 	DIR *dir;
-        struct dirent *d;
+	struct dirent *d;
 	struct stat st;
 
 	dir = opendir(fpath);
@@ -63,7 +63,7 @@ mdirs(char *fpath)
 	if (chdir("..") < 0)
 		exit(-1);
 
-        closedir(dir);
+	closedir(dir);
 }
 
 int

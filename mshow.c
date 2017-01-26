@@ -93,7 +93,7 @@ print_u8recode(char *body, size_t bodylen, char *srcenc)
 			final_char = bufptr[-1];
 		}
 
-		if (r != (size_t)-1) {  // done, flush iconv
+		if (r != (size_t)-1) {	// done, flush iconv
 			bufptr = buf;
 			buflen = sizeof buf;
 			r = iconv(ic, 0, 0, &bufptr, &buflen);
@@ -389,8 +389,8 @@ static int extract_stdout;
 static const char *
 basenam(const char *s)
 {
-        char *r = strrchr(s, '/');
-        return r ? r + 1 : s;
+	char *r = strrchr(s, '/');
+	return r ? r + 1 : s;
 }
 
 static int
@@ -702,16 +702,16 @@ main(int argc, char *argv[])
 		case 'O': Oflag = optarg; break;
 		case 'R': Rflag = 1; break;
 		case 'n': nflag = 1; break;
-                default:
+		default:
 			fprintf(stderr,
 			    "Usage: mshow [-h headers] [-A mimetypes] [-qrHL] [msgs...]\n"
-			    "       mshow -x msg parts...\n"
-			    "       mshow -O msg parts...\n"
-			    "       mshow -t msgs...\n"
-			    "       mshow -R msg\n"
+			    "	    mshow -x msg parts...\n"
+			    "	    mshow -O msg parts...\n"
+			    "	    mshow -t msgs...\n"
+			    "	    mshow -R msg\n"
 			);
-                        exit(1);
-                }
+			exit(1);
+		}
 
 	if (xflag) { // extract
 		extract(xflag, argc-optind, argv+optind, 0);

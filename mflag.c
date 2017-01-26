@@ -117,11 +117,11 @@ main(int argc, char *argv[])
 		case 'p': case 'r': case 's': case 't': case 'd': case 'f':
 			flags[(unsigned int)uc(c)] = -1;
 			break;
-                case 'X':
+		case 'X':
 			while (*optarg)
 				flags[(unsigned int)*optarg++] = 1;
 			break;
-                case 'x':
+		case 'x':
 			while (*optarg)
 				flags[(unsigned int)*optarg++] = -1;
 			break;
@@ -129,8 +129,8 @@ main(int argc, char *argv[])
 		default:
 			fprintf(stderr,
 			    "Usage: mflag [-DFPRST] [-X str]\n"
-			    "             [-dfprst] [-x str]\n"
-			    "             [-v] [msgs...]\n"
+			    "		  [-dfprst] [-x str]\n"
+			    "		  [-v] [msgs...]\n"
 			);
 			exit(1);
 		}

@@ -80,17 +80,17 @@ subst(char *str, char *srch, char *repl, char *flags)
 void
 printhdr(char *hdr, int rest)
 {
-        int uc = 1;
+	int uc = 1;
 
-        while (*hdr && *hdr != ':') {
-                putc(uc ? toupper(*hdr) : *hdr, stdout);
-                uc = (*hdr == '-');
-                hdr++;
-        }
+	while (*hdr && *hdr != ':') {
+		putc(uc ? toupper(*hdr) : *hdr, stdout);
+		uc = (*hdr == '-');
+		hdr++;
+	}
 
-        if (rest) {
-                printf("%s\n", hdr);
-        }
+	if (rest) {
+		printf("%s\n", hdr);
+	}
 }
 
 void
@@ -101,7 +101,7 @@ sed(char *file)
 		return;
 
 	char *h = 0;
-        while ((h = blaze822_next_header(msg, h))) {
+	while ((h = blaze822_next_header(msg, h))) {
 		regex_t headerrx;
 		char headersel[1024];
 
@@ -215,7 +215,7 @@ sed(char *file)
 			printf(": %s\n", v);
 			free(v);
 		}
-        }
+	}
 
 	// loop, do all a//
 
@@ -283,7 +283,7 @@ sed(char *file)
 		}
 		while (*e && *e != ';' && *e != '\n')
 			e++;
-        }
+	}
 
 	printf("\n");
 	fwrite(blaze822_body(msg), 1, blaze822_bodylen(msg), stdout);

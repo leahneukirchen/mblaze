@@ -78,10 +78,10 @@ fetch_from(char *file)
 	char *v = blaze822_hdr(msg, "from");
 	if (v) {
 		char *disp, *addr;
-                blaze822_addr(v, &disp, &addr);
-                if (disp)
-                        from = strdup(disp);
-                else if (addr)
+		blaze822_addr(v, &disp, &addr);
+		if (disp)
+			from = strdup(disp);
+		else if (addr)
 			from = strdup(addr);
 	}
 

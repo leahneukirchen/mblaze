@@ -143,7 +143,7 @@ fmt_date(struct message *msg, int w, int iso)
 		else if (tm->tm_yday != curyday)
 			strftime(date, sizeof date, "%a %b %e", tm);
 		else
-			strftime(date, sizeof date, "%a  %H:%M", tm);
+			strftime(date, sizeof date, "%a	 %H:%M", tm);
 	}
 
 	return date;
@@ -173,7 +173,7 @@ fmt_subject(struct message *msg, char *file, int strip)
 				i++;
 				continue;
 			} else if (strncasecmp("re:", subjdec+i, 3) == 0 ||
-			    	   strncasecmp("aw:", subjdec+i, 3) == 0) {
+				   strncasecmp("aw:", subjdec+i, 3) == 0) {
 				i += 3;
 				continue;
 			} else if (strncasecmp("fwd:", subjdec+i, 4) == 0) {
@@ -198,7 +198,7 @@ fmt_from(struct message *msg)
 	if (!msg)
 		return "";
 
-        if ((v = blaze822_hdr(msg, "from"))) {
+	if ((v = blaze822_hdr(msg, "from"))) {
 		blaze822_decode_rfc2047(fromdec, v, sizeof fromdec - 1, "UTF-8");
 		fromdec[sizeof fromdec - 1] = 0;
 		from = fromdec;
@@ -505,7 +505,7 @@ main(int argc, char *argv[])
 	curyear = tm->tm_year;
 	curyday = tm->tm_yday;
 
-	setlocale(LC_ALL, "");  // for wcwidth later
+	setlocale(LC_ALL, "");	// for wcwidth later
 	if (wcwidth(0xfffd) > 0)
 		replacement = 0xfffd;
 

@@ -19,7 +19,7 @@ void
 inc(char *dir)
 {
 	DIR *fd;
-        struct dirent *d;
+	struct dirent *d;
 	char src[PATH_MAX];
 	char dst[PATH_MAX];
 

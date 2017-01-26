@@ -1,4 +1,4 @@
-#include <poll.h>            
+#include <poll.h>	     
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -86,11 +86,11 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 	}
 
 	// ok to fail when closed already
-        close(pipe0[1]);
-        close(pipe1[0]);
+	close(pipe0[1]);
+	close(pipe1[0]);
 
 	int status;
-        waitpid(pid, &status, 0);
+	waitpid(pid, &status, 0);
 
 	*outputo = output;
 	*outleno = outlen;

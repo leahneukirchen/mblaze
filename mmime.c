@@ -104,8 +104,8 @@ int gen_qp(uint8_t *s, off_t size, int maxlinelen, int header)
 static const char *
 basenam(const char *s)
 {
-        char *r = strrchr(s, '/');
-        return r ? r + 1 : s;
+	char *r = strrchr(s, '/');
+	return r ? r + 1 : s;
 }
 
 int gen_file(char *file, char *ct)

@@ -273,9 +273,9 @@ main(int argc, char *argv[])
 		usage:
 			fprintf(stderr,
 			    "Usage: mseq [-fr] [-c msg] [msgs...]\n"
-			    "       mseq -S [-fr] < sequence\n"
-			    "       mseq -A [-fr] < sequence\n"
-			    "       mseq -C msg\n"
+			    "	    mseq -S [-fr] < sequence\n"
+			    "	    mseq -A [-fr] < sequence\n"
+			    "	    mseq -C msg\n"
 			);
 			exit(1);
 		}

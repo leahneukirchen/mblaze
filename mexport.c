@@ -29,8 +29,8 @@ export(char *file)
 
 	char from[1024] = "nobody";
 
-        char *v;
-        if ((v = blaze822_hdr(msg, "return-path")) ||
+	char *v;
+	if ((v = blaze822_hdr(msg, "return-path")) ||
 	    (v = blaze822_hdr(msg, "x-envelope-from"))) {
 		char *s = strchr(v, '<');
 		char *e = strchr(s, '>');
@@ -39,10 +39,10 @@ export(char *file)
 			memcpy(from, s, e-s);
 			from[e-s] = 0;
 		}
-        }
+	}
 
 	time_t date = -1;
-        if ((v = blaze822_hdr(msg, "date"))) {
+	if ((v = blaze822_hdr(msg, "date"))) {
 		date = blaze822_date(v);
 	}
 

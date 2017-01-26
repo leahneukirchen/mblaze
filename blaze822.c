@@ -19,19 +19,19 @@
 static long
 parse_posint(char **s, size_t minn, size_t maxn)
 {
-        long n;
-        char *end;
+	long n;
+	char *end;
 
-        errno = 0;
-        n = strtol(*s, &end, 10);
-        if (errno)
+	errno = 0;
+	n = strtol(*s, &end, 10);
+	if (errno)
 		return -1;
-        if (n < (long)minn || n > (long)maxn) {
+	if (n < (long)minn || n > (long)maxn) {
 		errno = ERANGE;
 		return -1;
-        }
-        *s = end;
-        return n;
+	}
+	*s = end;
+	return n;
 }
 
 time_t
@@ -60,7 +60,7 @@ blaze822_date(char *s) {
 	while (iswsp(*s))
 		s++;
 	
-	if      (i3("jan")) tm.tm_mon = 0;
+	if	(i3("jan")) tm.tm_mon = 0;
 	else if (i3("feb")) tm.tm_mon = 1;
 	else if (i3("mar")) tm.tm_mon = 2;
 	else if (i3("apr")) tm.tm_mon = 3;
@@ -111,12 +111,12 @@ blaze822_date(char *s) {
 		s++;
 		if ((c = parse_posint(&s, 0, 10000)) < 0) goto fail;
 		if (neg) {
-                        tm.tm_hour += c / 100;
-                        tm.tm_min  += c % 100;
+			tm.tm_hour += c / 100;
+			tm.tm_min  += c % 100;
 		} else {
-                        tm.tm_hour -= c / 100;
-                        tm.tm_min  -= c % 100;
-                }
+			tm.tm_hour -= c / 100;
+			tm.tm_min  -= c % 100;
+		}
 	}
 
 	tm.tm_isdst = -1;
@@ -183,7 +183,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 		} else if (*s == '(') {
 			s++;
 
-			if (!*addr) {   // assume: user@host (name)
+			if (!*addr) {	// assume: user@host (name)
 				*c-- = 0;
 				while (c > disp && iswsp(*c))
 					*c-- = 0;

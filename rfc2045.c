@@ -13,7 +13,7 @@ char textplain[] = "text/plain; charset=US-ASCII";
 int
 blaze822_check_mime(struct message *msg)
 {
-        char *v = blaze822_hdr(msg, "mime-version");
+	char *v = blaze822_hdr(msg, "mime-version");
 	if (v &&
 	    v[0] && v[0] == '1' &&
 	    v[1] && v[1] == '.' &&
@@ -35,7 +35,7 @@ blaze822_mime_body(struct message *msg,
 		*bodyleno = 0;
 		*bodychunko = 0;
 		return 0;
-        }
+	}
 
 	char *ct = blaze822_hdr(msg, "content-type");
 	char *cte = blaze822_hdr(msg, "content-transfer-encoding");
