@@ -60,6 +60,7 @@ enum prop {
 	PROP_ATIME = 1,
 	PROP_CTIME,
 	PROP_DEPTH,
+	PROP_KEPT,
 	PROP_MTIME,
 	PROP_PATH,
 	PROP_REPLIES,
@@ -460,6 +461,8 @@ parse_cmp()
 
 	if (token("depth"))
 		prop = PROP_DEPTH;
+	else if (token("kept"))
+		prop = PROP_KEPT;
 	else if (token("index"))
 		prop = PROP_INDEX;
 	else if (token("replies")) {
@@ -718,7 +721,27 @@ parse_msglist(char *s)
 
 			return e1;
 		} else {
-			expr = chain(parse_expr("from.addr == 's'"), EXPR_AND, expr);
+			char *disp, *addr;
+
+			d = blaze822_addr(s, &disp, &addr);
+			if (!disp && !addr)
+				parse_error("invalid address at '%.15s'", pos);
+
+			d = strdup((disp) ? disp : addr);
+
+			e1 = mkexpr(EXPR_REGEXI);
+			e1->a.prop = PROP_FROM;
+			e1->b.regex = malloc(sizeof (regex_t));
+			e1->extra = (disp) ? 0 : 1;
+
+			r = regcomp(e1->b.regex, d, REG_EXTENDED | REG_NOSUB | REG_ICASE);
+			if (r != 0) {
+				char msg[256];
+				regerror(r, e1->b.regex, msg, sizeof msg);
+				parse_error("invalid regex '%s': %s", d, msg);
+			}
+
+			return e1;
 		}
 	}
 	return 0;
@@ -796,7 +819,7 @@ eval(struct expr *e, struct mailinfo *m)
 	case EXPR_GT:
 	case EXPR_ALLSET:
 	case EXPR_ANYSET: {
-		long v = 0, num;
+		long v = 0, n;
 
 		if (!m->sb && (
 		    e->a.prop == PROP_ATIME ||
@@ -813,20 +836,21 @@ eval(struct expr *e, struct mailinfo *m)
 			switch (e->b.var) {
 			case VAR_CUR:
 				if (!cur_idx)
-					num = (e->op == EXPR_LT || e->op == EXPR_LE) ? LONG_MAX : -1;
+					n = (e->op == EXPR_LT || e->op == EXPR_LE) ? LONG_MAX : -1;
 				else
-					num = cur_idx;
+					n = cur_idx;
 				break;
-			default: num = 0;
+			default: n = 0;
 			}
 		} else {
-			num = e->b.num;
+			n = e->b.num;
 		}
 
 		switch (e->a.prop) {
 		case PROP_ATIME: v = m->sb->st_atime; break;
 		case PROP_CTIME: v = m->sb->st_ctime; break;
 		case PROP_MTIME: v = m->sb->st_mtime; break;
+		case PROP_KEPT: v = kept; break;
 		case PROP_REPLIES: v = m->replies; break;
 		case PROP_SIZE: v = m->sb->st_size; break;
 		case PROP_DATE: v = msg_date(m); break;
@@ -838,14 +862,14 @@ eval(struct expr *e, struct mailinfo *m)
 		}
 
 		switch (e->op) {
-		case EXPR_LT: return v < num;
-		case EXPR_LE: return v <= num;
-		case EXPR_EQ: return v == num;
-		case EXPR_NEQ: return v != num;
-		case EXPR_GE: return v >= num;
-		case EXPR_GT: return v > num;
-		case EXPR_ALLSET: return (v & num) == num;
-		case EXPR_ANYSET: return (v & num) > 0;
+		case EXPR_LT: return v < n;
+		case EXPR_LE: return v <= n;
+		case EXPR_EQ: return v == n;
+		case EXPR_NEQ: return v != n;
+		case EXPR_GE: return v >= n;
+		case EXPR_GT: return v > n;
+		case EXPR_ALLSET: return (v & n) == n;
+		case EXPR_ANYSET: return (v & n) > 0;
 		}
 	}
 	case EXPR_STREQ:
