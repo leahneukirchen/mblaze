@@ -1,0 +1,343 @@
+#!/bin/sh
+
+clear_buf() {
+	while
+		tput cup "${i:-0}" 0 && tput el \
+		&& [ "$(( i+=1 ))" -le "$1" ]
+	do :; done
+}
+
+term_init() {
+	cols=$(tput cols)
+	rows=$(tput lines)
+	start_headers=$(( rows / 4 ))
+	start_body=$(( start_headers + 1 ))
+	end_body=$(( rows - start_body - 2 ))
+	term_clear_headers=$(clear_buf "$start_headers"; tput cup 0 0)
+	term_clear_body=$(tput cup "$(( start_body ))" 0; tput ed)
+	term_move_status=$(tput cup "$(( rows ))" $(( cols - 5 )); tput el)
+	term_move_cmd=$(tput cup "$(( rows ))" 0)
+	term_init_cmd=$(tput cnorm; tput el)
+	term_done_cmd=$(tput civis)
+}
+
+statusline() {
+	printf "%s%s" "$term_move_status" "$@"
+}
+
+cmdline() {
+	printf "%s%s:" "$term_move_cmd" "$term_init_cmd"
+	stty "$stty_default"
+	tput cnorm
+	read -r cmd
+	case "$cmd" in
+		"|"*) ;;
+		"!"*) ;;
+	esac
+	printf "%s" "$term_done_cmd"
+	stty -echo -icanon
+	headers
+	body
+}
+
+update() {
+	buf_row=1
+	[ "$buf_col" -le 0 ] && buf_col=1
+	mshow 2>/dev/null | mcolor \
+		| cut -c "$(( buf_col ))-$(( cols + buf_col - 1 ))" \
+		| trunc_lines >"$buf_path"
+	buf_len=$(wc -l <"$buf_path")
+	: $(( buf_len = buf_len + 1 ))
+	: $(( buf_end = buf_len - end_body ))
+	update_body=1
+}
+
+trunc_lines() {
+	t=$(tput el)
+	while read -r l; do
+		printf "%s%s\n" "$l" "$t"
+	done
+}
+
+headers() {
+	printf "%s" "$term_clear_headers"
+	
+	: $(( x = hdr_row - (start_headers / 2) ))
+	: $(( y = hdr_row + (start_headers / 2) ))
+
+	[ "$x" -gt 0 ] && x="+$x"
+	[ "$y" -gt 0 ] && y="+$y"
+
+	COLUMNS=$cols mscan ".$x:.$y" 2>/dev/null \
+		| awk '
+function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
+function so(s) { return sprintf("\033[1m%s\033[0m", s) }
+/^>/ { print so(fg(119, $0)); next }
+/^ *\\_/ { print fg(242, $0); next }
+{ print }
+'
+}
+
+body() {
+	[ "$buf_row" -gt "$buf_end" ] && buf_row=$buf_end
+	[ "$buf_row" -lt 1 ] && buf_row=1
+
+	: $(( x = buf_row ))
+	: $(( y = end_body + buf_row ))
+
+	[ "${update_body}" = "${x},${y}p" ] && return
+
+	printf "%s" "$term_clear_body"
+
+	update_body="${x},${y}p"
+	sed -n "$update_body" "$buf_path"
+
+	[ "$buf_len" -gt "$end_body" ] \
+		&& statusline "$(( 100 * y / buf_len ))%"
+}
+
+draw() {
+	headers
+	body
+}
+
+init() {
+	tput smcup # save position
+	tput civis # cursor invisible
+	term_init
+
+	stty_default=$(stty -g)
+	stty -echo -icanon
+
+	update
+	draw
+}
+
+close() {
+	tput sgr0 # reset char attributes
+	tput cnorm # normal cursor
+	tput rmcup # restore position
+	stty "$stty_default" # restore stty settings
+	[ -e "$buf_path" ] && rm "$buf_path"
+	exit "${1-0}"
+}
+
+motion() {
+	[ -z "$mv" ] || [ -z "$in_new" ] && return
+	mseq -C "$in_new";
+	mv=
+	in_new=
+}
+
+readchar() {
+	c=$(dd bs=1 count=1 2>/dev/null)
+	printf '%d' "'$c"
+}
+
+in_read() {
+	set -- $in_buf
+	[ "$#" -eq 0 ] && in_key=$(readchar) && return
+	in_key=$1; shift; in_buf=$@
+}
+
+in_back() {
+	set -- "$in_key" $in_buf
+	in_buf=$@
+}
+
+in_prefix() {
+	n=
+	while [ "$in_key" -le 59 ] && [ "$in_key" -ge 47 ]; do
+		: $(( n = n * 10 + $(printf \\$(printf "%03o" "$in_key")) ))
+		in_read
+	done
+	[ "$1" -eq "1" ] && in_cnt1=${n:-0} || in_cnt2=${n:-0}
+}
+
+in_motion() {
+	cnt=$(( (in_cnt1 < 1 ? 1 : in_cnt1) * (in_cnt2 < 1 ? 1 : in_cnt2) ))
+	mv=
+	case "$in_key" in
+	# $
+	36) mseq -C "$" ;;
+	# ^
+	94) mseq -C 1 ;;
+	# j
+	106) mseq -C ".+$cnt" ;;
+	# k
+	107) mseq -C ".-$cnt" ;;
+	# P
+	80) mseq -C "$(mseq ".-1=" | head -n1 | mscan -n)" ;;
+	# N
+	78) mseq -C "$(( $(mseq ".=" | tail -n1 | mscan -n) + 1 ))" ;;
+	# p
+	112) mseq -C "$(mseq "._" | head -n1 | mscan -n)" ;;
+	# n
+	110) mseq -C "$(mseq "._" | tail -n1 | mscan -n)" ;;
+	# [
+	91) mseq -C "$(mseq ".=" | head -n1 | mscan -n)" ;;
+	# ]
+	93) mseq -C "$(mseq ".=" | tail -n1 | mscan -n)" ;;
+	esac
+}
+
+in_motionln() {
+	cnt=$(( (in_cnt1 < 1 ? 1 : in_cnt1) * (in_cnt2 < 1 ? 1 : in_cnt2) ))
+	mv=
+	case "$in_key" in
+	# return + j
+	0|43|106) mv=".:.+$cnt"; in_new=".+$cnt" ;;
+	# - k
+	45|107) mv=".-$cnt:."; in_new=".-$cnt" ;;
+	# G
+	71)
+		[ "$in_cnt1" -eq 0 ] && [ "$in_cnt2" -eq 0 ] \
+			&& in_new="\$" \
+			&& mv="$in_cur:$in_new" \
+			&& return
+		in_new="$cnt"
+		[ "$cnt" -gt "$in_cur" ] \
+			&& mv="$in_cur:$in_new" \
+			|| mv="$in_new:$in_cur"
+		;;
+	# P [
+	80|91)
+		in_new=$in_cur
+		while [ $(( cnt-=1 )) -ge 0 ]; do
+			j=$(mscan -n "$in_new=" | head -n1)
+			mv="$j:$in_new $mv"
+			in_new=$(( j - 1 ))
+		done
+		: $(( in_new+=1 ))
+		# XXX: should [ ] move one more???
+		#[ "$in_cur" -eq "$in_new" ] && : $(( in_new-=1 ))
+		#true
+		;;
+	# N ]
+	78|93)
+		# mv=".:$(mseq ".=" | tail -n1 | mscan -n)"
+		in_new=$in_cur
+		while [ $(( cnt-=1 )) -ge 0 ]; do
+			j=$(mscan -n "$in_new=" | tail -n1)
+			mv="$mv $in_new:$j"
+			in_new=$(( j + 1 ))
+		done
+		: $(( in_new-=1 ))
+		#[ "$in_cur" -eq "$in_new" ] && : $(( in_new+=1 ))
+		#true
+		;;
+	# {
+	123) in_new=$(mscan -n ".^" | head -n1); mv="$in_new:." ;;
+	# }
+	125) in_new=$(mscan -n "._" | tail -n1); mv=".:$in_new" ;;
+	*) false ;;
+	esac
+}
+
+in_action() {
+	c=$in_key
+
+	in_read
+	in_prefix 2
+	in_motionln || { [ "$in_key" -eq "$c" ] && mv="."; }
+	[ -z "$mv" ] && return 1
+
+	case "$c" in
+	# d
+	100)
+		mflag -S "$mv" >/dev/null
+		mseq -f : | mseq -S
+		motion
+		headers
+		;;
+	# u
+	117)
+		mflag -s "$mv" >/dev/null
+		mseq -f : | mseq -S
+		motion
+		headers
+		;;
+	esac
+}
+
+in_esc() {
+	stty min 0 time 1
+	c=$(readchar)
+	rv=0
+	case "$c" in
+	91)
+		c=$(readchar)
+		# page up/down
+		[ "$c" -eq 53 ] && : $(( buf_row-=end_body ))
+		[ "$c" -eq 54 ] && : $(( buf_row+=end_body ))
+		c=$(readchar)
+		body
+		;;
+	*) c=$(readchar); c=$(readchar); rv=1 ;;
+	esac
+	stty min 1 time 0
+	return $rv
+}
+
+trap 'close 130;' INT TERM
+
+buf_path=$(mktemp /tmp/.mcurse_body.XXXXX)
+
+buf_col=1
+buf_row=1
+buf_len=
+buf_end=
+
+hdr_row=0
+
+init
+
+while :; do
+	in_buf=
+	in_key=
+	in_cnt1=0
+	in_cnt2=0
+	in_cur=$(mscan -n .)
+	in_new=
+
+	printf "%s" "$term_move_cmd"
+
+	in_read
+
+	[ "$in_key" -eq 27 ] \
+		&& in_esc \
+		&& continue
+
+	in_prefix 1
+
+	in_motionln \
+		&& motion \
+		&& update \
+		&& draw \
+		&& continue
+
+	case "$in_key" in
+	# d u
+	100|117) in_action ;;
+	# D
+	68) in_key="100"; in_back; in_action ;; # input buffer to dd
+	# U
+	85) in_key="117"; in_back; in_action ;; # input buffer to uu
+	# e
+	101) ${EDITOR=ed} $(mseq .) && update && draw ;;
+	# v
+	118) ${VISUAL=vi} $(mseq .) && update && draw ;;
+	# L | C-l
+	76|12) tput clear && term_init && update && draw ;;
+	# :
+	58) cmdline ;;
+	# q
+	113) close ;;
+	# c
+	99) hdr_row=0 && headers ;;
+	# J
+	74) : $(( buf_row+=(in_cnt1 < 1 ? 1 : in_cnt1) )) && body ;;
+	# K
+	75) : $(( buf_row-=(in_cnt1 < 1 ? 1 : in_cnt1) )) && body ;;
+	esac
+done
