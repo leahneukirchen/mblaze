@@ -30,14 +30,21 @@ cmdline() {
 	stty "$stty_default"
 	tput cnorm
 	read -r cmd
+	stty -echo -icanon
 	case "$cmd" in
 		"|"*) ;;
-		"!"*) ;;
+		"!"*)
+			tput sgr0 && tput rmcup # restore to content before mvi
+			eval "${cmd#!*}"
+			# wait for enter, and delete message
+			tput sc; printf "[enter to continue]" && read -r d; tput rc; tput el
+			tput smcup # save new content
+		;;
+		q) close ;;
 	esac
 	printf "%s" "$term_done_cmd"
-	stty -echo -icanon
-	headers
-	body
+	update_body=1
+	draw
 }
 
 update() {
@@ -147,7 +154,7 @@ in_back() {
 
 in_prefix() {
 	n=
-	while [ "$in_key" -le 59 ] && [ "$in_key" -ge 47 ]; do
+	while [ "$in_key" -le 57 ] && [ "$in_key" -ge 48 ]; do
 		: $(( n = n * 10 + $(printf \\$(printf "%03o" "$in_key")) ))
 		in_read
 	done
