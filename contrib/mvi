@@ -154,33 +154,6 @@ in_prefix() {
 	[ "$1" -eq "1" ] && in_cnt1=${n:-0} || in_cnt2=${n:-0}
 }
 
-in_motion() {
-	cnt=$(( (in_cnt1 < 1 ? 1 : in_cnt1) * (in_cnt2 < 1 ? 1 : in_cnt2) ))
-	mv=
-	case "$in_key" in
-	# $
-	36) mseq -C "$" ;;
-	# ^
-	94) mseq -C 1 ;;
-	# j
-	106) mseq -C ".+$cnt" ;;
-	# k
-	107) mseq -C ".-$cnt" ;;
-	# P
-	80) mseq -C "$(mseq ".-1=" | head -n1 | mscan -n)" ;;
-	# N
-	78) mseq -C "$(( $(mseq ".=" | tail -n1 | mscan -n) + 1 ))" ;;
-	# p
-	112) mseq -C "$(mseq "._" | head -n1 | mscan -n)" ;;
-	# n
-	110) mseq -C "$(mseq "._" | tail -n1 | mscan -n)" ;;
-	# [
-	91) mseq -C "$(mseq ".=" | head -n1 | mscan -n)" ;;
-	# ]
-	93) mseq -C "$(mseq ".=" | tail -n1 | mscan -n)" ;;
-	esac
-}
-
 in_motionln() {
 	cnt=$(( (in_cnt1 < 1 ? 1 : in_cnt1) * (in_cnt2 < 1 ? 1 : in_cnt2) ))
 	mv=
