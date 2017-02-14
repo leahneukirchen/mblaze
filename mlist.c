@@ -239,9 +239,9 @@ main(int argc, char *argv[])
 		usage:
 			fprintf(stderr,
 			    "Usage: mlist [-DFPRST] [-X str]\n"
-			    "		  [-dfprst] [-x str]\n"
-			    "		  [-N | -n | -C | -c]\n"
-			    "		  [-i] [dirs...]\n"
+			    "             [-dfprst] [-x str]\n"
+			    "             [-N | -n | -C | -c]\n"
+			    "             [-i] [dirs...]\n"
 			);
 			exit(1);
 		}
