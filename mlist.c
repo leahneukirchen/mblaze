@@ -45,6 +45,11 @@ static long iunseen;
 static long iflagged;
 static long imatched;
 
+static long tdirs;
+static long tunseen;
+static long tflagged;
+static long tcount;
+
 void
 list(char *prefix, char *file)
 {
@@ -72,11 +77,11 @@ list(char *prefix, char *file)
 			return;
 		imatched++;
 		if (!flagset)
-			icount++;
+			icount++, tcount++;
 		if (!strchr(f, 'S'))
-			iunseen++;
+			iunseen++, tunseen++;
 		if (strchr(f, 'F'))
-			iflagged++;
+			iflagged++, tflagged++;
 		return;
 	}
 
@@ -197,9 +202,11 @@ listarg(char *arg)
 		if (!maildir)
 			listdir(arg);
 
-		if (iflag && imatched)
+		if (iflag && imatched) {
+			tdirs++;
 			printf("%6ld unseen  %3ld flagged  %6ld msg  %s\n",
 			    iunseen, iflagged, icount, arg);
+		}
 
 		icount = gcount;
 		iunseen = gunseen;
@@ -264,9 +271,9 @@ main(int argc, char *argv[])
 			listarg(argv[i]);
 	}
 
-	if (iflag && imatched)
+	if (iflag && tdirs > 1)
 		printf("%6ld unseen  %3ld flagged  %6ld msg\n",
-		    iunseen, iflagged, icount);
+		    tunseen, tflagged, tcount);
 
 	return 0;
 }
