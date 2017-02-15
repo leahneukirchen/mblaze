@@ -69,6 +69,29 @@ case insensitively.
 Do not show more than
 .Ar max
 matches.
+.It Fl o
+Print each match,
+not the entire line.
+This option is ignored if
+.Fl c,
+.Fl q
+or
+.Fl v
+is specified.
+.It Fl p
+Print matching messages
+.Ar msgs ,
+the matching line and the header.
+If
+.Fl o
+is specified each match is printed,
+instead of the matching line.
+This option is ignored if the
+.Fl c,
+.Fl q
+or
+.Fl v
+is specified.
 .It Fl q
 Quiet mode: do not print anything,
 quit as soon as possible.

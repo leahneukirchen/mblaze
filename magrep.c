@@ -15,6 +15,8 @@ static int aflag;
 static int cflag;
 static int dflag;
 static int iflag;
+static int oflag;
+static int pflag;
 static int qflag;
 static int vflag;
 static long mflag;
@@ -25,14 +27,38 @@ static char *header;
 static char *curfile;
 
 int
-match(char *file, char *s)
+match(char *file, char *hdr, char *s)
 {
-	if (vflag ^ (regexec(&pattern, s, 0, 0, 0) == 0)) {
+	if (oflag && !cflag && !qflag && !vflag) {
+		regmatch_t pmatch;
+		size_t sublen, matched;
+		char *substr;
+		matched = 0;
+		while (*s && regexec(&pattern, s, 1, &pmatch, 0) == 0) {
+			s += pmatch.rm_so;
+			if (!(sublen = pmatch.rm_eo-pmatch.rm_so)) {
+				s += 1;
+				continue;
+			}
+			matched++;
+			substr = strndup(s, sublen);
+			s += sublen;
+			if (pflag)
+				printf("%s: %s: ", file, hdr);
+			printf("%s\n", substr);
+			free(substr);
+		}
+		return (matched && matches++);
+	} else if (vflag ^ (regexec(&pattern, s, 0, 0, 0) == 0)) {
 		if (qflag)
 			exit(0);
 		matches++;
-		if (!cflag)
-			printf("%s\n", file);
+		if (!cflag) {
+			printf("%s", file);
+			if (pflag && !vflag)
+				printf(": %s: %s", hdr, s);
+			putchar('\n');
+		}
 		if (mflag && matches >= mflag)
 			exit(0);
 		return 1;
@@ -59,7 +85,7 @@ match_part(int depth, struct message *msg, char *body, size_t bodylen)
 		    strcasecmp(charset, "utf8") == 0 ||
 		    strcasecmp(charset, "us-ascii") == 0) {
 			(void) bodylen;	 /* XXX */
-			if (match(curfile, body))
+			if (match(curfile, "/", body))
 				r = MIME_STOP;
 		} else {
 			/* XXX decode here */
@@ -90,7 +116,7 @@ magrep(char *file)
 	if (!*header) {
 		char *flags = strstr(file, ":2,");
 		if (flags)
-			match(file, flags+3);
+			match(file, "flags", flags+3);
 		return;
 	} else if (strcmp(header, "/") == 0) {
 		match_body(file);
@@ -110,15 +136,15 @@ magrep(char *file)
 		if (dflag) {
 			char d[4096];
 			blaze822_decode_rfc2047(d, v, sizeof d, "UTF-8");
-			match(file, d);
+			match(file, header, d);
 		} else if (aflag) {
 			char *disp, *addr;
 			while ((v = blaze822_addr(v, &disp, &addr))) {
-				if (addr && match(file, addr))
+				if (addr && match(file, header, addr))
 					break;
 			}
 		} else {
-			match(file, v);
+			match(file, header, v);
 		}
 	}
 
@@ -129,19 +155,21 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "acdim:qv")) != -1)
+	while ((c = getopt(argc, argv, "acdim:opqv")) != -1)
 		switch(c) {
 		case 'a': aflag = 1; break;
 		case 'c': cflag = 1; break;
 		case 'd': dflag = 1; break;
 		case 'i': iflag = REG_ICASE; break;
 		case 'm': mflag = atol(optarg); break;
+		case 'o': oflag = 1; break;
+		case 'p': pflag = 1; break;
 		case 'q': qflag = 1; break;
 		case 'v': vflag = 1; break;
 		default:
 		usage:
 			fprintf(stderr,
-"Usage: magrep [-c|-q|-m max] [-v] [-i] [-a|-d] header:regex [msgs...]\n");
+"Usage: magrep [-c|-o|-p|-q|-m max] [-v] [-i] [-a|-d] header:regex [msgs...]\n");
 			exit(2);
 		}
 
