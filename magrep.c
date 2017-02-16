@@ -84,9 +84,19 @@ match_part(int depth, struct message *msg, char *body, size_t bodylen)
 		    strcasecmp(charset, "utf-8") == 0 ||
 		    strcasecmp(charset, "utf8") == 0 ||
 		    strcasecmp(charset, "us-ascii") == 0) {
-			(void) bodylen;	 /* XXX */
-			if (match(curfile, "/", body))
+			if (pflag && !cflag && !oflag && !vflag) {
+				char *s, *p;
+				for (p = s = body; p < body+bodylen+1; p++) {
+					if (*p == '\r' || *p == '\n') {
+						*p = 0;
+						if (p-s > 1 && match(curfile, "/", s))
+							r = MIME_STOP;
+						s = p+1;
+					}
+				}
+			} else if (match(curfile, "/", body)) {
 				r = MIME_STOP;
+			}
 		} else {
 			/* XXX decode here */
 		}
