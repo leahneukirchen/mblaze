@@ -30,7 +30,7 @@ if [ -z "$outbox" ]; then
 	while [ -f "snd.$i" ]; do
 		i=$((i+1))
 	done
-	draft="snd.$i"
+	draft="./snd.$i"
 	draftmime="./snd.$i.mime"
 else
 	draft="$(true | mdeliver -v -c -XD "$outbox")"
