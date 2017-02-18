@@ -164,7 +164,7 @@ cat(FILE *src, FILE *dst)
 	while ((rd = fread(buf, 1, sizeof buf, src)) > 0)
 		fwrite(buf, 1, rd, dst);
 	if (!feof(src)) {
-		perror("fread");
+		perror("mseq: fread");
 		exit(2);
 	}
 }
@@ -191,7 +191,12 @@ stdinmode()
 		snprintf(oldfile, sizeof oldfile, "%s.old", seqfile);
 		outfile = fopen(tmpfile, "w+");
 		if (!outfile) {
-			perror("fopen");
+			fprintf(stderr,
+			    "mseq: Could not create sequence file '%s': %s.\n",
+			    seqfile, strerror(errno));
+			fprintf(stderr,
+			    "mseq: Ensure %s exists and is writable.\n",
+			    blaze822_home_file(""));
 			exit(2);
 		}
 		if (Aflag) {
@@ -222,11 +227,11 @@ stdinmode()
 	if (Sflag) {
 		fflush(outfile);
 		if (rename(seqfile, oldfile) < 0 && errno != ENOENT) {
-			perror("rename");
+			perror("mseq: rename");
 			exit(2);
 		}
 		if (rename(tmpfile, seqfile) < 0) {
-			perror("rename");
+			perror("mseq: rename");
 			exit(2);
 		}
 
