@@ -1,0 +1,89 @@
+.Dd February 20, 2017
+.Dt MBLAZE-PROFILE 5
+.Os
+.Sh NAME
+.Nm mblaze-profile
+.Nd configuration and customization for mblaze message system
+.Sh DESCRIPTION
+The
+.Xr mblaze 7
+message system can be configured with a
+.Pa profile
+configuration file,
+which usually resides in
+.Pa ~/.mblaze
+(or
+.Ev MBLAZE
+if set.)
+.Pp
+This file consists of a RFC 2822 style header message with lines like
+.Dl Li Ar key Li Ns ":" Ar value
+.Pp
+You can use a key
+.Sq Li "#"
+for comments:
+.Dl Li "#:" Ar comment
+.Pp
+Please bear in mind that empty lines will stop parsing.
+.Pp
+The following
+.Ar key
+are used by
+.Xr mblaze 7 :
+.Bl -tag -width Ds
+.It Li "Alternate-Mailboxes:"
+A comma-separated list of mail addresses that belong to you, for
+.Xr mscan 1
+to recognize them as sent to you.
+.It Li "FQDN:"
+The fully qualified domain name used for
+.Li "Message-Id:"
+generation in
+.Xr mgenmid 1 .
+.It Li "Local-Mailbox:"
+Your primary mail address, used as default value for
+.Li "From:"
+in
+.Xr mcom 1 ,
+and in
+.Xr mscan 1
+to recognize messages sent to you.
+.It Li "Outbox:"
+If set,
+.Xr mcom 1
+will create the draft message in this Maildir,
+and not delete it after it has been sent.
+.It Li "Scan-Format:"
+The default format string for
+.Xr mscan 1 .
+.It Li "Sendmail:"
+The binary path used to send mail for
+.Xr mcom 1
+(default:
+.Li Sq sendmail ) .
+.It Li "Sendmail-Args:"
+The flags used to send mail with
+.Li "Sendmail:"
+for
+.Xr mcom 1
+(default
+.Sq Fl t ) .
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width Ds
+.It Ev MBLAZE
+Directory containing mblaze configuration.
+(Default:
+.Pa $HOME/.mblaze )
+.Sh AUTHORS
+.An Leah Neukirchen Aq Mt leah@vuxu.org
+.Sh LICENSE
+.Nm mblaze
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/
