@@ -99,8 +99,10 @@ CONCEPTS
      terminal (e.g. operate on the current message or the current sequence).
      For scripting, you must make these arguments explicit.
 
+     For configuration, see mblaze-profile(5).
+
 SEE ALSO
-     mailx(1), nmh(7)
+     mailx(1), mblaze-profile(5), nmh(7)
 
 AUTHORS
      Leah Neukirchen <leah@vuxu.org>
