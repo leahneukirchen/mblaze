@@ -89,8 +89,8 @@ match_part(int depth, struct message *msg, char *body, size_t bodylen)
 				for (p = s = body; p < body+bodylen+1; p++) {
 					if (*p == '\r' || *p == '\n') {
 						*p = 0;
-						if (p-s > 1 && match(curfile, "/", s))
-							r = MIME_STOP;
+						if (p-s > 1)
+							match(curfile, "/", s);
 						s = p+1;
 					}
 				}
