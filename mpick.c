@@ -7,6 +7,16 @@
 #define _XOPEN_SOURCE 700
 #endif
 
+#ifdef __has_include
+  #if __has_include(<stdnoreturn.h>)
+    #include <stdnoreturn.h>
+  #else
+    #define noreturn /**/
+  #endif
+#else
+  #define noreturn /**/
+#endif
+
 /* For Solaris. */
 #if !defined(FNM_CASEFOLD) && defined(FNM_IGNORECASE)
 #define FNM_CASEFOLD FNM_IGNORECASE
@@ -171,7 +181,7 @@ token(char *token)
 	}
 }
 
-static void
+noreturn static void
 parse_error(char *msg, ...)
 {
 	va_list ap;
@@ -359,7 +369,7 @@ parse_strcmp()
 
 	if (prop == PROP_FROM || prop == PROP_TO) {
 		char *disp, *addr;
-		s = blaze822_addr(s, &disp, &addr);
+		blaze822_addr(s, &disp, &addr);
 		if (!disp && !addr)
 			parse_error("invalid address at '%.15s'", pos);
 		s = strdup((disp) ? disp : addr);
@@ -456,8 +466,6 @@ parse_cmp()
 {
 	enum prop prop;
 	enum op op;
-
-	op = 0;
 
 	if (token("depth"))
 		prop = PROP_DEPTH;
@@ -684,7 +692,7 @@ parse_msglist(char *s)
 		case 'S': flag = FLAG_SEEN; break;
 		case 'o': n = 1; /* FALL TROUGH */
 		case 'n': flag = FLAG_NEW; break;
-		default: flag = 0; parse_error("unknown type at '%.15s'", s);
+		default: parse_error("unknown type at '%.15s'", s);
 		}
 
 		e1 = mkexpr(EXPR_ANYSET);
@@ -723,7 +731,7 @@ parse_msglist(char *s)
 		} else {
 			char *disp, *addr;
 
-			d = blaze822_addr(s, &disp, &addr);
+			blaze822_addr(s, &disp, &addr);
 			if (!disp && !addr)
 				parse_error("invalid address at '%.15s'", pos);
 
@@ -782,7 +790,7 @@ msg_addr(struct mailinfo *m, char *h, int t)
 		return "";
 
 	char *disp, *addr;
-	b = blaze822_addr(b, &disp, &addr);
+	blaze822_addr(b, &disp, &addr);
 
 	if (t) {
 		if (!addr)
@@ -847,12 +855,12 @@ eval(struct expr *e, struct mailinfo *m)
 		}
 
 		switch (e->a.prop) {
-		case PROP_ATIME: v = m->sb->st_atime; break;
-		case PROP_CTIME: v = m->sb->st_ctime; break;
-		case PROP_MTIME: v = m->sb->st_mtime; break;
+		case PROP_ATIME: if (m->sb) v = m->sb->st_atime; break;
+		case PROP_CTIME: if (m->sb) v = m->sb->st_ctime; break;
+		case PROP_MTIME: if (m->sb) v = m->sb->st_mtime; break;
 		case PROP_KEPT: v = kept; break;
 		case PROP_REPLIES: v = m->replies; break;
-		case PROP_SIZE: v = m->sb->st_size; break;
+		case PROP_SIZE: if (m->sb) v = m->sb->st_size; break;
 		case PROP_DATE: v = msg_date(m); break;
 		case PROP_FLAG: v = m->flags; break;
 		case PROP_INDEX: v = m->index; break;
