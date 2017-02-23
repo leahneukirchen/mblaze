@@ -140,8 +140,24 @@ tests are given by the following EBNF:
 .Sh EXIT STATUS
 .Ex -std
 .Sh EXAMPLES
-You can use mpick to filter mail by moving them across Maildir inboxes.
-.Dl mv $(mlist ./INBOX | mpick -t 'from ~~~ \&"github\&"') ./github/cur
+You can pick mails to move them into another
+.Dv maildir .
+.Pp
+.Dl mv $(mlist ./INBOX | mpick -t 'from =~ \&"@github\&"') ./github/cur
+.Pp
+Or you can use
+.Nm
+to pick mails from the current sequence.
+.Pp
+.Dl mpick -t 'subject =~~ \&"mblaze\&"' | mscan
+.Pp
+A more advanced
+.Nm
+expressions to pick mails in a time span which are flagged as replied or not seen.
+.Pp
+.Bd -literal -offset indent
+mpick -t 'date >= \&"2016-01-01\&" && date < \&"2017-01-01\&" && (replied || !seen)'
+.Ed
 .Sh SEE ALSO
 .Xr lr 1 ,
 .Xr mailx 1
