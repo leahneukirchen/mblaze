@@ -31,22 +31,19 @@ match(char *file, char *hdr, char *s)
 {
 	if (oflag && !cflag && !qflag && !vflag) {
 		regmatch_t pmatch;
-		size_t sublen, matched;
-		char *substr;
+		int len, matched;
 		matched = 0;
 		while (*s && regexec(&pattern, s, 1, &pmatch, 0) == 0) {
 			s += pmatch.rm_so;
-			if (!(sublen = pmatch.rm_eo-pmatch.rm_so)) {
+			if (!(len = pmatch.rm_eo-pmatch.rm_so)) {
 				s += 1;
 				continue;
 			}
-			matched++;
-			substr = strndup(s, sublen);
-			s += sublen;
 			if (pflag)
 				printf("%s: %s: ", file, hdr);
-			printf("%s\n", substr);
-			free(substr);
+			printf("%.*s\n", len, s);
+			s += len;
+			matched++;
 		}
 		return (matched && matches++);
 	} else if (vflag ^ (regexec(&pattern, s, 0, 0, 0) == 0)) {
