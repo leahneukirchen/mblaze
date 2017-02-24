@@ -159,13 +159,13 @@ sed(char *file)
 					}
 					sep = *e;
 					if (!sep) {
-						fprintf(stderr, "unterminated a command\n");
+						fprintf(stderr, "msed: unterminated a command\n");
 						exit(1);
 					}
 					while (*e && *e != sep)
 						e++;
 					if (!(*e == ' ' || *e == ';' || *e == '\n' || !*e)) {
-						fprintf(stderr, "unterminated a command\n");
+						fprintf(stderr, "msed: unterminated a command\n");
 						exit(1);
 					}
 					break;
@@ -190,7 +190,7 @@ sed(char *file)
 						e++;
 
 					if (!(*e == ' ' || *e == ';' || *e == '\n' || !*e)) {
-						fprintf(stderr, "unterminated s command\n");
+						fprintf(stderr, "msed: unterminated s command\n");
 						exit(1);
 					}
 
@@ -209,7 +209,7 @@ sed(char *file)
 
 					break;
 				default:
-					fprintf(stderr, "unknown command: '%c'\n", *e);
+					fprintf(stderr, "msed: unknown command: '%c'\n", *e);
 					exit(1);
 				}
 			}
@@ -253,18 +253,18 @@ sed(char *file)
 				if (he != hs) {
 					h = strndup(hs, he-hs);
 				} else {
-					fprintf(stderr, "used command a without header name\n");
+					fprintf(stderr, "msed: used command a without header name\n");
 					exit(1);
 				}
 
 				e++;
 				if (*e == ' ' || *e == '\t' || *e == '\n' || *e == ';' || !*e) {
-					fprintf(stderr, "no header value for %s\n", h);
+					fprintf(stderr, "msed: no header value for %s\n", h);
 					exit(1);
 				} else {
 					sep = *e;
 					if (!sep) {
-						fprintf(stderr, "unterminated a command\n");
+						fprintf(stderr, "msed: unterminated a command\n");
 						exit(1);
 					}
 					s = ++e;
