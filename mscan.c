@@ -45,6 +45,10 @@ u8putstr(FILE *out, char *s, ssize_t l, int pad)
 			putc(*s, out);
 			s++;
 			l--;
+		} else if ((unsigned)*s < 32 || *s == 127) {  // C0
+			fprintf(out, "%lc", *s == 127 ? 0x2421 : 0x2400+*s);
+			s++;
+			l--;
 		} else {
 			wchar_t wc;
 			int r = mbtowc(&wc, s, 4);
