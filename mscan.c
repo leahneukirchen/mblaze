@@ -147,7 +147,7 @@ fmt_date(struct message *msg, int w, int iso)
 		else if (tm->tm_yday != curyday)
 			strftime(date, sizeof date, "%a %b %e", tm);
 		else
-			strftime(date, sizeof date, "%a	 %H:%M", tm);
+			strftime(date, sizeof date, "%a  %H:%M", tm);
 	}
 
 	return date;
