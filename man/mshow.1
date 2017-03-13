@@ -57,8 +57,10 @@ Defaults to
 Don't render the body, stop after header output.
 .It Fl r
 Don't render the body, print raw body.
+This may be dangerous to use on a tty.
 .It Fl H
 Don't decode the headers, print all raw headers.
+This may be dangerous to use on a tty.
 .It Fl L
 Don't filter the headers, print all decoded headers.
 .It Fl x Ar msg
@@ -75,6 +77,7 @@ pattern.
 Like
 .Fl x
 but write to standard output.
+This may be dangerous to use on a tty.
 When used together with
 .Fl r ,
 the whole part is raw,
