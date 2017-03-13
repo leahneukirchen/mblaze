@@ -30,43 +30,43 @@ static char *Oflag;
 struct message *filters;
 
 static int mimecount;
+static int safe_output;
 
 static char defaultAflags[] = "text/plain:text/html";
 static char *Aflag = defaultAflags;
+
+static int
+printable(int c)
+{
+	return (unsigned)c-0x20 < 0x5f;
+}
+
+int
+print_ascii(char *body, size_t bodylen)
+{
+	if (safe_output) {
+		safe_u8putstr(body, bodylen, stdout);
+		return bodylen;
+	} else {
+		return fwrite(body, 1, bodylen, stdout);
+	}
+}
 
 void
 printhdr(char *hdr)
 {
 	int uc = 1;
 
-	while (*hdr && *hdr != ':') {
+	while (*hdr && *hdr != ':' && printable(*hdr)) {
 		putc(uc ? toupper(*hdr) : *hdr, stdout);
 		uc = (*hdr == '-');
 		hdr++;
 	}
 
-	if (*hdr)
-		printf("%s\n", hdr);
-}
-
-int
-print_ascii(char *body, size_t bodylen)
-{
-	if (!memchr(body, '\r', bodylen))
-		return fwrite(body, 1, bodylen, stdout);
-
-	// crlf normalization required
-	size_t i;
-	for (i = 0; i < bodylen; i++) {
-		if (body[i] == '\r') {
-			if (!(i+1 < bodylen && body[i+1] == '\n'))
-				putc_unlocked('\n', stdout);
-			continue;
-		}
-		putc_unlocked(body[i], stdout);
+	if (*hdr) {
+		print_ascii(hdr, strlen(hdr));
+		fputc('\n', stdout);
 	}
-
-	return bodylen;
 }
 
 void
@@ -529,7 +529,8 @@ print_date_header(char *v)
 		now = time(0);
 	}
 
-	printf("Date: %s", v);
+	printf("Date: ");
+	print_ascii(v, strlen(v));
 	
 	time_t t = blaze822_date(v);
 	if (t == -1) {
@@ -608,7 +609,10 @@ print_decode_header(char *h, char *v)
 	char d[4096];
 	blaze822_decode_rfc2047(d, v, sizeof d, "UTF-8");
 	printhdr(h);
-	printf(": %s\n", d);
+	fputc(':', stdout);
+	fputc(' ', stdout);
+	print_ascii(d, strlen(d));
+	fputc('\n', stdout);
 }
 
 void
@@ -674,7 +678,7 @@ show(char *file)
 	printf("\n");
 
 	if (rflag || !blaze822_check_mime(msg)) {  // raw body
-		fwrite(blaze822_body(msg), 1, blaze822_bodylen(msg), stdout);
+		print_ascii(blaze822_body(msg), blaze822_bodylen(msg));
 		goto done;
 	}
 
@@ -712,6 +716,9 @@ main(int argc, char *argv[])
 			);
 			exit(1);
 		}
+
+	if (!rflag && !Oflag)
+		safe_output = 1;
 
 	if (xflag) { // extract
 		extract(xflag, argc-optind, argv+optind, 0);

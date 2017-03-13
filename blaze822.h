@@ -82,3 +82,8 @@ time_t tm_to_secs(const struct tm *tm);
 // slurp.c
 
 int slurp(char *filename, char **bufo, off_t *leno);
+
+// safe_u8putstr.c
+
+#include <stdio.h>
+void safe_u8putstr(char *s0, size_t l, FILE *stream);
