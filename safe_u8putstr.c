@@ -7,7 +7,7 @@ safe_u8putstr(char *s0, size_t l, FILE *stream)
 	// tty-safe output of s, with relaxed utf-8 semantics:
 	// - C0 and C1 are displayed as escape sequences
 	// - valid utf8 is printed as is
-	// - rest is printed bytewise as is (probably latin1)
+	// - rest is assumed to be latin1, and translated into utf8
 	// - translate CRLF to CR
 
 	unsigned char *s = (unsigned char* )s0;
@@ -35,6 +35,9 @@ safe_u8putstr(char *s0, size_t l, FILE *stream)
 				fputc(*s, stream);
 			}
 		} else if ((*s & 0xc0) == 0x80) {
+			if (*s >= 0xa0)
+				goto latin1;
+
 			// C1
 			fputc(0xe2, stream);
 			fputc(0x90, stream);
@@ -56,12 +59,17 @@ safe_u8putstr(char *s0, size_t l, FILE *stream)
 			
 			if      ((f & 0xe0c00000) == 0xc0800000) goto u2;
 			else if ((f & 0xf0c0c000) == 0xe0808000) goto u3;
-			else if ((f & 0xf8c0c0c0) == 0xf0808080) goto u4;
-			else    /* invalid utf8 */               goto u1;
-u4:				fputc(*s++, stream);
+			else if ((f & 0xf8c0c0c0) == 0xf0808080) {
+				fputc(*s++, stream);
 u3:				fputc(*s++, stream);
 u2:				fputc(*s++, stream);
-u1:				fputc(*s, stream);
+				fputc(*s, stream);
+			} else {
+latin1:
+				/* invalid utf8, assume it was latin1 */
+				fputc(0xc0 | (*s >> 6), stream);
+				fputc(0x80 | (*s & 0x3f), stream);
+			}
 		}
 		s++;
 	}
