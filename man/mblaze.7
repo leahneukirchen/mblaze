@@ -11,10 +11,10 @@ message system is a set of Unix utilities to deal with
 mail kept in Maildir folders.
 .Pp
 Its design is roughly inspired by MH, the RAND Message Handling
-System, but its is a complete implementation from scratch.
+System, but it is a complete implementation from scratch.
 .Pp
 .Nm
-consists of a set of Unix tools that each do one job:
+consists of these Unix tools that each do one job:
 .Bl -tag -width 11n -compact
 .It Xr maddr 1
 to extract addresses from mail
@@ -62,9 +62,9 @@ to arrange mail into discussions
 .El
 .Sh PRINCIPLES
 .Nm
-is a classic command line MUA with no features related to receiving
-and transferring mail.
-You are expected to fetch your mail using
+is a classic command line MUA and has no features related to receiving
+and transferring mail;
+you are expected to fetch your mail using
 .Xr offlineimap 1 ,
 .Xr fdm 1 ,
 .Xr procmail 1 ,
@@ -91,7 +91,7 @@ Parsing mail metadata is optimized to use few I/O requests.
 Initial operations on big Maildir may feel slow, but as soon as they
 are in file system cache, everything is blazing fast.
 The tools are written to be memory efficient (i.e. not wasteful), but
-whole messages are assumed to fit into RAM easily (at a time).
+whole messages are assumed to fit into RAM easily (one at a time).
 .Pp
 .Nm
 has been written from scratch and tested on a big pile of personal mail,
