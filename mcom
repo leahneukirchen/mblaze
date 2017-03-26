@@ -14,7 +14,7 @@ msgid() {
 }
 
 msgdate() {
-	echo -n "Date: "
+	printf 'Date: '
 	mdate
 }
 
@@ -35,59 +35,56 @@ if [ -z "$outbox" ]; then
 else
 	draft="$(true | mdeliver -v -c -XD "$outbox")"
 	if [ -z "$draft" ]; then
-		echo "$0: failed to create draft in outbox $outbox." 1>&2
+		printf '%s\n' "$0: failed to create draft in outbox $outbox." 1>&2
 		exit 1
 	fi
-	draftmime="$(echo $draft | sed 's,\(.*\)/cur/,\1/tmp/mime-,')"
+	draftmime="$(printf '%s\n' "$draft" | sed 's,\(.*\)/cur/,\1/tmp/mime-,')"
 fi
 
 {
 	case "$0" in
 	*mcom*)
-		echo -n "To: "
+		printf 'To: '
 		printf '%s\n' "$@" | commajoin
-		echo "Cc: "
-		echo "Bcc: "
-		echo "Subject: "
+		printf '%s: \n' Cc Bcc Subject
 		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
-		[ "$from" ] && echo "From: $from"
+		[ "$from" ] && printf 'From: %s\n' "$from"
 		cat "$MBLAZE/headers" 2>/dev/null
 		msgid
 		msgdate
-		echo
-		echo
+		printf '\n\n'
 		;;
 	*mrep*)
 		[ "$#" -eq 0 ] && set -- .
 		ng=$(mhdr -h newsgroups "$1")
 		if [ "$ng" ]; then
-			echo "Newsgroups: $ng"
+			printf 'Newsgroups: %s\n' "$ng"
 		else
 			to=$(mhdr -h reply-to "$1")
 			[ -z "$to" ] && to=$(mhdr -h from "$1")
-			echo "To: $to"
-			echo "Cc: $(mhdr -d -A -h to:cc: "$1" | commajoin)"
-			echo "Bcc: "
+			printf 'To: %s\n' "$to"
+			printf 'Cc: %s\n' "$(mhdr -d -A -h to:cc: "$1" | commajoin)"
+			printf 'Bcc: \n'
 		fi
-		echo "Subject: Re: $(mscan -f '%S' "$1")"
+		printf 'Subject: Re: %s\n' "$(mscan -f '%S' "$1")"
 		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
-		[ "$from" ] && echo "From: $from"
+		[ "$from" ] && printf 'From: %s\n' "$from"
 		cat "$MBLAZE/headers" 2>/dev/null
 		mid=$(mhdr -h message-id "$1")
 		if [ "$mid" ]; then
-			echo -n "References:"
+			printf 'References: '
 			{
 				mhdr -h references "$1"
-				printf "%s\n" "$mid"
+				printf '%s\n' "$mid"
 			} | reffmt
-			echo "In-Reply-To: $mid"
+			printf 'In-Reply-To: %s\n' "$mid"
 		fi
 		msgid
 		msgdate
-		echo
+		printf '\n'
 
 		mquote "$1"
-		echo
+		printf '\n'
 	esac
 
 	if [ -f "$MBLAZE/signature" ]; then
@@ -122,11 +119,11 @@ while :; do
 					fi
 					exit 0
 				else
-					echo "mcom: $sendmail failed, kept draft $draft"
+					printf '%s\n' "mcom: $sendmail failed, kept draft $draft"
 					exit 2
 				fi
 			else
-				echo "mcom: re-run mmime first."
+				printf 'mcom: re-run mmime first.\n'
 				c=
 			fi
 		else
@@ -139,17 +136,17 @@ while :; do
 					fi
 					exit 0
 				else
-					echo "mcom: $sendmail failed, kept draft $draft"
+					printf '%s\n' "mcom: $sendmail failed, kept draft $draft"
 					exit 2
 				fi
 			else
-				echo "mcom: message needs to be MIME-encoded first."
+				printf '%s\n' "mcom: message needs to be MIME-encoded first."
 				c=
 			fi
 		fi
 		;;
 	c|cancel)
-		echo "mcom: cancelled draft $draft"
+		printf '%s\n' "mcom: cancelled draft $draft"
 		exit 1
 		;;
 	m|mime)
@@ -158,9 +155,9 @@ while :; do
 '
 			msed '/attach/d' $draft
 			for f in $(mhdr -M -h attach $draft); do
-				echo "#$(file -Lbi $f | sed 's/ //g') $f"
+				printf '#%s %s\n' "$(file -Lbi $f | sed 's/ //g')" "$f"
 			done
-		) | tee /tmp/v | mmime >$draftmime
+		) | mmime >$draftmime
 		mshow -t $draftmime
 		c=
 		;;
@@ -174,13 +171,13 @@ while :; do
 		rm -i $draft
 		if ! [ -f $draft ]; then
 			rm -f $draftmime
-			echo "mcom: deleted draft $draft"
+			printf '%s\n' "mcom: deleted draft $draft"
 			exit 0
 		fi
 		c=
 		;;
 	*)
-		echo -n "What now? ([s]end, [c]ancel, [d]elete, [e]dit, [m]ime) "
+		printf 'What now? ([s]end, [c]ancel, [d]elete, [e]dit, [m]ime) '
 		read -r c
 		;;
 	esac
