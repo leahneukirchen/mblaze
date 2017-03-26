@@ -5,7 +5,7 @@
 : ${from:=$(mhdr -d -h from "$1")}
 : ${from:=Someone}
 
-echo "$from wrote:"
+printf '%s wrote:\n' "$from"
 mshow -R "$1" |
 	sed -n '/^-- $/!p;//q' |                   # strip signature
 	sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' |    # strip empty lines
