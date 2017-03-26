@@ -1,5 +1,6 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/types.h>
 
 #include <fcntl.h>
@@ -80,8 +81,8 @@ int main()
 		exit(1);
 	}
 		
-	struct timespec tp;
-	clock_gettime(CLOCK_REALTIME, &tp);
+	struct timeval tp;
+	gettimeofday(&tp, (struct timezone *)0);
 
 	uint64_t rnd;
 
@@ -97,14 +98,14 @@ int main()
 			rnd = rnd*256 + rndb[i];
 	} else {
 fallback:
-		srand48(tp.tv_sec ^ tp.tv_nsec/1000 ^ getpid());
+		srand48(tp.tv_sec ^ tp.tv_usec ^ getpid());
 		rnd = (lrand48() << 32) + lrand48();
 	}
 
 	rnd |= (1LL << 63);  // set highest bit to force full width
 
 	putchar('<');
-	printb36(((uint64_t)tp.tv_sec << 16) + (tp.tv_nsec >> 16));
+	printb36(((uint64_t)tp.tv_sec * 1000000LL + tp.tv_usec));
 	putchar('.');
 	printb36(rnd);
 	putchar('@');
