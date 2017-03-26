@@ -48,7 +48,7 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 	struct pollfd fds[2];
 
 	fds[0].fd = pipe1[0];
-	fds[0].events = POLLIN;
+	fds[0].events = POLLIN | POLLHUP;
 	fds[1].fd = pipe0[1];
 	fds[1].events = POLLOUT;
 
@@ -66,7 +66,7 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 			ssize_t ret = read(fds[0].fd, output + outlen, 512);
 			if (ret > 0)
 				outlen += ret;
-			else if (ret < 0)
+			else
 				close(fds[0].fd);
 		} else if (fds[0].revents & (POLLERR | POLLHUP | POLLNVAL)) {
 			fds[0].fd = -1;
