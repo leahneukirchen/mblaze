@@ -56,10 +56,10 @@ int gen_b64(uint8_t *s, off_t size)
 	return 0;
 }
 
-int gen_qp(uint8_t *s, off_t size, int maxlinelen, int header)
+int gen_qp(uint8_t *s, off_t size, int maxlinelen, int linelen)
 {
 	off_t i;
-	int linelen = 0;
+	int header = linelen > 0;
 	char prev = 0;
 
 	for (i = 0; i < size; i++) {
@@ -90,10 +90,15 @@ int gen_qp(uint8_t *s, off_t size, int maxlinelen, int header)
 			prev = s[i];
 		}
 		
-		if (linelen >= maxlinelen-3) {
+		if (linelen >= maxlinelen-3-!!header) {
 			linelen = 0;
 			prev = '\n';
-			puts("=");
+			if (header) {
+				printf("?=\n =?UTF-8?Q?");
+				linelen += 11;
+			} else {
+				puts("=");
+			}
 		}
 	}
 	if (linelen > 0 && !header)
@@ -192,7 +197,7 @@ print_header(char *line) {
 			putc_unlocked(*s++, stdout);
 	}
 
-	int prevq = 0;
+	int prevq = 0;  // was the previous word encoded as qp?
 
 	int linelen = s - line;
 
@@ -205,51 +210,43 @@ print_header(char *line) {
 			if ((uint8_t) *e >= 127)
 				highbit++;
 		}
-		// use qp for lines with high bit, for long lines, or
-		// for more than two spaces
-		if (highbit ||
-		    e-s > 78-linelen ||
-		    (prevq && s[0] == ' ' && s[1] == ' ')) {
-			if (!prevq && s[0] == ' ')
-				s++;
 
-			// 13 = strlen(" =?UTF-8?Q??=")
-			int w;
-			while (s < e && (w = (78-linelen-13) / (highbit?3:1)) < e-s && w>0) {
-				printf(" =?UTF-8?Q?");
-				gen_qp((uint8_t *)s, w>e-s?e-s:w, 999, 1);
-				printf("?=\n");
-				s += w;
-				linelen = 0;
-				prevq = 1;
-			}
-			if (s < e) {
-				if (linelen + (e-s)+13 > 78) {
-					printf("\n ");
-					linelen = 1;
-				}
-				if (highbit || s[0] == ' ') {
-					printf(" =?UTF-8?Q?");
-					linelen += 14;
-					linelen += gen_qp((uint8_t *)s, e-s, 999, 1);
-					printf("?=");
-					prevq = 1;
-				} else {
-					fwrite(s, 1, e-s, stdout);
-					linelen += e-s;
-					prevq = 0;
-				}
-			}
-		} else {
-			if (linelen + (e-s) > 78) {
+		if (!highbit) {
+			if (e-s >= 78)
+				goto force_qp;
+			if (e-s >= 78 - linelen) {
+				// wrap in advance before long word
 				printf("\n");
-				if (*s != ' ')
-					printf(" ");
 				linelen = 0;
+			}
+			if (linelen <= 1 && s[0] == ' ' && s[1] == ' ') {
+				// space at beginning of line
+				goto force_qp;
+			}
+			if (*s != ' ') {
+				printf(" ");
+				linelen++;
 			}
 			fwrite(s, 1, e-s, stdout);
 			linelen += e-s;
 			prevq = 0;
+		} else {
+force_qp:
+			if (!prevq && *s == ' ')
+				s++;
+			if (linelen >= 78 - 13 - 4 ||
+			    (e-s < (78 - 13)/3 &&
+			     e-s >= (78 - linelen - 13)/3)) {
+				// wrap in advance
+				printf("\n");
+				linelen = 0;
+			}
+			printf(" =?UTF-8?Q?");
+			linelen += 11;
+			linelen = gen_qp((uint8_t *)s, e-s, 78, linelen);
+			printf("?=");
+			linelen += 2;
+			prevq = 1;
 		}
 		s = e;
 	}
