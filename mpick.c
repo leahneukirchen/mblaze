@@ -685,12 +685,12 @@ parse_msglist(char *s)
 		case 'P': flag = FLAG_PASSED; break;
 		case 'F': flag = FLAG_FLAGGED; break;
 		case 'D': flag = FLAG_DRAFT; break;
-		case 'd': /* FALL TROUGH */
+		case 'd': /* FALL THROUGH */
 		case 'T': flag = FLAG_TRASHED; break;
-		case 'u': n = 1; /* FALL TROUGH */
-		case 'r': /* FALL TROUGH */
+		case 'u': n = 1; /* FALL THROUGH */
+		case 'r': /* FALL THROUGH */
 		case 'S': flag = FLAG_SEEN; break;
-		case 'o': n = 1; /* FALL TROUGH */
+		case 'o': n = 1; /* FALL THROUGH */
 		case 'n': flag = FLAG_NEW; break;
 		default: parse_error("unknown type at '%.15s'", s);
 		}
