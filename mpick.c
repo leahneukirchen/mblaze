@@ -761,6 +761,9 @@ msg_date(struct mailinfo *m)
 	if (m->date)
 		return m->date;
 
+	if (!m->msg)
+		m->msg = blaze822(m->fpath);
+
 	char *b;
 	if (m->msg && (b = blaze822_hdr(m->msg, "date")))
 		return (m->date = blaze822_date(b));
@@ -774,6 +777,9 @@ msg_subject(struct mailinfo *m)
 	if (!m->subject)
 		return m->subject;
 
+	if (!m->msg)
+		m->msg = blaze822(m->fpath);
+
 	char *b;
 	if (!m->msg || !(b = blaze822_hdr(m->msg, "subject")))
 		return "";
@@ -785,6 +791,9 @@ msg_subject(struct mailinfo *m)
 char *
 msg_addr(struct mailinfo *m, char *h, int t)
 {
+	if (!m->msg)
+		m->msg = blaze822(m->fpath);
+
 	char *b;
 	if (m->msg == 0 || (b = blaze822_chdr(m->msg, h)) == 0)
 		return "";
@@ -948,10 +957,6 @@ mailfile(char *file)
 		m->flags |= FLAG_SEEN | FLAG_INFO;
 		return m;
 	}
-
-	m->msg = blaze822(m->fpath);
-	if (!m->msg)
-		return m;
 
 	if ((e = strrchr(m->fpath, '/') - 1) && (e - m->fpath) >= 2 &&
 	    *e-- == 'w' && *e-- == 'e' && *e-- == 'n')
