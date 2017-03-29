@@ -692,6 +692,7 @@ parse_msglist(char *s)
 		case 'S': flag = FLAG_SEEN; break;
 		case 'o': n = 1; /* FALL TROUGH */
 		case 'n': flag = FLAG_NEW; break;
+		case 'R': flag = FLAG_REPLIED; break;
 		default: parse_error("unknown type at '%.15s'", s);
 		}
 
