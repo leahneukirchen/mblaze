@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 11
+plan 12
 
 rm -rf test.dir
 mkdir test.dir

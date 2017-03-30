@@ -25,7 +25,7 @@ inbox/cur/1:2,
 
 export MAILSEQ=seq
 
-check_same 'ISO date' 'mscan -f "%16D" 1' 'echo "2017-03-30 15:42"'
+check_same 'ISO date' 'TZ=utc mscan -f "%16D" 1' 'echo "2017-03-30 13:42"'
 check_same 'from name' 'mscan -f "%f" 1' 'echo "Rajwinder Kaur"'
 
 )
