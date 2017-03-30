@@ -1,0 +1,18 @@
+language: c
+
+os:
+    - linux
+    - osx
+
+compiler:
+    - clang
+    - gcc
+
+script:
+    - case "$(uname)" in
+      Linux) make CFLAGS="-g -O2 -Wall -Wno-switch -Wextra -D_FORTIFY_SOURCE=2" && make check || exit 1 ;;
+      Darwin) make LDLIBS=-liconv && make check || exit 1 ;;
+      esac
+
+notifications:
+    email: false

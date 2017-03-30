@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 11
+plan 12
 
 rm -rf test.dir
 mkdir test.dir
@@ -25,7 +25,7 @@ check_same 'flag seen' 'mlist inbox | mpick :S' 'mlist -S inbox'
 check_same 'flag not seen' 'mlist inbox | mpick -t !seen' 'mlist -s inbox'
 check_same 'flag seen and trashed' 'mlist inbox | mpick :S :T' 'mlist -ST inbox'
 check_same 'flag seen and not trashed' 'mlist inbox | mpick -t "seen && !trashed"' 'mlist -St inbox'
-# check_same 'flag replied' 'mlist inbox | mpick :R' 'mlist -R inbox'
+check_same 'flag replied' 'mlist inbox | mpick :R' 'mlist -R inbox'
 check_same 'flag forwarded' 'mlist inbox | mpick :F' 'mlist -F inbox'
 
 

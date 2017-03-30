@@ -128,9 +128,9 @@ struct mailinfo {
 	int replies;
 	int matched;
 	int prune;
-	long flags;
+	int flags;
 	off_t total;
-	char subject[100];
+	char *subject;
 };
 
 struct mlist {
@@ -199,6 +199,7 @@ mkexpr(enum op op)
 	if (!e)
 		parse_error("out of memory");
 	e->op = op;
+	e->extra = 0;
 	return e;
 }
 
@@ -685,13 +686,14 @@ parse_msglist(char *s)
 		case 'P': flag = FLAG_PASSED; break;
 		case 'F': flag = FLAG_FLAGGED; break;
 		case 'D': flag = FLAG_DRAFT; break;
-		case 'd': /* FALL TROUGH */
+		case 'd': /* FALL THROUGH */
 		case 'T': flag = FLAG_TRASHED; break;
-		case 'u': n = 1; /* FALL TROUGH */
-		case 'r': /* FALL TROUGH */
+		case 'u': n = 1; /* FALL THROUGH */
+		case 'r': /* FALL THROUGH */
 		case 'S': flag = FLAG_SEEN; break;
-		case 'o': n = 1; /* FALL TROUGH */
+		case 'o': n = 1; /* FALL THROUGH */
 		case 'n': flag = FLAG_NEW; break;
+		case 'R': flag = FLAG_REPLIED; break;
 		default: parse_error("unknown type at '%.15s'", s);
 		}
 
@@ -761,6 +763,9 @@ msg_date(struct mailinfo *m)
 	if (m->date)
 		return m->date;
 
+	if (!m->msg)
+		m->msg = blaze822(m->fpath);
+
 	char *b;
 	if (m->msg && (b = blaze822_hdr(m->msg, "date")))
 		return (m->date = blaze822_date(b));
@@ -771,20 +776,32 @@ msg_date(struct mailinfo *m)
 char *
 msg_subject(struct mailinfo *m)
 {
-	if (!m->subject)
+	if (m->subject)
 		return m->subject;
+
+	if (!m->msg)
+		m->msg = blaze822(m->fpath);
 
 	char *b;
 	if (!m->msg || !(b = blaze822_hdr(m->msg, "subject")))
-		return "";
+		goto err;
 
-	blaze822_decode_rfc2047(m->subject, b, sizeof m->subject - 1, "UTF-8");
-	return m->subject;
+	char buf[100];
+	blaze822_decode_rfc2047(buf, b, sizeof buf - 1, "UTF-8");
+	if (!*buf)
+		goto err;
+
+	return (m->subject = strdup(buf));
+err:
+	return (m->subject = "");
 }
 
 char *
 msg_addr(struct mailinfo *m, char *h, int t)
 {
+	if (!m->msg)
+		m->msg = blaze822(m->fpath);
+
 	char *b;
 	if (m->msg == 0 || (b = blaze822_chdr(m->msg, h)) == 0)
 		return "";
@@ -840,7 +857,9 @@ eval(struct expr *e, struct mailinfo *m)
 			exit(2);
 		}
 
-		if (e->extra) {
+		n = e->b.num;
+
+		if (e->extra)
 			switch (e->b.var) {
 			case VAR_CUR:
 				if (!cur_idx)
@@ -848,11 +867,7 @@ eval(struct expr *e, struct mailinfo *m)
 				else
 					n = cur_idx;
 				break;
-			default: n = 0;
 			}
-		} else {
-			n = e->b.num;
-		}
 
 		switch (e->a.prop) {
 		case PROP_ATIME: if (m->sb) v = m->sb->st_atime; break;
@@ -925,8 +940,6 @@ mailfile(char *file)
 		fprintf(stderr, "calloc");
 		exit(2);
 	}
-	memset(m->subject, 0, sizeof m->subject);
-
 	m->fpath = file;
 	m->index = num++;
 	m->flags = 0;
@@ -934,6 +947,7 @@ mailfile(char *file)
 	m->depth = 0;
 	m->sb = 0;
 	m->msg = 0;
+	m->subject = 0;
 
 	while (*m->fpath == ' ' || *m->fpath== '\t') {
 		m->depth++;
@@ -948,10 +962,6 @@ mailfile(char *file)
 		m->flags |= FLAG_SEEN | FLAG_INFO;
 		return m;
 	}
-
-	m->msg = blaze822(m->fpath);
-	if (!m->msg)
-		return m;
 
 	if ((e = strrchr(m->fpath, '/') - 1) && (e - m->fpath) >= 2 &&
 	    *e-- == 'w' && *e-- == 'e' && *e-- == 'n')
@@ -1058,7 +1068,7 @@ collect(char *file)
 		ml = thr->cur + 1;
 
 		if (thr->cur->m->depth < m->depth) {
-			/* previous mail is a prent */
+			/* previous mail is a parent */
 			thr->cur->m->flags |= FLAG_PARENT;
 			ml->parent = thr->cur;
 		} else if (thr->cur->m->depth == m->depth) {
