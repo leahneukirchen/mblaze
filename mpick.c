@@ -128,7 +128,7 @@ struct mailinfo {
 	int replies;
 	int matched;
 	int prune;
-	long flags;
+	int flags;
 	off_t total;
 	char subject[100];
 };
@@ -199,6 +199,7 @@ mkexpr(enum op op)
 	if (!e)
 		parse_error("out of memory");
 	e->op = op;
+	e->extra = 0;
 	return e;
 }
 
@@ -850,7 +851,9 @@ eval(struct expr *e, struct mailinfo *m)
 			exit(2);
 		}
 
-		if (e->extra) {
+		n = e->b.num;
+
+		if (e->extra)
 			switch (e->b.var) {
 			case VAR_CUR:
 				if (!cur_idx)
@@ -858,11 +861,7 @@ eval(struct expr *e, struct mailinfo *m)
 				else
 					n = cur_idx;
 				break;
-			default: n = 0;
 			}
-		} else {
-			n = e->b.num;
-		}
 
 		switch (e->a.prop) {
 		case PROP_ATIME: if (m->sb) v = m->sb->st_atime; break;
