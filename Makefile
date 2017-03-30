@@ -34,6 +34,9 @@ README: man/mblaze.7
 clean: FRC
 	-rm -f $(ALL) *.o
 
+check: FRC all
+	PATH=$$(pwd):$$PATH prove -v
+
 install: FRC all
 	mkdir -p $(DESTDIR)$(BINDIR) \
 		$(DESTDIR)$(MANDIR)/man1 \

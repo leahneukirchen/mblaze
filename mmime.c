@@ -120,7 +120,7 @@ int gen_file(char *file, char *ct)
 
 	int r = slurp(file, (char **)&content, &size);
 	if (r != 0) {
-		fprintf(stderr, "mmime: error attaching file '%s': %s",
+		fprintf(stderr, "mmime: error attaching file '%s': %s\n",
 		    file, strerror(r));
 		return -1;
 	}
