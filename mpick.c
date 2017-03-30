@@ -1068,7 +1068,7 @@ collect(char *file)
 		ml = thr->cur + 1;
 
 		if (thr->cur->m->depth < m->depth) {
-			/* previous mail is a prent */
+			/* previous mail is a parent */
 			thr->cur->m->flags |= FLAG_PARENT;
 			ml->parent = thr->cur;
 		} else if (thr->cur->m->depth == m->depth) {
