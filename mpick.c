@@ -130,7 +130,7 @@ struct mailinfo {
 	int prune;
 	int flags;
 	off_t total;
-	char subject[100];
+	char *subject;
 };
 
 struct mlist {
@@ -776,7 +776,7 @@ msg_date(struct mailinfo *m)
 char *
 msg_subject(struct mailinfo *m)
 {
-	if (!m->subject)
+	if (m->subject)
 		return m->subject;
 
 	if (!m->msg)
@@ -784,10 +784,16 @@ msg_subject(struct mailinfo *m)
 
 	char *b;
 	if (!m->msg || !(b = blaze822_hdr(m->msg, "subject")))
-		return "";
+		goto err;
 
-	blaze822_decode_rfc2047(m->subject, b, sizeof m->subject - 1, "UTF-8");
-	return m->subject;
+	char buf[100];
+	blaze822_decode_rfc2047(buf, b, sizeof buf - 1, "UTF-8");
+	if (!*buf)
+		goto err;
+
+	return (m->subject = strdup(buf));
+err:
+	return (m->subject = "");
 }
 
 char *
@@ -934,8 +940,6 @@ mailfile(char *file)
 		fprintf(stderr, "calloc");
 		exit(2);
 	}
-	memset(m->subject, 0, sizeof m->subject);
-
 	m->fpath = file;
 	m->index = num++;
 	m->flags = 0;
@@ -943,6 +947,7 @@ mailfile(char *file)
 	m->depth = 0;
 	m->sb = 0;
 	m->msg = 0;
+	m->subject = 0;
 
 	while (*m->fpath == ' ' || *m->fpath== '\t') {
 		m->depth++;
