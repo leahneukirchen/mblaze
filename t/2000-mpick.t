@@ -61,8 +61,8 @@ Greetings
 !
 
 check 'search subject' 'mlist inbox | mpick /wow | grep -q inbox/cur/9:2,'
-check 'search addr' 'mlist inbox | mpick peter@example.org | wc -l | grep -qx 2'
-check 'search name' 'mlist inbox | mpick "Peter Example" | wc -l | grep -qx 2'
-check 'search spam' 'mlist inbox | mpick -t "trashed && subject =~ \"pdf\"" | wc -l | grep -qx 1'
+check_test 'search addr' -eq 2 'mlist inbox | mpick peter@example.org | wc -l'
+check_test 'search name' -eq 2 'mlist inbox | mpick "Peter Example" | wc -l'
+check_test 'search spam' -eq 1 'mlist inbox | mpick -t "trashed && subject =~ \"pdf\"" | wc -l'
 
 )

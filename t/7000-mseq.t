@@ -27,9 +27,9 @@ check 'set current' 'mseq -C 1 && mseq . | grep "inbox/cur/1:2,"'
 check 'set next' 'mseq -C + && mseq . | grep "inbox/cur/2:2,"'
 check 'set prev' 'mseq -C - && mseq . | grep "inbox/cur/1:2,"'
 check 'last' 'mseq "$" | grep "inbox/cur/10:2,"'
-check 'whole thread' 'mseq 6= | wc -l | grep -qx 4'
-check 'subthread' 'mseq 7_ | wc -l | grep -qx 2'
+check_test 'whole thread' -eq 4 'mseq 6= | wc -l'
+check_test  'subthread' -eq 2 'mseq 7_ | wc -l'
 check 'parent' 'mseq 6^ | grep "inbox/cur/5_1:2,"'
-check 'range' 'mseq 1:3 | wc -l | grep -qx 3'
+check_test 'range' -eq 3 'mseq 1:3 | wc -l'
 
 )
