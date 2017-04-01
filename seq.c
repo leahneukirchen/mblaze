@@ -266,8 +266,10 @@ parse_subthread(char *map, long a, long *stopo)
 
 	for (s = map, line = 0; s; s = t+1) {
 		t = strchr(s, '\n');
-		if (!t)
+		if (!t) {
+			minindent = -1;
 			break;
+		}
 		line++;
 		int indent = 0;
 		while (*s && iswsp(*s)) {
