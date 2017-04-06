@@ -100,6 +100,7 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 fail:
 	*outputo = 0;
 	*outleno = 0;
+	free(output);
 
 	return -1;
 }
