@@ -1,0 +1,67 @@
+#!/bin/sh
+# msendmail TO... < msg - compose MIME mail noninteractively
+#  -F from-name
+#  -a attach-file
+#  -b bcc
+#  -c cc
+#  -f from
+#  -s subject
+#  -m msg-paragraph
+
+IFS='
+'
+
+MBLAZE=${MBLAZE:-$HOME/.mblaze}
+from=$(mhdr -h local-mailbox "$MBLAZE/profile")
+
+subj=
+bcc=
+cc=
+msg=
+fromname=
+att=
+
+hdr() {
+	[ -z "$2" ] && return
+	printf '%s: ' "$1"
+	shift
+	printf '%s\n' "$@" | sed ':a;N;s/\n/, /;$!b a'
+}
+
+while getopts a:s:b:c:m:f:F: opt; do
+	case "$opt" in
+		s) subj=$OPTARG;;
+		b) bcc="$bcc$IFS$OPTARG";;
+		c) cc="$cc$IFS$OPTARG";;
+		m) msg="$msg$OPTARG$IFS$IFS";;
+		f) from=$OPTARG;;
+		F) fromname=$OPTARG;;
+		a) att="$att$IFS$OPTARG";;
+		[?]) exit 1;;
+	esac
+done
+shift $((OPTIND-1))
+
+[ -n "$from" ] && [ -n "$fromname" ] && from="$fromname <$from>"
+
+{
+hdr To "$@"
+hdr Cc $cc
+hdr Bcc $bcc
+hdr Subject $subj
+hdr From $from
+hdr User-Agent "mblaze/beta (msendmail)" 
+hdr Message-Id "$(mgenmid)"
+hdr Date "$(mdate)"
+
+printf '\n'
+if [ -n "$msg" ]; then
+	printf '%s' "$msg"
+else
+	cat
+fi
+
+for a in $att; do
+	printf '#%s %s\n' "$(file -b --mime-type "$a")" "$a"
+done
+} | mmime
