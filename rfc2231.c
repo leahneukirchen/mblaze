@@ -30,7 +30,7 @@ blaze822_mime2231_parameter(char *s, char *name,
 
 	char *sbuf, *ebuf;
 
-	snprintf(namenum, sizeof namenum, "%s*", name, i);
+	snprintf(namenum, sizeof namenum, "%s*", name);
 	if (blaze822_mime_parameter(s, namenum, &sbuf, &ebuf)) {
 		i = 100;
 		goto found_extended;
