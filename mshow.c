@@ -146,14 +146,18 @@ tlmimetype(char *ct)
 char *
 mime_filename(struct message *msg)
 {
-	char *filename = 0, *fn, *fne, *v;
+	static char buf[512];
+	char *v;
+	char *filename = 0;
 
 	if ((v = blaze822_hdr(msg, "content-disposition"))) {
-		if (blaze822_mime_parameter(v, "filename", &fn, &fne))
-			filename = strndup(fn, fne-fn);
+		if (blaze822_mime2231_parameter(v, "filename",
+		    buf, sizeof buf, "UTF-8"))
+			filename = buf;
 	} else if ((v = blaze822_hdr(msg, "content-type"))) {
-		if (blaze822_mime_parameter(v, "name", &fn, &fne))
-			filename = strndup(fn, fne-fn);
+		if (blaze822_mime2231_parameter(v, "name",
+		    buf, sizeof buf, "UTF-8"))
+			filename = buf;
 	}
 
 	return filename;
@@ -177,10 +181,8 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 	for (i = 0; i < depth+1; i++)
 		printf("--- ");
 	printf("%d: %s size=%zd", mimecount, mt, bodylen);
-	if (filename) {
+	if (filename)
 		printf(" name=\"%s\"", filename);
-		free(filename);
-	}
 
 	char *cmd;
 	blaze822_mime_action r = MIME_CONTINUE;
@@ -354,10 +356,8 @@ list_mime(int depth, struct message *msg, char *body, size_t bodylen)
 	char *filename = mime_filename(msg);
 
 	printf("  %*.s%d: %s size=%zd", depth*2, "", ++mimecount, mt, bodylen);
-	if (filename) {
+	if (filename)
 		printf(" name=\"%s\"", filename);
-		free(filename);
-	}
 	printf("\n");
 
 	return MIME_CONTINUE;
@@ -496,7 +496,6 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		}
 	}
 
-	free(filename);
 	return MIME_CONTINUE;
 }
 
