@@ -203,9 +203,11 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 
 		if (e == 0) { // replace output
 			printf(" render=\"%s\" ---\n", cmd);
-			print_ascii(output, outlen);
-			if (output[outlen-1] != '\n')
-				putchar('\n');
+			if (outlen) {
+				print_ascii(output, outlen);
+				if (output[outlen-1] != '\n')
+					putchar('\n');
+			}
 		} else if (e == 63) { // skip filter
 			free(output);
 			goto nofilter;
