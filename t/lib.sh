@@ -14,6 +14,17 @@ check() {
 	true
 }
 
+check_test() {
+	msg=$1; op=$2; test=$3; shift 3
+	if [ "$(eval "$@" 2>/dev/null)" "$op" "$test" ]; then
+		printf 'ok - %s\n' "$msg"
+	else
+		printf 'not ok - %s\n' "$msg"
+		false
+	fi
+	true
+}
+
 check_same() {
 	msg=$1
 	shift

@@ -146,20 +146,34 @@ tlmimetype(char *ct)
 char *
 mime_filename(struct message *msg)
 {
-	char *filename = 0, *fn, *fne, *v;
+	static char buf[512];
+	char *v;
+	char *filename = 0;
 
 	if ((v = blaze822_hdr(msg, "content-disposition"))) {
-		if (blaze822_mime_parameter(v, "filename", &fn, &fne))
-			filename = strndup(fn, fne-fn);
+		if (blaze822_mime2231_parameter(v, "filename",
+		    buf, sizeof buf, "UTF-8"))
+			filename = buf;
 	} else if ((v = blaze822_hdr(msg, "content-type"))) {
-		if (blaze822_mime_parameter(v, "name", &fn, &fne))
-			filename = strndup(fn, fne-fn);
+		if (blaze822_mime2231_parameter(v, "name",
+		    buf, sizeof buf, "UTF-8"))
+			filename = buf;
 	}
 
 	return filename;
 }
 
 static void choose_alternative(struct message *msg, int depth);
+
+void
+print_filename(char *filename)
+{
+	if (filename) {
+		printf(" name=\"");
+		safe_u8putstr(filename, strlen(filename), stdout);
+		printf("\"");
+	}
+}
 
 blaze822_mime_action
 render_mime(int depth, struct message *msg, char *body, size_t bodylen)
@@ -177,10 +191,7 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 	for (i = 0; i < depth+1; i++)
 		printf("--- ");
 	printf("%d: %s size=%zd", mimecount, mt, bodylen);
-	if (filename) {
-		printf(" name=\"%s\"", filename);
-		free(filename);
-	}
+	print_filename(filename);
 
 	char *cmd;
 	blaze822_mime_action r = MIME_CONTINUE;
@@ -203,9 +214,11 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 
 		if (e == 0) { // replace output
 			printf(" render=\"%s\" ---\n", cmd);
-			print_ascii(output, outlen);
-			if (output[outlen-1] != '\n')
-				putchar('\n');
+			if (outlen) {
+				print_ascii(output, outlen);
+				if (output[outlen-1] != '\n')
+					putchar('\n');
+			}
 		} else if (e == 63) { // skip filter
 			free(output);
 			goto nofilter;
@@ -352,10 +365,7 @@ list_mime(int depth, struct message *msg, char *body, size_t bodylen)
 	char *filename = mime_filename(msg);
 
 	printf("  %*.s%d: %s size=%zd", depth*2, "", ++mimecount, mt, bodylen);
-	if (filename) {
-		printf(" name=\"%s\"", filename);
-		free(filename);
-	}
+	print_filename(filename);
 	printf("\n");
 
 	return MIME_CONTINUE;
@@ -433,7 +443,8 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 			fwrite(body, 1, bodylen, stdout);
 		} else { // extract all named attachments
 			if (filename) {
-				printf("%s\n", filename);
+				safe_u8putstr(filename, strlen(filename), stdout);
+				printf("\n");
 				writefile(filename, body, bodylen);
 			}
 		}
@@ -487,14 +498,14 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 						fwrite(body, 1, bodylen, stdout);
 					}
 				} else {
-					printf("%s\n", filename);
+					safe_u8putstr(filename, strlen(filename), stdout);
+					printf("\n");
 					writefile(filename, body, bodylen);
 				}
 			}
 		}
 	}
 
-	free(filename);
 	return MIME_CONTINUE;
 }
 

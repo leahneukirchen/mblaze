@@ -46,11 +46,11 @@ inbox/cur/3:2,
 
 export MAILSEQ=seq
 
-check 'subject' 'magrep subject:nice | wc -l | grep -qx 1'
-check 'ignorecase' 'magrep -i subject:NICE | wc -l | grep -qx 1'
-check 'invert' 'magrep -v subject:nice | wc -l | grep -qx 2'
-check 'max matches' 'magrep -m 2 from:Piet | wc -l | grep -qx 2'
-check 'long subject' 'magrep subject:aliqua | wc -l | grep -qx 1'
+check_test 'subject' -eq 1 'magrep subject:nice | wc -l'
+check_test 'ignorecase' -eq 1 'magrep -i subject:NICE | wc -l'
+check_test 'invert' -eq 2 'magrep -v subject:nice | wc -l'
+check_test 'max matches' -eq 2 'magrep -m 2 from:Piet | wc -l'
+check_test 'long subject' -eq 1 'magrep subject:aliqua | wc -l'
 
 echo 'inbox/cur/1:2,: subject: wow nice subject' >expect
 check_same 'print' 'magrep -p subject:nice' 'cat expect'

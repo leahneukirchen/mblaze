@@ -168,6 +168,9 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 				goto nocode;
 			free(srcenc);
 			srcenc = strdup(s);
+			char *lang = strchr(srcenc, '*');
+			if (lang)
+				*lang = 0;  // kill RFC2231 language tag
 			if (!srcenc)
 				goto nocode;
 			if (ic != (iconv_t)-1)

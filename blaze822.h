@@ -45,6 +45,10 @@ typedef enum { MIME_CONTINUE, MIME_STOP, MIME_PRUNE } blaze822_mime_action;
 typedef blaze822_mime_action (*blaze822_mime_callback)(int, struct message *, char *, size_t);
 blaze822_mime_action blaze822_walk_mime(struct message *, int, blaze822_mime_callback);
 
+// rfc2231.c
+
+int blaze822_mime2231_parameter(char *, char *, char *, size_t, char *);
+
 // seq.c
 
 char *blaze822_seq_open(char *file);

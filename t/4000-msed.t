@@ -27,7 +27,7 @@ export MAILSEQ=seq
 
 check 'append new' 'msed "/foobar/a/value/" 1 | grep "Foobar: value"'
 check 'append existing' 'msed "/subject/a/world/" 1 | grep -v "world"'
-check 'append multiple' 'msed "/foo/a/catch/;/bar/a/catch/" 1 | grep -c catch | grep -qx 2'
+check_test 'append multiple' -eq 2 'msed "/foo/a/catch/;/bar/a/catch/" 1 | grep -c catch'
 check 'change' 'msed "/subject/c/world/" 1 | grep "Subject: world"'
 check 'delete' 'msed "/message-id/d" 1 | grep -v "Message-Id"'
 check 'substitute' 'msed "/subject/s/\(Hello\)/\1 World/" 1 | grep "^Subject: Hello World$"'

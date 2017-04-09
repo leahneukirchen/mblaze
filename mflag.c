@@ -92,7 +92,7 @@ doit:
 			goto skip;
 		}
 
-		if (strcmp(file+indent, curfile) == 0)
+		if (curfile && strcmp(file+indent, curfile) == 0)
 			blaze822_seq_setcur(dst+indent);
 
 		printf("%s\n", dst);

@@ -24,7 +24,7 @@ maddr magrep mexport mflag mgenmid mhdr mlist mpick mscan msed mseq mshow msort 
   mthread : seq.o slurp.o
 maddr magrep mhdr mpick mscan mshow : rfc2047.o
 magrep mshow : rfc2045.o
-mshow : filter.o safe_u8putstr.c
+mshow : filter.o safe_u8putstr.o rfc2231.o
 msort : mystrverscmp.o
 mmime : slurp.o
 
