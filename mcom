@@ -5,6 +5,11 @@ commajoin() {
 	sed ':a;N;s/\n/, /;$!b a'
 }
 
+notmine() {
+	mine="$(maddr -a -h local-mailbox:alternate-mailboxes: $MBLAZE/profile)"
+	grep -Fv -e "$mine"
+}
+
 reffmt() {
 	sed 's/^[^<]*//g;s/[^>]*$//g;s/>[^<]*</>\n</g' | uniq | sed 's/^/ /'
 }
@@ -63,7 +68,8 @@ fi
 			to=$(mhdr -h reply-to "$1")
 			[ -z "$to" ] && to=$(mhdr -h from "$1")
 			printf 'To: %s\n' "$to"
-			printf 'Cc: %s\n' "$(mhdr -d -A -h to:cc: "$1" | commajoin)"
+			printf 'Cc: %s\n' \
+			       "$(mhdr -d -A -h to:cc: "$1" |notmine |commajoin)"
 			printf 'Bcc: \n'
 		fi
 		printf 'Subject: Re: %s\n' "$(mscan -f '%S' "$1")"
