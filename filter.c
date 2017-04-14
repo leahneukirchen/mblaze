@@ -15,6 +15,7 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 	ssize_t outalloc = 4096;
 	pid_t pid;
 	sigset_t mask, orig_mask;
+	int r;
 
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGPIPE);
@@ -100,23 +101,18 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 
 	int status;
 	waitpid(pid, &status, 0);
+	r = WEXITSTATUS(status);
 
 	*outputo = output;
 	*outleno = outlen;
 
-	sigpending(&mask);
-	if (sigismember(&mask, SIGPIPE)) {
-		int sig;
-		sigwait(&mask, &sig);
-	}
-	sigprocmask(SIG_SETMASK, &orig_mask, 0);
-
-	return WEXITSTATUS(status);
-
+	if (0) {
 fail:
-	*outputo = 0;
-	*outleno = 0;
-	free(output);
+		*outputo = 0;
+		*outleno = 0;
+		free(output);
+		r = -1;
+	}
 
 	sigpending(&mask);
 	if (sigismember(&mask, SIGPIPE)) {
@@ -125,7 +121,7 @@ fail:
 	}
 	sigprocmask(SIG_SETMASK, &orig_mask, 0);
 
-	return -1;
+	return r;
 }
 
 #ifdef TEST
