@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <time.h>
 #include <unistd.h>
 
 int
@@ -14,6 +15,7 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 	ssize_t outalloc = 4096;
 	pid_t pid;
 	sigset_t mask, orig_mask;
+	struct timespec immediately = { 0, 0 };
 
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGPIPE);
@@ -103,7 +105,7 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 	*outputo = output;
 	*outleno = outlen;
 
-	sigwaitinfo(&mask, 0);
+	sigtimedwait(&mask, 0, &immediately);
 	sigprocmask(SIG_SETMASK, &orig_mask, 0);
 
 	return WEXITSTATUS(status);
@@ -113,7 +115,7 @@ fail:
 	*outleno = 0;
 	free(output);
 
-	sigwaitinfo(&mask, 0);
+	sigtimedwait(&mask, 0, &immediately);
 	sigprocmask(SIG_SETMASK, &orig_mask, 0);
 
 	return -1;
