@@ -1,4 +1,5 @@
 #include <poll.h>	     
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,9 +13,16 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 	ssize_t outlen;
 	ssize_t outalloc = 4096;
 	pid_t pid;
+	sigset_t mask, orig_mask;
+
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGPIPE);
+	sigprocmask(SIG_BLOCK, &mask, &orig_mask);
 	
-	output = malloc(outalloc);
 	outlen = 0;
+	output = malloc(outalloc);
+	if (!output)
+		goto fail;
 
 	int pipe0[2];
 	int pipe1[2];
@@ -95,12 +103,18 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 	*outputo = output;
 	*outleno = outlen;
 
+	sigwaitinfo(&mask, 0);
+	sigprocmask(SIG_SETMASK, &orig_mask, 0);
+
 	return WEXITSTATUS(status);
 
 fail:
 	*outputo = 0;
 	*outleno = 0;
 	free(output);
+
+	sigwaitinfo(&mask, 0);
+	sigprocmask(SIG_SETMASK, &orig_mask, 0);
 
 	return -1;
 }
