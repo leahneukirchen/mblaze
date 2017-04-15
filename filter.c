@@ -1,8 +1,10 @@
 #include <poll.h>	     
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <time.h>
 #include <unistd.h>
 
 int
@@ -12,9 +14,17 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 	ssize_t outlen;
 	ssize_t outalloc = 4096;
 	pid_t pid;
+	sigset_t mask, orig_mask;
+	int r;
+
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGPIPE);
+	sigprocmask(SIG_BLOCK, &mask, &orig_mask);
 	
-	output = malloc(outalloc);
 	outlen = 0;
+	output = malloc(outalloc);
+	if (!output)
+		goto fail;
 
 	int pipe0[2];
 	int pipe1[2];
@@ -91,18 +101,27 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 
 	int status;
 	waitpid(pid, &status, 0);
+	r = WEXITSTATUS(status);
 
 	*outputo = output;
 	*outleno = outlen;
 
-	return WEXITSTATUS(status);
-
+	if (0) {
 fail:
-	*outputo = 0;
-	*outleno = 0;
-	free(output);
+		*outputo = 0;
+		*outleno = 0;
+		free(output);
+		r = -1;
+	}
 
-	return -1;
+	sigpending(&mask);
+	if (sigismember(&mask, SIGPIPE)) {
+		int sig;
+		sigwait(&mask, &sig);
+	}
+	sigprocmask(SIG_SETMASK, &orig_mask, 0);
+
+	return r;
 }
 
 #ifdef TEST
