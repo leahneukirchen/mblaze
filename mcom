@@ -23,6 +23,11 @@ msgdate() {
 	mdate
 }
 
+needs_multipart() {
+	mhdr -h attach "$1" >/dev/null ||
+		grep -q '^#[^ ]*/[^ ]* ' "$1"
+}
+
 MBLAZE=${MBLAZE:-$HOME/.mblaze}
 
 sendmail=$(mhdr -h sendmail "$MBLAZE/profile")
@@ -156,14 +161,20 @@ while :; do
 		exit 1
 		;;
 	m|mime)
-		(
-			IFS='
+		if needs_multipart "$draft"; then
+			(
+				IFS='
 '
-			msed '/attach/d' $draft
-			for f in $(mhdr -M -h attach $draft); do
-				printf '#%s %s\n' "$(file -Lbi $f | sed 's/ //g')" "$f"
-			done
-		) | mmime >$draftmime
+				msed '/attach/d' $draft
+				for f in $(mhdr -M -h attach $draft); do
+					printf '#%s %s\n' \
+					       "$(file -Lbi $f | sed 's/ //g')" \
+					       "$f"
+				done
+			) | mmime >$draftmime
+		else
+			mmime -r <"$draft" >"$draftmime"
+		fi
 		mshow -t $draftmime
 		c=
 		;;
