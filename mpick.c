@@ -76,7 +76,6 @@ enum prop {
 	PROP_REPLIES,
 	PROP_SIZE,
 	PROP_TOTAL,
-	PROP_SUBJECT,
 	PROP_FROM,
 	PROP_TO,
 	PROP_INDEX,
@@ -130,7 +129,6 @@ struct mailinfo {
 	int prune;
 	int flags;
 	off_t total;
-	char *subject;
 };
 
 struct mlist {
@@ -331,14 +329,18 @@ parse_strcmp()
 {
 	enum prop prop;
 	enum op op;
+	char *h;
 
-	if (token("subject"))
-		prop = PROP_SUBJECT;
-	else if (token("from"))
+	h = 0;
+	prop = 0;
+
+	if (token("from"))
 		prop = PROP_FROM;
 	else if (token("to"))
 		prop = PROP_TO;
-	else
+	else if (token("subject"))
+		h = "subject";
+	else if (!parse_string(&h))
 		return parse_inner();
 
 	if (token("~~~"))
@@ -366,7 +368,11 @@ parse_strcmp()
 
 	int r = 0;
 	struct expr *e = mkexpr(op);
-	e->a.prop = prop;
+
+	if (prop)
+		e->a.prop = prop;
+	else
+		e->a.string = h;
 
 	if (prop == PROP_FROM || prop == PROP_TO) {
 		char *disp, *addr;
@@ -666,7 +672,7 @@ parse_msglist(char *s)
 	case '/':
 		s++;
 		e1 = mkexpr(EXPR_REGEXI);
-		e1->a.prop = PROP_SUBJECT;
+		e1->a.string = "subject";
 		e1->b.regex = malloc(sizeof (regex_t));
 		r = regcomp(e1->b.regex, s, REG_EXTENDED | REG_NOSUB | REG_ICASE);
 		if (r != 0) {
@@ -774,16 +780,13 @@ msg_date(struct mailinfo *m)
 }
 
 char *
-msg_subject(struct mailinfo *m)
+msg_hdr(struct mailinfo *m, const char *h)
 {
-	if (m->subject)
-		return m->subject;
-
 	if (!m->msg)
 		m->msg = blaze822(m->fpath);
 
 	char *b;
-	if (!m->msg || !(b = blaze822_hdr(m->msg, "subject")))
+	if (!m->msg || !(b = blaze822_chdr(m->msg, h)))
 		goto err;
 
 	char buf[100];
@@ -791,9 +794,9 @@ msg_subject(struct mailinfo *m)
 	if (!*buf)
 		goto err;
 
-	return (m->subject = strdup(buf));
+	return strdup(buf);
 err:
-	return (m->subject = "");
+	return "";
 }
 
 char *
@@ -904,9 +907,9 @@ eval(struct expr *e, struct mailinfo *m)
 		const char *s = "";
 		switch(e->a.prop) {
 		case PROP_PATH: s = m->fpath; break;
-		case PROP_SUBJECT: s = msg_subject(m); break;
 		case PROP_FROM: s = msg_addr(m, "from", e->extra); break;
 		case PROP_TO: s = msg_addr(m, "to", e->extra); break;
+		default: s = msg_hdr(m, e->a.string); break;
 		}
 		switch (e->op) {
 		case EXPR_STREQ: return strcmp(e->b.string, s) == 0;
@@ -947,7 +950,6 @@ mailfile(char *file)
 	m->depth = 0;
 	m->sb = 0;
 	m->msg = 0;
-	m->subject = 0;
 
 	while (*m->fpath == ' ' || *m->fpath== '\t') {
 		m->depth++;

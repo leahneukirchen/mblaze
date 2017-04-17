@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 12
+plan 13
 
 rm -rf test.dir
 mkdir test.dir
@@ -52,6 +52,7 @@ From: Obvious spam <script@kiddy.com>
 Subject: look at this awesome pdf
 Date: Thu, 30 Mar 2017 15:42:05 +0200
 Message-Id: <EOH1F3NUOY.2KBVMHSBFATNY@example.org>
+Foo: bar
 
 Check my resume!
 
@@ -64,5 +65,6 @@ check 'search subject' 'mlist inbox | mpick /wow | grep -q inbox/cur/9:2,'
 check_test 'search addr' -eq 2 'mlist inbox | mpick peter@example.org | wc -l'
 check_test 'search name' -eq 2 'mlist inbox | mpick "Peter Example" | wc -l'
 check_test 'search spam' -eq 1 'mlist inbox | mpick -t "trashed && subject =~ \"pdf\"" | wc -l'
+check_test 'any header' -eq 1 'mlist inbox | mpick -t "\"Foo\" =~~ \"bar\"" | wc -l'
 
 )
