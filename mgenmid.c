@@ -99,7 +99,7 @@ int main()
 	} else {
 fallback:
 		srand48(tp.tv_sec ^ tp.tv_usec ^ getpid());
-		rnd = (lrand48() << 32) + lrand48();
+		rnd = ((uint64_t)lrand48() << 32) + lrand48();
 	}
 
 	rnd |= (1LL << 63);  // set highest bit to force full width
