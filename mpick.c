@@ -1125,6 +1125,7 @@ main(int argc, char *argv[])
 
 	argv0 = argv[0];
 	now = time(0);
+	num = 1;
 
 	while ((c = getopt(argc, argv, "Tt:")) != -1)
 		switch (c) {
