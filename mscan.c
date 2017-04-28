@@ -436,7 +436,10 @@ oneline(char *file)
 				e--;
 				while (file < e && *e != '/')
 					e--;
-				char *b = e - 1;
+				while (file < e && *e == '/')
+					e--;
+				char *b = e;
+				e++;
 				while (file < b && *b != '/')
 					b--;
 				if (*b == '/')
