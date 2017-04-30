@@ -250,7 +250,7 @@ print_header(char *line) {
 		}
 
 		if (!highbit) {
-			if (e-s >= 78)
+			if (e-s >= 998)
 				goto force_qp;
 			if (e-s >= 78 - linelen) {
 				// wrap in advance before long word
