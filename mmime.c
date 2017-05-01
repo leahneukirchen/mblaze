@@ -250,7 +250,7 @@ print_header(char *line) {
 		}
 
 		if (!highbit) {
-			if (e-s >= 78)
+			if (e-s >= 998)
 				goto force_qp;
 			if (e-s >= 78 - linelen) {
 				// wrap in advance before long word
@@ -371,15 +371,33 @@ check()
 	off_t bithigh = 0;
 	off_t bitlow = 0;
 	off_t linelen = 0;
-	off_t maxlinelen = 0;
+	off_t maxheadlinelen = 0;
+	off_t maxbodylinelen = 0;
 
 	int c;
 	int l = -1;
 
 	while ((c = getchar()) != EOF) {
 		if (c == '\n') {
-			if (maxlinelen < linelen)
-				maxlinelen = linelen;
+			if (maxheadlinelen < linelen)
+				maxheadlinelen = linelen;
+			linelen = 0;
+			if (l == '\n')
+				break;
+		} else {
+			linelen++;
+		}
+		if (c != '\t' && c != '\n' && c < 32)
+			bitlow++;
+		if (c > 127)
+			bithigh++;
+		l = c;
+	}
+
+	while ((c = getchar()) != EOF) {
+		if (c == '\n') {
+			if (maxbodylinelen < linelen)
+				maxbodylinelen = linelen;
 			linelen = 0;
 		} else {
 			linelen++;
@@ -391,7 +409,9 @@ check()
 		l = c;
 	}
 
-	if (bitlow == 0 && bithigh == 0 && maxlinelen <= 78 && l == '\n')
+	if (bitlow == 0 && bithigh == 0 &&
+	    maxheadlinelen < 998 && maxbodylinelen <= 78 &&
+	    l == '\n')
 		return 0;
 	else
 		return 1;
