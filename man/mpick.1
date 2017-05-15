@@ -155,7 +155,6 @@ to pick mails from the current sequence.
 A more advanced
 .Nm
 expressions to pick mails in a time span which are flagged as replied or not seen.
-.Pp
 .Bd -literal -offset indent
 mpick -t 'date >= \&"2016-01-01\&" && date < \&"2017-01-01\&" && (replied || !seen)'
 .Ed
@@ -163,7 +162,6 @@ mpick -t 'date >= \&"2016-01-01\&" && date < \&"2017-01-01\&" && (replied || !se
 And to find other mblaze users.
 .Pp
 .Dl mpick -t '"User-Agent" =~~ \&"mblaze\&"' | mscan
-.Pp
 .Sh SEE ALSO
 .Xr lr 1 ,
 .Xr mailx 1
