@@ -29,7 +29,7 @@ static int alias_idx;
 static int Iflag;
 static int nflag;
 static int curyear;
-static int curyday;
+static time_t now;
 static char default_fflag[] = "%c%u%r %-3n %10d %17f %t %2i%s";
 static char *fflag = default_fflag;
 
@@ -137,14 +137,14 @@ fmt_date(struct message *msg, int w, int iso)
 	} else if (w < 10) {
 		if (tm->tm_year != curyear)
 			strftime(date, sizeof date, "%b%y", tm);
-		else if (tm->tm_yday != curyday)
+		else if (t > now || now - t > 86400)
 			strftime(date, sizeof date, "%d%b", tm);
 		else
 			strftime(date, sizeof date, "%H:%M", tm);
 	} else {
 		if (tm->tm_year != curyear)
 			strftime(date, sizeof date, "%Y-%m-%d", tm);
-		else if (tm->tm_yday != curyday)
+		else if (t > now || now - t > 86400)
 			strftime(date, sizeof date, "%a %b %e", tm);
 		else
 			strftime(date, sizeof date, "%a  %H:%M", tm);
@@ -507,10 +507,9 @@ main(int argc, char *argv[])
 		return 0;
 	}
 
-	time_t now = time(0);
+	now = time(0);
 	struct tm *tm = localtime(&now);
 	curyear = tm->tm_year;
-	curyday = tm->tm_yday;
 
 	setlocale(LC_ALL, "");	// for wcwidth later
 	if (wcwidth(0xfffd) > 0)
