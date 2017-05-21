@@ -261,7 +261,7 @@ in_esc() {
 
 trap 'close 130;' INT TERM
 
-buf_path=$(mktemp /tmp/.mcurse_body.XXXXX)
+buf_path=$(mktemp /tmp/.mcurse_body.XXXXXX)
 
 buf_col=1
 buf_row=1

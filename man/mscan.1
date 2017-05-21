@@ -56,18 +56,18 @@ The following formatting codes can be used
 .Ar ( wd
 overrides the default width):
 .Bl -tag -width Ds
-.It Cm "\\n"
+.It Cm \en
 Newline
-.It Cm "\\t"
+.It Cm \et
 Tab
-.It Cm "%%"
+.It Cm \&%%
 A plain
-.Sq Li "%" .
+.Sq Li \&% .
 .It Cm "%" Ns Oo Ar wd Oc Ns Cm "b"
 Human-readable size of the message (in kilobytes).
 .It Cm "%c"
 A
-.Sq Li ">"
+.Sq Li \&
 on the current message, else a blank.
 .It Cm "%" Ns Oo Ar wd Oc Ns Cm "d"
 Adaptive date of the message.
@@ -103,9 +103,9 @@ The raw Maildir flags of the message.
 The number of the message in the current sequence.
 .It Cm "%r"
 A
-.Sq Li "-"
+.Sq Li \&-
 on a replied-to message, or a
-.Sq Li ":"
+.Sq Li \&:
 on a forwarded message, or a blank.
 .It Cm "%" Ns Oo Ar wd Oc Ns Cm "R"
 The filename of the message.
@@ -119,26 +119,27 @@ with leading
 etc. stripped.
 .It Cm "%t"
 A
-.Sq Li ">"
+.Sq Li \&>
 if you are in
 .Sq Li "To:" ,
 a
-.Sq Li "+"
+.Sq Li \&+
 if you are in
 .Sq Li "Cc:" ,
 a
-.Sq Li ":"
+.Sq Li \&:
 if you are in
 .Sq Li "Resent-To:" ,
 or a blank else.
 .It Cm "%u"
 A
-.Sq Li "*"
+.Sq Li \&*
 on a flagged message, or a
-.Sq Li "."
+.Sq Li \&.
 on an unseen message, or a
-.Sq Li "x"
+.Sq Li x
 on a trashed message, or a blank.
+.El
 .El
 .Sh MESSAGE FLAGS
 .Bl -tag -width 2n -compact
@@ -168,7 +169,7 @@ You are in
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
-.Xr mblaze-profile 5
+.Xr mblaze-profile 5 ,
 .Xr mmsg 7
 .Sh AUTHORS
 .An Leah Neukirchen Aq Mt leah@vuxu.org

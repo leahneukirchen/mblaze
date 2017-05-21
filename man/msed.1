@@ -42,25 +42,25 @@ The separators
 the command letter may be subsituted with an arbitrary symbol, just as in
 .Xr sed 1 .
 Multiple commands can be separated by
-.Sq Cm ";" .
+.Sq Cm \&; .
 .Bl -tag -width Ds
-.It Cm "/" Ns Ar header Ns Cm "/" Ns Ic a Ns Cm "/" Ns Ar value Ns Cm "/"
+.It Cm \&/ Ns Ar header Ns Cm \&/ Ns Ic a Ns Cm \&/ Ns Ar value Ns Cm \&/
 If the header
-.Sq Ar header Ns Cm ":"
+.Sq Ar header Ns Cm \&:
 is not set in the message, add it with given
 .Ar value .
-.It Cm "/" Ns Ar headers Ns Cm "/" Ns Ic c Ns Cm "/" Ns Ar value Ns Cm "/"
+.It Cm \&/ Ns Ar headers Ns Cm \&/ Ns Ic c Ns Cm \&/ Ns Ar value Ns Cm \&/
 Change colon-separated headers matching the regular expression
 .Ar headers ,
 with implicit anchoring to the header name,
 to the value given in
 .Ar value .
-.It Cm "/" Ns Ar headers Ns Cm "/" Ns Ic d
+.It Cm \&/ Ns Ar headers Ns Cm \&/ Ns Ic d
 Delete colon-separated headers matching the regular expression
 .Ar headers ,
 with implicit anchoring to the header name.
 Use explicit
-.Sq Li ".*"
+.Sq Li \&.*
 to match arbitrary strings at the beginning or end of the headers.
 .Pp
 For example,
@@ -75,7 +75,7 @@ will delete the headers
 .Sq Li "To:" ,
 and
 .Sq Li "Cc:" .
-.It Oo Cm "/" Ns Ar headers Ns Cm "/" Oc Ns Ic s Ns Cm "/" Ns Ar regex Ns Cm "/" Ns Ar replacement Ns Cm "/" Ns Op Ar flags
+.It Oo Cm \&/ Ns Ar headers Ns Cm \&/ Oc Ns Ic s Ns Cm \&/ Ns Ar regex Ns Cm \&/ Ns Ar replacement Ns Cm \&/ Ns Op Ar flags
 Substitute matches of the POSIX Basic Regular Expression
 .Ar regex
 in headers matching the POSIX Basic Regular Expression
@@ -85,10 +85,10 @@ with implicit anchoring to the header name
 with the string
 .Ar replacement ,
 expanding
-.Sq Li "&"
+.Sq Cm \&&
 to the matched string,
 and
-.Sq Li "\\" Ns Ar N
+.Sq Cm \e Ns Ar N
 to the
 .Ar N Ns
 th

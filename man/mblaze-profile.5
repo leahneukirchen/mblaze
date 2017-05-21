@@ -17,10 +17,10 @@ which usually resides in
 if set.)
 .Pp
 This file consists of a RFC 2822 style header message with lines like
-.Dl Li Ar key Li Ns ":" Ar value
+.Dl Ar key Ns \&: Ar value
 .Pp
 You can use a key
-.Sq Li "#"
+.Sq Cm \&#
 for comments:
 .Dl Li "#:" Ar comment
 .Pp
@@ -60,7 +60,7 @@ The default format string for
 The binary path used to send mail for
 .Xr mcom 1
 (default:
-.Li Sq sendmail ) .
+.Sq Li sendmail ) .
 .It Li "Sendmail-Args:"
 The flags used to send mail with
 .Li "Sendmail:"
@@ -75,6 +75,7 @@ for
 Directory containing mblaze configuration.
 (Default:
 .Pa $HOME/.mblaze )
+.El
 .Sh AUTHORS
 .An Leah Neukirchen Aq Mt leah@vuxu.org
 .Sh LICENSE
