@@ -728,7 +728,7 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 
-	if (!rflag && !Oflag)
+	if (!rflag && !Oflag && !Rflag)
 		safe_output = 1;
 
 	if (xflag) { // extract
