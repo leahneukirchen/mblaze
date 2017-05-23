@@ -488,6 +488,8 @@ oneline(char *file)
 int
 main(int argc, char *argv[])
 {
+	pid_t pid1 = -1;
+
 	int c;
 	while ((c = getopt(argc, argv, "If:n")) != -1)
 		switch(c) {
@@ -516,8 +518,21 @@ main(int argc, char *argv[])
 		replacement = 0xfffd;
 
 	struct winsize w;
-	if (ioctl(1, TIOCGWINSZ, &w) == 0)
+	if (ioctl(1, TIOCGWINSZ, &w) == 0) {
 		cols = w.ws_col;
+
+		char *pg;
+		pg = getenv("MBLAZE_PAGER");
+		if (!pg)
+			pg = getenv("PAGER");
+		if (pg && *pg && strcmp(pg, "cat") != 0) {
+			pid1 = pipeto(pg);
+			if (pid1 < 0)
+				fprintf(stderr,
+				    "mscan: spawning pager '%s': %s\n",
+				    pg, strerror(errno));
+		}
+	}
 	if (getenv("COLUMNS"))
 		cols = atoi(getenv("COLUMNS"));
 	if (cols <= 40)
@@ -549,6 +564,9 @@ main(int argc, char *argv[])
 	else
 		i = blaze822_loop(argc-optind, argv+optind, oneline);
 	fprintf(stderr, "%ld mails scanned\n", i);
+
+	if (pid1 > 0)
+		pipeclose(pid1);
 
 	return 0;
 }

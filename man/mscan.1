@@ -22,7 +22,8 @@ If no
 are passed,
 .Nm
 reads file names from standard input,
-or uses the mails in the current sequence when used interactively.
+or uses the mails in the current sequence when used interactively
+(using a pager).
 .Pp
 By default,
 .Ar format
@@ -165,6 +166,17 @@ You are in
 .It Li \&:
 You are in
 .Sq Li "Resent-To:" .
+.El
+.Sh ENVIRONMENT
+.Bl -tag -width MBLAZE_PAGER
+.It Ev MBLAZE_PAGER
+Any non-empty value of the environment variable
+.Ev MBLAZE_PAGER
+is used instead of the standard pagination program, specified in
+.Ev PAGER .
+When empty or set to
+.Sq Ic cat ,
+no pager is spawned.
 .El
 .Sh EXIT STATUS
 .Ex -std
