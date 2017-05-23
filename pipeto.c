@@ -51,7 +51,10 @@ pipeto(const char *cmdline)
 		}
 		argv[argc] = 0;
 
-		execvp(argv[0], argv);
+		if (argv[0])
+			execvp(argv[0], argv);
+		else
+			errno = EINVAL;
 
 		// execvp failed, write errno to parent
 		long e = errno;
