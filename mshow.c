@@ -719,7 +719,7 @@ main(int argc, char *argv[])
 		case 'n': nflag = 1; break;
 		default:
 			fprintf(stderr,
-			    "Usage: mshow [-h headers] [-A mimetypes] [-qrHL] [msgs...]\n"
+			    "Usage: mshow [-h headers] [-A mimetypes] [-nqrHL] [msgs...]\n"
 			    "	    mshow -x msg parts...\n"
 			    "	    mshow -O msg parts...\n"
 			    "	    mshow -t msgs...\n"

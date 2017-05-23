@@ -8,7 +8,7 @@
 .Nm
 .Op Fl h Ar headers
 .Op Fl A Ar mimetypes
-.Op Fl qrHL
+.Op Fl nqrHL
 .Op Ar msgs\ ...
 .Nm
 .Fl x Ar msg
@@ -53,6 +53,8 @@ If no MIME type matches, the first MIME part will be rendered.
 .Pp
 Defaults to
 .Sq Li "text/plain:text/html" .
+.It Fl n
+Don't update the current message link.
 .It Fl q
 Don't render the body, stop after header output.
 .It Fl r
