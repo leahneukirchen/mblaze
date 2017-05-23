@@ -703,6 +703,8 @@ done:
 int
 main(int argc, char *argv[])
 {
+	pid_t pid1 = -1, pid2 = -1;
+
 	int c;
 	while ((c = getopt(argc, argv, "h:A:qrtHLx:O:Rn")) != -1)
 		switch(c) {
@@ -731,6 +733,22 @@ main(int argc, char *argv[])
 	if (!rflag && !Oflag && !Rflag)
 		safe_output = 1;
 
+	if (safe_output && isatty(1)) {
+		char *pg;
+		pg = getenv("MBLAZE_PAGER");
+		if (!pg)
+			pg = getenv("PAGER");
+		if (pg && *pg && strcmp(pg, "cat") != 0) {
+			pid2 = pipeto(pg);
+			if (pid2 < 0)
+				fprintf(stderr,
+				    "mshow: spawning pager '%s': %s\n",
+				    pg, strerror(errno));
+			else if (!getenv("MBLAZE_NOCOLOR"))
+				pid1 = pipeto("mcolor");  // ignore error
+		}
+	}
+
 	if (xflag) { // extract
 		extract(xflag, argc-optind, argv+optind, 0);
 	} else if (Oflag) { // extract to stdout
@@ -757,6 +775,11 @@ main(int argc, char *argv[])
 		if (!nflag) // don't set cur
 			blaze822_seq_setcur(newcur);
 	}
+
+	if (pid2 > 0)
+		pipeclose(pid2);
+	if (pid1 > 0)
+		pipeclose(pid1);
 
 	return 0;
 }

@@ -91,3 +91,9 @@ int slurp(char *filename, char **bufo, off_t *leno);
 
 #include <stdio.h>
 void safe_u8putstr(char *s0, size_t l, FILE *stream);
+
+// pipeto.c
+
+pid_t pipeto(const char *cmdline);
+int pipeclose(pid_t pid);
+

@@ -30,7 +30,7 @@ See
 .Xr mmsg 7
 for the message argument syntax.
 If used interactively and no messages are given,
-displays the current message.
+displays the current message using colorization and a pager.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -118,6 +118,21 @@ The environment variable
 .Ev PIPE_CHARSET
 will be set to the charset declared in the MIME part,
 if known.
+.Sh ENVIRONMENT
+.Bl -tag -width MBLAZE_NOCOLOR
+.It Ev MBLAZE_PAGER
+Any non-empty value of the environment variable
+.Ev MBLAZE_PAGER
+is used instead of the standard pagination program, specified in
+.Ev PAGER .
+When empty or set to
+.Sq Ic cat ,
+no pager is spawned.
+.It Ev MBLAZE_NOCOLOR
+If non-empty,
+.Nm
+will not spawn a colorization filter.
+.El
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
