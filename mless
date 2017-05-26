@@ -81,7 +81,7 @@ while :; do
 		nu=$(magrep -v -m1 :S .:) && mseq -C "$nu"
 		;;
 	107) # k next thread
-		mseq -C "$(mseq .+1: | grep -m1 '^[^ <]')"
+		mseq -C "$(mseq .+1: | sed -n '/^[^ <]/{p;q;}')"
 		;;
 	100) # d mark read
 		mflag -S .
