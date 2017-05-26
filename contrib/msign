@@ -1,0 +1,22 @@
+#!/bin/sh
+# msign PLAINMSG - generate a PGP/MIME signed message
+
+[ -f "$1" ] || exit 1
+
+IFS='
+'
+
+TMPD=$(mktemp -d -t msign.XXXXXX)
+trap "rm -rf '$TMPD'" INT TERM EXIT
+
+awk '/^$/,0' "$1" | mmime | sed 's/$//' >"$TMPD"/content
+gpg --armor --detach-sign -o "$TMPD"/signature.asc "$TMPD"/content ||
+	exit $?
+
+{
+	sed '/^$/q' "$1"
+	printf '#mblaze/raw %s/content\n' "$TMPD"
+	printf '#application/pgp-signature %s/signature.asc\n' "$TMPD"
+} |
+	mmime -t 'multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"'
+
