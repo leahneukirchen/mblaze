@@ -164,6 +164,9 @@ gen_file(char *file, char *ct)
 		return -1;
 	}
 	
+	if (strcmp(ct, "mblaze/raw") == 0)
+		goto raw;
+
 	off_t bithigh = 0;
 	off_t bitlow = 0;
 	off_t linelen = 0;
@@ -191,6 +194,7 @@ gen_file(char *file, char *ct)
 			ct = "text/plain";
 		printf("Content-Type: %s\n", ct);
 		printf("Content-Transfer-Encoding: 7bit\n\n");
+raw:
 		fwrite(content, 1, size, stdout);
 		return 0;
 	} else if (bitlow == 0 && bithigh == 0) {
