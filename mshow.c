@@ -462,7 +462,12 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 						fwrite(blaze822_orig_header(msg),
 						    1, blaze822_headerlen(msg),
 						    stdout);
-						printf("\n\n");
+						if (blaze822_orig_header(msg)[
+						        blaze822_headerlen(msg)]
+						    == '\r')
+							printf("\r\n\r\n");
+						else
+							printf("\n\n");
 						fwrite(blaze822_body(msg),
 						    1, blaze822_bodylen(msg),
 						    stdout);
