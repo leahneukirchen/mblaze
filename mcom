@@ -2,7 +2,9 @@
 # mcom [TO] - compose mail
 
 commajoin() {
-	sed ':a;N;s/\n/, /;$!b a'
+	awk 'NR==1 {l=$0; next}
+	     {l=l", "$0}
+	     END {print l}'
 }
 
 notmine() {
