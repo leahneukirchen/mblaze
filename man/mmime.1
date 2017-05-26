@@ -7,6 +7,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl c | Fl r
+.Op Fl t Ar content-type
 <
 .Ar message
 .Sh DESCRIPTION
@@ -37,6 +38,10 @@ or with status 0 else.
 Raw mode: don't expand MIME parts in the body, generate a
 .Sq Li text/plain
 message.
+.It Fl t Ar content-type
+Override Content-Type for the toplevel part.
+Defaults to
+.Sq Li multipart/mixed .
 .El
 .Sh EXIT STATUS
 .Ex -std

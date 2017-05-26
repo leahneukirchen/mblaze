@@ -18,6 +18,7 @@
 
 static int cflag;
 static int rflag;
+static char *tflag = "multipart/mixed";
 
 int gen_b64(uint8_t *s, off_t size)
 {
@@ -320,7 +321,7 @@ gen_build()
 					printf("Content-Transfer-Encoding: quoted-printable\n\n");
 
 				} else {
-					printf("Content-Type: multipart/mixed; boundary=\"%s\"\n", sep);
+					printf("Content-Type: %s; boundary=\"%s\"\n", tflag, sep);
 					printf("\n");
 					printf("This is a multipart message in MIME format.\n");
 				}
@@ -423,13 +424,15 @@ main(int argc, char *argv[])
 	srand48(time(0) ^ getpid());
 
 	int c;
-	while ((c = getopt(argc, argv, "cr")) != -1)
+	while ((c = getopt(argc, argv, "crt:")) != -1)
 		switch(c) {
 		case 'r': rflag = 1; break;
 		case 'c': cflag = 1; break;
+		case 't': tflag = optarg; break;
 		default:
 		usage:
-			fprintf(stderr, "Usage: mmime [-c|-r] < message\n");
+			fprintf(stderr,
+"Usage: mmime [-c|-r] [-t CONTENT-TYPE] < message\n");
 			exit(1);
 		}
 
