@@ -209,7 +209,7 @@ main(int argc, char *argv[])
 	gethost();
 
 	if (deliver(stdin) < 0) {
-		perror("deliver");
+		perror("mdeliver");
 		return 2;
 	}
 
