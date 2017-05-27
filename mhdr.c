@@ -86,7 +86,7 @@ print_date(char *s)
 	time_t t = blaze822_date(s);
 	if (t == -1)
 		return;
-	printf("%ld\n", t);
+	printf("%ld\n", (long)t);
 }
 
 void
