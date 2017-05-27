@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-tmp=$(mktemp)
+tmp=$(mktemp -t mgpg.XXXXXX)
 trap "rm -f '$tmp'" INT TERM EXIT
 
 {
