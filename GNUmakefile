@@ -1,10 +1,15 @@
-.error : This Makefile needs GNU make
-
 CFLAGS+=-g -O2 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
 LDLIBS=-lrt
-ifdef OPENBSD
+
+OS := $(shell uname)
+
+ifeq ($(OS),OpenBSD)
 CFLAGS+=-I/usr/local/include -pthread
 LDLIBS=-L/usr/local/lib -liconv -pthread
+endif
+
+ifeq ($(OS),Darwin)
+LDLIBS=-liconv
 endif
 
 DESTDIR=
