@@ -18,6 +18,7 @@
 
 static int cflag;
 static int rflag;
+static char *tflag = "multipart/mixed";
 
 int gen_b64(uint8_t *s, off_t size)
 {
@@ -163,6 +164,9 @@ gen_file(char *file, char *ct)
 		return -1;
 	}
 	
+	if (strcmp(ct, "mblaze/raw") == 0)
+		goto raw;
+
 	off_t bithigh = 0;
 	off_t bitlow = 0;
 	off_t linelen = 0;
@@ -190,6 +194,7 @@ gen_file(char *file, char *ct)
 			ct = "text/plain";
 		printf("Content-Type: %s\n", ct);
 		printf("Content-Transfer-Encoding: 7bit\n\n");
+raw:
 		fwrite(content, 1, size, stdout);
 		return 0;
 	} else if (bitlow == 0 && bithigh == 0) {
@@ -320,7 +325,7 @@ gen_build()
 					printf("Content-Transfer-Encoding: quoted-printable\n\n");
 
 				} else {
-					printf("Content-Type: multipart/mixed; boundary=\"%s\"\n", sep);
+					printf("Content-Type: %s; boundary=\"%s\"\n", tflag, sep);
 					printf("\n");
 					printf("This is a multipart message in MIME format.\n");
 				}
@@ -423,13 +428,15 @@ main(int argc, char *argv[])
 	srand48(time(0) ^ getpid());
 
 	int c;
-	while ((c = getopt(argc, argv, "cr")) != -1)
+	while ((c = getopt(argc, argv, "crt:")) != -1)
 		switch(c) {
 		case 'r': rflag = 1; break;
 		case 'c': cflag = 1; break;
+		case 't': tflag = optarg; break;
 		default:
 		usage:
-			fprintf(stderr, "Usage: mmime [-c|-r] < message\n");
+			fprintf(stderr,
+"Usage: mmime [-c|-r] [-t CONTENT-TYPE] < message\n");
 			exit(1);
 		}
 

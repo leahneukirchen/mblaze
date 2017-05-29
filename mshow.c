@@ -462,7 +462,12 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 						fwrite(blaze822_orig_header(msg),
 						    1, blaze822_headerlen(msg),
 						    stdout);
-						printf("\n\n");
+						if (blaze822_orig_header(msg)[
+						        blaze822_headerlen(msg)]
+						    == '\r')
+							printf("\r\n\r\n");
+						else
+							printf("\n\n");
 						fwrite(blaze822_body(msg),
 						    1, blaze822_bodylen(msg),
 						    stdout);
@@ -703,6 +708,8 @@ done:
 int
 main(int argc, char *argv[])
 {
+	pid_t pid1 = -1, pid2 = -1;
+
 	int c;
 	while ((c = getopt(argc, argv, "h:A:qrtHLx:O:Rn")) != -1)
 		switch(c) {
@@ -719,7 +726,7 @@ main(int argc, char *argv[])
 		case 'n': nflag = 1; break;
 		default:
 			fprintf(stderr,
-			    "Usage: mshow [-h headers] [-A mimetypes] [-qrHL] [msgs...]\n"
+			    "Usage: mshow [-h headers] [-A mimetypes] [-nqrHL] [msgs...]\n"
 			    "	    mshow -x msg parts...\n"
 			    "	    mshow -O msg parts...\n"
 			    "	    mshow -t msgs...\n"
@@ -728,8 +735,24 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 
-	if (!rflag && !Oflag)
+	if (!rflag && !Oflag && !Rflag)
 		safe_output = 1;
+
+	if (safe_output && isatty(1)) {
+		char *pg;
+		pg = getenv("MBLAZE_PAGER");
+		if (!pg)
+			pg = getenv("PAGER");
+		if (pg && *pg && strcmp(pg, "cat") != 0) {
+			pid2 = pipeto(pg);
+			if (pid2 < 0)
+				fprintf(stderr,
+				    "mshow: spawning pager '%s': %s\n",
+				    pg, strerror(errno));
+			else if (!getenv("MBLAZE_NOCOLOR"))
+				pid1 = pipeto("mcolor");  // ignore error
+		}
+	}
 
 	if (xflag) { // extract
 		extract(xflag, argc-optind, argv+optind, 0);
@@ -757,6 +780,11 @@ main(int argc, char *argv[])
 		if (!nflag) // don't set cur
 			blaze822_seq_setcur(newcur);
 	}
+
+	if (pid2 > 0)
+		pipeclose(pid2);
+	if (pid1 > 0)
+		pipeclose(pid1);
 
 	return 0;
 }

@@ -35,7 +35,7 @@ blaze822_mime2231_parameter(char *s, char *name,
 		i = 100;
 		goto found_extended;
 	}
-	if (blaze822_mime_parameter(s, namenum, &sbuf, &ebuf)) {
+	if (blaze822_mime_parameter(s, name, &sbuf, &ebuf)) {
 		i = 100;
 		goto found_plain;
 	}
@@ -75,11 +75,11 @@ found_extended:
 			}
 			*dst = 0;
 		} else {
-			namenum[strlen(namenum) - 1] = 0;
+			namenum[strlen(namenum) - 1] = 0;   // strip last *
 			if (blaze822_mime_parameter(s, namenum, &sbuf, &ebuf)) {
 found_plain:
 				// copy plain
-				if (dstend - dst < ebuf - sbuf) {
+				if (ebuf - sbuf < dstend - dst) {
 					memcpy(dst, sbuf, ebuf - sbuf);
 					dst += ebuf - sbuf;
 				}

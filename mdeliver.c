@@ -79,7 +79,8 @@ tryagain:
 		gettimeofday(&tv, 0);
 
 		snprintf(id, sizeof id, "%ld.M%06ldP%ldQ%ld.%s",
-			 tv.tv_sec, tv.tv_usec, (long)getpid(), delivery, host);
+		    (long)tv.tv_sec, (long)tv.tv_usec, (long)getpid(),
+		    delivery, host);
 		
 		snprintf(tmp, sizeof tmp, "%s/tmp/%s", targetdir, id);
 	
@@ -209,7 +210,7 @@ main(int argc, char *argv[])
 	gethost();
 
 	if (deliver(stdin) < 0) {
-		perror("deliver");
+		perror("mdeliver");
 		return 2;
 	}
 
