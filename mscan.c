@@ -46,7 +46,7 @@ u8putstr(FILE *out, char *s, ssize_t l, int pad)
 			s++;
 			l--;
 		} else if ((unsigned)*s < 32 || *s == 127) {  // C0
-			fprintf(out, "%lc", *s == 127 ? 0x2421 : 0x2400+*s);
+			fprintf(out, "%lc", (wint_t)(*s == 127 ? 0x2421 : 0x2400+*s));
 			s++;
 			l--;
 		} else {
@@ -59,7 +59,7 @@ u8putstr(FILE *out, char *s, ssize_t l, int pad)
 			s += r;
 			l -= wcwidth(wc);
 			if (l >= 0)
-				fprintf(out, "%lc", wc);
+				fprintf(out, "%lc", (wint_t)wc);
 		}
 	}
 	if (pad)
