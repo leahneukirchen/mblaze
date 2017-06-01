@@ -63,6 +63,7 @@ fi
 		[ "$from" ] && printf 'From: %s\n' "$from"
 		cat "$MBLAZE/headers" 2>/dev/null
 		msgid
+		museragent
 		msgdate
 		printf '\n\n'
 		;;
@@ -93,6 +94,7 @@ fi
 			printf 'In-Reply-To: %s\n' "$mid"
 		fi
 		msgid
+		museragent
 		msgdate
 		printf '\n'
 
