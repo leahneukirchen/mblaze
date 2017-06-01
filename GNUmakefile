@@ -18,9 +18,9 @@ BINDIR=$(PREFIX)/bin
 MANDIR=$(PREFIX)/share/man
 
 ALL = maddr magrep mdate mdeliver mdirs mexport mflag mgenmid mhdr minc mlist mmime mpick mscan msed mseq mshow msort mthread
-SCRIPT = mcolor mcom mless mquote
+SCRIPT = mcolor mcom mless mquote museragent
 
-all: $(ALL)
+all: $(ALL) museragent
 
 $(ALL) : % : %.o
 maddr magrep mdeliver mexport mflag mgenmid mhdr mpick mscan msed mshow \
@@ -34,11 +34,17 @@ mscan : pipeto.o
 msort : mystrverscmp.o
 mmime : slurp.o
 
+museragent: FRC
+	@printf '#!/bin/sh\nprintf "User-Agent: mblaze/%s (%s)\\n"\n' \
+		"$$(git describe --always @ 2>/dev/null || cat VERSION)" \
+		"$$(date +%Y-%m-%d)" >$@
+	@chmod +x $@
+
 README: man/mblaze.7
 	mandoc -Tutf8 $< | col -bx >$@
 
 clean: FRC
-	-rm -f $(ALL) *.o
+	-rm -f $(ALL) *.o museragent
 
 check: FRC all
 	PATH=$$(pwd):$$PATH prove -v
