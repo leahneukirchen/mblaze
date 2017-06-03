@@ -187,7 +187,8 @@ blaze822_addr(char *s, char **dispo, char **addro)
 				*c-- = 0;
 				while (c > disp && iswsp(*c))
 					*c-- = 0;
-				strcpy(addr, disp);
+				c++;
+				memcpy(addr, disp, (c - disp) + 1);
 				c = disp;
 				*c = 0;
 			}
@@ -216,7 +217,8 @@ blaze822_addr(char *s, char **dispo, char **addro)
 
 	if (*disp && !*addr && strchr(disp, '@')) {
 		// just mail address was given
-		strcpy(addr, disp);
+		c++;
+		memcpy(addr, disp, (c - disp) + 1);
 		*disp = 0;
 	}
 
