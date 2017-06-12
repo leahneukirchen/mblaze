@@ -178,8 +178,11 @@ blaze822_addr(char *s, char **dispo, char **addro)
 			*c = 0;
 		} else if (*s == '"') {
 			s++;
-			while (*s && c < e && *s != '"')
+			while (*s && c < e && *s != '"') {
+				if (*s == '\\' && *(s+1))
+					s++;
 				*c++ = *s++;
+			}
 			if (*s == '"')
 				s++;
 		} else if (*s == '(') {
