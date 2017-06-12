@@ -23,37 +23,45 @@ export(char *file)
 	while (*file == ' ' || *file == '\t')
 		file++;
 
-	msg = blaze822(file);
-	if (!msg)
+	FILE *infile = fopen(file, "r");
+	if (!infile) {
+		status = 1;
+		fprintf(stderr, "mexport: error opening '%s': %s\n",
+		    file, strerror(errno));
 		return;
-
-	char from[1024] = "nobody";
-
-	char *v;
-	if ((v = blaze822_hdr(msg, "return-path")) ||
-	    (v = blaze822_hdr(msg, "x-envelope-from"))) {
-		char *s = strchr(v, '<');
-		char *e = strchr(s, '>');
-		if (s && e) {
-			e++;
-			memcpy(from, s, e-s);
-			from[e-s] = 0;
-		}
 	}
 
+	char from[1024] = "nobody";
 	time_t date = -1;
-	if ((v = blaze822_hdr(msg, "date"))) {
-		date = blaze822_date(v);
+
+	if (fseek(infile, 0L, SEEK_SET) && errno == ESPIPE) {
+		date = time(0);
+		memcpy(from, "stdin", 6);
+	} else {
+		msg = blaze822(file);
+		if (!msg)
+			return;
+
+		char *v;
+		if ((v = blaze822_hdr(msg, "return-path")) ||
+		    (v = blaze822_hdr(msg, "x-envelope-from"))) {
+			char *s = strchr(v, '<');
+			char *e = strchr(s, '>');
+			if (s && e) {
+				e++;
+				memcpy(from, s, e-s);
+				from[e-s] = 0;
+			}
+		}
+
+		if ((v = blaze822_hdr(msg, "date"))) {
+			date = blaze822_date(v);
+		}
+		blaze822_free(msg);
 	}
 
 	char *line = 0;
 	size_t linelen = 0;
-
-	FILE *infile = fopen(file, "r");
-	if (!infile) {
-		status = 1;
-		return;
-	}
 	
 	printf("From %s %s", from, ctime(&date));
 
@@ -66,7 +74,8 @@ export(char *file)
 		if (rd == -1) {
 			if (errno == 0)
 				break;
-			// XXX print error?
+			fprintf(stderr, "mexport: error reading '%s': %s\n",
+			    file, strerror(errno));
 			status = 1;
 			return;
 		}
@@ -112,8 +121,6 @@ export(char *file)
 		putchar('\n');
 
 	fclose(infile);
-
-	blaze822_free(msg);
 }
 
 int
