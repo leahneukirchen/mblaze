@@ -83,6 +83,7 @@ found_plain:
 					memcpy(dst, sbuf, ebuf - sbuf);
 					dst += ebuf - sbuf;
 				}
+				*dst = 0;
 			} else {
 				break;
 			}
