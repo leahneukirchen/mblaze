@@ -145,7 +145,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 	}
 	
 	c = disp;
-	e = disp + sizeof disp;
+	e = disp + sizeof disp - 1;
 
 	*disp = 0;
 	*addr = 0;
