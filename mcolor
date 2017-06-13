@@ -19,5 +19,7 @@ ftr { print fg(co("FOOTER",244), $0); next }
 /^-----BEGIN .* MESSAGE-----/ ||
 /^-----END .* SIGNATURE-----/ { print fg(co("SIG",244), $0); sig = 0; next }
 sig { print fg(co("SIG",244), $0); next }
+/^> *> *>/ { print fg(co("QQQUOTE",152), $0); next }
+/^> *>/ { print fg(co("QQUOTE",149), $0); next }
 /^>/ { print fg(co("QUOTE",151), $0); next }
 { nextmail = 0; print }
