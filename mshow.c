@@ -622,7 +622,7 @@ print_date_header(char *v)
 static void
 print_decode_header(char *h, char *v)
 {
-	char d[4096];
+	char d[16384];
 	blaze822_decode_rfc2047(d, v, sizeof d, "UTF-8");
 	printhdr(h);
 	fputc(':', stdout);
