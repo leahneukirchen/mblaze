@@ -185,7 +185,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 			}
 			if (*s == '"')
 				s++;
-		} else if (*s == '(') {
+		} else if (*s == '(') {   // XXX recurse to conform?
 			s++;
 
 			if (!*addr) {	// assume: user@host (name)
@@ -202,6 +202,10 @@ blaze822_addr(char *s, char **dispo, char **addro)
 				*c++ = *s++;
 			if (*s == ')')
 				s++;
+		} else if (*s == '\\') {
+			s++;
+			if (*s)
+				*c++ = *s++;
 		} else if (*s == ':') {
 			s++;
 			while (iswsp(*s))
