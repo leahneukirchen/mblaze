@@ -32,7 +32,7 @@ addr(char *file)
 		v = blaze822_chdr(msg, h);
 		if (v) {
 			char *disp, *addr;
-			char vdec[1024];
+			char vdec[16384];
 			blaze822_decode_rfc2047(vdec, v, sizeof vdec - 1, "UTF-8");
 			vdec[sizeof vdec - 1] = 0;
 			v = vdec;
