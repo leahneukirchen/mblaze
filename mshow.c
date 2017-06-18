@@ -20,6 +20,7 @@ static int Rflag;
 static int qflag;
 static int Hflag;
 static int Lflag;
+static int Nflag;
 static int tflag;
 static int nflag;
 static char defaulthflags[] = "from:subject:to:cc:date:";
@@ -187,11 +188,13 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 
 	mimecount++;
 
-	int i;
-	for (i = 0; i < depth+1; i++)
-		printf("--- ");
-	printf("%d: %s size=%zd", mimecount, mt, bodylen);
-	print_filename(filename);
+	if (!Nflag) {
+		int i;
+		for (i = 0; i < depth+1; i++)
+			printf("--- ");
+		printf("%d: %s size=%zd", mimecount, mt, bodylen);
+		print_filename(filename);
+	}
 
 	char *cmd;
 	blaze822_mime_action r = MIME_CONTINUE;
@@ -213,7 +216,8 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		int e = filter(body, bodylen, cmd, &output, &outlen);
 
 		if (e == 0) { // replace output
-			printf(" render=\"%s\" ---\n", cmd);
+			if (!Nflag)
+				printf(" render=\"%s\" ---\n", cmd);
 			if (outlen) {
 				print_ascii(output, outlen);
 				if (output[outlen-1] != '\n')
@@ -223,7 +227,8 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 			free(output);
 			goto nofilter;
 		} else if (e == 64) { // decode output again
-			printf(" filter=\"%s\" ---\n", cmd);
+			if (!Nflag)
+				printf(" filter=\"%s\" ---\n", cmd);
 			struct message *imsg = blaze822_mem(output, outlen);
 			if (imsg)
 				blaze822_walk_mime(imsg, depth+1, render_mime);
@@ -248,7 +253,8 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		r = MIME_PRUNE;
 	} else {
 nofilter:
-		printf(" ---\n");
+		if (!Nflag)
+			printf(" ---\n");
 
 		if (strncmp(ct, "text/", 5) == 0) {
 			char *charset = 0, *cs, *cse;
@@ -711,7 +717,7 @@ main(int argc, char *argv[])
 	pid_t pid1 = -1, pid2 = -1;
 
 	int c;
-	while ((c = getopt(argc, argv, "h:A:qrtHLx:O:Rn")) != -1)
+	while ((c = getopt(argc, argv, "h:A:qrtHLNx:O:Rn")) != -1)
 		switch(c) {
 		case 'h': hflag = optarg; break;
 		case 'A': Aflag = optarg; break;
@@ -719,6 +725,7 @@ main(int argc, char *argv[])
 		case 'r': rflag = 1; break;
 		case 'H': Hflag = 1; break;
 		case 'L': Lflag = 1; break;
+		case 'N': Nflag = 1; break;
 		case 't': tflag = 1; break;
 		case 'x': xflag = optarg; break;
 		case 'O': Oflag = optarg; break;
@@ -726,7 +733,7 @@ main(int argc, char *argv[])
 		case 'n': nflag = 1; break;
 		default:
 			fprintf(stderr,
-			    "Usage: mshow [-h headers] [-A mimetypes] [-nqrHL] [msgs...]\n"
+			    "Usage: mshow [-h headers] [-A mimetypes] [-nqrHLN] [msgs...]\n"
 			    "	    mshow -x msg parts...\n"
 			    "	    mshow -O msg parts...\n"
 			    "	    mshow -t msgs...\n"
