@@ -3,11 +3,15 @@
 .Os
 .Sh NAME
 .Nm mcom ,
+.Nm mfwd ,
 .Nm mrep
-.Nd compose new, reply to, and send mail
+.Nd compose new, forward, reply to, and send mail
 .Sh SYNOPSIS
 .Nm mcom
 .Op Ar recipient
+.Nm mfwd
+.Op Fl r
+.Op Ar msgs\ ...
 .Nm mrep
 .Ar msg
 .Sh DESCRIPTION
@@ -15,6 +19,15 @@
 creates a new draft mail and runs an editor.
 After editing, a loop is started where the user can re-edit, send or
 cancel the mail.
+.Pp
+.Nm mfwd
+behaves like
+.Nm mcom
+but fills the draft with subject and body prefilled to forward the messages.
+By default, messages are forwarded verbatim as MIME attachments.
+Use
+.Fl r
+to forward as rendered plain text, using RFC934 message encapsulation.
 .Pp
 .Nm mrep
 behaves like

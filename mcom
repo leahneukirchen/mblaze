@@ -67,6 +67,35 @@ fi
 		msgdate
 		printf '\n\n'
 		;;
+	*mfwd*)
+		raw=
+		[ "$1" = -r ] && raw=1 && shift
+		[ "$#" -eq 0 ] && set -- .
+		printf '%s: \n' To Cc Bcc
+		mscan -f 'Subject: [%f] %s' "$@" | sed 1q
+		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
+		[ "$from" ] && printf 'From: %s\n' "$from"
+		cat "$MBLAZE/headers" 2>/dev/null
+		msgid
+		museragent
+		msgdate
+		printf '\n\n'
+		if [ -n "$raw" ]; then
+			mseq -r "$@" | sed 's:^:#message/rfc822 :'
+		else (
+			SEP=-----
+			IFS='
+'
+			for f in $(mseq -r "$@"); do
+				printf '%s Forwarded message from %s %s\n\n' \
+				       $SEP "$(mhdr -d -h from "$f")" $SEP
+				DISPLAY= mshow -n -N "$f" </dev/null |
+					sed 's/^-/- &/'    # RFC934
+				printf '\n%s %s %s\n\n' \
+				       $SEP 'End forwarded message' $SEP
+			done
+		) fi
+		;;
 	*mrep*)
 		[ "$#" -eq 0 ] && set -- .
 		ng=$(mhdr -h newsgroups "$1")
@@ -100,6 +129,7 @@ fi
 
 		mquote "$1"
 		printf '\n'
+		;;
 	esac
 
 	if [ -f "$MBLAZE/signature" ]; then
