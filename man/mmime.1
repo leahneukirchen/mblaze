@@ -21,12 +21,18 @@ mail from standard input,
 extending, wrapping, and encoding the header as neccessary,
 and replacing body lines looking like
 .Pp
-.D1 Li # Ns Ar type Pa filename
+.D1 Li # Ns Ar content Ns Li / Ns Ar type Ns Oo Ns Li # Ns Ar content-disposition Oc Pa path Ns Oo Li > Ns Ar filename Oc
 .Pp
 with a MIME part having Content-Type
-.Ar type
+.Ar content/type
 consisting of the contents of
-.Pa filename .
+.Pa path .
+.Ar content-disposition
+is optional and defaults to
+.Sq attachment .
+.Ar filename
+is optional and defaults to the basename of
+.Ar path .
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
