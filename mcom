@@ -76,8 +76,6 @@ else
 	draftmime="$(printf '%s\n' "$draft" | sed 's,\(.*\)/cur/,\1/tmp/mime-,')"
 fi
 
-echo $draft
-
 [ -z "$resume" ] &&
 {
 	case "$0" in
