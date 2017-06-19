@@ -106,8 +106,8 @@ echo $draft
 		museragent
 		msgdate
 		printf '\n\n'
-		if [ -n "$raw" ]; then
-			mseq -r "$@" | sed 's:^:#message/rfc822 :'
+		if [ -z "$raw" ]; then
+			mseq -r "$@" | sed 's:^:#message/rfc822#inline :; s:$:>:'
 		else (
 			SEP=-----
 			IFS='
