@@ -120,6 +120,11 @@ gen_attachment(const char *filename, char *content_disposition)
 	const char *s = filename;
 	int quote = 0;
 
+	if (!*filename) {
+		printf("Content-Disposition: %s\n", content_disposition);
+		return;
+	}
+
 	for (s = (char *) filename; *s; s++) {
 		if (*s < 32 || *s == '"' || *s >= 127 || s - filename > 35)
 			goto rfc2231;
