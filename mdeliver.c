@@ -105,6 +105,7 @@ tryagain:
 					return -1;
 				break;
 			}
+			char *line_start = line;
 
 			if (line[0] == '\n' && !line[1])
 				in_header = 0;
@@ -131,12 +132,12 @@ tryagain:
 				while (*s == '>')
 					s++;
 				if (strncmp("From ", s, 5) == 0) {
-					line++;
+					line_start++;
 					rd--;
 				}
 			}
 
-			if (fwrite(line, 1, rd, outfile) != (size_t)rd)
+			if (fwrite(line_start, 1, rd, outfile) != (size_t)rd)
 				return -1;
 		}
 		if (fflush(outfile) == EOF)
