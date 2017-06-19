@@ -251,8 +251,26 @@ while :; do
 		fi
 		c=
 		;;
+	sign)
+		msign $draft >$draftmime
+		mshow -t $draftmime
+		c=
+		;;
+	encrypt)
+		mencrypt $draft >$draftmime
+		mshow -t $draftmime
+		c=
+		;;
+	show)
+		if [ -e $draftmime ]; then
+			mshow "$draftmime"
+		else
+			mshow "$draft"
+		fi
+		c=
+		;;
 	*)
-		printf 'What now? ([s]end, [c]ancel, [d]elete, [e]dit, [m]ime) '
+		printf 'What now? ([s]end, [c]ancel, [d]elete, [e]dit, [m]ime, sign, encrypt) '
 		read -r c
 		;;
 	esac
