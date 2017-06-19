@@ -48,7 +48,7 @@ export(char *file)
 			char *s = strchr(v, '<');
 			char *e = strchr(s, '>');
 			if (s && e) {
-				e++;
+				s++;
 				memcpy(from, s, e-s);
 				from[e-s] = 0;
 			}
