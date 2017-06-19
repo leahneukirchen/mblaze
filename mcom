@@ -98,7 +98,7 @@ echo $draft
 		[ "$1" = -r ] && raw=1 && shift
 		[ "$#" -eq 0 ] && set -- .
 		printf '%s: \n' To Cc Bcc
-		mscan -f 'Subject: [%f] %s' "$@" | sed 1q
+		COLUMNS=10000 mscan -f 'Subject: [%f] %s' "$@" | sed 1q
 		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
 		[ "$from" ] && printf 'From: %s\n' "$from"
 		cat "$MBLAZE/headers" 2>/dev/null
@@ -135,7 +135,7 @@ echo $draft
 			       "$(mhdr -d -A -h to:cc: "$1" |notmine |commajoin)"
 			printf 'Bcc: \n'
 		fi
-		printf 'Subject: Re: %s\n' "$(mscan -f '%S' "$1")"
+		printf 'Subject: Re: %s\n' "$(COLUMNS=10000 mscan -f '%S' "$1")"
 		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
 		[ "$from" ] && printf 'From: %s\n' "$from"
 		cat "$MBLAZE/headers" 2>/dev/null
