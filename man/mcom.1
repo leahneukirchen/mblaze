@@ -8,7 +8,9 @@
 .Nd compose new, forward, reply to, and send mail
 .Sh SYNOPSIS
 .Nm mcom
-.Op Ar recipient
+.Op Ar recipients\ ...
+.Nm mcom
+.Fl r Op draft
 .Nm mfwd
 .Op Fl r
 .Op Ar msgs\ ...
@@ -19,15 +21,23 @@
 creates a new draft mail and runs an editor.
 After editing, a loop is started where the user can re-edit, send or
 cancel the mail.
+Use
+.Sq Nm Fl r
+to resume editing a draft.
+By default, the last modified draft will be edited.
 .Pp
 .Nm mfwd
 behaves like
 .Nm mcom
-but fills the draft with subject and body prefilled to forward the messages.
-By default, messages are forwarded verbatim as MIME attachments.
+but fills the draft with subject and body to forward the messages.
+By default, messages are forwarded verbatim as MIME
+.Sq Li message/rfc822
+attachments.
 Use
 .Fl r
-to forward as rendered plain text, using RFC934 message encapsulation.
+to forward as
+.Xr mshow 1
+rendered plain text, using RFC934 message encapsulation.
 .Pp
 .Nm mrep
 behaves like

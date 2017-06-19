@@ -36,23 +36,49 @@ sendmail=$(mhdr -h sendmail "$MBLAZE/profile")
 sendmail_args=$(mhdr -h sendmail-args "$MBLAZE/profile")
 sendmail="${sendmail:-sendmail} ${sendmail_args:--t}"
 
+resume=
+case "$0" in
+	*mcom*)
+		if [ "$1" = -r ]; then
+			shift
+			resume=1
+			if [ "$#" -gt 0 ]; then
+				echo "used dreaft $1"
+				draft="$1"
+				shift
+			fi
+		fi
+		;;
+esac
+
 outbox=$(mhdr -h outbox "$MBLAZE/profile")
 if [ -z "$outbox" ]; then
-	i=0
-	while [ -f "snd.$i" ]; do
-		i=$((i+1))
-	done
-	draft="./snd.$i"
+	if [ -z "$resume" ]; then
+		i=0
+		while [ -f "snd.$i" ]; do
+			i=$((i+1))
+		done
+		draft="./snd.$i"
+	elif [ -z "$draft" ]; then
+		draft=$(ls -1t ./snd.*[0-9] | sed 1q)
+	fi
 	draftmime="./snd.$i.mime"
 else
-	draft="$(true | mdeliver -v -c -XD "$outbox")"
-	if [ -z "$draft" ]; then
-		printf '%s\n' "$0: failed to create draft in outbox $outbox." 1>&2
-		exit 1
+	if [ -z "$resume" ]; then
+		draft="$(true | mdeliver -v -c -XD "$outbox")"
+		if [ -z "$draft" ]; then
+			printf '%s\n' "$0: failed to create draft in outbox $outbox." 1>&2
+			exit 1
+		fi
+	elif [ -z "$draft" ]; then
+		draft=$(mlist -D "$outbox" | msort -r -M | sed 1q)
 	fi
 	draftmime="$(printf '%s\n' "$draft" | sed 's,\(.*\)/cur/,\1/tmp/mime-,')"
 fi
 
+echo $draft
+
+[ -z "$resume" ] &&
 {
 	case "$0" in
 	*mcom*)
