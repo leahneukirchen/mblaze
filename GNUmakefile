@@ -18,7 +18,7 @@ BINDIR=$(PREFIX)/bin
 MANDIR=$(PREFIX)/share/man
 
 ALL = maddr magrep mdate mdeliver mdirs mexport mflag mgenmid mhdr minc mlist mmime mpick mscan msed mseq mshow msort mthread
-SCRIPT = mcolor mcom mless mquote museragent
+SCRIPT = mcolor mcom mless mmkdir mquote museragent
 
 all: $(ALL) museragent
 

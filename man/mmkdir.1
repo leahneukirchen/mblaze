@@ -1,0 +1,40 @@
+.Dd June 20, 2017
+.Dt MMKDIR 1
+.Os
+.Sh NAME
+.Nm mmkdir
+.Nd create new Maildir
+.Sh SYNOPSIS
+.Nm
+.Ar dirs\ ...
+.Sh DESCRIPTION
+.Nm
+creates new Maildir.
+.Pp
+Parent directories are created as needed, and creating existing
+Maildir is no error.
+.Pp
+New Maildir are created with permission 0700, i.e.
+only readable and writable by the owner.
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr mkdir 1
+.Pp
+.Lk https://cr.yp.to/proto/maildir.html "Using maildir format"
+.Sh AUTHORS
+.An Leah Neukirchen Aq Mt leah@vuxu.org
+.Sh CAVEATS
+.Nm
+does not support Maildir++,
+you need to transform nested Maildir++ folder names yourself.
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/
