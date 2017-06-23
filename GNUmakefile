@@ -36,7 +36,7 @@ mmime : slurp.o
 
 museragent: FRC
 	@printf '#!/bin/sh\nprintf "User-Agent: mblaze/%s (%s)\\n"\n' \
-		"$$(git describe --always --dirty 2>/dev/null || cat VERSION)" \
+		"$$(git describe --always --dirty 2>/dev/null | sed 's/^v//' || cat VERSION)" \
 		"$$(date +%Y-%m-%d)" >$@
 	@chmod +x $@
 
@@ -61,5 +61,15 @@ install: FRC all
 	install -m0644 man/*.1 $(DESTDIR)$(MANDIR)/man1
 	install -m0644 man/*.5 $(DESTDIR)$(MANDIR)/man5
 	install -m0644 man/*.7 $(DESTDIR)$(MANDIR)/man7
+
+release:
+	VERSION=$$(git describe --tags | sed 's/^v//;s/-[^.]*$$//') && \
+	git archive --prefix=mblaze-$$VERSION/ -o mblaze-$$VERSION.tar.gz HEAD
+
+sign:
+	VERSION=$$(git describe --tags | sed 's/^v//;s/-[^.]*$$//') && \
+	gpg --armor --detach-sign mblaze-$$VERSION.tar.gz && \
+	signify -S -s ~/.signify/mblaze.sec -m mblaze-$$VERSION.tar.gz && \
+	sed -i '1cuntrusted comment: verify with mblaze.pub' mblaze-$$VERSION.tar.gz.sig
 
 FRC:
