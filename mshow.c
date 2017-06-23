@@ -580,6 +580,7 @@ print_date_header(char *v)
 				if (!--p) break;
 				printf(", ");
 			}
+			/* FALL THROUGH */
 		case 'w':
 			z = d / (60*60*24*7);
 			d = d % (60*60*24*7);
@@ -588,6 +589,7 @@ print_date_header(char *v)
 				if (!--p) break;
 				printf(", ");
 			}
+			/* FALL THROUGH */
 		case 'd':
 			z = d / (60*60*24);
 			d = d % (60*60*24);
@@ -596,6 +598,7 @@ print_date_header(char *v)
 				if (!--p) break;
 				printf(", ");
 			}
+			/* FALL THROUGH */
 		case 'h':
 			z = d / (60*60);
 			d = d % (60*60);
@@ -604,6 +607,7 @@ print_date_header(char *v)
 				if (!--p) break;
 				printf(", ");
 			}
+			/* FALL THROUGH */
 		case 'm':
 			z = d / (60);
 			d = d % (60);
@@ -612,6 +616,7 @@ print_date_header(char *v)
 				if (!--p) break;
 				printf(", ");
 			}
+			/* FALL THROUGH */
 		case 's':
 			z = d;
 			printf("%d second%s", z, z>1 ? "s" : "");
