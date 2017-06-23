@@ -18,6 +18,7 @@ DESCRIPTION
      mdirs(1)     to find Maildir
      mexport(1)   to export mailboxes
      mflag(1)     to change flags (marks) of mail
+     mfwd(1)      to forward mail
      mgenmid(1)   to generate Message-IDs
      mhdr(1)      to extract mail headers
      minc(1)      to incorporate new mail
