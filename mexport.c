@@ -46,11 +46,15 @@ export(char *file)
 		if ((v = blaze822_hdr(msg, "return-path")) ||
 		    (v = blaze822_hdr(msg, "x-envelope-from"))) {
 			char *s = strchr(v, '<');
-			char *e = strchr(s, '>');
-			if (s && e) {
-				s++;
-				memcpy(from, s, e-s);
-				from[e-s] = 0;
+			if (s) {
+				char *e = strchr(s, '>');
+				if (e) {
+					s++;
+					snprintf(from, sizeof from, "%.*s",
+						 (int)(e-s), s);
+				}
+			} else {  // return-path without <>
+				snprintf(from, sizeof from, "%s", v);
 			}
 		}
 
