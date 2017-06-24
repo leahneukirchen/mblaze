@@ -115,20 +115,30 @@ basenam(const char *s)
 }
 
 static void
-gen_attachment(const char *filename)
+gen_attachment(const char *filename, char *content_disposition)
 {
 	const char *s = filename;
+	int quote = 0;
 
-	for (s = (char *) filename; *s; s++)
-		if (*s <= 32 || *s >= 127 || s - filename > 35)
+	if (!*filename) {
+		printf("Content-Disposition: %s\n", content_disposition);
+		return;
+	}
+
+	for (s = (char *) filename; *s; s++) {
+		if (*s < 32 || *s == '"' || *s >= 127 || s - filename > 35)
 			goto rfc2231;
+		if (strchr(" ()<>@,;:\\/[]?=", *s))
+			quote = 1;
+	}
 
-	printf("Content-Disposition: attachment; filename=\"%s\"\n", filename);
+	// filename SHOULD be an atom if possible
+	printf("Content-Disposition: %s; filename=%s%s%s\n", content_disposition,
+	    quote ? "\"" : "", filename, quote ? "\"" : "");
 	return;
 
 rfc2231:
-
-	printf("Content-Disposition: attachment");
+	printf("Content-Disposition: %s", content_disposition);
 	int i = 0;
 	int d = 0;
 
@@ -141,7 +151,7 @@ rfc2231:
 			i += 7;
 		}
 		while (*s && i < 78 - 3) {
-			if (*s <= 32 || *s > 126)
+			if (*s <= 32 || *s == '"' || *s > 126)
 				i += printf("%%%02x", (uint8_t) *s++);
 			else
 				i += printf("%c", (uint8_t) *s++);
@@ -156,6 +166,20 @@ gen_file(char *file, char *ct)
 {
 	uint8_t *content;
 	off_t size;
+
+	char *cd = "attachment";
+	char *s = strchr(ct, '#');
+	if (s) {
+		*s = 0;
+		cd = s + 1;
+	}
+
+	const char *filename = basenam(file);
+	s = strchr(file, '>');
+	if (s) {
+		*s = 0;
+		filename = s + 1;
+	}
 
 	int r = slurp(file, (char **)&content, &size);
 	if (r != 0) {
@@ -186,7 +210,7 @@ gen_file(char *file, char *ct)
 			bithigh++;
 	}
 
-	gen_attachment(basenam(file));
+	gen_attachment(filename, cd);
 
 	if (bitlow == 0 && bithigh == 0 &&
 	    maxlinelen <= 78 && content[size-1] == '\n') {

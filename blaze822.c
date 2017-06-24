@@ -145,7 +145,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 	}
 	
 	c = disp;
-	e = disp + sizeof disp;
+	e = disp + sizeof disp - 1;
 
 	*disp = 0;
 	*addr = 0;
@@ -173,21 +173,27 @@ blaze822_addr(char *s, char **dispo, char **addro)
 			}
 			if (*s == '>')
 				s++;
+			while (iswsp(*s))
+				s++;
 			*c = 0;
 		} else if (*s == '"') {
 			s++;
-			while (*s && c < e && *s != '"')
+			while (*s && c < e && *s != '"') {
+				if (*s == '\\' && *(s+1))
+					s++;
 				*c++ = *s++;
+			}
 			if (*s == '"')
 				s++;
-		} else if (*s == '(') {
+		} else if (*s == '(') {   // XXX recurse to conform?
 			s++;
 
 			if (!*addr) {	// assume: user@host (name)
 				*c-- = 0;
 				while (c > disp && iswsp(*c))
 					*c-- = 0;
-				strcpy(addr, disp);
+				c++;
+				memcpy(addr, disp, (c - disp) + 1);
 				c = disp;
 				*c = 0;
 			}
@@ -196,6 +202,10 @@ blaze822_addr(char *s, char **dispo, char **addro)
 				*c++ = *s++;
 			if (*s == ')')
 				s++;
+		} else if (*s == '\\') {
+			s++;
+			if (*s)
+				*c++ = *s++;
 		} else if (*s == ':') {
 			s++;
 			while (iswsp(*s))
@@ -216,7 +226,8 @@ blaze822_addr(char *s, char **dispo, char **addro)
 
 	if (*disp && !*addr && strchr(disp, '@')) {
 		// just mail address was given
-		strcpy(addr, disp);
+		c++;
+		memcpy(addr, disp, (c - disp) + 1);
 		*disp = 0;
 	}
 

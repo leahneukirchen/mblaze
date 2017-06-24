@@ -15,15 +15,17 @@ DESCRIPTION
      magrep(1)    to find mails matching a pattern
      mcom(1)      to write and send mail
      mdeliver(1)  to deliver messages or import mailboxes
-     mdirs(1)     to find Maildirs
+     mdirs(1)     to find Maildir
      mexport(1)   to export mailboxes
      mflag(1)     to change flags (marks) of mail
+     mfwd(1)      to forward mail
      mgenmid(1)   to generate Message-IDs
      mhdr(1)      to extract mail headers
      minc(1)      to incorporate new mail
      mless(1)     to conveniently read mail in less(1)
      mlist(1)     to list and filter mail messages
      mmime(1)     to create MIME messages
+     mmkdir(1)    to create new Maildir
      mpick(1)     to filter mail
      mrep(1)      to reply to mail
      mscan(1)     to generate single line summaries of mail
@@ -107,6 +109,10 @@ SEE ALSO
 AUTHORS
      Leah Neukirchen <leah@vuxu.org>
 
+     There is a mailing list available at mblaze@googlegroups.com, (please
+     report security-related bugs directly to the author), as well as an IRC
+     channel #vuxu on irc.freenode.net.
+
 LICENSE
      mblaze is in the public domain.
 
@@ -115,4 +121,4 @@ LICENSE
 
      http://creativecommons.org/publicdomain/zero/1.0/
 
-Void Linux                       July 22, 2016                      Void Linux
+Void Linux                       June 20, 2017                      Void Linux

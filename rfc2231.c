@@ -45,7 +45,7 @@ blaze822_mime2231_parameter(char *s, char *name,
 		if (blaze822_mime_parameter(s, namenum, &sbuf, &ebuf)) {
 found_extended:
 			// decode extended
-			if (i == 0) { // extended-initial-value
+			if (i == 0 || i == 100) { // extended-initial-value
 				char *encstart = sbuf;
 				sbuf = strchr(sbuf, '\'');
 				if (!sbuf) 
@@ -83,6 +83,7 @@ found_plain:
 					memcpy(dst, sbuf, ebuf - sbuf);
 					dst += ebuf - sbuf;
 				}
+				*dst = 0;
 			} else {
 				break;
 			}

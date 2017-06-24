@@ -8,7 +8,7 @@
 .Nm
 .Op Fl h Ar headers
 .Op Fl A Ar mimetypes
-.Op Fl nqrHL
+.Op Fl nqrHLN
 .Op Ar msgs\ ...
 .Nm
 .Fl x Ar msg
@@ -38,7 +38,7 @@ The options are as follows:
 Display the headers in the colon-separated list
 .Ar headers
 instead of the default headers
-.Sq Li from:subject:to:cc:date: .
+.Sq Li from:subject:to:cc:date:reply-to: .
 .It Fl A Ar mimetypes
 Define
 .Sq Li "mixed/alternative"
@@ -65,6 +65,8 @@ Don't decode the headers, print all raw headers.
 This may be dangerous to use on a tty.
 .It Fl L
 Don't filter the headers, print all decoded headers.
+.It Fl N
+Don't show MIME structure markers.
 .It Fl x Ar msg
 Switch to extraction mode: extract
 .Ar parts
