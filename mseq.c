@@ -96,6 +96,9 @@ search(char *file)
 	if (!namefind(dir))
 		namescan(dir);
 
+	if ((e = strstr(file, ":2,")))
+		*e = 0;
+
 	return namefind(file);
 }
 
