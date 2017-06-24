@@ -36,7 +36,7 @@ mmime : slurp.o
 
 museragent: FRC
 	@printf '#!/bin/sh\nprintf "User-Agent: mblaze/%s (%s)\\n"\n' \
-		"$$(git describe --always --dirty 2>/dev/null | sed 's/^v//' || cat VERSION)" \
+		"$$({ git describe --always --dirty 2>/dev/null || cat VERSION; } | sed 's/^v//')" \
 		"$$(date +%Y-%m-%d)" >$@
 	@chmod +x $@
 
