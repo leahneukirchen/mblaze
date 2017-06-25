@@ -52,6 +52,7 @@ check: FRC all
 install: FRC all
 	mkdir -p $(DESTDIR)$(BINDIR) \
 		$(DESTDIR)$(MANDIR)/man1 \
+		$(DESTDIR)$(MANDIR)/man5 \
 		$(DESTDIR)$(MANDIR)/man7
 	install -m0755 $(ALL) $(SCRIPT) $(DESTDIR)$(BINDIR)
 	ln -sf mless $(DESTDIR)$(BINDIR)/mnext
