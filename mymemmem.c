@@ -1,4 +1,5 @@
 // taken straight from musl@c718f9fc
+// twobyte_memmem fixed to avoid 1 byte read over end of buffer
 
 /*
 Copyright © 2005-2014 Rich Felker, et al.
@@ -29,8 +30,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 static char *twobyte_memmem(const unsigned char *h, size_t k, const unsigned char *n)
 {
 	uint16_t nw = n[0]<<8 | n[1], hw = h[0]<<8 | h[1];
-	for (h++, k--; k; k--, hw = hw<<8 | *++h)
+	h++;
+	k--;
+        for (;;) {
 		if (hw == nw) return (char *)h-1;
+		if (!--k) return 0;
+		hw = hw<<8 | *++h;
+        }
 	return 0;
 }
 
