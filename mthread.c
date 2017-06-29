@@ -118,6 +118,9 @@ thread(char *file)
 {
 	struct message *msg;
 
+	while (*file == ' ' || *file == '\t')
+		file++;
+
 	msg = blaze822(file);
 	if (!msg)
 		return;
