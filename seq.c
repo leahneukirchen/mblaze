@@ -56,8 +56,12 @@ blaze822_seq_open(char *file)
 
 	char *map;
 	off_t len;
-	if (slurp(file, &map, &len) != 0)
+	int r = slurp(file, &map, &len);
+	if (r != 0) {
+		fprintf(stderr, "could not read sequence '%s': %s\n",
+		    file, strerror(r));
 		return 0;
+	}
 
 	return map;
 }
