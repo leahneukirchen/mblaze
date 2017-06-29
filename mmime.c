@@ -64,6 +64,26 @@ int gen_qp(uint8_t *s, off_t size, int maxlinelen, int linelen)
 	char prev = 0;
 
 	for (i = 0; i < size; i++) {
+		// inspect utf8 sequence to not wrap in between multibyte
+		int mb;
+		if      ((s[i] & 0x80) == 0)    mb = 3;
+		else if ((s[i] & 0xc0) == 0x80) mb = 3;
+		else if ((s[i] & 0xe0) == 0xc0) mb = 6;
+		else if ((s[i] & 0xf0) == 0xe0) mb = 9;
+		else if ((s[i] & 0xf8) == 0xf0) mb = 12;
+		else mb = 3;
+
+		if (linelen >= maxlinelen-mb-!!header) {
+			linelen = 0;
+			prev = '\n';
+			if (header) {
+				printf("?=\n =?UTF-8?Q?");
+				linelen += 11;
+			} else {
+				puts("=");
+			}
+		}
+
 		if ((s[i] > 126) ||
 		    (s[i] < 32 && s[i] != '\n' && s[i] != '\t') ||
 		    (s[i] == '=')) {
@@ -89,17 +109,6 @@ int gen_qp(uint8_t *s, off_t size, int maxlinelen, int linelen)
 			putc_unlocked(s[i], stdout);
 			linelen++;
 			prev = s[i];
-		}
-		
-		if (linelen >= maxlinelen-3-!!header) {
-			linelen = 0;
-			prev = '\n';
-			if (header) {
-				printf("?=\n =?UTF-8?Q?");
-				linelen += 11;
-			} else {
-				puts("=");
-			}
 		}
 	}
 	if (linelen > 0 && !header)
