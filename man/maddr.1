@@ -11,39 +11,39 @@
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
-prints all mail addresses mentioned in the
+prints, one per line, all mail addresses found in the
 .Ar headers
-of the given
-.Ar msgs ,
-line by line.
+of the specified
+.Ar msgs .
 See
 .Xr mmsg 7
 for the message argument syntax.
 .Pp
 If no
 .Ar msgs
-are passed,
+are specified,
 and
 .Nm
 is used interactively,
 .Nm
 will default to the current sequence.
-Else,
+Otherwise,
 .Nm
 will read filenames from standard input.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
 .It Fl a
-Only print the address part of the address, not the display name.
+Only print the addr-spec part of the address, not the display name.
 .It Fl h Ar headers
 Only search the colon-separated list of
 .Ar headers
 for mail addresses.
 Default:
 .Sq Li "from:sender:reply-to:to:cc:bcc:"
-and the same with
-.Sq Li "resent-" .
+and their respective
+.Sq Li "resent-"
+variants.
 .El
 .Sh EXIT STATUS
 .Ex -std
