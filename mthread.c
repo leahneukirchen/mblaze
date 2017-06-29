@@ -187,6 +187,10 @@ out:
 	if (parent && parent != c) {
 		struct container *r;
 
+		// check we don't introduce a new loop
+		if (reachable(parent, c) || reachable(c, parent))
+			goto out2;
+
 		if (c->parent == parent) { // already correct
 			goto out2;
 		} else if (c->parent) {
