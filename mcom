@@ -20,9 +20,16 @@ msgid() {
 	mgenmid 2>/dev/null | sed 's/^/Message-Id: /'
 }
 
-msgdate() {
-	printf 'Date: '
-	mdate
+stampdate() {
+	if ! mhdr -h date "$1" >/dev/null; then
+		tmp=$(mktemp -t mcom.XXXXXX)
+		{
+			printf 'Date: '
+			mdate
+			cat "$1"		
+		} >"$tmp" &&
+		mv "$tmp" "$1"
+	fi
 }
 
 needs_multipart() {
@@ -88,7 +95,6 @@ fi
 		cat "$MBLAZE/headers" 2>/dev/null
 		msgid
 		museragent
-		msgdate
 		printf '\n\n'
 		;;
 	*mfwd*)
@@ -102,7 +108,6 @@ fi
 		cat "$MBLAZE/headers" 2>/dev/null
 		msgid
 		museragent
-		msgdate
 		printf '\n\n'
 		if [ -z "$raw" ]; then
 			mseq -r "$@" | sed 's:^:#message/rfc822#inline :; s:$:>:'
@@ -148,7 +153,6 @@ fi
 		fi
 		msgid
 		museragent
-		msgdate
 		printf '\n'
 
 		mquote "$1"
@@ -179,6 +183,7 @@ while :; do
 
 		if [ -e $draftmime ]; then
 			if [ $draft -ot $draftmime ]; then
+				stampdate $draftmime
 				if $sendmail <$draftmime; then
 					if [ "$outbox" ]; then
 						mv $draftmime $draft
@@ -197,6 +202,7 @@ while :; do
 			fi
 		else
 			if mmime -c <$draft; then
+				stampdate $draft
 				if $sendmail <$draft; then
 					if [ "$outbox" ]; then
 						mflag -d $draft
@@ -215,6 +221,7 @@ while :; do
 		fi
 		;;
 	c|cancel)
+		stampdate $draft
 		printf '%s\n' "mcom: cancelled draft $draft"
 		exit 1
 		;;
