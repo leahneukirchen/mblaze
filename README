@@ -42,15 +42,15 @@ PRINCIPLES
      it using sendmail(8), as provided by OpenSMTPD, Postfix, msmtp(1), dma(8)
      or similar.  mblaze expects your mail to reside in Maildir folders.
 
-     mblaze operates directly on Maildir and doesn't use own caches or
+     mblaze operates directly on Maildir and doesn't use its own caches or
      databases.  There is no setup needed for many uses.  All tools have been
      written with performance in mind.  Enumeration of all mails in a Maildir
-     is avoided unless necessary, and then optimized to use few syscalls.
-     Parsing mail metadata is optimized to use few I/O requests.  Initial
-     operations on big Maildir may feel slow, but as soon as they are in file
-     system cache, everything is blazing fast.  The tools are written to be
-     memory efficient (i.e. not wasteful), but whole messages are assumed to
-     fit into RAM easily (one at a time).
+     is avoided unless necessary, and then optimized to limit syscalls.
+     Parsing mail metadata is optimized to limit I/O requests.  Initial
+     operations on big Maildir may feel slow, but as soon as they are in the
+     file system cache, everything is blazingly fast.  The tools are written
+     to be memory efficient (i.e. not wasteful), but whole messages are
+     assumed to fit into RAM easily (one at a time).
 
      mblaze has been written from scratch and tested on a big pile of personal
      mail, but is not actually 100% RFC conforming (which is neither worth it
@@ -65,7 +65,7 @@ PRINCIPLES
      mairix(1), or mu(1).
 
 EXAMPLES
-     mblaze tools are designed to be composed together into a pipe.  It is
+     mblaze tools are designed to be composed together in a pipe.  It is
      suitable for interactive use and for scripting.  It integrates well into
      a Unix workflow.
 
@@ -73,7 +73,7 @@ EXAMPLES
      INBOX, oldest first.
            mlist -s ~/Maildir/INBOX | msort -d | mscan
      To operate on a set of mails in multiple steps, you can save a list of
-     mail as a sequence.  E.g. add a call to ‘mseq -S’ to above command:
+     mail as a sequence.  E.g. add a call to ‘mseq -S’ to the above command:
            mlist -s ~/Maildir/INBOX | msort -d | mseq -S | mscan
      Now mscan will show message numbers and you could look at the first five
      mails at once, for example:
@@ -91,11 +91,11 @@ EXAMPLES
 CONCEPTS
      mblaze deals with messages (which are files), folders (which are Maildir
      folders), sequences (which are newline-separated lists of messages,
-     possibly persisted on disk in ${MBLAZE:-$HOME/.mblaze}/seq), and the
-     current message (kept as a symlink in ${MBLAZE:-$HOME/.mblaze}/cur).
+     possibly saved on disk in ${MBLAZE:-$HOME/.mblaze}/seq), and the current
+     message (kept as a symlink in ${MBLAZE:-$HOME/.mblaze}/cur).
 
-     Messages in the persisted sequence can be referred to using special
-     syntax as explained in mmsg(7).
+     Messages in the saved sequence can be referred to using special syntax as
+     explained in mmsg(7).
 
      Many utilities have a default behavior when used interactively from a
      terminal (e.g. operate on the current message or the current sequence).
