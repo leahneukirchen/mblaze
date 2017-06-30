@@ -2,6 +2,7 @@
 #include <sys/types.h>
 
 #include <dirent.h>
+#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -475,6 +476,9 @@ main(int argc, char *argv[])
 
 	if (argc != optind)
 		goto usage;
+        
+        if (pledge("stdio rpath tty", NULL) == -1)
+          err(1, "pledge");
 
 	if (cflag)
 		return check();

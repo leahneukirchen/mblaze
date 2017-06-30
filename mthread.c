@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <search.h>
@@ -399,6 +400,9 @@ main(int argc, char *argv[])
 	int c, i;
 
 	optional = 1;
+
+        if (pledge("stdio rpath tty", NULL) == -1)
+          err(1, "pledge");
 
  	while ((c = getopt(argc, argv, "S:v")) != -1)
  		switch(c) {

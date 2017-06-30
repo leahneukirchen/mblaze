@@ -2,6 +2,7 @@
 #include <sys/types.h>
 
 #include <dirent.h>
+#include <err.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,6 +81,9 @@ main(int argc, char *argv[])
 
 	if (argc == optind)
 		goto usage;
+
+        if (pledge("stdio rpath tty", NULL) == -1)
+          err(1, "pledge");
 
 	for (i = 0; i < argc; i++)
 		mdirs(argv[i]);

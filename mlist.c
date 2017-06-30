@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 
 #include <dirent.h>
+#include <err.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <stdint.h>
@@ -254,6 +255,9 @@ main(int argc, char *argv[])
 		}
 
 	int i;
+
+        if (pledge("stdio rpath tty", NULL) == -1)
+          err(1, "pledge");
 	
 	for (i = 0, flagsum = 0, flagset = 0; (size_t)i < sizeof flags; i++) {
 		if (flags[i] != 0)

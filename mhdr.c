@@ -2,6 +2,7 @@
 #include <sys/types.h>
 
 #include <ctype.h>
+#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -203,6 +204,9 @@ main(int argc, char *argv[])
 		}
 
 	status = 1;
+
+        if (pledge("stdio rpath tty", NULL) == -1)
+          err(1, "pledge");
 
 	if (argc == optind && isatty(0))
 		blaze822_loop1(".", header);

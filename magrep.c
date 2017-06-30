@@ -2,6 +2,7 @@
 #include <sys/types.h>
 
 #include <ctype.h>
+#include <err.h>
 #include <errno.h>
 #include <regex.h>
 #include <stdio.h>
@@ -187,6 +188,9 @@ main(int argc, char *argv[])
 	char *rx = strchr(header, ':');
 	if (!rx)
 		goto usage;
+
+        if (pledge("stdio rpath tty", NULL) == -1)
+          err(1, "pledge");
 
 	*rx++ = 0;
 	int r = regcomp(&pattern, rx, REG_EXTENDED | iflag);

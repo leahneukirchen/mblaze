@@ -2,6 +2,7 @@
 #include <sys/stat.h>
 
 #include <ctype.h>
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -316,6 +317,8 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 
+        if (pledge("stdio rpath tty", NULL) == -1)
+          err(1, "pledge");
 
 	mails = calloc(sizeof (struct mail), mailalloc);
 	if (!mails)

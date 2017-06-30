@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <err.h>
 #include <errno.h>
 #include <limits.h>
 #include <search.h>
@@ -287,6 +288,9 @@ main(int argc, char *argv[])
 			);
 			exit(1);
 		}
+
+        if (pledge("stdio rpath wpath cpath tty", NULL) == -1)
+          err(1, "pledge");
 
 	if (cflag)
 		blaze822_loop1(cflag, overridecur);

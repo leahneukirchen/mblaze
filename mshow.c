@@ -2,6 +2,7 @@
 #include <sys/types.h>
 
 #include <ctype.h>
+#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <fnmatch.h>
@@ -750,6 +751,9 @@ main(int argc, char *argv[])
 	if (!rflag && !Oflag && !Rflag)
 		safe_output = 1;
 
+        if (pledge("stdio rpath tty cpath proc", NULL) == -1)
+          err(1, "pledge");
+
 	if (safe_output && isatty(1)) {
 		char *pg;
 		pg = getenv("MBLAZE_PAGER");
@@ -765,6 +769,9 @@ main(int argc, char *argv[])
 				pid1 = pipeto("mcolor");  // ignore error
 		}
 	}
+
+        if (pledge("stdio rpath cpath tty", NULL) == -1)
+          err(1, "pledge");
 
 	if (xflag) { // extract
 		extract(xflag, argc-optind, argv+optind, 0);

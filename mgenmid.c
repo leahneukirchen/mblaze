@@ -35,6 +35,9 @@ int main()
 	char *f = blaze822_home_file("profile");
 	struct message *config = blaze822(f);
 
+        if (pledge("stdio rpath tty", NULL) == -1)
+          err(1, "pledge");
+
 	if (config) // try FQDN: first
 		host = blaze822_hdr(config, "fqdn");
 

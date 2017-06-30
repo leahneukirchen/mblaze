@@ -1,5 +1,6 @@
 #include <sys/types.h>
 
+#include <err.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,6 +73,9 @@ main(int argc, char *argv[])
 			    "Usage: maddr [-a] [-h headers] [msgs...]\n");
 			exit(1);
 		}
+
+        if (pledge("stdio rpath tty", NULL) == -1)
+          err(1, "pledge");
 
 	if (argc == optind && isatty(0))
 		blaze822_loop1(":", addr);

@@ -2,6 +2,7 @@
 #include <sys/types.h>
 
 #include <ctype.h>
+#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <regex.h>
@@ -305,6 +306,9 @@ main(int argc, char *argv[])
 			fprintf(stderr, "Usage: msed [expr] [msgs...]\n");
 			exit(1);
 		}
+
+        if (pledge("stdio rpath tty", NULL) == -1)
+          err(1, "pledge");
 
 	expr = argv[optind];
 	optind++;

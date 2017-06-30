@@ -2,6 +2,7 @@
 #include <sys/types.h>
 
 #include <dirent.h>
+#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -205,6 +206,9 @@ main(int argc, char *argv[])
 		fprintf(stderr, "usage: mdeliver DIR\n");
 		return 1;
 	}
+
+        if (pledge("stdio wpath", NULL) == -1)
+          err(1, "pledge");
 
 	targetdir = argv[optind];
 
