@@ -23,3 +23,6 @@ This list is probably not complete.
 
 * Date parsing is strict, obsolete timezone and two-digit years are
   not parsed (RFC5322, 4.3).
+
+* Mails without MIME-Version (RFC2045, 4) are still subject to
+  MIME decoding if the Content-Transfer-Encoding header is present.
