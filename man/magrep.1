@@ -14,9 +14,9 @@
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
-prints the messages
+prints the names of files from the specified
 .Ar msgs
-where the value of
+if the value of
 .Ar header
 matches the POSIX Extended Regular Expression
 .Ar regex .
@@ -25,42 +25,42 @@ If
 .Ar header
 is empty,
 .Nm
-will instead match against the Maildir flags of the messages.
+matches against the Maildir flags of
+.Ar msgs .
 .Pp
 If
 .Ar header
 is
 .Sq Cm \&/ ,
 .Nm
-will instead search the plain text parts of the
-.Em body
-of the messages.
+searches any plain text parts of the
+.Ar msgs
+body.
 .Pp
 See
 .Xr mmsg 7
 for the message argument syntax.
 If no
 .Ar msgs
-are passed, and
+are specified, and
 .Nm
 is used interactively,
-.Nm
-will default to the current sequence.
+the current sequence will be searched.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
 .It Fl a
 Search for
 .Ar regex
-only in all RFC 2822 address parts in
-.Ar header .
+in RFC 2822 address
+.Ar header
+parts only.
 .It Fl c
-Don't print matching messages,
-just display the number of matched messages.
+Only print a count of matching messages.
 .It Fl d
 Decode the
 .Ar header
-according to RFC 2047 first.
+according to RFC 2047 prior to searching.
 .It Fl i
 Match
 .Ar regex
@@ -70,7 +70,7 @@ Do not show more than
 .Ar max
 matches.
 .It Fl o
-Print each match,
+Print each match only,
 not the entire line.
 This option is ignored if
 .Fl c ,
@@ -79,14 +79,15 @@ or
 .Fl v
 is specified.
 .It Fl p
-Print matching messages
-.Ar msgs ,
-the matching line and the header.
+Print the file name,
+the header and the matching line
+for each of the matched
+.Ar msgs .
 If
 .Fl o
 is specified each match is printed,
 instead of the matching line.
-This option is ignored if the
+This option is ignored if
 .Fl c ,
 .Fl q
 or
@@ -96,15 +97,14 @@ is specified.
 Quiet mode: do not print anything,
 quit as soon as possible.
 .It Fl v
-Invert the match, print (or count) all messages where
+Invert the match; print (or count) all files where
 .Ar regex
 does not match.
 .El
 .Sh EXIT STATUS
 .Nm
-returns with exit status 0 if a match was found,
-with exit status 1 if no match was found,
-and with exit status higher than 1 if an error occurred.
+exits 0 on success, 1 if no match was found
+and >1 if an error occurs.
 .Sh SEE ALSO
 .Xr grep 1 ,
 .Xr mmsg 7 ,
