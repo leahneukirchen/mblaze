@@ -86,14 +86,14 @@ or similar.
 expects your mail to reside in Maildir folders.
 .Pp
 .Nm
-operates directly on Maildir and doesn't use own caches or databases.
+operates directly on Maildir and doesn't use its own caches or databases.
 There is no setup needed for many uses.
 All tools have been written with performance in mind.
 Enumeration of all mails in a Maildir is avoided unless necessary,
-and then optimized to use few syscalls.
-Parsing mail metadata is optimized to use few I/O requests.
+and then optimized to limit syscalls.
+Parsing mail metadata is optimized to limit I/O requests.
 Initial operations on big Maildir may feel slow, but as soon as they
-are in file system cache, everything is blazing fast.
+are in the file system cache, everything is blazingly fast.
 The tools are written to be memory efficient (i.e. not wasteful), but
 whole messages are assumed to fit into RAM easily (one at a time).
 .Pp
@@ -119,7 +119,7 @@ or
 .Xr mu 1 .
 .Sh EXAMPLES
 .Nm
-tools are designed to be composed together into a pipe.
+tools are designed to be composed together in a pipe.
 It is suitable for interactive use and for scripting.
 It integrates well into a Unix workflow.
 .Pp
@@ -130,7 +130,7 @@ To operate on a set of mails in multiple steps, you can save a list of mail
 as a sequence.
 E.g. add a call to
 .Ql mseq -S
-to above command:
+to the above command:
 .Dl mlist -s ~/Maildir/INBOX | msort -d | mseq -S | mscan
 Now mscan will show message numbers and you could look at the first
 five mails at once, for example:
@@ -147,12 +147,12 @@ As usual with pipes, the sky is the limit.
 .Nm
 deals with messages (which are files),
 folders (which are Maildir folders),
-sequences (which are newline-separated lists of messages, possibly persisted on disk in
+sequences (which are newline-separated lists of messages, possibly saved on disk in
 .Pa ${MBLAZE:-$HOME/.mblaze}/seq ) ,
 and the current message (kept as a symlink in
 .Pa ${MBLAZE:-$HOME/.mblaze}/cur ) .
 .Pp
-Messages in the persisted sequence can be referred to using special
+Messages in the saved sequence can be referred to using special
 syntax as explained in
 .Xr mmsg 7 .
 .Pp
