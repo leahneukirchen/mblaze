@@ -185,10 +185,11 @@ parse_relnum(char *a, long cur, long last, long *out)
 		a = ".-1";
 	else if (strcmp(a, ".") == 0)
 		a = ".+0";
-	else if (strcmp(a, "$") == 0)
-		a = "-1";
 
-	if (*a == '.') {
+	if (*a == '$') {
+		a++;
+		base = last;
+	} else if (*a == '.') {
 		a++;
 		base = cur;
 	} else if (*a == '-') {
@@ -198,7 +199,7 @@ parse_relnum(char *a, long cur, long last, long *out)
 	}
 
 	long d;
-	if (*a == ':') {
+	if (strchr(":=_^", *a)) {
 		d = 0;
 		b = a;
 	} else {
