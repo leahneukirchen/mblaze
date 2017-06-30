@@ -21,6 +21,7 @@
 #include "blaze822.h"
 
 static int vflag;
+static int optional;
 
 struct container {
 	char *mid;
@@ -30,6 +31,7 @@ struct container {
 	struct container *parent;
 	struct container *child;
 	struct container *next;
+	int optional;
 };
 
 static void *mids;
@@ -80,6 +82,7 @@ midcont(char *mid)
 		c->file = 0;
 		c->msg = 0;
 		c->date = -1;
+		c->optional = 0;
 		c->parent = c->child = c->next = 0;
 		return *(struct container **)tsearch(c, &mids, midorder);
 	} else {
@@ -95,6 +98,7 @@ store_id(char *file, struct message *msg)
 	c = midcont(mid(msg));
 	c->file = strdup(file);
 	c->msg = msg;
+	c->optional = optional;
 
 	return c;
 }
@@ -279,6 +283,7 @@ find_roots()
 	top->date = -1;
 	top->file = 0;
 	top->next = top->child = top->parent = 0;
+	top->optional = 0;
 	top->mid = "(top)";
 
 	lastc = top;
@@ -301,9 +306,23 @@ prune_tree(struct container *c, int depth)
 			c->file = c->child->file;
 			c->msg = c->child->msg;
 			c->date = c->child->date;
+			c->optional = c->child->optional;
 			c->child = c->child->child;
 		}
 	} while ((c = c->next));
+}
+
+int
+alloptional(struct container *c)
+{
+	do {
+		if (!c->optional && c->file)
+			return 0;
+		if (c->child && !alloptional(c->child))
+			return 0;
+	} while ((c = c->next));
+
+	return 1;
 }
 
 static int
@@ -328,7 +347,7 @@ sort_tree(struct container *c, int depth)
 		for (r = c->child, i = 0; r; r = r->next, i++)
 			sort_tree(r, depth+1);
 
-		if (i == 1) // no sort needed
+		if (i == 1)  // no sort needed
 			return;
 
 		struct container **a = calloc(sizeof (struct container *), i);
@@ -353,6 +372,12 @@ void
 print_tree(struct container *c, int depth)
 {
 	do {
+		// skip toplevel threads when they are unresolved or all optional
+		if (depth <= 1 &&
+		    (c->optional || !c->file) &&
+		    (!c->child || alloptional(c->child)))
+			continue;
+
 		if (depth >= 0) {
 			int i;
 			for (i = 0; i < depth; i++)
@@ -373,13 +398,18 @@ main(int argc, char *argv[])
 {
 	int c, i;
 
- 	while ((c = getopt(argc, argv, "v")) != -1)
+	optional = 1;
+
+ 	while ((c = getopt(argc, argv, "S:v")) != -1)
  		switch(c) {
+ 		case 'S': blaze822_loop1(optarg, thread); break;
  		case 'v': vflag = 1; break;
  		default:
-			fprintf(stderr, "Usage: mthread [-v] [msgs...]\n");
+			fprintf(stderr, "Usage: mthread [-v] [-S dir] [msgs...]\n");
  			exit(1);
  		}
+
+	optional = 0;
 
 	if (argc == optind && isatty(0))
 		i = blaze822_loop1(":", thread);

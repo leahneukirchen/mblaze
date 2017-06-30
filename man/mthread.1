@@ -7,6 +7,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl v
+.Op Fl S Ar msg
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
@@ -30,6 +31,15 @@ The options are as follows:
 .Bl -tag -width Ds
 .It Fl v
 Do not prune unresolved Message-IDs at the top-level.
+.It Fl S Ar msg
+Treat
+.Ar msg
+as optional message(s) that will be added to threads only in case they
+are referenced.
+Threads where all messages are optional are suppressed.
+You can use
+.Fl S
+to add outbox folders and complete threads where your replies were missing.
 .El
 .Sh EXIT STATUS
 .Ex -std
