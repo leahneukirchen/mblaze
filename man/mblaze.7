@@ -1,4 +1,4 @@
-.Dd June 20, 2017
+.Dd June 30, 2017
 .Dt MBLAZE 7
 .Os
 .Sh NAME
@@ -17,89 +17,89 @@ System, but it is a complete implementation from scratch.
 consists of these Unix tools that each do one job:
 .Bl -tag -width 11n -compact
 .It Xr maddr 1
-to extract addresses from mail
+extract addresses from mail
 .It Xr magrep 1
-to find mails matching a pattern
+find mails matching a pattern
 .It Xr mcom 1
-to write and send mail
+compose and send mail
 .It Xr mdeliver 1
-to deliver messages or import mailboxes
+deliver messages or import mailboxes
 .It Xr mdirs 1
-to find Maildir
+find Maildirs
 .It Xr mexport 1
-to export mailboxes
+export Maildirs as mailboxes
 .It Xr mflag 1
-to change flags (marks) of mail
+change flags (marks) of mail
 .It Xr mfwd 1
-to forward mail
+forward mail
 .It Xr mgenmid 1
-to generate Message-IDs
+generate Message-IDs
 .It Xr mhdr 1
-to extract mail headers
+extract mail headers
 .It Xr minc 1
-to incorporate new mail
+incorporate new mail
 .It Xr mless 1
-to conveniently read mail in
+conveniently read mail in
 .Xr less 1
 .It Xr mlist 1
-to list and filter mail messages
+list and filter mail messages
 .It Xr mmime 1
-to create MIME messages
+create MIME messages
 .It Xr mmkdir 1
-to create new Maildir
+create new Maildir
 .It Xr mpick 1
-to filter mail
+advanced mail filter
 .It Xr mrep 1
-to reply to mail
+reply to mail
 .It Xr mscan 1
-to generate single line summaries of mail
+generate one-line summaries of mail
 .It Xr msed 1
-to manipulate mail headers
+manipulate mail headers
 .It Xr mseq 1
-to manipulate mail sequences
+manipulate mail sequences
 .It Xr mshow 1
-to render mail and extract attachments
+render mail and extract attachments
 .It Xr msort 1
-to sort mail
+sort mail
 .It Xr mthread 1
-to arrange mail into discussions
+arrange mail into discussions
 .El
 .Sh PRINCIPLES
 .Nm
-is a classic command line MUA and has no features related to receiving
-and transferring mail;
+is a classic command line MUA and has no features
+for receiving or transferring mail;
 you are expected to fetch your mail using
-.Xr offlineimap 1 ,
 .Xr fdm 1 ,
-.Xr procmail 1 ,
 .Xr getmail 1
-or similar
+.Xr offlineimap 1 ,
+.Xr procmail 1 ,
+or similar ,
 and send it using
+.Xr dma 8 ,
+.Xr msmtp 1 ,
 .Xr sendmail 8 ,
 as provided by
 OpenSMTPD,
 Postfix,
-.Xr msmtp 1 ,
-.Xr dma 8
 or similar.
 .Nm
 expects your mail to reside in Maildir folders.
 .Pp
 .Nm
-operates directly on Maildir and doesn't use its own caches or databases.
+operates directly on Maildirs and doesn't use its own caches or databases.
 There is no setup needed for many uses.
 All tools have been written with performance in mind.
 Enumeration of all mails in a Maildir is avoided unless necessary,
 and then optimized to limit syscalls.
 Parsing mail metadata is optimized to limit I/O requests.
-Initial operations on big Maildir may feel slow, but as soon as they
+Initial operations on a large Maildir may feel slow, but as soon as they
 are in the file system cache, everything is blazingly fast.
 The tools are written to be memory efficient (i.e. not wasteful), but
 whole messages are assumed to fit into RAM easily (one at a time).
 .Pp
 .Nm
-has been written from scratch and tested on a big pile of personal mail,
-but is not actually 100% RFC conforming
+has been written from scratch and tested on a large corpus of personal mail,
+but is not actually 100% RFC-conforming
 (which is neither worth it nor desirable).
 There may be issues with very old, nonconforming, messages.
 .Pp
@@ -113,35 +113,45 @@ can decode).
 It assumes you work in a UTF-8 environment.
 .Nm
 works well together with other Unix mail tools such as
-.Xr offlineimap 1 ,
 .Xr mairix 1 ,
+.Xr mu 1 ,
 or
-.Xr mu 1 .
+.Xr offlineimap 1 .
 .Sh EXAMPLES
 .Nm
 tools are designed to be composed together in a pipe.
-It is suitable for interactive use and for scripting.
-It integrates well into a Unix workflow.
+They are suitable for interactive use and for scripting,
+and integrate well into a Unix workflow.
 .Pp
 For example, you could decide you want to look at all unseen mail in your
 INBOX, oldest first.
 .Dl mlist -s ~/Maildir/INBOX | msort -d | mscan
-To operate on a set of mails in multiple steps, you can save a list of mail
-as a sequence.
-E.g. add a call to
+.Pp
+To operate on a set of mails in multiple steps,
+you can save it as a sequence,
+e.g. add a call to
 .Ql mseq -S
 to the above command:
 .Dl mlist -s ~/Maildir/INBOX | msort -d | mseq -S | mscan
+.Pp
 Now mscan will show message numbers and you could look at the first
 five mails at once, for example:
 .Dl mshow 1:5
-Likewise, you could decide to look at all freshly received mail in all
-folders, thread it and look at it interactively:
+.Pp
+Likewise, you could decide to incorporate (by moving from
+.Pa new
+to
+.Pa cur )
+all new mail in all folders,
+thread it and look at it interactively:
 .Dl mdirs ~/Maildir | xargs minc | mthread | mless
-Or you could look at the attachments of the 20 largest mails in your INBOX:
-.Dl mlist ~/Maildir/INBOX | msort -s | tail -20 | mshow -t
+.Pp
+Or you could list the attachments of the 20 largest mails in your INBOX:
+.Dl mlist ~/Maildir/INBOX | msort -S | tail -20 | mshow -t
+.Pp
 Or apply the patches from the current mail:
 .Dl mshow -O . '*.diff' | patch
+.Pp
 As usual with pipes, the sky is the limit.
 .Sh CONCEPTS
 .Nm
