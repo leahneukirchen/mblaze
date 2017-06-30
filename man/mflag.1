@@ -16,7 +16,7 @@
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
-flags changes the flags of the given
+changes the flags of the given
 .Ar msgs
 according to the options.
 See
@@ -52,7 +52,7 @@ as trashed.
 .It Fl X Ar str
 Mark
 .Ar msgs
-as with the chracters in
+with the characters in
 .Ar str .
 .It Fl d
 Unmark
@@ -81,14 +81,14 @@ as trashed.
 .It Fl x Ar str
 Unmark
 .Ar msgs
-as with the chracters in
+with the characters in
 .Ar str .
 (Remember to use uppercase characters.)
 .It Fl v
 Read Maildir mails from stdin (or the use the whole current sequence, if
 used interactively) and print the transformed list of file names.
 .Pp
-Can be used to keep the sequence intact in advent of renames.
+This can be used to keep the sequence intact in the case of renames.
 .El
 .Pp
 Note that the

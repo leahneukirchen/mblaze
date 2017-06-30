@@ -27,21 +27,21 @@ for comments:
 Please bear in mind that empty lines will stop parsing.
 .Pp
 The following
-.Ar key
+.Ar keys
 are used by
 .Xr mblaze 7 :
 .Bl -tag -width Ds
 .It Li "Alternate-Mailboxes:"
 A comma-separated list of mail addresses that belong to you, for
 .Xr mscan 1
-to recognize them as sent to you.
+to recognize messages sent by or directly to you.
 .It Li "FQDN:"
 The fully qualified domain name used for
 .Li "Message-Id:"
 generation in
 .Xr mgenmid 1 .
 .It Li "Local-Mailbox:"
-Your primary mail address, used as default value for
+Your primary mail address, used as the default value for
 .Li "From:"
 in
 .Xr mcom 1 ,
