@@ -16,9 +16,9 @@
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
-changes the flags of the given
+changes the flags of the specified Maildir
 .Ar msgs
-according to the options.
+according to the options supplied.
 See
 .Xr mmsg 7
 for the message argument syntax.
@@ -85,15 +85,16 @@ with the characters in
 .Ar str .
 (Remember to use uppercase characters.)
 .It Fl v
-Read Maildir mails from stdin (or the use the whole current sequence, if
-used interactively) and print the transformed list of file names.
+Read Maildir mails from the standard input
+(or use the whole current sequence, if used interactively)
+and print the transformed list of file names.
 .Pp
 This can be used to keep the sequence intact in the case of renames.
 .El
 .Pp
-Note that the
-.Pa cur
-link is updated in all cases, when affected.
+Note that the link to
+.Pa ${MBLAZE:-$HOME/.mblaze}/cur
+is updated in all cases, when affected.
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
