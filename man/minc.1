@@ -10,7 +10,7 @@
 .Ar dirs\ ...
 .Sh DESCRIPTION
 .Nm
-incorporates new mail in the given
+incorporates new mail in the specified Maildir folders
 .Ar dirs
 by moving them from
 .Pa new
@@ -18,12 +18,13 @@ to
 .Pa cur
 and adjusting the file names.
 .Pp
-By default, the new Maildir files are printed line by line.
+By default, the new Maildir file names
+are printed, one per line
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
 .It Fl q
-Don't print the new Maildir files.
+Quiet: don't print new file names.
 .El
 .Sh EXIT STATUS
 .Ex -std
