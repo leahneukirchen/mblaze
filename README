@@ -11,81 +11,86 @@ DESCRIPTION
      but it is a complete implementation from scratch.
 
      mblaze consists of these Unix tools that each do one job:
-     maddr(1)     to extract addresses from mail
-     magrep(1)    to find mails matching a pattern
-     mcom(1)      to write and send mail
-     mdeliver(1)  to deliver messages or import mailboxes
-     mdirs(1)     to find Maildir
-     mexport(1)   to export mailboxes
-     mflag(1)     to change flags (marks) of mail
-     mfwd(1)      to forward mail
-     mgenmid(1)   to generate Message-IDs
-     mhdr(1)      to extract mail headers
-     minc(1)      to incorporate new mail
-     mless(1)     to conveniently read mail in less(1)
-     mlist(1)     to list and filter mail messages
-     mmime(1)     to create MIME messages
-     mmkdir(1)    to create new Maildir
-     mpick(1)     to filter mail
-     mrep(1)      to reply to mail
-     mscan(1)     to generate single line summaries of mail
-     msed(1)      to manipulate mail headers
-     mseq(1)      to manipulate mail sequences
-     mshow(1)     to render mail and extract attachments
-     msort(1)     to sort mail
-     mthread(1)   to arrange mail into discussions
+     maddr(1)     extract addresses from mail
+     magrep(1)    find mails matching a pattern
+     mcom(1)      compose and send mail
+     mdeliver(1)  deliver messages or import mailboxes
+     mdirs(1)     find Maildir folders
+     mexport(1)   export Maildir folders as mailboxes
+     mflag(1)     change flags (marks) of mail
+     mfwd(1)      forward mail
+     mgenmid(1)   generate Message-IDs
+     mhdr(1)      extract mail headers
+     minc(1)      incorporate new mail
+     mless(1)     conveniently read mail in less(1)
+     mlist(1)     list and filter mail messages
+     mmime(1)     create MIME messages
+     mmkdir(1)    create new Maildir
+     mpick(1)     advanced mail filter
+     mrep(1)      reply to mail
+     mscan(1)     generate one-line summaries of mail
+     msed(1)      manipulate mail headers
+     mseq(1)      manipulate mail sequences
+     mshow(1)     render mail and extract attachments
+     msort(1)     sort mail
+     mthread(1)   arrange mail into discussions
 
 PRINCIPLES
-     mblaze is a classic command line MUA and has no features related to
-     receiving and transferring mail; you are expected to fetch your mail
-     using offlineimap(1), fdm(1), procmail(1), getmail(1) or similar and send
-     it using sendmail(8), as provided by OpenSMTPD, Postfix, msmtp(1), dma(8)
-     or similar.  mblaze expects your mail to reside in Maildir folders.
+     mblaze is a classic command line MUA and has no features for receiving or
+     transferring mail; you are expected to fetch your mail using fdm(1),
+     getmail(1) offlineimap(1), procmail(1), or similar , and send it using
+     dma(8), msmtp(1), sendmail(8), as provided by OpenSMTPD, Postfix, or
+     similar.  mblaze expects your mail to reside in Maildir folders.
 
-     mblaze operates directly on Maildir and doesn't use its own caches or
-     databases.  There is no setup needed for many uses.  All tools have been
-     written with performance in mind.  Enumeration of all mails in a Maildir
-     is avoided unless necessary, and then optimized to limit syscalls.
-     Parsing mail metadata is optimized to limit I/O requests.  Initial
-     operations on big Maildir may feel slow, but as soon as they are in the
-     file system cache, everything is blazingly fast.  The tools are written
-     to be memory efficient (i.e. not wasteful), but whole messages are
-     assumed to fit into RAM easily (one at a time).
+     mblaze operates directly on Maildir folders and doesn't use its own
+     caches or databases.  There is no setup needed for many uses.  All tools
+     have been written with performance in mind.  Enumeration of all mails in
+     a Maildir is avoided unless necessary, and then optimized to limit
+     syscalls.  Parsing mail metadata is optimized to limit I/O requests.
+     Initial operations on a large Maildir may feel slow, but as soon as they
+     are in the file system cache, everything is blazingly fast.  The tools
+     are written to be memory efficient (i.e. not wasteful), but whole
+     messages are assumed to fit into RAM easily (one at a time).
 
-     mblaze has been written from scratch and tested on a big pile of personal
-     mail, but is not actually 100% RFC conforming (which is neither worth it
-     nor desirable).  There may be issues with very old, nonconforming,
-     messages.
+     mblaze has been written from scratch and tested on a large corpus of
+     personal mail, but is not actually 100% RFC-conforming (which is neither
+     worth it nor desirable).  There may be issues with very old,
+     nonconforming, messages.
 
      mblaze is written in portable C, using only POSIX functions (apart from a
      tiny Linux-only optimization), and has no external dependencies.  It
      supports MIME and more than 7-bit messages (everything the host iconv(3)
      can decode).  It assumes you work in a UTF-8 environment.  mblaze works
-     well together with other Unix mail tools such as offlineimap(1),
-     mairix(1), or mu(1).
+     well together with other Unix mail tools such as mairix(1), mu(1), or
+     offlineimap(1).
 
 EXAMPLES
-     mblaze tools are designed to be composed together in a pipe.  It is
-     suitable for interactive use and for scripting.  It integrates well into
-     a Unix workflow.
+     mblaze tools are designed to be composed together in a pipe.  They are
+     suitable for interactive use and for scripting, and integrate well into a
+     Unix workflow.
 
      For example, you could decide you want to look at all unseen mail in your
      INBOX, oldest first.
            mlist -s ~/Maildir/INBOX | msort -d | mscan
-     To operate on a set of mails in multiple steps, you can save a list of
-     mail as a sequence.  E.g. add a call to ‘mseq -S’ to the above command:
+
+     To operate on a set of mails in multiple steps, you can save it as a
+     sequence, e.g. add a call to ‘mseq -S’ to the above command:
            mlist -s ~/Maildir/INBOX | msort -d | mseq -S | mscan
+
      Now mscan will show message numbers and you could look at the first five
      mails at once, for example:
            mshow 1:5
-     Likewise, you could decide to look at all freshly received mail in all
-     folders, thread it and look at it interactively:
+
+     Likewise, you could decide to incorporate (by moving from new to cur) all
+     new mail in all folders, thread it and look at it interactively:
            mdirs ~/Maildir | xargs minc | mthread | mless
-     Or you could look at the attachments of the 20 largest mails in your
-     INBOX:
-           mlist ~/Maildir/INBOX | msort -s | tail -20 | mshow -t
+
+     Or you could list the attachments of the 20 largest mails in your INBOX:
+           mlist ~/Maildir/INBOX | msort -S | tail -20 | mshow -t
+
      Or apply the patches from the current mail:
            mshow -O. '*.diff' | patch
+
      As usual with pipes, the sky is the limit.
 
 CONCEPTS
@@ -122,4 +127,4 @@ LICENSE
 
      http://creativecommons.org/publicdomain/zero/1.0/
 
-Void Linux                       June 20, 2017                      Void Linux
+Void Linux                       June 30, 2017                      Void Linux
