@@ -3,23 +3,24 @@
 .Os
 .Sh NAME
 .Nm mdirs
-.Nd list Maildir, recursively
+.Nd list Maildir folders, recursively
 .Sh SYNOPSIS
 .Nm
 .Ar dirs\ ...
 .Sh DESCRIPTION
 .Nm
-scans the given directories for Maildir folders and prints them line by line.
-It understands Maildir and Maildir++.
+scans the given directories for Maildir folders and prints them,
+one per line.
+It understands Maildir and Maildir++ formats.
 .Pp
 There are currently no options.
 .Pp
 To
 .Nm ,
 a Maildir folder is a directory containing
-a directory
+the directories
 .Pa cur
-and a directory
+and
 .Pa new .
 By the Maildir++ convention, nested Maildir folders
 need to start with
