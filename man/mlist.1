@@ -18,10 +18,11 @@
 .Op Ar dirs\ ...
 .Sh DESCRIPTION
 .Nm
-lists all messages in the Maildir folders
-.Ar dirs
-line by line.
-If used non-interactively and no folders are given,
+lists all messages in the specified Maildir folders
+.Ar dirs ,
+one per line.
+If used non-interactively,
+with no specified folders,
 .Nm
 reads directory names from standard input.
 .Pp
@@ -71,11 +72,11 @@ Don't list messages in
 Don't list messages in
 .Pa new .
 .It Fl i
-Don't print filenames, instead print a single line summary for each
-folder with the number of unseen, flagged and total messages, as well
-as the folder name.
+Don't print filenames. Instead, print a one-line summary for each
+folder, showing the number of unseen, flagged and total messages,
+along with the folder name.
 .Pp
-When two or more summaries are printed, also print a total.
+If two or more folders are specified, a total will also be printed.
 .El
 .Pp
 Multiple options are regarded as a conjunction.
