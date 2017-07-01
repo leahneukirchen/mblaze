@@ -337,7 +337,8 @@ parse_parent(char *map, long *starto, long *stopo)
 static int
 parse_range(char *map, char *a, long *start, long *stop, long cur, long lines)
 {
-	*start = *stop = 1;
+	*start = 0;
+	*stop = 1;
 
 	while (*a && *a != ':' && *a != '=' && *a != '_' && *a != '^') {
 		char *b = parse_relnum(a, cur, lines, start);
@@ -345,6 +346,8 @@ parse_range(char *map, char *a, long *start, long *stop, long cur, long lines)
 			return 0;
 		a = b;
 	}
+	if (*start == 0)
+	    *start = strchr("=^_", *a) ? cur : 1;
 
 	while (*a == '^') {
 		a++;
