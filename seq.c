@@ -174,7 +174,7 @@ blaze822_seq_setcur(char *s)
 }
 
 static char *
-parse_relnum(char *a, long cur, long last, long *out)
+parse_relnum(char *a, long cur, long start, long last, long *out)
 {
 	long base;
 	char *b;
@@ -194,6 +194,8 @@ parse_relnum(char *a, long cur, long last, long *out)
 		base = cur;
 	} else if (*a == '-') {
 		base = last + 1;
+	} else if (*a == '+') {
+		base = start;
 	} else {
 		base = 0;
 	}
@@ -341,7 +343,7 @@ parse_range(char *map, char *a, long *start, long *stop, long cur, long lines)
 	*stop = 1;
 
 	while (*a && *a != ':' && *a != '=' && *a != '_' && *a != '^') {
-		char *b = parse_relnum(a, cur, lines, start);
+		char *b = parse_relnum(a, cur, 0, lines, start);
 		if (a == b)
 			return 0;
 		a = b;
@@ -360,7 +362,7 @@ parse_range(char *map, char *a, long *start, long *stop, long cur, long lines)
 		if (!*a) {
 			*stop = lines;
 		} else {
-			char *b = parse_relnum(a, cur, lines, stop);
+			char *b = parse_relnum(a, cur, *start, lines, stop);
 			if (a == b)
 				return 0;
 		}
