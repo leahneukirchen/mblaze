@@ -174,7 +174,7 @@ blaze822_seq_setcur(char *s)
 }
 
 static char *
-parse_relnum(char *a, long cur, long last, long *out)
+parse_relnum(char *a, long cur, long start, long last, long *out)
 {
 	long base;
 	char *b;
@@ -185,20 +185,23 @@ parse_relnum(char *a, long cur, long last, long *out)
 		a = ".-1";
 	else if (strcmp(a, ".") == 0)
 		a = ".+0";
-	else if (strcmp(a, "$") == 0)
-		a = "-1";
 
-	if (*a == '.') {
+	if (*a == '$') {
+		a++;
+		base = last;
+	} else if (*a == '.') {
 		a++;
 		base = cur;
 	} else if (*a == '-') {
 		base = last + 1;
+	} else if (*a == '+') {
+		base = start;
 	} else {
 		base = 0;
 	}
 
 	long d;
-	if (*a == ':') {
+	if (strchr(":=_^", *a)) {
 		d = 0;
 		b = a;
 	} else {
@@ -336,14 +339,17 @@ parse_parent(char *map, long *starto, long *stopo)
 static int
 parse_range(char *map, char *a, long *start, long *stop, long cur, long lines)
 {
-	*start = *stop = 1;
+	*start = 0;
+	*stop = 1;
 
 	while (*a && *a != ':' && *a != '=' && *a != '_' && *a != '^') {
-		char *b = parse_relnum(a, cur, lines, start);
+		char *b = parse_relnum(a, cur, 0, lines, start);
 		if (a == b)
 			return 0;
 		a = b;
 	}
+	if (*start == 0)
+	    *start = strchr("=^_", *a) ? cur : 1;
 
 	while (*a == '^') {
 		a++;
@@ -356,7 +362,7 @@ parse_range(char *map, char *a, long *start, long *stop, long cur, long lines)
 		if (!*a) {
 			*stop = lines;
 		} else {
-			char *b = parse_relnum(a, cur, lines, stop);
+			char *b = parse_relnum(a, cur, *start, lines, stop);
 			if (a == b)
 				return 0;
 		}
