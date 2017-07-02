@@ -57,6 +57,13 @@ If the sequence does not contain a
 it is considered to be a single message, equivalent to the range
 .Sq Ar start Ns Cm \&: Ns Ar start
 of size one.
+The special notation
+.Sq Ar start Ns Cm \&:+ Ns Ar n ,
+selects
+.Ar start
+and the next
+.Ar n
+messages.
 .Pp
 If the sequence is threaded, the following
 syntax may be used:
@@ -72,7 +79,7 @@ refers to the subthread headed by
 .Ar msg
 (i.e. all messages below with more indentation).
 .Pp
-There are four special shortcuts:
+There are seven special shortcuts:
 .Bl -tag -width 3n
 .It Sq Li \&.
 refers to the current message.
@@ -90,6 +97,15 @@ refers to the previous message (like
 .It Sq Li \&$
 refers to the last message (like
 .Sq Li -1 ) .
+.It Sq Li \&^
+refers to the current parent message (like
+.Sq Li \&.^ ) .
+.It Sq Li \&=
+refers to the current thread (like
+.Sq Li \&.= ) .
+.It Sq Li \&_
+refers to the current subthread (like
+.Sq Li \&._ ) .
 .El
 .Sh AUTHORS
 .An Leah Neukirchen Aq Mt leah@vuxu.org
