@@ -3,19 +3,20 @@
 .Os
 .Sh NAME
 .Nm mmkdir
-.Nd create new Maildir
+.Nd create new Maildir folders
 .Sh SYNOPSIS
 .Nm
 .Ar dirs\ ...
 .Sh DESCRIPTION
 .Nm
-creates new Maildir.
+creates new Maildir folders.
 .Pp
-Parent directories are created as needed, and creating existing
-Maildir is no error.
+Parent directories are created as needed,
+and attempting to create an existing
+Maildir is not an error.
 .Pp
-New Maildir are created with permission 0700, i.e.
-only readable and writable by the owner.
+New Maildir folders are created with mode 0700, i.e.
+readable and writable by the owner only.
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
