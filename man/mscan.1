@@ -19,24 +19,33 @@ for the message argument syntax.
 .Pp
 If no
 .Ar msgs
-are passed,
+are specified,
 .Nm
-reads filenames from standard input,
-or uses the mails in the current sequence when used interactively
-(using a pager).
+reads filenames from the standard input,
+or scans the mails in the current sequence if used interactively.
 .Pp
 By default,
+.Nm
+will spawn a pager on its output when used interactively.
+See
+.Sx ENVIRONMENT
+for details on how to control this behaviour.
+.Pp
+The default
 .Ar format
 is
-.Sq Li "%c%u%r %-3n %10d %17f %t %2i%s" ,
+.Sq Li "%c%u%r %-3n %10d %17f %t %2i%s" ;
 that is, for each message,
 .Nm
-prints
-flags,
+prints relevant flags,
 the sequence number (if applicable),
 the date,
 the originator,
 and the subject of the message (possibly indented).
+A default
+.Nm
+format may be specified in the user's
+.Xr mblaze-profile 5 .
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -53,14 +62,14 @@ Format according to the string
 inspired by
 .Xr printf 3 .
 .Pp
-The following formatting codes can be used
+The following formatting codes may be used
 .Ar ( wd
 overrides the default width):
 .Bl -tag -width Ds
 .It Cm \en
-Newline
+Newline.
 .It Cm \et
-Tab
+Tab.
 .It Cm \&%%
 A plain
 .Sq Li \&% .
@@ -68,25 +77,26 @@ A plain
 Human-readable size of the message (in kilobytes).
 .It Cm "%c"
 A
-.Sq Li \&
-on the current message, else a blank.
+.Sq Li >
+on the current message,
+otherwise a blank.
 .It Cm "%" Ns Oo Ar wd Oc Ns Cm "d"
 Adaptive date of the message.
 .It Cm "%" Ns Oo Ar wd Oc Ns Cm "D"
 ISO date of the message (year, month, day).
 When
 .Ar wd
-is greater or equal 16,
-the hour-minute timestamp will be shown, too.
+is greater or equal to 16,
+the hour-minute timestamp will also be shown.
 When
 .Ar wd
-is greater or equal 19,
-seconds will be shown, too.
+is greater or equal to 19,
+seconds will also be shown.
 .It Cm "%" Ns Oo Ar wd Oc Ns Cm "f"
 The
-.Sq Li From
+.Sq Li From:
 (or
-.Sq Li To ,
+.Sq Li To: ,
 if the message is from us).
 .It Cm "%" Ns Oo Ar wd Oc Ns Cm "F"
 The Maildir folder the message resides in.
@@ -131,13 +141,13 @@ a
 .Sq Li \&:
 if you are in
 .Sq Li "Resent-To:" ,
-or a blank else.
+or a blank.
 .It Cm "%u"
-A
+An
 .Sq Li \&*
-on a flagged message, or a
+on a flagged message, a
 .Sq Li \&.
-on an unseen message, or a
+on an unseen message, an
 .Sq Li x
 on a trashed message, or a blank.
 .El
@@ -174,7 +184,7 @@ Any non-empty value of the environment variable
 .Ev MBLAZE_PAGER
 is used instead of the standard pagination program, specified in
 .Ev PAGER .
-When empty or set to
+When empty, or set to
 .Sq Ic cat ,
 no pager is spawned.
 .El
