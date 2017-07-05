@@ -5,28 +5,19 @@
 .Nm mmsg
 .Nd mblaze message argument syntax
 .Sh DESCRIPTION
-This manpage documents the message syntax used
-by the tools
-.Xr maddr 1 ,
-.Xr magrep 1 ,
-.Xr mflag 1 ,
-.Xr mhdr 1 ,
-.Xr mless 1 ,
-.Xr mrep 1 ,
-.Xr mscan 1 ,
-.Xr mseq 1 ,
-.Xr mshow 1 ,
-.Xr msort 1 ,
-.Xr mthread 1 .
+This document outlines the message syntax used by many
+of the tools in the
+.Xr mblaze 7
+message system.
 .Pp
-In general, you can always pass a file name as a message,
+In general, you can always specify a filename as a message,
 if it contains a
 .Sq Li \&/
 character.
-Use
+(Use
 .Sq Li \&./
-to prefix messages in the current directory.
-You can also pass a Maildir folder, which will be expanded
+to prefix messages in the current directory.)
+You can also specify a Maildir folder, which will be expanded
 to all messages in the
 .Pa cur/
 directory.
@@ -57,6 +48,13 @@ If the sequence does not contain a
 it is considered to be a single message, equivalent to the range
 .Sq Ar start Ns Cm \&: Ns Ar start
 of size one.
+The special notation
+.Sq Ar start Ns Cm \&:+ Ns Ar n ,
+selects
+.Ar start
+and the next
+.Ar n
+messages.
 .Pp
 If the sequence is threaded, the following
 syntax may be used:
@@ -66,13 +64,13 @@ refers to the whole thread that contains
 .Sq Ar msg Ns Cm \&^
 refers to the parent of the message
 .Ar msg
-and may be repeated to refer to grand-parents.
+and may be repeated to refer to grandparents.
 .Sq Ar msg Ns Cm \&_
 refers to the subthread headed by
 .Ar msg
-(i.e. all messages below with more indentation).
+(i.e. all messages below, with more indentation).
 .Pp
-There are four special shortcuts:
+The following special shortcuts may be used:
 .Bl -tag -width 3n
 .It Sq Li \&.
 refers to the current message.
@@ -90,6 +88,17 @@ refers to the previous message (like
 .It Sq Li \&$
 refers to the last message (like
 .Sq Li -1 ) .
+.It Sq Li \&^
+refers to the current parent message (like
+.Sq Li \&.^ ) .
+.It Sq Li \&=
+refers to the current thread (like
+.Sq Li \&.= ) .
+.It Sq Li \&_
+refers to the current subthread (like
+.Sq Li \&._ ) .
 .El
+.Sh SEE ALSO
+.Xr mblaze 7
 .Sh AUTHORS
 .An Leah Neukirchen Aq Mt leah@vuxu.org

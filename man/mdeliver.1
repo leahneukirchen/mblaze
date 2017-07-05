@@ -22,8 +22,8 @@
 .Ar mbox
 .Sh DESCRIPTION
 .Nm
-adds a the message given on standard input as a new message
-into the Maildir
+adds a message given on standard input
+as a new message in the Maildir
 .Ar dir .
 .Pp
 When
@@ -31,11 +31,10 @@ When
 is used,
 .Nm
 will regard standard input as
-a MBOXRD mailbox, split it on
+an MBOXRD mailbox, split it on
 .Dq Li "From "
 and deliver each message,
 decoding it according to the MBOXRD convention.
-Also,
 .Nm
 will set the mtime according to the value of
 .Sq Li "Date:"
@@ -47,8 +46,8 @@ or
 The messages are delivered in a reliable way and use default
 .Xr umask 2 .
 .Pp
-.Em Beware :
-no syntactical checks are performed on the messages.
+Please note that no syntactical checks are performed
+on the messages.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -63,8 +62,7 @@ not
 .It Fl v
 Print each message filename after delivery.
 .It Fl X Ar flg
-.Em Override
-the flags of the new message file to be
+Override the flags of the new message file to be
 .Ar flg .
 .El
 .Sh EXIT STATUS

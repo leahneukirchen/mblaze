@@ -14,7 +14,7 @@
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
-prints the mail headers of the given
+prints the mail headers of the specified
 .Ar msgs .
 See
 .Xr mmsg 7
@@ -22,7 +22,7 @@ for the message argument syntax.
 .Pp
 If no
 .Ar msgs
-are passed,
+are specified,
 .Nm
 will default to the current message.
 .Pp
@@ -34,13 +34,13 @@ Only print the values of the headers in the colon-separated list
 .It Fl d
 Decode the headers according to RFC 2047.
 .It Fl H
-Prefix all output lines with the file name of the message, separated
-by a tab.
+Prefix output lines with the filename of the message,
+followed by a tab.
 .It Fl M
 Search for all occurrences of the headers
 (default: only the first).
 .It Fl A
-Scan for RFC 5322 addresses in the headers and print them line by line.
+Scan for RFC 5322 addresses in the headers and print them, one per line.
 .It Fl D
 Assume header contains RFC 5322 date and print as Unix timestamp.
 .El
@@ -48,7 +48,7 @@ Assume header contains RFC 5322 date and print as Unix timestamp.
 The
 .Nm
 utility exits 0 on success,
-1 when no header was printed,
+1 if no header was printed,
 and >1 if an error occurs.
 .Sh SEE ALSO
 .Xr mmsg 7

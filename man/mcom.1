@@ -5,7 +5,7 @@
 .Nm mcom ,
 .Nm mfwd ,
 .Nm mrep
-.Nd compose new, forward, reply to, and send mail
+.Nd compose, forward, reply to, and send mail
 .Sh SYNOPSIS
 .Nm mcom
 .Op Ar recipients\ ...
@@ -18,18 +18,19 @@
 .Ar msg
 .Sh DESCRIPTION
 .Nm mcom
-creates a new draft mail and runs an editor.
-After editing, a loop is started where the user can re-edit, send or
-cancel the mail.
+creates a new draft mail and opens it in an editor.
+After editing, a loop is started where the user can re-edit,
+send or cancel the mail.
 Use
 .Sq Nm Fl r
-to resume editing a draft.
-By default, the last modified draft will be edited.
+to resume the editing of a draft;
+by default, the last modified draft will be edited.
 .Pp
 .Nm mfwd
 behaves like
 .Nm mcom
-but fills the draft with subject and body to forward the messages.
+but creates the draft with a subject and body appropriate
+for forwarding the message.
 By default, messages are forwarded verbatim as MIME
 .Sq Li message/rfc822
 attachments.
@@ -42,7 +43,7 @@ rendered plain text, using RFC934 message encapsulation.
 .Nm mrep
 behaves like
 .Nm mcom
-but fills the draft such that the mail will be a reply to the message
+but creates the draft such that the mail will be a reply to
 .Ar msg .
 See
 .Xr mmsg 7
@@ -53,13 +54,12 @@ for the message argument syntax.
 Send the mail.
 The MIME version will be used when one has been created.
 .It Ic c
-Cancel sending and quit
-.Nm
-after displaying the file name of the draft.
+Cancel sending and quit after displaying
+the filename of the saved draft.
 .It Ic m
 Run
 .Xr mmime 1
-on the draft, and show the result of
+on the draft, and print the result of
 .Ic mshow -t .
 .It Ic e
 Re-run the editor on the draft.
@@ -71,19 +71,18 @@ Delete the draft and quit.
 .It Ev EDITOR
 Editor used to compose mail.
 .It Ev MBLAZE
-Directory containing mblaze configuration.
+Directory containing mblaze configuration files.
 (Default:
 .Pa $HOME/.mblaze )
 .El
 .Sh FILES
 .Bl -tag -width Ds
 .It Pa snd.*
-Draft messages (kept in current directory)
+Draft messages, kept in current directory.
+This can be configured in
+.Xr mblaze-profile 5 .
 .It Pa ${MBLAZE:-$HOME/.mblaze}/headers
 Default headers for each mail.
-(Put your
-.Sq Li From\&:
-line there.)
 .It Pa ${MBLAZE:-$HOME/.mblaze}/signature No or Pa ~/.signature
 Default signature.
 .El

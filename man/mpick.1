@@ -16,9 +16,9 @@ prints all matching messages.
 If used interactively,
 .Nm
 will default to the current sequence.
-Else,
+Otherwise,
 .Nm
-will read filenames from standard input.
+will read filenames from the standard input.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -33,10 +33,9 @@ see
 .Sh MSGLISTS
 .Nm
 message lists (msglist) are mostly compatible with
-.Xr mailx 1
-are message
-specifications used as shortened
-.Sx TESTS
+.Xr mailx 1 .
+They are message specifications used as shortened
+.Sx TESTS ,
 and can include:
 .Bl -tag -width Ds
 .It Ar n
@@ -55,14 +54,14 @@ All messages with
 .Ar string
 in the subject line (case ignored).
 .It Cm \&: Ns Ar c
-All message of type
+All messages of type
 .Ar c ,
 where
 .Ar c
 shall be one of:
 .Bl -tag -width Ds
 .It Cm D
-Drafted messages.
+Draft messages.
 .It Cm P
 Passed (resent, forwarded or bounced) messages.
 .It Cm R
@@ -93,7 +92,7 @@ tests are given by the following EBNF:
              | <timeprop> <numop> <dur>
              | <numprop> <numop> <num>
              | <strprop> <strop> <str>
-             | prune             -- do not match futher messages in thread
+             | prune             -- do not match further messages in thread
              | print             -- always true value
 
 <flagprop> ::= child | draft | flagged | info | new | parent | passed
@@ -154,7 +153,8 @@ to pick mails from the current sequence.
 .Pp
 A more advanced
 .Nm
-expressions to pick mails in a time span which are flagged as replied or not seen.
+expression to pick mails in a certain time span,
+which are flagged as replied or not seen.
 .Bd -literal -offset indent
 mpick -t 'date >= \&"2016-01-01\&" && date < \&"2017-01-01\&" && (replied || !seen)'
 .Ed

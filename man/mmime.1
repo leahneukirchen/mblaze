@@ -12,20 +12,17 @@
 .Ar message
 .Sh DESCRIPTION
 .Nm
-encodes the standard input into a MIME message.
-.Pp
-.Nm
 generates a
 .Sq Li multipart/mixed
 mail from standard input,
-extending, wrapping, and encoding the header as neccessary,
-and replacing body lines looking like
+extending, wrapping, and encoding the header as necessary,
+and replacing lines in the message body, of the form
 .Pp
 .D1 Li # Ns Ar content Ns Li / Ns Ar type Ns Oo Ns Li # Ns Ar content-disposition Oc Pa path Ns Oo Li > Ns Ar filename Oc
 .Pp
 with a MIME part having Content-Type
-.Ar content/type
-consisting of the contents of
+.Ar content/type ,
+consisting of the contents of the file found at
 .Pa path .
 .Ar content-disposition
 is optional and defaults to
