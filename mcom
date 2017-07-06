@@ -13,7 +13,8 @@ notmine() {
 }
 
 reffmt() {
-	sed 's/^[^<]*//g;s/[^>]*$//g;s/>[^<]*</>\n</g' | uniq | sed 's/^/ /'
+	sed 's/^[^<]*//g;s/[^>]*$//g;s/>[^<]*</>\
+</g' | uniq | sed 's/^/ /'
 }
 
 msgid() {
