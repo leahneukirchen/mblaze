@@ -219,6 +219,9 @@ gen_file(char *file, char *ct)
 			bithigh++;
 	}
 
+	if (strcmp(ct, "message/rfc822") == 0 && maxlinelen < 997)
+		maxlinelen = 0;
+
 	gen_attachment(filename, cd);
 
 	if (bitlow == 0 && bithigh == 0 &&
