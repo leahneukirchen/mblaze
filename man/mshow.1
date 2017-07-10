@@ -25,18 +25,19 @@
 .Sh DESCRIPTION
 By default,
 .Nm
-renders the passed messages to standard output.
+renders the specified messages to the standard output.
 See
 .Xr mmsg 7
 for the message argument syntax.
-If used interactively and no messages are given,
+If used interactively, and no messages are specified,
+.Nm
 displays the current message using colorization and a pager.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
 .It Fl h Ar headers
 Display the headers in the colon-separated list
-.Ar headers
+.Ar headers ,
 instead of the default headers
 .Sq Li from:subject:to:cc:date:reply-to: .
 .It Fl A Ar mimetypes
@@ -45,8 +46,9 @@ Define
 preference.
 .Ar mimetypes
 is a colon-separated list of
-MIME types, the ones appearing first will
-be preferred when rendering
+MIME types which will be preferred,
+in the order given,
+when rendering
 .Sq Li "mixed/alternative"
 parts.
 If no MIME type matches, the first MIME part will be rendered.
@@ -97,10 +99,11 @@ Render the text parts from
 suitable for use in a reply.
 .El
 .Sh FILTERS
-.Nm
-by default decodes all
+.Nm ,
+by default, decodes all
 .Sq Li text/* ,
-.Sq Li message/rfc822 ,
+.Sq Li message/rfc822
+and
 .Sq Li multipart/*
 parts,
 and re-encodes them into UTF-8 if necessary.
