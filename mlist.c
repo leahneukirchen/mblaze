@@ -185,6 +185,9 @@ listarg(char *arg)
 		iunseen = 0;
 		iflagged = 0;
 
+		if (arg[strlen(arg) - 1] == '/')
+			arg[strlen(arg) -1] = '\0';
+
 		snprintf(subdir, sizeof subdir, "%s/cur", arg);
 		if (stat(subdir, &st2) == 0) {
 			maildir = 1;
