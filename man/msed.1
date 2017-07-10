@@ -13,7 +13,7 @@
 prints the messages
 .Ar msgs
 with mail headers transformed by the commands in
-.Ar scripts .
+.Ar script .
 See
 .Xr mmsg 7
 for the message argument syntax.
@@ -29,8 +29,8 @@ scripts are akin to a subset of
 scripts, but optimized for modifying mail.
 Note that
 .Nm
-unfolds and normalizes the mail headers, so they may need to be
-passed through
+unfolds and normalizes mail headers,
+so they may need to be passed through
 .Xr mmime 7
 to ensure RFC 5322 conformance.
 The mail body is copied as-is.
