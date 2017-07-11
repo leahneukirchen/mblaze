@@ -1,5 +1,5 @@
 // taken straight from musl@c718f9fc
-// twobyte_memmem fixed to avoid 1 byte read over end of buffer
+// incooperates fix from <20170629213533.18744-1-amonakov@ispras.ru>
 
 /*
 Copyright © 2005-2014 Rich Felker, et al.
@@ -30,32 +30,27 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 static char *twobyte_memmem(const unsigned char *h, size_t k, const unsigned char *n)
 {
 	uint16_t nw = n[0]<<8 | n[1], hw = h[0]<<8 | h[1];
-	h++;
-	k--;
-        for (;;) {
-		if (hw == nw) return (char *)h-1;
-		if (!--k) return 0;
-		hw = hw<<8 | *++h;
-        }
-	return 0;
+	for (h+=2, k-=2; k; k--, hw = hw<<8 | *h++)
+		if (hw == nw) return (char *)h-2;
+	return hw == nw ? (char *)h-2 : 0;
 }
 
 static char *threebyte_memmem(const unsigned char *h, size_t k, const unsigned char *n)
 {
 	uint32_t nw = n[0]<<24 | n[1]<<16 | n[2]<<8;
 	uint32_t hw = h[0]<<24 | h[1]<<16 | h[2]<<8;
-	for (h+=2, k-=2; k; k--, hw = (hw|*++h)<<8)
-		if (hw == nw) return (char *)h-2;
-	return 0;
+	for (h+=3, k-=3; k; k--, hw = (hw|*h++)<<8)
+		if (hw == nw) return (char *)h-3;
+	return hw == nw ? (char *)h-3 : 0;
 }
 
 static char *fourbyte_memmem(const unsigned char *h, size_t k, const unsigned char *n)
 {
 	uint32_t nw = n[0]<<24 | n[1]<<16 | n[2]<<8 | n[3];
 	uint32_t hw = h[0]<<24 | h[1]<<16 | h[2]<<8 | h[3];
-	for (h+=3, k-=3; k; k--, hw = hw<<8 | *++h)
-		if (hw == nw) return (char *)h-3;
-	return 0;
+	for (h+=4, k-=4; k; k--, hw = hw<<8 | *h++)
+		if (hw == nw) return (char *)h-4;
+	return hw == nw ? (char *)h-4 : 0;
 }
 
 #define MAX(a,b) ((a)>(b)?(a):(b))
