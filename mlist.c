@@ -173,9 +173,8 @@ listarg(char *arg)
 	// squeeze slashes
 	s = t = arg;
 	while ((*s++ = *t))
-		if (*t++ == '/')
-			while (*t == '/')
-				t++;
+		while (*t++ == '/' && *t == '/')
+			;
 	// remove trailing slashes
 	s--;
 	while (*--s == '/')
