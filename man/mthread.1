@@ -11,20 +11,20 @@
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
-groups messages together in parent/child relationships based on
+groups messages together in parent/child relationships, based on
 which messages are replies to which others.
 See
 .Xr mmsg 7
 for the message argument syntax.
 .Pp
-If no messages are passed,
+If no messages are specified,
 .Nm
-will read filenames from standard input,
+will read filenames from the standard input,
 or use the default sequence if used interactively.
 .Pp
 .Nm
-prints the threaded messages line by line, indented according to their
-depth in the message tree.
+prints the threaded messages one per line,
+indented according to their depth in the message tree.
 Unresolved Message-IDs are printed as-is.
 .Pp
 The options are as follows:
@@ -34,12 +34,13 @@ Do not prune unresolved Message-IDs at the top-level.
 .It Fl S Ar msg
 Treat
 .Ar msg
-as optional message(s) that will be added to threads only in case they
+as optional message(s) that will be added to threads only if they
 are referenced.
 Threads where all messages are optional are suppressed.
 You can use
 .Fl S
-to add outbox folders and complete threads where your replies were missing.
+to add an outbox folder, for example,
+completing threads where your replies were missing.
 .El
 .Sh EXIT STATUS
 .Ex -std
