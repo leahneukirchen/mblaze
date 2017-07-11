@@ -11,18 +11,16 @@
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
-sorts mail messages according to various orders.
+sorts mail messages according to various orders,
+and prints, one per line, the sorted message names.
 See
 .Xr mmsg 7
 for the message argument syntax.
 .Pp
-If no messages are passed,
+If no messages are specified,
 .Nm
 will read filenames from standard input,
 or use the default sequence if used interactively.
-.Pp
-.Nm
-prints the sorted messages line by line.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
