@@ -168,6 +168,19 @@ listdir(char *dir)
 void
 listarg(char *arg)
 {
+	char *s, *t;
+
+	// squeeze slashes
+	s = t = arg;
+	while ((*s++ = *t))
+		if (*t++ == '/')
+			while (*t == '/')
+				t++;
+	// remove trailing slashes
+	s--;
+	while (*--s == '/')
+		*s = 0;
+
 	struct stat st;
 	if (stat(arg, &st) < 0)
 		return;
