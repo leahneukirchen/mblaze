@@ -13,7 +13,8 @@ notmine() {
 }
 
 reffmt() {
-	sed 's/^[^<]*//g;s/[^>]*$//g;s/>[^<]*</>\n</g' | uniq | sed 's/^/ /'
+	sed 's/^[^<]*//g;s/[^>]*$//g;s/>[^<]*</>\
+</g' | uniq | sed 's/^/ /'
 }
 
 msgid() {
@@ -144,7 +145,7 @@ fi
 		cat "$MBLAZE/headers" 2>/dev/null
 		mid=$(mhdr -h message-id "$1")
 		if [ "$mid" ]; then
-			printf 'References: '
+			printf 'References:'
 			{
 				mhdr -h references "$1"
 				printf '%s\n' "$mid"

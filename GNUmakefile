@@ -33,6 +33,7 @@ mshow : filter.o safe_u8putstr.o rfc2231.o pipeto.o
 mscan : pipeto.o
 msort : mystrverscmp.o
 mmime : slurp.o
+minc mlist : squeeze_slash.o
 
 museragent: FRC
 	@printf '#!/bin/sh\nprintf "User-Agent: mblaze/%s (%s)\\n"\n' \

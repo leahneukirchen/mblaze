@@ -97,3 +97,6 @@ void safe_u8putstr(char *s0, size_t l, FILE *stream);
 pid_t pipeto(const char *cmdline);
 int pipeclose(pid_t pid);
 
+// squeeze_slash.c
+
+void squeeze_slash(char *);

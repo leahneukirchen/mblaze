@@ -169,6 +169,8 @@ listdir(char *dir)
 void
 listarg(char *arg)
 {
+	squeeze_slash(arg);
+
 	struct stat st;
 	if (stat(arg, &st) < 0)
 		return;

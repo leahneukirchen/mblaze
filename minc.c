@@ -24,11 +24,13 @@ inc(char *dir)
 	char src[PATH_MAX];
 	char dst[PATH_MAX];
 
+	squeeze_slash(dir);
+
 	snprintf(src, sizeof src, "%s/new", dir);
 	fd = opendir(src);
 	if (!fd) {
 		fprintf(stderr, "minc: can't open maildir '%s': %s\n",
-		    dir, strerror(errno));
+		    src, strerror(errno));
 		status = 2;
 		return;
 	}
