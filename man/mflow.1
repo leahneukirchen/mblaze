@@ -1,0 +1,55 @@
+.Dd July 26, 2017
+.Dt MFLOW 1
+.Os
+.Sh NAME
+.Nm mflow
+.Nd reflow format=flowed plain text mails
+.Sh SYNOPSIS
+.Nm
+\&<
+.Ar file
+.Sh DESCRIPTION
+.Nm
+reformats the standard input according to the rules
+of RFC 3676.
+.Ev PIPE_CONTENTTYPE
+is inspected, making this a suitable filter
+for
+.Sq text/plain
+messages for
+.Xr mshow 1 .
+Mails not using
+.Sq format=flowed
+are output as is.
+.Pp
+Text is reflowed (where allowed) to
+fit the width given in the environment variable
+.Ev COLUMNS ,
+the terminal width, or 80 characters by default.
+.Pp
+If defined,
+the environment variable
+.Ev MAXCOLUMNS
+specifies the maximum line length.
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr mshow 1
+.Rs
+.%A R. Gellens
+.%D February 2004
+.%R RFC 3676
+.%T The Text/Plain Format and DelSp Parameters
+.Re
+.Sh AUTHORS
+.An Leah Neukirchen Aq Mt leah@vuxu.org
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/

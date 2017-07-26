@@ -18,6 +18,7 @@ DESCRIPTION
      mdirs(1)     find Maildir folders
      mexport(1)   export Maildir folders as mailboxes
      mflag(1)     change flags (marks) of mail
+     mflow(1)     reflow format=flowed plain text mails
      mfwd(1)      forward mail
      mgenmid(1)   generate Message-IDs
      mhdr(1)      extract mail headers
