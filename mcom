@@ -51,7 +51,7 @@ case "$0" in
 			shift
 			resume=1
 			if [ "$#" -gt 0 ]; then
-				echo "used dreaft $1"
+				echo "used draft $1"
 				draft="$1"
 				shift
 			fi
