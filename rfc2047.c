@@ -75,7 +75,7 @@ blaze822_decode_b64(char *s, char *e, char **deco, size_t *decleno)
 		41,42,43,44, 45,46,47,48, 49,50,51,-1, -1,-1,-1,-1
 	};
 
-	char *buf = malloc((e - s) / 4 * 3);
+	char *buf = malloc((e - s) / 4 * 3 + 1);
 	if (!buf)
 		return 0;
 
@@ -117,6 +117,8 @@ error:
 		if (c2 != '=') *buf++ = d1;
 		if (c3 != '=') *buf++ = d2;
 	}
+
+	*buf = 0;
 
 	*decleno = buf - *deco;
 	return 1;
