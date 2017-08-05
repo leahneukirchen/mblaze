@@ -26,7 +26,7 @@ END {
 		exit(system("mshow -r -O " q(msg) " " q(signed) \
 			" | openssl smime -verify"))
 	} else {
-		print("Cant verify signatures of type " type ".")
+		print("Cannot verify signatures of type " type ".")
 		exit(2)
 	}
 }
