@@ -1,5 +1,7 @@
 #include <sys/wait.h>
 
+#include <fcntl.h>
+#include <errno.h>
 #include <limits.h>
 #include <poll.h>	     
 #include <signal.h>
@@ -33,6 +35,10 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 
 	if (pipe(pipe0) != 0 || pipe(pipe1) != 0)
 		goto fail;
+
+	int got = fcntl(pipe0[1], F_GETFL);
+	if (got > 0)
+		fcntl(pipe0[1], F_SETFL, got | O_NONBLOCK);
 
 	char *argv[] = { "/bin/sh", "-c", cmd, (char *)0 };
 
@@ -85,13 +91,14 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 		}
 		
 		if (fds[1].revents & POLLOUT) {
-			ssize_t ret = write(fds[1].fd, input,
-			    inlen > PIPE_BUF ? PIPE_BUF : inlen);
+			ssize_t ret = write(fds[1].fd, input, inlen);
 			if (ret > 0) {
 				input += ret;
 				inlen -= ret;
 			}
-			if (ret <= 0 || inlen == 0)
+			if (ret <= 0 && errno == EAGAIN) {
+				/* ignore */
+			} else if (ret <= 0 || inlen == 0)
 				close(fds[1].fd);
 		} else if (fds[1].revents & (POLLERR | POLLHUP | POLLNVAL)) {
 			fds[1].fd = -1;
