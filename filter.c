@@ -1,9 +1,11 @@
+#include <sys/wait.h>
+
+#include <limits.h>
 #include <poll.h>	     
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -83,7 +85,8 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 		}
 		
 		if (fds[1].revents & POLLOUT) {
-			ssize_t ret = write(fds[1].fd, input, inlen);
+			ssize_t ret = write(fds[1].fd, input,
+			    inlen > PIPE_BUF ? PIPE_BUF : inlen);
 			if (ret > 0) {
 				input += ret;
 				inlen -= ret;
