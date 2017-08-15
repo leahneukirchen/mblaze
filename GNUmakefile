@@ -17,18 +17,18 @@ PREFIX=/usr/local
 BINDIR=$(PREFIX)/bin
 MANDIR=$(PREFIX)/share/man
 
-ALL = maddr magrep mdate mdeliver mdirs mexport mflag mgenmid mhdr minc mlist mmime mpick mscan msed mseq mshow msort mthread
+ALL = maddr magrep mdate mdeliver mdirs mexport mflag mflow mgenmid mhdr minc mlist mmime mpick mscan msed mseq mshow msort mthread
 SCRIPT = mcolor mcom mless mmkdir mquote museragent
 
 all: $(ALL) museragent
 
 $(ALL) : % : %.o
-maddr magrep mdeliver mexport mflag mgenmid mhdr mpick mscan msed mshow \
+maddr magrep mdeliver mexport mflag mflow mgenmid mhdr mpick mscan msed mshow \
   msort mthread : blaze822.o mymemmem.o mytimegm.o
 maddr magrep mexport mflag mgenmid mhdr mlist mpick mscan msed mseq mshow msort \
   mthread : seq.o slurp.o
-maddr magrep mhdr mpick mscan mshow : rfc2047.o
-magrep mshow : rfc2045.o
+maddr magrep mflow mhdr mpick mscan mshow : rfc2047.o
+magrep mflow mshow : rfc2045.o
 mshow : filter.o safe_u8putstr.o rfc2231.o pipeto.o
 mscan : pipeto.o
 msort : mystrverscmp.o

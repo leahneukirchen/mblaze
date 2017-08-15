@@ -29,6 +29,8 @@ static char *hflag = defaulthflags;
 static char *xflag;
 static char *Oflag;
 
+static char fallback_ct[] = "text/plain";
+
 struct message *filters;
 
 static int mimecount;
@@ -182,7 +184,7 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
 	char *ct = blaze822_hdr(msg, "content-type");
 	if (!ct)
-		ct = "text/x-unknown";
+		ct = fallback_ct;
 	char *mt = mimetype(ct);
 	char *tlmt = tlmimetype(ct);
 	char *filename = mime_filename(msg);
@@ -310,7 +312,7 @@ choose_alternative(struct message *msg, int depth)
 		m++;
 		char *ict = blaze822_hdr(imsg, "content-type");
 		if (!ict)
-			ict = "text/x-unknown";
+			ict = fallback_ct;
 		char *imt = mimetype(ict);
 
 		char *s = strstr(Aflag, imt);
@@ -367,7 +369,7 @@ list_mime(int depth, struct message *msg, char *body, size_t bodylen)
 
 	char *ct = blaze822_hdr(msg, "content-type");
 	if (!ct)
-		ct = "text/x-unknown";
+		ct = fallback_ct;
 	char *mt = mimetype(ct);
 	char *filename = mime_filename(msg);
 

@@ -252,6 +252,9 @@ stdinmode()
 void
 overridecur(char *file)
 {
+	static int once = 0;
+	if (once++)
+		return;
 	while (*file == ' ')
 		file++;
 	setenv("MAILDOT", file, 1);
@@ -260,6 +263,9 @@ overridecur(char *file)
 void
 setcur(char *file)
 {
+	static int once = 0;
+	if (once++)
+		return;
 	while (*file == ' ')
 		file++;
 	unsetenv("MAILDOT");
