@@ -755,8 +755,13 @@ main(int argc, char *argv[])
 	if (safe_output && isatty(1)) {
 		char *pg;
 		pg = getenv("MBLAZE_PAGER");
-		if (!pg)
+		if (!pg) {
 			pg = getenv("PAGER");
+			if (pg && strcmp(pg, "less") == 0) {
+				static char lesscmd[] = "less -RFXe";
+				pg = lesscmd;
+			}
+		}
 		if (pg && *pg && strcmp(pg, "cat") != 0) {
 			pid2 = pipeto(pg);
 			if (pid2 < 0)
