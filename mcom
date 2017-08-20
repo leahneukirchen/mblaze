@@ -132,7 +132,8 @@ fi
 		if [ "$ng" ]; then
 			printf 'Newsgroups: %s\n' "$ng"
 		else
-			to=$(mhdr -h reply-to "$1")
+			to=$(mhdr -h list-id "$1")
+			[ -z "$to" ] && to=$(mhdr -h reply-to "$1")
 			[ -z "$to" ] && to=$(mhdr -h from "$1")
 			printf 'To: %s\n' "$to"
 			printf 'Cc: %s\n' \
