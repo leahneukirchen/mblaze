@@ -217,11 +217,14 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		size_t outlen;
 		int e = filter(body, bodylen, cmd, &output, &outlen);
 
-		if (e == 0) { // replace output
+		if (e == 0 || e == 62) { // replace output (62 == raw)
 			if (!Nflag)
 				printf(" render=\"%s\" ---\n", cmd);
 			if (outlen) {
-				print_ascii(output, outlen);
+				if (e == 0)
+					print_ascii(output, outlen);
+				else
+					return fwrite(output, 1, outlen, stdout);
 				if (output[outlen-1] != '\n')
 					putchar('\n');
 			}
