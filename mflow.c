@@ -105,10 +105,10 @@ main()
 	char *ct = getenv("PIPE_CONTENTTYPE");
 	if (ct) {
 		char *s, *se;
-		blaze822_mime_parameter(ct, "format", &s, &se);
-		reflow = s && (strncasecmp(s, "flowed", 6) == 0);
-		blaze822_mime_parameter(ct, "delsp", &s, &se);
-		delsp = s && (strncasecmp(s, "yes", 3) == 0);
+		if (blaze822_mime_parameter(ct, "format", &s, &se) && s)
+			reflow = (strncasecmp(s, "flowed", 6) == 0);
+		if (blaze822_mime_parameter(ct, "delsp", &s, &se) && s)
+			delsp = (strncasecmp(s, "yes", 3) == 0);
 	}
 
 	char *cols = getenv("COLUMNS");
