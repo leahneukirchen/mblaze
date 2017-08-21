@@ -21,9 +21,10 @@ printb36(uint64_t x)
 
 	char outbuf[16];
 	char *o = outbuf + sizeof outbuf;
-	*o = 0;
 
+	*--o = 0;
 	do { *--o = base36[x % 36]; } while (x /= 36);
+
 	fputs(o, stdout);
 }
 
