@@ -270,7 +270,7 @@ nofilter:
 			    strcasecmp(charset, "utf8") == 0 ||
 			    strcasecmp(charset, "us-ascii") == 0) {
 				print_ascii(body, bodylen);
-				if (body[bodylen-1] != '\n')
+				if (bodylen > 0 && body[bodylen-1] != '\n')
 					putchar('\n');
 			} else {
 				print_u8recode(body, bodylen, charset);
