@@ -20,7 +20,7 @@ printb36(uint64_t x)
 	static char const base36[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 	char outbuf[16];
-	char *o = outbuf + sizeof outbuf;
+	char *o = outbuf + sizeof outbuf - 1;
 	*o = 0;
 
 	do { *--o = base36[x % 36]; } while (x /= 36);
