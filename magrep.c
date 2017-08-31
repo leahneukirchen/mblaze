@@ -67,7 +67,7 @@ match(char *file, char *hdr, char *s)
 blaze822_mime_action
 match_part(int depth, struct message *msg, char *body, size_t bodylen)
 {
-	(void) depth;
+	(void)depth;
 
 	char *ct = blaze822_hdr(msg, "content-type");
 
@@ -163,7 +163,7 @@ main(int argc, char *argv[])
 {
 	int c;
 	while ((c = getopt(argc, argv, "acdim:opqv")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'a': aflag = 1; break;
 		case 'c': cflag = 1; break;
 		case 'd': dflag = 1; break;
@@ -174,7 +174,7 @@ main(int argc, char *argv[])
 		case 'q': qflag = 1; break;
 		case 'v': vflag = 1; break;
 		default:
-		usage:
+usage:
 			fprintf(stderr,
 "Usage: magrep [-c|-o|-p|-q|-m max] [-v] [-i] [-a|-d] header:regex [msgs...]\n");
 			exit(2);
@@ -201,7 +201,7 @@ main(int argc, char *argv[])
 		blaze822_loop1(":", magrep);
 	else
 		blaze822_loop(argc-optind, argv+optind, magrep);
-	
+
 	if (cflag && !qflag && !mflag)
 		printf("%ld\n", matches);
 

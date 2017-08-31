@@ -170,7 +170,7 @@ thread(char *file)
 			parent = me;
 		}
 	}
-	
+
 	v = blaze822_hdr(msg, "in-reply-to");
 	char *irt;
 	if (v) {
@@ -181,7 +181,7 @@ thread(char *file)
 		if (!v)
 			goto out;
 		irt = strndup(m+1, v-m-1);
-		
+
 		if (strcmp(irt, mid) != 0) {
 			parent = midcont(irt);
 		}
@@ -278,7 +278,7 @@ find_root(const void *nodep, const VISIT which, const int depth)
 void
 find_roots()
 {
-	top = malloc (sizeof (struct container));
+	top = malloc(sizeof (struct container));
 	top->msg = 0;
 	top->date = -1;
 	top->file = 0;
@@ -387,7 +387,7 @@ print_tree(struct container *c, int depth)
 			else
 				printf("<%s>\n", c->mid);
 		}
-	
+
 		if (c->child)
 			print_tree(c->child, depth+1);
 	} while ((c = c->next));
@@ -400,14 +400,14 @@ main(int argc, char *argv[])
 
 	optional = 1;
 
- 	while ((c = getopt(argc, argv, "S:v")) != -1)
- 		switch(c) {
- 		case 'S': blaze822_loop1(optarg, thread); break;
- 		case 'v': vflag = 1; break;
- 		default:
+	while ((c = getopt(argc, argv, "S:v")) != -1)
+		switch (c) {
+		case 'S': blaze822_loop1(optarg, thread); break;
+		case 'v': vflag = 1; break;
+		default:
 			fprintf(stderr, "Usage: mthread [-v] [-S dir] [msgs...]\n");
- 			exit(1);
- 		}
+			exit(1);
+		}
 
 	optional = 0;
 

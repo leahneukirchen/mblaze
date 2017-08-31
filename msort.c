@@ -1,5 +1,5 @@
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -300,7 +300,7 @@ main(int argc, char *argv[])
 	int c, i;
 
 	while ((c = getopt(argc, argv, "fdsFMSUIr")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'f': addorder(fromorder); break;
 		case 'd': addorder(dateorder); break;
 		case 's': addorder(subjorder); break;

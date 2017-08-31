@@ -47,7 +47,7 @@ pipeto(const char *cmdline)
 				break;
 			*cp++ = 0;
 			while (*cp == ' ')
-				cp++;			
+				cp++;
 		}
 		argv[argc] = 0;
 
@@ -96,6 +96,6 @@ pipeclose(pid_t pid)
 	fflush(0);
 	close(1);
 	waitpid(pid, &s, 0);
-	
+
 	return s;
 }

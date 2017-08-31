@@ -349,7 +349,7 @@ parse_range(char *map, char *a, long *start, long *stop, long cur, long lines)
 		a = b;
 	}
 	if (*start == 0)
-	    *start = strchr("=^_", *a) ? cur : 1;
+		*start = strchr("=^_", *a) ? cur : 1;
 
 	while (*a == '^') {
 		a++;
@@ -428,7 +428,7 @@ blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
 
 	if (!iter->start) {
 		int ret = parse_range(map, range, &iter->start, &iter->stop,
-				iter->cur, iter->lines);
+		    iter->cur, iter->lines);
 		if (ret == 1) {
 			fprintf(stderr, "can't parse range: %s\n", range);
 			return 0;

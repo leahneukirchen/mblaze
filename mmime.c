@@ -134,7 +134,7 @@ gen_attachment(const char *filename, char *content_disposition)
 		return;
 	}
 
-	for (s = (char *) filename; *s; s++) {
+	for (s = (char *)filename; *s; s++) {
 		if (*s < 32 || *s == '"' || *s >= 127 || s - filename > 35)
 			goto rfc2231;
 		if (strchr(" ()<>@,;:\\/[]?=", *s))
@@ -161,9 +161,9 @@ rfc2231:
 		}
 		while (*s && i < 78 - 3) {
 			if (*s <= 32 || *s == '"' || *s > 126)
-				i += printf("%%%02x", (uint8_t) *s++);
+				i += printf("%%%02x", (uint8_t)*s++);
 			else
-				i += printf("%c", (uint8_t) *s++);
+				i += printf("%c", (uint8_t)*s++);
 		}
 	}
 
@@ -196,7 +196,7 @@ gen_file(char *file, char *ct)
 		    file, strerror(r));
 		return -1;
 	}
-	
+
 	if (strcmp(ct, "mblaze/raw") == 0)
 		goto raw;
 
@@ -291,7 +291,7 @@ print_header(char *line) {
 		while (*e && *e == ' ')
 			e++;
 		for (; *e && *e != ' '; e++) {
-			if ((uint8_t) *e >= 127)
+			if ((uint8_t)*e >= 127)
 				highbit++;
 		}
 
@@ -398,7 +398,7 @@ gen_build()
 			printf("Content-Type: text/plain; charset=UTF-8\n");
 			printf("Content-Disposition: inline\n");
 			printf("Content-Transfer-Encoding: quoted-printable\n\n");
-			
+
 			intext = 1;
 		}
 
@@ -470,12 +470,12 @@ main(int argc, char *argv[])
 
 	int c;
 	while ((c = getopt(argc, argv, "crt:")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'r': rflag = 1; break;
 		case 'c': cflag = 1; break;
 		case 't': tflag = optarg; break;
 		default:
-		usage:
+usage:
 			fprintf(stderr,
 "Usage: mmime [-c|-r] [-t CONTENT-TYPE] < message\n");
 			exit(1);

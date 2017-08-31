@@ -29,17 +29,17 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
+#include <locale.h>
+#include <regex.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 #include <strings.h>
 #include <time.h>
 #include <unistd.h>
 #include <wchar.h>
-#include <locale.h>
-#include <limits.h>
-#include <regex.h>
 
 #include "blaze822.h"
 
@@ -163,7 +163,7 @@ static int prune;
 static void
 ws()
 {
-	while (isspace((unsigned char) *pos))
+	while (isspace((unsigned char)*pos))
 		pos++;
 }
 
@@ -306,7 +306,7 @@ parse_string(char **s)
 		char t;
 		char *e = ++pos;
 
-		while (isalnum((unsigned char) *pos) || *pos == '_')
+		while (isalnum((unsigned char)*pos) || *pos == '_')
 			pos++;
 		if (e == pos)
 			parse_error("invalid environment variable name");
@@ -407,12 +407,12 @@ static int64_t
 parse_num(int64_t *r)
 {
 	char *s = pos;
-	if (isdigit((unsigned char) *pos)) {
+	if (isdigit((unsigned char)*pos)) {
 		int64_t n;
 
-		for (n = 0; isdigit((unsigned char) *pos) && n <= INT64_MAX / 10 - 10; pos++)
+		for (n = 0; isdigit((unsigned char)*pos) && n <= INT64_MAX / 10 - 10; pos++)
 			n = 10 * n + (*pos - '0');
-		if (isdigit((unsigned char) *pos))
+		if (isdigit((unsigned char)*pos))
 			parse_error("number too big: %s", s);
 		if (token("c"))      ;
 		else if (token("b")) n *= 512LL;
@@ -499,7 +499,7 @@ parse_cmp()
 		e->a.prop = prop;
 		e->b.num = n;
 		return e;
-	} else if(token("cur")) {
+	} else if (token("cur")) {
 		struct expr *e = mkexpr(op);
 		e->a.prop = prop;
 		e->b.var = VAR_CUR;
@@ -905,7 +905,7 @@ eval(struct expr *e, struct mailinfo *m)
 	case EXPR_REGEX:
 	case EXPR_REGEXI: {
 		const char *s = "";
-		switch(e->a.prop) {
+		switch (e->a.prop) {
 		case PROP_PATH: s = m->fpath; break;
 		case PROP_FROM: s = msg_addr(m, "from", e->extra); break;
 		case PROP_TO: s = msg_addr(m, "to", e->extra); break;
@@ -951,7 +951,7 @@ mailfile(char *file)
 	m->sb = 0;
 	m->msg = 0;
 
-	while (*m->fpath == ' ' || *m->fpath== '\t') {
+	while (*m->fpath == ' ' || *m->fpath == '\t') {
 		m->depth++;
 		m->fpath++;
 	}
@@ -1079,7 +1079,7 @@ collect(char *file)
 		} else if (thr->cur->m->depth > m->depth) {
 			/* find parent mail */
 			struct mlist *pl;
-			for (pl = thr->cur; pl->m->depth >= m->depth; pl--);
+			for (pl = thr->cur; pl->m->depth >= m->depth; pl--) ;
 			ml->parent = pl;
 		}
 

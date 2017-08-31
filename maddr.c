@@ -18,7 +18,7 @@ addr(char *file)
 {
 	while (*file == ' ' || *file == '\t')
 		file++;
-	
+
 	struct message *msg = blaze822(file);
 	if (!msg)
 		return;
@@ -36,7 +36,7 @@ addr(char *file)
 			blaze822_decode_rfc2047(vdec, v, sizeof vdec - 1, "UTF-8");
 			vdec[sizeof vdec - 1] = 0;
 			v = vdec;
-			
+
 			while ((v = blaze822_addr(v, &disp, &addr))) {
 				if (disp && addr && strcmp(disp, addr) == 0)
 					disp = 0;
@@ -64,7 +64,7 @@ main(int argc, char *argv[])
 {
 	int c;
 	while ((c = getopt(argc, argv, "ah:")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'a': aflag = 1; break;
 		case 'h': hflag = optarg; break;
 		default:

@@ -150,10 +150,10 @@ main()
 		}
 
 		if (rd > 0 && line[rd-1] == '\n')
-                        line[--rd] = 0;
+			line[--rd] = 0;
 		if (rd > 0 && line[rd-1] == '\r')
-                        line[--rd] = 0;
-		
+			line[--rd] = 0;
+
 		quotes = 0;
 		while (*line == '>') {  // measure quote depth
 			line++;

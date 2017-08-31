@@ -98,11 +98,11 @@ list(char *prefix, char *file)
 #include <sys/syscall.h>
 
 struct linux_dirent64 {
-	ino64_t	       d_ino;	 /* 64-bit inode number */
-	off64_t	       d_off;	 /* 64-bit offset to next structure */
+	ino64_t d_ino;           /* 64-bit inode number */
+	off64_t d_off;           /* 64-bit offset to next structure */
 	unsigned short d_reclen; /* Size of this dirent */
-	unsigned char  d_type;	 /* File type */
-	char	       d_name[]; /* Filename (null-terminated) */
+	unsigned char d_type;    /* File type */
+	char d_name[];           /* Filename (null-terminated) */
 };
 #define BUF_SIZE 1024000
 
@@ -119,18 +119,18 @@ listdir(char *dir)
 		perror("open");
 		return;
 	}
-	
+
 	while (1) {
 		nread = syscall(SYS_getdents64, fd, buf, BUF_SIZE);
 		if (nread == -1) {
 			perror("getdents64");
 			break;
 		}
-		
+
 		if (nread == 0)
 			break;
 
-		for (bpos = 0; bpos < nread;) {
+		for (bpos = 0; bpos < nread; ) {
 			d = (struct linux_dirent64 *)(buf + bpos);
 			if (d->d_type != DT_REG && d->d_type != DT_UNKNOWN)
 				goto next;
@@ -224,7 +224,7 @@ main(int argc, char *argv[])
 {
 	int c;
 	while ((c = getopt(argc, argv, "PRSTDFprstdfX:x:NnCci")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'P': case 'R': case 'S': case 'T': case 'D': case 'F':
 			flags[(unsigned int)c] = 1;
 			break;
@@ -245,7 +245,7 @@ main(int argc, char *argv[])
 		case 'c': Cflag = -1; break;
 		case 'i': iflag = 1; break;
 		default:
-		usage:
+usage:
 			fprintf(stderr,
 			    "Usage: mlist [-DFPRST] [-X str]\n"
 			    "             [-dfprst] [-x str]\n"
@@ -256,7 +256,7 @@ main(int argc, char *argv[])
 		}
 
 	int i;
-	
+
 	for (i = 0, flagsum = 0, flagset = 0; (size_t)i < sizeof flags; i++) {
 		if (flags[i] != 0)
 			flagset++;

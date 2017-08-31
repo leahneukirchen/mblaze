@@ -74,7 +74,7 @@ print_addresses(char *s)
 			printf("%s\t", curfile);
 
 		if (disp && addr)
-			printf("%s <%s>\n", disp, addr);			
+			printf("%s <%s>\n", disp, addr);
 		else if (addr)
 			printf("%s\n", addr);
 	}
@@ -189,7 +189,7 @@ main(int argc, char *argv[])
 {
 	int c;
 	while ((c = getopt(argc, argv, "h:ADHMd")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'h': hflag = optarg; break;
 		case 'A': Aflag = 1; break;
 		case 'D': Dflag = 1; break;
@@ -208,6 +208,6 @@ main(int argc, char *argv[])
 		blaze822_loop1(".", header);
 	else
 		blaze822_loop(argc-optind, argv+optind, header);
-	
+
 	return status;
 }
