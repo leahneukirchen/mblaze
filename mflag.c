@@ -138,6 +138,11 @@ main(int argc, char *argv[])
 	curfile = blaze822_seq_cur();
 
 	if (vflag) {
+		if (argc == optind && !isatty(0)) {
+			blaze822_loop(0, 0, flag);  // read from stdin
+			return 0;
+		}
+
 		args = calloc(sizeof (char *), argsalloc);
 		if (!args)
 			exit(-1);
