@@ -106,6 +106,7 @@ main()
 	char *ct = getenv("PIPE_CONTENTTYPE");
 	if (ct) {
 		char *s, *se;
+		reflow = 0;
 		if (blaze822_mime_parameter(ct, "format", &s, &se) && s)
 			reflow = (strncasecmp(s, "flowed", 6) == 0);
 		if (blaze822_mime_parameter(ct, "delsp", &s, &se) && s)
