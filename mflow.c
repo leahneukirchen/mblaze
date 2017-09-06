@@ -136,11 +136,11 @@ main(int argc, char *argv[])
 	}
 
 	int c;
-	while ((c = getopt(argc, argv, "f:w:q")) != -1)
+	while ((c = getopt(argc, argv, "fqw:")) != -1)
 		switch (c) {
 		case 'f': force = 1; break;
-		case 'w': maxcolumn = atoi(optarg); break;
 		case 'q': outer_quotes++; break;
+		case 'w': maxcolumn = atoi(optarg); break;
 		default:
 			fprintf(stderr, "Usage: mflow [-f] [-q] [-w MAXCOLUMNS]\n");
 			exit(2);
