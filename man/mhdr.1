@@ -6,7 +6,7 @@
 .Nd show mail headers
 .Sh SYNOPSIS
 .Nm
-.Op Fl h Ar header
+.Op Fl h Ar header Op Fl p Ar parameter
 .Op Fl d
 .Op Fl H
 .Op Fl M
@@ -31,6 +31,10 @@ The options are as follows:
 .It Fl h Ar header
 Only print the values of the headers in the colon-separated list
 .Ar header .
+.It Fl p Ar parameter
+Extract a particular RFC 2045
+.Ar parameter
+from the specified headers.
 .It Fl d
 Decode the headers according to RFC 2047.
 .It Fl H
@@ -52,6 +56,13 @@ utility exits 0 on success,
 and >1 if an error occurs.
 .Sh SEE ALSO
 .Xr mmsg 7
+.Rs
+.%A N. Freed
+.%A N. Borenstein
+.%D November 1996
+.%R RFC 2045
+.%T Multipurpose Internet Mail Extensions (MIME) Part One: Format of Internet Message Bodies
+.Re
 .Rs
 .%A N. Freed
 .%A N. Borenstein
