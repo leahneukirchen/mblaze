@@ -709,7 +709,7 @@ show(char *file)
 
 	printf("\n");
 
-	if (rflag || !blaze822_check_mime(msg)) {  // raw body
+	if (rflag) {  // raw body
 		print_ascii(blaze822_body(msg), blaze822_bodylen(msg));
 		goto done;
 	}
