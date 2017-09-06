@@ -1,0 +1,8 @@
+#!/bin/sh
+# mrecode - recode stdin respecting PIPE_CHARSET into UTF-8
+
+if [ -n "$PIPE_CHARSET" ]; then
+	exec iconv -f "$PIPE_CHARSET" -t UTF-8
+else
+	exec cat
+fi
