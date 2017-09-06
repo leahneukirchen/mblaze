@@ -32,7 +32,7 @@ fixed(int quotes, char *line, size_t linelen)
 {
 	chgquote(quotes);
 
-	if (linelen > (size_t)(maxcolumn - column)) {
+	if (column && linelen > (size_t)(maxcolumn - column)) {
 		putchar('\n');
 		column = 0;
 	}
@@ -93,14 +93,16 @@ flowed(int quotes, char *line, ssize_t linelen)
 }
 
 int
-main()
+main(int argc, char *argv[])
 {
 	char *linebuf = 0;
 	char *line;
 	size_t linelen = 0;
-	int quotes = 0;
+	int outer_quotes = 0;
+	int quotes;
 
 	int reflow = 1;  // re-evaluated on $PIPE_CONTENTTYPE
+	int force = 0;
 	int delsp = 0;
 
 	char *ct = getenv("PIPE_CONTENTTYPE");
@@ -133,6 +135,17 @@ main()
 			maxcolumn = m;
 	}
 
+	int c;
+	while ((c = getopt(argc, argv, "f:w:q")) != -1)
+		switch (c) {
+		case 'f': force = 1; break;
+		case 'w': maxcolumn = atoi(optarg); break;
+		case 'q': outer_quotes++; break;
+		default:
+			fprintf(stderr, "Usage: mflow [-f] [-q] [-w MAXCOLUMNS]\n");
+			exit(2);
+		}
+
 	while (1) {
 		errno = 0;
 		ssize_t rd = getdelim(&linebuf, &linelen, '\n', stdin);
@@ -146,7 +159,7 @@ main()
 
 		line = linebuf;
 
-		if (!reflow) {
+		if (!reflow && !force) {
 			fwrite(line, 1, rd, stdout);
 			continue;
 		}
@@ -156,7 +169,7 @@ main()
 		if (rd > 0 && line[rd-1] == '\r')
 			line[--rd] = 0;
 
-		quotes = 0;
+		quotes = outer_quotes;
 		while (*line == '>') {  // measure quote depth
 			line++;
 			quotes++;
@@ -180,7 +193,12 @@ main()
 				line[--rd] = 0;
 			flowed(quotes, line, rd);
 		} else {
-			fixed(quotes, line, rd);
+			if (force && rd > maxcolumn) {
+				flowed(quotes, line, rd);
+				fixed(quotes, "", 0);
+			} else {
+				fixed(quotes, line, rd);
+			}
 		}
 	}
 
