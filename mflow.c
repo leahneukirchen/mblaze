@@ -176,7 +176,7 @@ main(int argc, char *argv[])
 			rd--;
 		}
 
-		if (*line == ' ') {  // space stuffing
+		if (reflow && *line == ' ') {  // space stuffing
 			line++;
 			rd--;
 		}
