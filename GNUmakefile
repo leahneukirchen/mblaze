@@ -1,11 +1,13 @@
-CFLAGS+=-g -O2 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
+CFLAGS=-g -O2
+override CFLAGS:=-Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2 $(CFLAGS)
 LDLIBS=-lrt
 
 OS := $(shell uname)
 
 ifeq ($(OS),OpenBSD)
-CFLAGS+=-I/usr/local/include -pthread
-LDLIBS=-L/usr/local/lib -liconv -pthread
+LOCALBASE=/usr/local
+CFLAGS+=-I$(LOCALBASE)/include -pthread
+LDLIBS=-L$(LOCALBASE)/lib -liconv -pthread
 endif
 
 ifeq ($(OS),Darwin)
