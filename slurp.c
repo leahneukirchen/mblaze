@@ -14,7 +14,7 @@ slurp(char *filename, char **bufo, off_t *leno)
 	ssize_t nread = 0;
 	ssize_t n;
 	int r = 0;
-	
+
 	fd = open(filename, O_RDONLY);
 	if (fd < 0) {
 		r = errno;

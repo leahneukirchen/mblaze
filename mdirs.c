@@ -57,10 +57,10 @@ mdirs(char *fpath)
 
 		if (dotonly && d->d_name[0] != '.')
 			continue;
-		
+
 		mdirs(d->d_name);
 	}
-		
+
 	if (chdir("..") < 0)
 		exit(-1);
 
@@ -72,9 +72,9 @@ main(int argc, char *argv[])
 {
 	int c, i;
 	while ((c = getopt(argc, argv, "")) != -1)
-		switch(c) {
+		switch (c) {
 		default:
-		usage:
+usage:
 			fprintf(stderr, "Usage: mdirs dirs...\n");
 			exit(1);
 		}

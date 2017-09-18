@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 void
 safe_u8putstr(char *s0, size_t l, FILE *stream)
@@ -10,7 +10,7 @@ safe_u8putstr(char *s0, size_t l, FILE *stream)
 	// - rest is assumed to be latin1, and translated into utf8
 	// - translate CRLF to CR
 
-	unsigned char *s = (unsigned char* )s0;
+	unsigned char *s = (unsigned char *)s0;
 	unsigned char *e = s + l;
 
 	while (s < e) {
@@ -56,13 +56,13 @@ safe_u8putstr(char *s0, size_t l, FILE *stream)
 				f = (s[0]<<24) | (s[1]<<16);
 			else if (e - s == 1)
 				f = (s[0]<<24);
-			
+
 			if      ((f & 0xe0c00000) == 0xc0800000) goto u2;
 			else if ((f & 0xf0c0c000) == 0xe0808000) goto u3;
 			else if ((f & 0xf8c0c0c0) == 0xf0808080) {
 				fputc(*s++, stream);
-u3:				fputc(*s++, stream);
-u2:				fputc(*s++, stream);
+u3:                             fputc(*s++, stream);
+u2:                             fputc(*s++, stream);
 				fputc(*s, stream);
 			} else {
 latin1:

@@ -1,8 +1,8 @@
 #include <sys/types.h>
 
-#include <strings.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <strings.h>
 
 #include "blaze822.h"
 #include "blaze822_priv.h"

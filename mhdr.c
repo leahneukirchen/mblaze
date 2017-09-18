@@ -13,6 +13,7 @@
 #include "blaze822.h"
 
 static char *hflag;
+static char *pflag;
 static int Aflag;
 static int Dflag;
 static int Hflag;
@@ -75,7 +76,7 @@ print_addresses(char *s)
 			printf("%s\t", curfile);
 
 		if (disp && addr)
-			printf("%s <%s>\n", disp, addr);			
+			printf("%s <%s>\n", disp, addr);
 		else if (addr)
 			printf("%s\n", addr);
 	}
@@ -101,6 +102,16 @@ print_decode_header(char *s)
 void
 print_header(char *v)
 {
+	if (pflag) {
+		char *s, *se;
+		if (blaze822_mime_parameter(v, pflag, &s, &se)) {
+			*se = 0;
+			v = s;
+		} else {
+			return;
+		}
+	}
+
 	status = 0;
 
 	if (Hflag && !Aflag)
@@ -189,9 +200,10 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "h:ADHMd")) != -1)
-		switch(c) {
+	while ((c = getopt(argc, argv, "h:p:ADHMd")) != -1)
+		switch (c) {
 		case 'h': hflag = optarg; break;
+		case 'p': pflag = optarg; break;
 		case 'A': Aflag = 1; break;
 		case 'D': Dflag = 1; break;
 		case 'H': Hflag = 1; break;
@@ -199,7 +211,7 @@ main(int argc, char *argv[])
 		case 'd': dflag = 1; break;
 		default:
 			fprintf(stderr,
-"Usage: mhdr [-h header] [-d] [-H] [-M] [-A|-D] [msgs...]\n");
+"Usage: mhdr [-h header [-p parameter]] [-d] [-H] [-M] [-A|-D] [msgs...]\n");
 			exit(2);
 		}
 
@@ -212,6 +224,6 @@ main(int argc, char *argv[])
 		blaze822_loop1(".", header);
 	else
 		blaze822_loop(argc-optind, argv+optind, header);
-	
+
 	return status;
 }

@@ -66,10 +66,10 @@ main(int argc, char *argv[])
 {
 	int c, i;
 	while ((c = getopt(argc, argv, "q")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'q': qflag = 1; break;
 		default:
-		usage:
+usage:
 			fprintf(stderr, "Usage: minc [-q] dirs...\n");
 			exit(1);
 		}

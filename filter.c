@@ -1,9 +1,9 @@
 #include <sys/wait.h>
 
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
-#include <poll.h>	     
+#include <poll.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +24,7 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGPIPE);
 	sigprocmask(SIG_BLOCK, &mask, &orig_mask);
-	
+
 	outlen = 0;
 	output = malloc(outalloc);
 	if (!output)
@@ -56,7 +56,7 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 	}
 	close(pipe0[0]);
 	close(pipe1[1]);
-	
+
 	if (pid < 0) {
 		close(pipe0[1]);
 		close(pipe1[0]);
@@ -89,7 +89,7 @@ filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno)
 		} else if (fds[0].revents & (POLLERR | POLLHUP | POLLNVAL)) {
 			fds[0].fd = -1;
 		}
-		
+
 		if (fds[1].revents & POLLOUT) {
 			ssize_t ret = write(fds[1].fd, input, inlen);
 			if (ret > 0) {

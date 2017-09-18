@@ -3,9 +3,9 @@
 #include <errno.h>
 #include <limits.h>
 #include <search.h>
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "blaze822.h"
@@ -152,7 +152,7 @@ fix(FILE *out, char *file)
 
 	return 0;
 ok:
-	while(i--)
+	while (i--)
 		putc(' ', out);
 	fprintf(out, "%s\n", bufptr);
 	return 1;
@@ -277,7 +277,7 @@ main(int argc, char *argv[])
 {
 	int c;
 	while ((c = getopt(argc, argv, "c:frAC:S")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'c': cflag = optarg; break;
 		case 'f': fflag = 1; break;
 		case 'r': rflag = 1; break;
@@ -285,7 +285,7 @@ main(int argc, char *argv[])
 		case 'C': Cflag = optarg; break;
 		case 'S': Sflag = 1; break;
 		default:
-		usage:
+usage:
 			fprintf(stderr,
 			    "Usage: mseq [-fr] [-c msg] [msgs...]\n"
 			    "	    mseq -S [-fr] < sequence\n"

@@ -82,9 +82,9 @@ tryagain:
 		snprintf(id, sizeof id, "%ld.M%06ldP%ldQ%ld.%s",
 		    (long)tv.tv_sec, (long)tv.tv_usec, (long)getpid(),
 		    delivery, host);
-		
+
 		snprintf(tmp, sizeof tmp, "%s/tmp/%s", targetdir, id);
-	
+
 		outfd = open(tmp, O_CREAT | O_WRONLY | O_EXCL, 0666);
 		if (outfd < 0) {
 			if (errno == EEXIST)
@@ -152,14 +152,14 @@ tryagain:
 		int i, j;
 		for (i = sizeof statusflags - 1; i >= 0; i--)
 			if (!statusflags[i])
-				for (j = i+1; j < (int) sizeof statusflags; j++)
+				for (j = i+1; j < (int)sizeof statusflags; j++)
 					statusflags[j-1] = statusflags[j];
 
 		if (Mflag) {
 			struct message *msg = blaze822_file(tmp);
 			time_t date = -1;
 			char *v;
-			
+
 			if (msg && (v = blaze822_hdr(msg, "date"))) {
 				date = blaze822_date(v);
 				if (date != -1) {
@@ -173,8 +173,8 @@ tryagain:
 		}
 
 		snprintf(dst, sizeof dst, "%s/%s/%s:2,%s",
-			 targetdir, (cflag || is_old) ? "cur" : "new", id,
-			 Xflag ? Xflag : statusflags);
+		    targetdir, (cflag || is_old) ? "cur" : "new", id,
+		    Xflag ? Xflag : statusflags);
 		if (rename(tmp, dst) != 0)
 			return -1;
 
@@ -189,7 +189,7 @@ main(int argc, char *argv[])
 {
 	int c;
 	while ((c = getopt(argc, argv, "cMvX:")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'c': cflag = 1; break;
 		case 'M': Mflag = 1; break;
 		case 'v': vflag = 1; break;

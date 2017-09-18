@@ -59,8 +59,8 @@ blaze822_date(char *s) {
 
 	while (iswsp(*s))
 		s++;
-	
-	if	(i3("jan")) tm.tm_mon = 0;
+
+	if      (i3("jan")) tm.tm_mon = 0;
 	else if (i3("feb")) tm.tm_mon = 1;
 	else if (i3("mar")) tm.tm_mon = 2;
 	else if (i3("apr")) tm.tm_mon = 3;
@@ -79,7 +79,7 @@ blaze822_date(char *s) {
 
 	while (iswsp(*s))
 		s++;
-	
+
 	if ((c = parse_posint(&s, 1000, 9999)) > 0) {
 		tm.tm_year = c - 1900;
 	} else if ((c = parse_posint(&s, 0, 49)) > 0) {
@@ -143,7 +143,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 		if (addro) *addro = 0;
 		return 0;
 	}
-	
+
 	c = disp;
 	e = disp + sizeof disp - 1;
 
@@ -151,7 +151,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 	*addr = 0;
 
 	while (*s && c < e) {
-	startover:
+startover:
 		if (*s == '<') {
 			char *c = addr;
 			char *e = addr + sizeof addr;
@@ -188,7 +188,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 		} else if (*s == '(') {   // XXX recurse to conform?
 			s++;
 
-			if (!*addr) {	// assume: user@host (name)
+			if (!*addr) {   // assume: user@host (name)
 				*c-- = 0;
 				while (c > disp && iswsp(*c))
 					*c-- = 0;

@@ -1,11 +1,13 @@
-CFLAGS+=-g -O2 -Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2
+CFLAGS=-g -O2
+override CFLAGS:=-Wall -Wno-switch -Wextra -fstack-protector-strong -D_FORTIFY_SOURCE=2 $(CFLAGS)
 LDLIBS=-lrt
 
 OS := $(shell uname)
 
 ifeq ($(OS),OpenBSD)
-CFLAGS+=-I/usr/local/include -pthread
-LDLIBS=-L/usr/local/lib -liconv -pthread
+LOCALBASE=/usr/local
+CFLAGS+=-I$(LOCALBASE)/include -pthread
+LDLIBS=-L$(LOCALBASE)/lib -liconv -pthread
 endif
 
 ifeq ($(OS),Darwin)
@@ -28,7 +30,7 @@ maddr magrep mdeliver mexport mflag mflow mgenmid mhdr mpick mscan msed mshow \
 maddr magrep mexport mflag mgenmid mhdr mlist mpick mscan msed mseq mshow msort \
   mthread : seq.o slurp.o
 maddr magrep mflow mhdr mpick mscan mshow : rfc2047.o
-magrep mflow mshow : rfc2045.o
+magrep mflow mhdr mshow : rfc2045.o
 mshow : filter.o safe_u8putstr.o rfc2231.o pipeto.o
 mscan : pipeto.o
 msort : mystrverscmp.o

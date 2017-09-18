@@ -51,7 +51,7 @@ export(char *file)
 				if (e) {
 					s++;
 					snprintf(from, sizeof from, "%.*s",
-						 (int)(e-s), s);
+					    (int)(e-s), s);
 				}
 			} else {  // return-path without <>
 				snprintf(from, sizeof from, "%s", v);
@@ -66,7 +66,7 @@ export(char *file)
 
 	char *line = 0;
 	size_t linelen = 0;
-	
+
 	printf("From %s %s", from, ctime(&date));
 
 	int in_header = 1;
@@ -83,7 +83,7 @@ export(char *file)
 			status = 1;
 			return;
 		}
-		
+
 		if (in_header && line[0] == '\n' && !line[1]) {
 			if (Sflag) {
 				char *flags = strstr(file, ":2,");
@@ -94,21 +94,21 @@ export(char *file)
 				if (strchr(flags, 'S'))
 					putchar('R');
 				char *ee = strrchr(file, '/');
-				if (!ee || 
+				if (!ee ||
 				    !(ee >= file + 3 && ee[-3] == 'n' && ee[-2] == 'e' && ee[-1] == 'w'))
 					putchar('O');
 				putchar('\n');
-					
+
 				fputs("X-Status: ", stdout);
 				if (strchr(flags, 'R')) putchar('A');
 				if (strchr(flags, 'T')) putchar('D');
 				if (strchr(flags, 'F')) putchar('F');
 				putchar('\n');
 			}
-				
+
 			in_header = 0;
 		}
-			
+
 		// MBOXRD: add first > to >>..>>From
 		char *s = line;
 		while (*s == '>')
@@ -132,7 +132,7 @@ main(int argc, char *argv[])
 {
 	int c;
 	while ((c = getopt(argc, argv, "S")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'S': Sflag = 1; break;
 		default:
 			fprintf(stderr, "Usage: mexport [-S] [msgs...]\n");
@@ -148,6 +148,6 @@ main(int argc, char *argv[])
 		blaze822_loop1(":", export);
 	else
 		blaze822_loop(argc-optind, argv+optind, export);
-	
+
 	return status;
 }

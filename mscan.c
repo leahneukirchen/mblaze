@@ -9,6 +9,7 @@
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +17,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <wchar.h>
-#include <locale.h>
 
 #include "blaze822.h"
 
@@ -281,7 +281,7 @@ oneline(char *file)
 		indent++;
 		file++;
 	}
-	
+
 	struct message *msg = blaze822(file);
 	char *flags = msg ? strstr(file, ":2,") : 0;
 	if (!flags)
@@ -493,7 +493,7 @@ main(int argc, char *argv[])
 
 	int c;
 	while ((c = getopt(argc, argv, "If:n")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'I': Iflag++; break;
 		case 'f': fflag = optarg; break;
 		case 'n': nflag = 1; break;
@@ -517,7 +517,7 @@ main(int argc, char *argv[])
 	struct tm *tm = localtime(&now);
 	curyear = tm->tm_year;
 
-	setlocale(LC_ALL, "");	// for wcwidth later
+	setlocale(LC_ALL, "");  // for wcwidth later
 	if (wcwidth(0xfffd) > 0)
 		replacement = 0xfffd;
 
@@ -549,12 +549,12 @@ main(int argc, char *argv[])
 		char *v, *d, *a;
 		if ((v = blaze822_hdr(config, "local-mailbox")))
 			while (alias_idx < (int)(sizeof aliases / sizeof aliases[0]) &&
-			       (v = blaze822_addr(v, &d, &a)))
+			    (v = blaze822_addr(v, &d, &a)))
 				if (a)
 					aliases[alias_idx++] = strdup(a);
 		if ((v = blaze822_hdr(config, "alternate-mailboxes")))
 			while (alias_idx < (int)(sizeof aliases / sizeof aliases[0]) &&
-			       (v = blaze822_addr(v, &d, &a)))
+			    (v = blaze822_addr(v, &d, &a)))
 				if (a)
 					aliases[alias_idx++] = strdup(a);
 		if ((v = blaze822_hdr(config, "scan-format")))

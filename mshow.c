@@ -97,7 +97,7 @@ print_u8recode(char *body, size_t bodylen, char *srcenc)
 			final_char = bufptr[-1];
 		}
 
-		if (r != (size_t)-1) {	// done, flush iconv
+		if (r != (size_t)-1) {  // done, flush iconv
 			bufptr = buf;
 			buflen = sizeof buf;
 			r = iconv(ic, 0, 0, &bufptr, &buflen);
@@ -218,11 +218,14 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		size_t outlen;
 		int e = filter(body, bodylen, cmd, &output, &outlen);
 
-		if (e == 0) { // replace output
+		if (e == 0 || e == 62) { // replace output (62 == raw)
 			if (!Nflag)
 				printf(" render=\"%s\" ---\n", cmd);
 			if (outlen) {
-				print_ascii(output, outlen);
+				if (e == 0)
+					print_ascii(output, outlen);
+				else
+					return fwrite(output, 1, outlen, stdout);
 				if (output[outlen-1] != '\n')
 					putchar('\n');
 			}
@@ -268,7 +271,7 @@ nofilter:
 			    strcasecmp(charset, "utf8") == 0 ||
 			    strcasecmp(charset, "us-ascii") == 0) {
 				print_ascii(body, bodylen);
-				if (body[bodylen-1] != '\n')
+				if (bodylen > 0 && body[bodylen-1] != '\n')
 					putchar('\n');
 			} else {
 				print_u8recode(body, bodylen, charset);
@@ -336,7 +339,7 @@ choose_alternative(struct message *msg, int depth)
 blaze822_mime_action
 reply_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
-	(void) depth;
+	(void)depth;
 
 	char *ct = blaze822_hdr(msg, "content-type");
 	char *mt = mimetype(ct);
@@ -365,7 +368,7 @@ reply_mime(int depth, struct message *msg, char *body, size_t bodylen)
 blaze822_mime_action
 list_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
-	(void) body;
+	(void)body;
 
 	char *ct = blaze822_hdr(msg, "content-type");
 	if (!ct)
@@ -441,7 +444,7 @@ writefile(char *name, char *buf, ssize_t len)
 blaze822_mime_action
 extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
-	(void) depth;
+	(void)depth;
 
 	char *filename = mime_filename(msg);
 
@@ -497,7 +500,7 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 					writefile(bufptr, body, bodylen);
 				}
 			} else if (filename &&
-				   fnmatch(a, filename, FNM_PATHNAME) == 0) {
+			    fnmatch(a, filename, FNM_PATHNAME) == 0) {
 				// extract by name
 				if (extract_stdout) {
 					if (rflag) {
@@ -556,7 +559,7 @@ print_date_header(char *v)
 
 	printf("Date: ");
 	print_ascii(v, strlen(v));
-	
+
 	time_t t = blaze822_date(v);
 	if (t == -1) {
 		printf(" (invalid)");
@@ -572,57 +575,57 @@ print_date_header(char *v)
 		else if (d > 60) l = 'm';
 		else l = 's';
 		int p = 3;
-		
+
 		int z;
-		switch(l) {
+		switch (l) {
 		case 'y':
 			z = d / (60*60*24*7*52);
 			d = d % (60*60*24*7*52);
 			if (z > 0) {
-				printf("%d year%s", z, z>1 ? "s" : "");
+				printf("%d year%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
-			/* FALL THROUGH */
+		/* FALL THROUGH */
 		case 'w':
 			z = d / (60*60*24*7);
 			d = d % (60*60*24*7);
 			if (z > 0) {
-				printf("%d week%s", z, z>1 ? "s" : "");
+				printf("%d week%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
-			/* FALL THROUGH */
+		/* FALL THROUGH */
 		case 'd':
 			z = d / (60*60*24);
 			d = d % (60*60*24);
 			if (z > 0) {
-				printf("%d day%s", z, z>1 ? "s" : "");
+				printf("%d day%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
-			/* FALL THROUGH */
+		/* FALL THROUGH */
 		case 'h':
 			z = d / (60*60);
 			d = d % (60*60);
 			if (z > 0) {
-				printf("%d hour%s", z, z>1 ? "s" : "");
+				printf("%d hour%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
-			/* FALL THROUGH */
+		/* FALL THROUGH */
 		case 'm':
 			z = d / (60);
 			d = d % (60);
 			if (z > 0) {
-				printf("%d minute%s", z, z>1 ? "s" : "");
+				printf("%d minute%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
-			/* FALL THROUGH */
+		/* FALL THROUGH */
 		case 's':
 			z = d;
-			printf("%d second%s", z, z>1 ? "s" : "");
+			printf("%d second%s", z, z > 1 ? "s" : "");
 		}
 
 		if (t < now)
@@ -707,7 +710,7 @@ show(char *file)
 
 	printf("\n");
 
-	if (rflag || !blaze822_check_mime(msg)) {  // raw body
+	if (rflag) {  // raw body
 		print_ascii(blaze822_body(msg), blaze822_bodylen(msg));
 		goto done;
 	}
@@ -726,7 +729,7 @@ main(int argc, char *argv[])
 
 	int c;
 	while ((c = getopt(argc, argv, "h:A:qrtHLNx:O:Rn")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'h': hflag = optarg; break;
 		case 'A': Aflag = optarg; break;
 		case 'q': qflag = 1; break;
@@ -759,8 +762,13 @@ main(int argc, char *argv[])
 	if (safe_output && isatty(1)) {
 		char *pg;
 		pg = getenv("MBLAZE_PAGER");
-		if (!pg)
+		if (!pg) {
 			pg = getenv("PAGER");
+			if (pg && strcmp(pg, "less") == 0) {
+				static char lesscmd[] = "less -RFXe";
+				pg = lesscmd;
+			}
+		}
 		if (pg && *pg && strcmp(pg, "cat") != 0) {
 			pid2 = pipeto(pg);
 			if (pid2 < 0)

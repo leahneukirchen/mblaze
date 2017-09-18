@@ -24,9 +24,9 @@ subst(char *str, char *srch, char *repl, char *flags)
 	int iflag = !!strchr(flags, 'i');
 	int gflag = !!strchr(flags, 'g');
 
-#define APP(o,l) do {if(bufe-b<(ssize_t)l) return str; memcpy(b,str+i+o,l); b+=l;} while(0)
-#define APPC(c) do {if(b>=bufe) return str; *b++=c;} while(0)
-	
+#define APP(o, l) do { if (bufe-b < (ssize_t)l) return str; memcpy(b, str+i+o, l); b += l; } while (0)
+#define APPC(c) do { if (b >= bufe) return str; *b++ = c; } while (0)
+
 	regex_t srchrx;
 	regmatch_t pmatch[10];
 	if (regcomp(&srchrx, srch, iflag ? REG_ICASE : 0) != 0)
@@ -53,7 +53,7 @@ subst(char *str, char *srch, char *repl, char *flags)
 					t++;
 					n = *t++ - '0';
 				}
-				
+
 				APP(pmatch[n].rm_so,
 				    pmatch[n].rm_eo - pmatch[n].rm_so);
 			} else if (*t == '\\' && *(t+1)) {
@@ -63,7 +63,7 @@ subst(char *str, char *srch, char *repl, char *flags)
 				APPC(*t++);
 			}
 		}
-	
+
 		i += pmatch[0].rm_eo;  // advance to end of match
 		if (!gflag)
 			break;
@@ -199,7 +199,7 @@ sed(char *file)
 					char *from = strndup(s, t-s-1);
 					char *to = strndup(t, u-t-1);
 					char *flags = strndup(u, e-u);
-					
+
 					char *ov = v;
 					v = strdup(subst(ov, from, to, flags));
 					free(ov);
@@ -232,7 +232,7 @@ sed(char *file)
 		while (*e &&
 		    (*e == ' ' || *e == '\t' || *e == '\n' || *e == ';'))
 			e++;
-		
+
 		hs = he = 0;
 		if (*e == '/') {
 			e++;
@@ -244,49 +244,49 @@ sed(char *file)
 			if (*e)
 				e++;
 		}
-		
+
 		char sep;
 		char *s;
 		char *h = 0;
 		char *v = 0;
 		switch (*e) {
-			case 'a':
-				if (he != hs) {
-					h = strndup(hs, he-hs);
-				} else {
-					fprintf(stderr, "msed: used command a without header name\n");
+		case 'a':
+			if (he != hs) {
+				h = strndup(hs, he-hs);
+			} else {
+				fprintf(stderr, "msed: used command a without header name\n");
+				exit(1);
+			}
+
+			e++;
+			if (*e == ' ' || *e == '\t' || *e == '\n' || *e == ';' || !*e) {
+				fprintf(stderr, "msed: no header value for %s\n", h);
+				exit(1);
+			} else {
+				sep = *e;
+				if (!sep) {
+					fprintf(stderr, "msed: unterminated a command\n");
 					exit(1);
 				}
+				s = ++e;
+				while (*e && *e != sep)
+					e++;
+				v = strndup(s, e-s);
+			}
 
-				e++;
-				if (*e == ' ' || *e == '\t' || *e == '\n' || *e == ';' || !*e) {
-					fprintf(stderr, "msed: no header value for %s\n", h);
-					exit(1);
-				} else {
-					sep = *e;
-					if (!sep) {
-						fprintf(stderr, "msed: unterminated a command\n");
-						exit(1);
-					}
-					s = ++e;
-					while (*e && *e != sep)
-						e++;
-					v = strndup(s, e-s);
-				}
-
-				if (blaze822_chdr(msg, h))
-					break;
-
-				printhdr(h, 0);
-				printf(": %s\n", v);
-
+			if (blaze822_chdr(msg, h))
 				break;
 
-			case 'c':
-			case 'd':
-			case 's':
-				// ignore here;
-				break;
+			printhdr(h, 0);
+			printf(": %s\n", v);
+
+			break;
+
+		case 'c':
+		case 'd':
+		case 's':
+			// ignore here;
+			break;
 		}
 		while (*e && *e != ';' && *e != '\n')
 			e++;
@@ -301,7 +301,7 @@ main(int argc, char *argv[])
 {
 	int c;
 	while ((c = getopt(argc, argv, "")) != -1)
-		switch(c) {
+		switch (c) {
 		default:
 			fprintf(stderr, "Usage: msed [expr] [msgs...]\n");
 			exit(1);
@@ -317,6 +317,6 @@ main(int argc, char *argv[])
 		blaze822_loop1(".", sed);
 	else
 		blaze822_loop(argc-optind, argv+optind, sed);
-	
+
 	return 0;
 }

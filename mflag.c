@@ -99,7 +99,7 @@ doit:
 
 		return;
 	}
-	
+
 skip:
 	if (vflag)
 		printf("%s\n", file);
@@ -110,7 +110,7 @@ main(int argc, char *argv[])
 {
 	int c;
 	while ((c = getopt(argc, argv, "PRSTDFprstdfX:x:v")) != -1)
-		switch(c) {
+		switch (c) {
 		case 'P': case 'R': case 'S': case 'T': case 'D': case 'F':
 			flags[(unsigned int)c] = 1;
 			break;
@@ -142,6 +142,11 @@ main(int argc, char *argv[])
 	curfile = blaze822_seq_cur();
 
 	if (vflag) {
+		if (argc == optind && !isatty(0)) {
+			blaze822_loop(0, 0, flag);  // read from stdin
+			return 0;
+		}
+
 		args = calloc(sizeof (char *), argsalloc);
 		if (!args)
 			exit(-1);
@@ -155,7 +160,7 @@ main(int argc, char *argv[])
 			blaze822_loop1(":", flag);
 		else
 			blaze822_loop(0, 0, flag);
-		
+
 		return 0;
 	}
 

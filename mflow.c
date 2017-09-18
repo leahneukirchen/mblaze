@@ -32,7 +32,7 @@ fixed(int quotes, char *line, size_t linelen)
 {
 	chgquote(quotes);
 
-	if (linelen > (size_t)(maxcolumn - column)) {
+	if (column && linelen > (size_t)(maxcolumn - column)) {
 		putchar('\n');
 		column = 0;
 	}
@@ -75,7 +75,8 @@ flowed(int quotes, char *line, ssize_t linelen)
 			done = 1;
 		}
 
-		if (column + (eow - line) > maxcolumn) {
+		if (column + (eow - line) > maxcolumn &&
+		    eow - line < maxcolumn) {
 			putchar('\n');
 			column = 0;
 			if (*line == ' ') {
@@ -92,23 +93,26 @@ flowed(int quotes, char *line, ssize_t linelen)
 }
 
 int
-main()
+main(int argc, char *argv[])
 {
 	char *linebuf = 0;
 	char *line;
 	size_t linelen = 0;
-	int quotes = 0;
+	int outer_quotes = 0;
+	int quotes;
 
 	int reflow = 1;  // re-evaluated on $PIPE_CONTENTTYPE
+	int force = 0;
 	int delsp = 0;
 
 	char *ct = getenv("PIPE_CONTENTTYPE");
 	if (ct) {
 		char *s, *se;
-		blaze822_mime_parameter(ct, "format", &s, &se);
-		reflow = s && (strncasecmp(s, "flowed", 6) == 0);
-		blaze822_mime_parameter(ct, "delsp", &s, &se);
-		delsp = s && (strncasecmp(s, "yes", 3) == 0);
+		reflow = 0;
+		if (blaze822_mime_parameter(ct, "format", &s, &se) && s)
+			reflow = (strncasecmp(s, "flowed", 6) == 0);
+		if (blaze822_mime_parameter(ct, "delsp", &s, &se) && s)
+			delsp = (strncasecmp(s, "yes", 3) == 0);
 	}
 
 	char *cols = getenv("COLUMNS");
@@ -131,6 +135,17 @@ main()
 			maxcolumn = m;
 	}
 
+	int c;
+	while ((c = getopt(argc, argv, "fqw:")) != -1)
+		switch (c) {
+		case 'f': force = 1; break;
+		case 'q': outer_quotes++; break;
+		case 'w': maxcolumn = atoi(optarg); break;
+		default:
+			fprintf(stderr, "Usage: mflow [-f] [-q] [-w MAXCOLUMNS]\n");
+			exit(2);
+		}
+
 	while (1) {
 		errno = 0;
 		ssize_t rd = getdelim(&linebuf, &linelen, '\n', stdin);
@@ -144,24 +159,24 @@ main()
 
 		line = linebuf;
 
-		if (!reflow) {
+		if (!reflow && !force) {
 			fwrite(line, 1, rd, stdout);
 			continue;
 		}
 
 		if (rd > 0 && line[rd-1] == '\n')
-                        line[--rd] = 0;
+			line[--rd] = 0;
 		if (rd > 0 && line[rd-1] == '\r')
-                        line[--rd] = 0;
-		
-		quotes = 0;
+			line[--rd] = 0;
+
+		quotes = outer_quotes;
 		while (*line == '>') {  // measure quote depth
 			line++;
 			quotes++;
 			rd--;
 		}
 
-		if (*line == ' ') {  // space stuffing
+		if (reflow && *line == ' ') {  // space stuffing
 			line++;
 			rd--;
 		}
@@ -178,7 +193,12 @@ main()
 				line[--rd] = 0;
 			flowed(quotes, line, rd);
 		} else {
-			fixed(quotes, line, rd);
+			if (force && rd > maxcolumn) {
+				flowed(quotes, line, rd);
+				fixed(quotes, "", 0);
+			} else {
+				fixed(quotes, line, rd);
+			}
 		}
 	}
 

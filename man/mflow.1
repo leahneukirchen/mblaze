@@ -1,4 +1,4 @@
-.Dd July 26, 2017
+.Dd September 6, 2017
 .Dt MFLOW 1
 .Os
 .Sh NAME
@@ -6,6 +6,9 @@
 .Nd reflow format=flowed plain text mails
 .Sh SYNOPSIS
 .Nm
+.Op Fl f
+.Op Fl q
+.Op Fl w Ar width
 \&<
 .Ar file
 .Sh DESCRIPTION
@@ -31,6 +34,19 @@ If defined,
 the environment variable
 .Ev MAXCOLUMNS
 specifies the maximum line length.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl f
+Force line wrapping of long lines.
+.It Fl q
+Prefix lines with
+.Sq Li \&< .
+Can be used multiple times.
+.It Fl w Ar width
+Set maximum line length to
+.Ar width .
+.El
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO

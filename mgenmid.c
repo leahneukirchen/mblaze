@@ -21,9 +21,10 @@ printb36(uint64_t x)
 
 	char outbuf[16];
 	char *o = outbuf + sizeof outbuf;
-	*o = 0;
 
+	*--o = 0;
 	do { *--o = base36[x % 36]; } while (x /= 36);
+
 	fputs(o, stdout);
 }
 
@@ -46,8 +47,8 @@ int main()
 		hostbuf[sizeof hostbuf - 1] = 0;
 
 		struct addrinfo hints = { .ai_family = AF_UNSPEC,
-					  .ai_socktype = SOCK_STREAM,
-					  .ai_flags = AI_CANONNAME };
+			                  .ai_socktype = SOCK_STREAM,
+			                  .ai_flags = AI_CANONNAME };
 		struct addrinfo *info;
 		if (getaddrinfo(hostbuf, 0, &hints, &info) == 0) {
 			// sanity checks: no (null), at least one dot,
@@ -83,7 +84,7 @@ int main()
 		    " or add a FQDN to /etc/hosts.\n");
 		exit(1);
 	}
-		
+
 	struct timeval tp;
 	gettimeofday(&tp, (struct timezone *)0);
 

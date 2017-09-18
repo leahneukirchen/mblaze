@@ -82,7 +82,7 @@ blaze822_decode_b64(char *s, char *e, char **deco, size_t *decleno)
 	*deco = buf;
 
 	while (s + 4 <= e) {
-		while (s < e && isfws((unsigned char) *s))
+		while (s < e && isfws((unsigned char)*s))
 			s++;
 		if (s >= e)
 			break;
@@ -90,7 +90,7 @@ blaze822_decode_b64(char *s, char *e, char **deco, size_t *decleno)
 		uint32_t v = 0;
 		unsigned char t = 0;
 
-		unsigned char c0=s[0], c1=s[1], c2=s[2], c3=s[3];
+		unsigned char c0 = s[0], c1 = s[1], c2 = s[2], c3 = s[3];
 		s += 4;
 
 		if ((c0 | c1 | c2 | c3) > 127)
@@ -273,7 +273,7 @@ nocodeok:
 }
 
 #ifdef TEST
-int 
+int
 main() {
 	char *r;
 	size_t l;

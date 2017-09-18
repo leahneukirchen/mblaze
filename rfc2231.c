@@ -39,7 +39,7 @@ blaze822_mime2231_parameter(char *s, char *name,
 		i = 100;
 		goto found_plain;
 	}
-	
+
 	while (i < 100) {
 		snprintf(namenum, sizeof namenum, "%s*%d*", name, i);
 		if (blaze822_mime_parameter(s, namenum, &sbuf, &ebuf)) {
@@ -48,13 +48,13 @@ found_extended:
 			if (i == 0 || i == 100) { // extended-initial-value
 				char *encstart = sbuf;
 				sbuf = strchr(sbuf, '\'');
-				if (!sbuf) 
+				if (!sbuf)
 					return 0;
 				srcenc = strndup(encstart, sbuf - encstart);
 				if (!srcenc)
 					return 0;
 				sbuf = strchr(sbuf+1, '\'');
-				if (!sbuf) 
+				if (!sbuf)
 					return 0;
 				sbuf++;
 			}
@@ -110,7 +110,7 @@ found_plain:
 
 	size_t dstlen = dst - dststart;
 	dst = dststart;
-	
+
 	int r = iconv(ic, &dst, &dstlen, &tmpend, &tmplen);
 	if (r < 0) {
 		free(tmp);
