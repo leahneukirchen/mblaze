@@ -85,7 +85,11 @@ int gen_qp(uint8_t *s, off_t size, int maxlinelen, int linelen)
 		}
 
 		if ((s[i] > 126) ||
-		    (s[i] == '=')) {
+		    (s[i] == '=') ||
+		    (linelen == 0 &&
+		     (strncmp((char *)s, "From ", 5) == 0 ||
+	             (s[i] == '.' && i+1 < size &&
+		      (s[i+1] == '\n' || s[i+1] == '\r'))))) {
 			printf("=%02X", s[i]);
 			linelen += 3;
 			prev = s[i];
