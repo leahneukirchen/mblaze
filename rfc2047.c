@@ -41,9 +41,9 @@ blaze822_decode_qp(char *start, char *stop, char **deco, size_t *decleno, int un
 			unsigned char c2 = s[2];
 			s += 3;
 			if (c1 > 127 || c2 > 127 || hex[c1] < 0 || hex[c2] < 0) {
-				*buf++ = '?';
-				*buf++ = '?';
-				*buf++ = '?';
+				*buf++ = '=';
+				*buf++ = c1;
+				*buf++ = c2;
 				continue;
 			}
 			*buf++ = (hex[c1] << 4) | hex[c2];
