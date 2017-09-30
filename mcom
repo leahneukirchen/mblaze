@@ -38,6 +38,23 @@ needs_multipart() {
 		grep -q '^#[^ ]*/[^ ]* ' "$1"
 }
 
+do_mime() {
+	if needs_multipart "$draft"; then
+		(
+			IFS='
+'
+			msed '/attach/d' $draft
+			for f in $(mhdr -M -h attach $draft); do
+				printf '#%s %s\n' \
+				       "$(file -Lbi $f | sed 's/ //g')" \
+				       "$f"
+			done
+		) | mmime >$draftmime
+	else
+		mmime -r <"$draft" >"$draftmime"
+	fi
+}
+
 MBLAZE=${MBLAZE:-$HOME/.mblaze}
 
 sendmail=$(mhdr -h sendmail "$MBLAZE/profile")
@@ -173,6 +190,7 @@ fi
 	fi
 } >$draft
 
+automime=
 c=e
 while :; do
 	case "$c" in
@@ -183,7 +201,7 @@ while :; do
 		esac
 
 		if [ -e $draftmime ]; then
-			if [ $draft -ot $draftmime ]; then
+			if [ $draft -ot $draftmime ] || [ "$automime" -eq 1 ]; then
 				stampdate $draftmime
 				if $sendmail <$draftmime; then
 					if [ "$outbox" ]; then
@@ -227,20 +245,7 @@ while :; do
 		exit 1
 		;;
 	m|mime)
-		if needs_multipart "$draft"; then
-			(
-				IFS='
-'
-				msed '/attach/d' $draft
-				for f in $(mhdr -M -h attach $draft); do
-					printf '#%s %s\n' \
-					       "$(file -Lbi $f | sed 's/ //g')" \
-					       "$f"
-				done
-			) | mmime >$draftmime
-		else
-			mmime -r <"$draft" >"$draftmime"
-		fi
+		do_mime
 		mshow -t $draftmime
 		c=
 		;;
@@ -248,6 +253,12 @@ while :; do
 		c=
 		if ! ${EDITOR:-vi} $draft; then
 			c=c
+		fi
+		if mmime -c <$draft; then
+			automime=
+		else
+			automime=1
+			do_mime
 		fi
 		;;
 	d|delete)
@@ -278,7 +289,7 @@ while :; do
 		c=
 		;;
 	*)
-		printf 'What now? ([s]end, [c]ancel, [d]elete, [e]dit, [m]ime, sign, encrypt) '
+		printf 'What now? (%s[s]end, [c]ancel, [d]elete, [e]dit, [m]ime, sign, encrypt) ' "${automime:+mime and }"
 		read -r c
 		;;
 	esac

@@ -8,7 +8,7 @@
 .Nm
 .Op Fl h Ar headers
 .Op Fl A Ar mimetypes
-.Op Fl nqrHLN
+.Op Fl nqrFHLN
 .Op Ar msgs\ ...
 .Nm
 .Fl x Ar msg
@@ -62,6 +62,8 @@ Don't render the body, stop after header output.
 .It Fl r
 Don't render the body, print raw body.
 This may be dangerous to use on a tty.
+.It Fl F
+Don't apply filters to MIME parts.
 .It Fl H
 Don't decode the headers, print all raw headers.
 This may be dangerous to use on a tty.

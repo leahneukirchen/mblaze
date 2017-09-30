@@ -6,7 +6,7 @@ OS := $(shell uname)
 
 ifeq ($(OS),OpenBSD)
 LOCALBASE=/usr/local
-CFLAGS+=-I$(LOCALBASE)/include -pthread
+override CFLAGS+=-I$(LOCALBASE)/include -pthread
 LDLIBS=-L$(LOCALBASE)/lib -liconv -pthread
 endif
 

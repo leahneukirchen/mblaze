@@ -188,7 +188,7 @@ main(int argc, char *argv[])
 			continue;
 		}
 
-		if (rd > 0 && line[rd-1] == ' ') {  // flowed line
+		if (reflow && rd > 0 && line[rd-1] == ' ') {  // flowed line
 			if (delsp)
 				line[--rd] = 0;
 			flowed(quotes, line, rd);

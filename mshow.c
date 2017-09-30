@@ -19,6 +19,7 @@
 static int rflag;
 static int Rflag;
 static int qflag;
+static int Fflag;
 static int Hflag;
 static int Lflag;
 static int Nflag;
@@ -728,12 +729,13 @@ main(int argc, char *argv[])
 	pid_t pid1 = -1, pid2 = -1;
 
 	int c;
-	while ((c = getopt(argc, argv, "h:A:qrtHLNx:O:Rn")) != -1)
+	while ((c = getopt(argc, argv, "h:A:qrtFHLNx:O:Rn")) != -1)
 		switch (c) {
 		case 'h': hflag = optarg; break;
 		case 'A': Aflag = optarg; break;
 		case 'q': qflag = 1; break;
 		case 'r': rflag = 1; break;
+		case 'F': Fflag = 1; break;
 		case 'H': Hflag = 1; break;
 		case 'L': Lflag = 1; break;
 		case 'N': Nflag = 1; break;
@@ -744,7 +746,7 @@ main(int argc, char *argv[])
 		case 'n': nflag = 1; break;
 		default:
 			fprintf(stderr,
-			    "Usage: mshow [-h headers] [-A mimetypes] [-nqrHLN] [msgs...]\n"
+			    "Usage: mshow [-h headers] [-A mimetypes] [-nqrFHLN] [msgs...]\n"
 			    "	    mshow -x msg parts...\n"
 			    "	    mshow -O msg parts...\n"
 			    "	    mshow -t msgs...\n"
@@ -795,7 +797,7 @@ main(int argc, char *argv[])
 	} else if (Rflag) { // render for reply
 		blaze822_loop(argc-optind, argv+optind, reply);
 	} else { // show
-		if (!(qflag || rflag)) {
+		if (!(qflag || rflag || Fflag)) {
 			char *f = getenv("MAILFILTER");
 			if (!f)
 				f = blaze822_home_file("filter");

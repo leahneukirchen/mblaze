@@ -86,8 +86,11 @@ int gen_qp(uint8_t *s, off_t size, int maxlinelen, int linelen)
 		}
 
 		if ((s[i] > 126) ||
-		    (s[i] < 32 && s[i] != '\n' && s[i] != '\t') ||
-		    (s[i] == '=')) {
+		    (s[i] == '=') ||
+		    (linelen == 0 &&
+		     (strncmp((char *)s, "From ", 5) == 0 ||
+	             (s[i] == '.' && i+1 < size &&
+		      (s[i+1] == '\n' || s[i+1] == '\r'))))) {
 			printf("=%02X", s[i]);
 			linelen += 3;
 			prev = s[i];
@@ -100,6 +103,18 @@ int gen_qp(uint8_t *s, off_t size, int maxlinelen, int linelen)
 			putc_unlocked('_', stdout);
 			linelen++;
 			prev = '_';
+		} else if (s[i] < 33 && s[i] != '\n') {
+			if ((s[i] == ' ' || s[i] == '\t') &&
+			    i+1 < size &&
+			    (s[i+1] != '\n' && s[i+1] != '\r')) {
+				putc_unlocked(s[i], stdout);
+				linelen += 1;
+				prev = s[i];
+			} else {
+				printf("=%02X", s[i]);
+				linelen += 3;
+				prev = '_';
+			}
 		} else if (s[i] == '\n') {
 			if (prev == ' ' || prev == '\t')
 				puts("=");
