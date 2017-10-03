@@ -231,6 +231,32 @@ startover:
 		*disp = 0;
 	}
 
+	char *host = strrchr(addr, '@');
+	ssize_t hlen = strlen(host);
+	char *u;
+	if (host && (u = strpbrk(addr, "()<>[]:;@\\,\"")) && u < host) {
+		// need to "-quote local-part
+
+		char addr2[sizeof addr];
+		char *e = addr2 + sizeof addr2 - 1;
+		char *t;
+
+		u = addr;
+		t = addr2;
+		*t++ = '"';
+		while (u < host && e - t > 2) {
+			if (*u == '"' || *u == '\\')
+				*t++ = '\\';
+			*t++ = *u++;
+		}
+		*t++ = '"';
+		if (e - t > hlen + 1) {
+			memcpy(t, host, hlen);
+			*(t + hlen) = 0;
+			memcpy(addr, addr2, sizeof addr);
+		}
+	}
+
 	if (dispo) *dispo = *disp ? disp : 0;
 	if (addro) *addro = *addr ? addr : 0;
 
