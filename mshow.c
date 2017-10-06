@@ -225,7 +225,7 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 				if (e == 0)
 					print_ascii(output, outlen);
 				else
-					return fwrite(output, 1, outlen, stdout);
+					fwrite(output, 1, outlen, stdout);
 				if (output[outlen-1] != '\n')
 					putchar('\n');
 			}
