@@ -109,7 +109,7 @@ numline(char *file)
 }
 
 static char *
-fmt_date(struct message *msg, long w, int iso)
+fmt_date(struct message *msg, int w, int iso)
 {
 	static char date[32];
 	char *v;
@@ -244,7 +244,7 @@ fmt_to_flag(struct message *msg)
 }
 
 static ssize_t
-print_human(intmax_t i, long w)
+print_human(intmax_t i, int w)
 {
 	double d = i / 1024.0;
 	const char *u = "\0\0M\0G\0T\0P\0E\0Z\0Y\0";
@@ -310,7 +310,7 @@ oneline(char *file)
 		}
 		f++;
 
-		long w = 0;
+		int w = 0;
 		if ((*f >= '0' && *f <= '9') || *f == '-') {
 			errno = 0;
 			char *e;
