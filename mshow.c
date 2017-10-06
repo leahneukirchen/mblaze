@@ -45,7 +45,7 @@ printable(int c)
 	return (unsigned)c-0x20 < 0x5f;
 }
 
-int
+size_t
 print_ascii(char *body, size_t bodylen)
 {
 	if (safe_output) {
@@ -567,7 +567,7 @@ print_date_header(char *v)
 		printf(" (");
 		time_t d = t < now ? now - t : t - now;
 
-		int l;
+		char l;
 		if (d > 60*60*24*7*52) l = 'y';
 		else if (d > 60*60*24*7) l = 'w';
 		else if (d > 60*60*24) l = 'd';
@@ -576,7 +576,7 @@ print_date_header(char *v)
 		else l = 's';
 		int p = 3;
 
-		int z;
+		long z;
 		switch (l) {
 		case 'y':
 			z = d / (60*60*24*7*52);

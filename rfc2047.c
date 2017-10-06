@@ -215,7 +215,7 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		}
 
 		decchunk = dec;
-		int r = iconv(ic, &dec, &declen, &dst, &dlen);
+		ssize_t r = iconv(ic, &dec, &declen, &dst, &dlen);
 		if (r < 0) {
 			if (errno == E2BIG) {
 				break;

@@ -103,7 +103,7 @@ fallback:
 		rnd = ((uint64_t)lrand48() << 32) + lrand48();
 	}
 
-	rnd |= (1LL << 63);  // set highest bit to force full width
+	rnd |= (1ULL << 63);  // set highest bit to force full width
 
 	putchar('<');
 	printb36(((uint64_t)tp.tv_sec * 1000000LL + tp.tv_usec));

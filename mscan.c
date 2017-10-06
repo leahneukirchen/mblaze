@@ -33,7 +33,7 @@ static time_t now;
 static char default_fflag[] = "%c%u%r %-3n %10d %17f %t %2i%s";
 static char *fflag = default_fflag;
 
-int
+ssize_t
 u8putstr(FILE *out, char *s, ssize_t l, int pad)
 {
 	ssize_t ol = l;
@@ -109,7 +109,7 @@ numline(char *file)
 }
 
 static char *
-fmt_date(struct message *msg, int w, int iso)
+fmt_date(struct message *msg, long w, int iso)
 {
 	static char date[32];
 	char *v;
@@ -244,7 +244,7 @@ fmt_to_flag(struct message *msg)
 }
 
 static ssize_t
-print_human(intmax_t i, int w)
+print_human(intmax_t i, long w)
 {
 	double d = i / 1024.0;
 	const char *u = "\0\0M\0G\0T\0P\0E\0Z\0Y\0";
@@ -310,7 +310,7 @@ oneline(char *file)
 		}
 		f++;
 
-		int w = 0;
+		long w = 0;
 		if ((*f >= '0' && *f <= '9') || *f == '-') {
 			errno = 0;
 			char *e;

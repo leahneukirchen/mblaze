@@ -109,7 +109,8 @@ struct linux_dirent64 {
 void
 listdir(char *dir)
 {
-	int fd, nread;
+	int fd;
+	ssize_t nread;
 	char buf[BUF_SIZE];
 	struct linux_dirent64 *d;
 	int bpos;
