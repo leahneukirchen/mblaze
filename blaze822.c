@@ -232,11 +232,11 @@ startover:
 	}
 
 	char *host = strrchr(addr, '@');
-	ssize_t hlen = strlen(host);
 	char *u;
 	if (host && (u = strpbrk(addr, "()<>[]:;@\\,\"")) && u < host) {
 		// need to "-quote local-part
 
+		ssize_t hlen = strlen(host);
 		char addr2[sizeof addr];
 		char *e = addr2 + sizeof addr2 - 1;
 		char *t;
