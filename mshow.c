@@ -582,7 +582,7 @@ print_date_header(char *v)
 			z = d / (60*60*24*7*52);
 			d = d % (60*60*24*7*52);
 			if (z > 0) {
-				printf("%d year%s", z, z > 1 ? "s" : "");
+				printf("%ld year%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
@@ -591,7 +591,7 @@ print_date_header(char *v)
 			z = d / (60*60*24*7);
 			d = d % (60*60*24*7);
 			if (z > 0) {
-				printf("%d week%s", z, z > 1 ? "s" : "");
+				printf("%ld week%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
@@ -600,7 +600,7 @@ print_date_header(char *v)
 			z = d / (60*60*24);
 			d = d % (60*60*24);
 			if (z > 0) {
-				printf("%d day%s", z, z > 1 ? "s" : "");
+				printf("%ld day%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
@@ -609,7 +609,7 @@ print_date_header(char *v)
 			z = d / (60*60);
 			d = d % (60*60);
 			if (z > 0) {
-				printf("%d hour%s", z, z > 1 ? "s" : "");
+				printf("%ld hour%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
@@ -618,14 +618,14 @@ print_date_header(char *v)
 			z = d / (60);
 			d = d % (60);
 			if (z > 0) {
-				printf("%d minute%s", z, z > 1 ? "s" : "");
+				printf("%ld minute%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
 		/* FALL THROUGH */
 		case 's':
 			z = d;
-			printf("%d second%s", z, z > 1 ? "s" : "");
+			printf("%ld second%s", z, z > 1 ? "s" : "");
 		}
 
 		if (t < now)
