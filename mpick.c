@@ -329,10 +329,12 @@ parse_strcmp()
 {
 	enum prop prop;
 	enum op op;
+	int negate;
 	char *h;
 
 	h = 0;
 	prop = 0;
+	negate = 0;
 
 	if (token("from"))
 		prop = PROP_FROM;
@@ -357,6 +359,18 @@ parse_strcmp()
 		op = EXPR_STREQ;
 	else if (token("="))
 		op = EXPR_STREQ;
+	else if (token("!~~~"))
+		negate = 1, op = EXPR_GLOBI;
+	else if (token("!~~"))
+		negate = 1, op = EXPR_GLOB;
+	else if (token("!=~~"))
+		negate = 1, op = EXPR_REGEXI;
+	else if (token("!=~"))
+		negate = 1, op = EXPR_REGEX;
+	else if (token("!==="))
+		negate = 1, op = EXPR_STREQI;
+	else if (token("!==") || token("!="))
+		negate = 1, op = EXPR_STREQ;
 	else
 		parse_error("invalid string operator at '%.15s'", pos);
 
@@ -398,6 +412,12 @@ parse_strcmp()
 		regerror(r, e->b.regex, msg, sizeof msg);
 		parse_error("invalid regex '%s': %s", s, msg);
 		exit(2);
+	}
+
+	if (negate) {
+		struct expr *not = mkexpr(EXPR_NOT);
+		not->a.expr = e;
+		return not;
 	}
 
 	return e;
