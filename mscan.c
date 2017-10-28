@@ -34,7 +34,7 @@ static time_t now;
 static char default_fflag[] = "%c%u%r %-3n %10d %17f %t %2i%s";
 static char *fflag = default_fflag;
 
-int
+ssize_t
 u8putstr(FILE *out, char *s, ssize_t l, int pad)
 {
 	ssize_t ol = l;

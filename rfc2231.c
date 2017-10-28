@@ -111,8 +111,8 @@ found_plain:
 	size_t dstlen = dst - dststart;
 	dst = dststart;
 
-	int r = iconv(ic, &dst, &dstlen, &tmpend, &tmplen);
-	if (r < 0) {
+	size_t r = iconv(ic, &dst, &dstlen, &tmpend, &tmplen);
+	if (r == (size_t)-1) {
 		free(tmp);
 		return 1;
 	}

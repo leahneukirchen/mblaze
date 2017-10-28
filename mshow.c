@@ -46,7 +46,7 @@ printable(int c)
 	return (unsigned)c-0x20 < 0x5f;
 }
 
-int
+size_t
 print_ascii(char *body, size_t bodylen)
 {
 	if (safe_output) {
@@ -226,7 +226,7 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 				if (e == 0)
 					print_ascii(output, outlen);
 				else
-					return fwrite(output, 1, outlen, stdout);
+					fwrite(output, 1, outlen, stdout);
 				if (output[outlen-1] != '\n')
 					putchar('\n');
 			}
@@ -568,7 +568,7 @@ print_date_header(char *v)
 		printf(" (");
 		time_t d = t < now ? now - t : t - now;
 
-		int l;
+		char l;
 		if (d > 60*60*24*7*52) l = 'y';
 		else if (d > 60*60*24*7) l = 'w';
 		else if (d > 60*60*24) l = 'd';
@@ -577,13 +577,13 @@ print_date_header(char *v)
 		else l = 's';
 		int p = 3;
 
-		int z;
+		long z;
 		switch (l) {
 		case 'y':
 			z = d / (60*60*24*7*52);
 			d = d % (60*60*24*7*52);
 			if (z > 0) {
-				printf("%d year%s", z, z > 1 ? "s" : "");
+				printf("%ld year%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
@@ -592,7 +592,7 @@ print_date_header(char *v)
 			z = d / (60*60*24*7);
 			d = d % (60*60*24*7);
 			if (z > 0) {
-				printf("%d week%s", z, z > 1 ? "s" : "");
+				printf("%ld week%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
@@ -601,7 +601,7 @@ print_date_header(char *v)
 			z = d / (60*60*24);
 			d = d % (60*60*24);
 			if (z > 0) {
-				printf("%d day%s", z, z > 1 ? "s" : "");
+				printf("%ld day%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
@@ -610,7 +610,7 @@ print_date_header(char *v)
 			z = d / (60*60);
 			d = d % (60*60);
 			if (z > 0) {
-				printf("%d hour%s", z, z > 1 ? "s" : "");
+				printf("%ld hour%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
@@ -619,14 +619,14 @@ print_date_header(char *v)
 			z = d / (60);
 			d = d % (60);
 			if (z > 0) {
-				printf("%d minute%s", z, z > 1 ? "s" : "");
+				printf("%ld minute%s", z, z > 1 ? "s" : "");
 				if (!--p) break;
 				printf(", ");
 			}
 		/* FALL THROUGH */
 		case 's':
 			z = d;
-			printf("%d second%s", z, z > 1 ? "s" : "");
+			printf("%ld second%s", z, z > 1 ? "s" : "");
 		}
 
 		if (t < now)

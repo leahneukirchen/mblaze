@@ -58,7 +58,8 @@ int gen_b64(uint8_t *s, off_t size)
 	return 0;
 }
 
-int gen_qp(uint8_t *s, off_t size, int maxlinelen, int linelen)
+size_t
+gen_qp(uint8_t *s, off_t size, size_t maxlinelen, size_t linelen)
 {
 	off_t i;
 	int header = linelen > 0;
@@ -299,7 +300,7 @@ print_header(char *line) {
 
 	int prevq = 0;  // was the previous word encoded as qp?
 
-	int linelen = s - line;
+	size_t linelen = s - line;
 
 	while (*s) {
 		size_t highbit = 0;
@@ -366,7 +367,7 @@ gen_build()
 	int intext = 0;
 
 	while (1) {
-		int read = getdelim(&line, &linelen, '\n', stdin);
+		ssize_t read = getdelim(&line, &linelen, '\n', stdin);
 		if (read == -1) {
 			if (feof(stdin))
 				break;

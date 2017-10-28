@@ -142,7 +142,7 @@ blaze822_seq_cur(void)
 	if (!curlink)
 		curlink = blaze822_home_file("cur");
 
-	int r = readlink(curlink, b, sizeof b - 1);
+	ssize_t r = readlink(curlink, b, sizeof b - 1);
 	if (r < 0)
 		return 0;
 	b[r] = 0;
@@ -308,14 +308,14 @@ parse_parent(char *map, long *starto, long *stopo)
 	char *s, *t;
 	long line;
 
-	int previndent[256] = { 0 };
+	long previndent[256] = { 0 };
 
 	for (s = map, line = 0; s; s = t+1) {
 		t = strchr(s, '\n');
 		if (!t)
 			break;
 		line++;
-		int indent = 0;
+		long indent = 0;
 		while (*s && iswsp(*s)) {
 			s++;
 			indent++;

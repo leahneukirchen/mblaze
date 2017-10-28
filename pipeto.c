@@ -57,14 +57,14 @@ pipeto(const char *cmdline)
 			errno = EINVAL;
 
 		// execvp failed, write errno to parent
-		long e = errno;
+		int e = errno;
 		if (write(pipe1[1], &e, sizeof e) < 0)
 			exit(111);  // do a magic dance for gcc -Wunused-result
 		exit(111);
 	} else {  // in parent
 		close(pipe1[1]);
 
-		long e;
+		int e;
 		ssize_t n = read(pipe1[0], &e, sizeof e);
 		if (n < 0)
 			e = errno;

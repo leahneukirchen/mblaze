@@ -172,10 +172,14 @@ header(char *file)
 	if (!msg)
 		return;
 
-	if (!hflag)
-		return headerall(msg);
-	if (Mflag)
-		return headermany(msg);
+	if (!hflag) {
+		headerall(msg);
+		return;
+	}
+	if (Mflag) {
+		headermany(msg);
+		return;
+	}
 
 	char *h = hflag;
 	while (*h) {

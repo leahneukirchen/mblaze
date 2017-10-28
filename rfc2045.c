@@ -129,7 +129,7 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 	if (!blaze822_mime_parameter(s, "boundary", &boundary, &boundaryend))
 		return 0;
 	char mboundary[256];
-	int boundarylen = boundaryend-boundary+2;
+	size_t boundarylen = boundaryend-boundary+2;
 
 	if (boundarylen >= 256)
 		return 0;
