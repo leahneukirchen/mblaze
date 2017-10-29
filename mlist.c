@@ -105,15 +105,15 @@ struct linux_dirent64 {
 	char d_name[];           /* Filename (null-terminated) */
 };
 #define BUF_SIZE 1024000
+char buf[BUF_SIZE];
 
 void
 listdir(char *dir)
 {
 	int fd;
 	ssize_t nread;
-	char buf[BUF_SIZE];
+	ssize_t bpos;
 	struct linux_dirent64 *d;
-	int bpos;
 
 	fd = open(dir, O_RDONLY | O_DIRECTORY);
 	if (fd == -1) {
@@ -131,15 +131,13 @@ listdir(char *dir)
 		if (nread == 0)
 			break;
 
-		for (bpos = 0; bpos < nread; ) {
+		for (bpos = 0; bpos < nread; bpos += d->d_reclen) {
 			d = (struct linux_dirent64 *)(buf + bpos);
 			if (d->d_type != DT_REG && d->d_type != DT_UNKNOWN)
-				goto next;
+				continue;
 			if (d->d_name[0] == '.')
-				goto next;
+				continue;
 			list(dir, d->d_name);
-next:
-			bpos += d->d_reclen;
 		}
 	}
 
