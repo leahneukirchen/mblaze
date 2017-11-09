@@ -79,6 +79,7 @@ flowed(int quotes, char *line, ssize_t linelen)
 		    eow - line < maxcolumn) {
 			putchar('\n');
 			column = 0;
+			done = 0;
 			if (*line == ' ') {
 				line++;
 				linelen--;
