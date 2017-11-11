@@ -209,7 +209,9 @@ fmt_from(struct message *msg)
 		from = fromdec;
 
 		if (itsme(fromdec) && ((w = blaze822_hdr(msg, "to")))) {
-			snprintf(fromdec, sizeof fromdec, "TO:%s", w);
+			memcpy(fromdec, "TO:", 4);
+			blaze822_decode_rfc2047(fromdec + 3, w,
+			    sizeof fromdec - 1 - 3, "UTF-8");
 			from = fromdec;
 		} else {
 			char *disp, *addr;

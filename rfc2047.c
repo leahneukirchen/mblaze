@@ -244,7 +244,7 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 		b = stop + 2;
 	} while (dlen && (s = strstr(b, "=?")));
 
-	while (*b && dlen > 0) {
+	while (*b && dlen > 1) {
 		*dst++ = *b++;
 		dlen--;
 	}
@@ -263,7 +263,7 @@ nocode:
 		iconv_close(ic);
 	free(srcenc);
 nocodeok:
-	while (*src && dlen) {
+	while (*src && dlen > 1) {
 		*dst++ = *src++;
 		dlen--;
 	}
