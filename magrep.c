@@ -107,11 +107,12 @@ match_part(int depth, struct message *msg, char *body, size_t bodylen)
 void
 match_body(char *file)
 {
-	curfile = file;
-	while (*curfile == ' ' || *curfile == '\t')
-		curfile++;
+	char *filename;
+	filename = curfile = file;
+	while (*filename == ' ' || *filename == '\t')
+		filename++;
 
-	struct message *msg = blaze822_file(curfile);
+	struct message *msg = blaze822_file(filename);
 	if (!msg)
 		return;
 
