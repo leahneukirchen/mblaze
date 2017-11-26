@@ -19,6 +19,7 @@
 #include <wchar.h>
 
 #include "blaze822.h"
+#include "u8decode.h"
 
 static int cols;
 static wchar_t replacement = L'?';
@@ -42,25 +43,24 @@ u8putstr(FILE *out, char *s, ssize_t l, int pad)
 	while (*s && l > 0) {
 		if (*s == '\t')
 			*s = ' ';
-		if (*s >= 32 && *s < 127) {
-			putc(*s, out);
-			s++;
-			l--;
-		} else if ((unsigned)*s < 32 || *s == 127) {  // C0
+
+		if ((unsigned)*s < 32 || *s == 127) {  // C0
 			fprintf(out, "%lc", (wint_t)(*s == 127 ? 0x2421 : 0x2400+*s));
 			s++;
 			l--;
 		} else {
-			wchar_t wc;
-			int r = mbtowc(&wc, s, 4);
+			uint32_t c;
+			int r = u8decode(s, &c);
 			if (r < 0) {
 				r = 1;
-				wc = replacement;
+				fprintf(out, "%lc", (wint_t)replacement);
+				s++;
+			} else {
+				l -= wcwidth((wchar_t)c);
+				if (l >= 0)
+					fwrite(s, 1, r, out);
+				s += r;
 			}
-			s += r;
-			l -= wcwidth(wc);
-			if (l >= 0)
-				fprintf(out, "%lc", (wint_t)wc);
 		}
 	}
 	if (pad)
