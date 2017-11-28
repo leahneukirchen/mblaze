@@ -520,7 +520,8 @@ main(int argc, char *argv[])
 		replacement = 0xfffd;
 
 	struct winsize w;
-	if (ioctl(1, TIOCGWINSZ, &w) == 0) {
+	int ttyfd = open("/dev/tty", O_RDONLY | O_NOCTTY);
+	if (ttyfd >= 0 && ioctl(ttyfd, TIOCGWINSZ, &w) == 0) {
 		cols = w.ws_col;
 
 		char *pg;
@@ -535,6 +536,8 @@ main(int argc, char *argv[])
 				    pg, strerror(errno));
 		}
 	}
+	if (ttyfd >= 0)
+		close(ttyfd);
 	if (getenv("COLUMNS"))
 		cols = atoi(getenv("COLUMNS"));
 	if (cols <= 40)
