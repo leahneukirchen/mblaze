@@ -35,10 +35,10 @@ int main()
 
 	char *f = blaze822_home_file("profile");
 	struct message *config = blaze822(f);
-
+#if defined(__OpenBSD__)
         if (pledge("stdio rpath tty", NULL) == -1)
           err(1, "pledge");
-
+#endif
 	if (config) // try FQDN: first
 		host = blaze822_hdr(config, "fqdn");
 

@@ -256,10 +256,10 @@ usage:
 		}
 
 	int i;
-
+#if defined(__OpenBSD__)
         if (pledge("stdio rpath tty", NULL) == -1)
           err(1, "pledge");
-	
+#endif	
 	for (i = 0, flagsum = 0, flagset = 0; (size_t)i < sizeof flags; i++) {
 		if (flags[i] != 0)
 			flagset++;

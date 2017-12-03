@@ -206,10 +206,10 @@ main(int argc, char *argv[])
 		fprintf(stderr, "usage: mdeliver DIR\n");
 		return 1;
 	}
-
+#if defined(__OpenBSD__)
         if (pledge("stdio wpath", NULL) == -1)
           err(1, "pledge");
-
+#endif
 	targetdir = argv[optind];
 
 	gethost();

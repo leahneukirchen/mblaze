@@ -135,10 +135,10 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 
-
+#if defined(__OpenBSD__)
         if (pledge("stdio rpath tty", NULL) == -1)
           err(1, "pledge");
-
+#endif
 	curfile = blaze822_seq_cur();
 
 	if (vflag) {

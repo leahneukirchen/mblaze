@@ -76,10 +76,10 @@ usage:
 
 	if (optind == argc)
 		goto usage;
-
+#if defined(__OpenBSD__)
         if (pledge("stdio rpath tty", NULL) == -1)
           err(1, "pledge");
-
+#endif
 	status = 0;
 	for (i = optind; i < argc; i++)
 		inc(argv[i]);

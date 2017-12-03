@@ -140,10 +140,10 @@ main(int argc, char *argv[])
 		}
 
 	status = 0;
-
+#if defined(__OpenBSD__)
         if (pledge("stdio rpath tty", NULL) == -1)
           err(1, "pledge");
-
+#endif
 	if (argc == optind && isatty(0))
 		blaze822_loop1(":", export);
 	else
