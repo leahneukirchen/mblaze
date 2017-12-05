@@ -36,8 +36,8 @@ int main()
 	char *f = blaze822_home_file("profile");
 	struct message *config = blaze822(f);
 #if defined(__OpenBSD__)
-        if (pledge("stdio rpath tty", NULL) == -1)
-          err(1, "pledge");
+	if (pledge("stdio rpath tty", NULL) == -1)
+	  err(1, "pledge");
 #endif
 	if (config) // try FQDN: first
 		host = blaze822_hdr(config, "fqdn");
@@ -47,8 +47,8 @@ int main()
 		hostbuf[sizeof hostbuf - 1] = 0;
 
 		struct addrinfo hints = { .ai_family = AF_UNSPEC,
-			                  .ai_socktype = SOCK_STREAM,
-			                  .ai_flags = AI_CANONNAME };
+					  .ai_socktype = SOCK_STREAM,
+					  .ai_flags = AI_CANONNAME };
 		struct addrinfo *info;
 		if (getaddrinfo(hostbuf, 0, &hints, &info) == 0) {
 			// sanity checks: no (null), at least one dot,

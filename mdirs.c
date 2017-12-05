@@ -82,8 +82,8 @@ usage:
 	if (argc == optind)
 		goto usage;
 #if defined(__OpenBSD__)
-        if (pledge("stdio rpath tty", NULL) == -1)
-          err(1, "pledge");
+	if (pledge("stdio rpath tty", NULL) == -1)
+		err(1, "pledge");
 #endif
 	for (i = 0; i < argc; i++)
 		mdirs(argv[i]);

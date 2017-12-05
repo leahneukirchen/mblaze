@@ -99,11 +99,11 @@ list(char *prefix, char *file)
 #include <sys/syscall.h>
 
 struct linux_dirent64 {
-	ino64_t d_ino;           /* 64-bit inode number */
-	off64_t d_off;           /* 64-bit offset to next structure */
+	ino64_t d_ino;	   /* 64-bit inode number */
+	off64_t d_off;	   /* 64-bit offset to next structure */
 	unsigned short d_reclen; /* Size of this dirent */
 	unsigned char d_type;    /* File type */
-	char d_name[];           /* Filename (null-terminated) */
+	char d_name[];	   /* Filename (null-terminated) */
 };
 #define BUF_SIZE 1024000
 char buf[BUF_SIZE];
@@ -248,17 +248,17 @@ main(int argc, char *argv[])
 usage:
 			fprintf(stderr,
 			    "Usage: mlist [-DFPRST] [-X str]\n"
-			    "             [-dfprst] [-x str]\n"
-			    "             [-N | -n | -C | -c]\n"
-			    "             [-i] [dirs...]\n"
+			    "	     [-dfprst] [-x str]\n"
+			    "	     [-N | -n | -C | -c]\n"
+			    "	     [-i] [dirs...]\n"
 			);
 			exit(1);
 		}
 
 	int i;
 #if defined(__OpenBSD__)
-        if (pledge("stdio rpath tty", NULL) == -1)
-          err(1, "pledge");
+	if (pledge("stdio rpath tty", NULL) == -1)
+		err(1, "pledge");
 #endif	
 	for (i = 0, flagsum = 0, flagset = 0; (size_t)i < sizeof flags; i++) {
 		if (flags[i] != 0)

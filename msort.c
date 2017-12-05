@@ -317,8 +317,8 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 
-        if (pledge("stdio rpath tty", NULL) == -1)
-          err(1, "pledge");
+	if (pledge("stdio rpath tty", NULL) == -1)
+	  err(1, "pledge");
 
 	mails = calloc(sizeof (struct mail), mailalloc);
 	if (!mails)

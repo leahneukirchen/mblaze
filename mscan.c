@@ -504,8 +504,8 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 #if defined(__OpenBSD__)
-        if (pledge("stdio rpath tty", NULL) == -1)
-          err(1, "pledge");
+	if (pledge("stdio rpath tty", NULL) == -1)
+	  err(1, "pledge");
 #endif
 	if (nflag) {
 		if (argc == optind && isatty(0))

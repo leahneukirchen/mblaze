@@ -190,8 +190,8 @@ usage:
 	if (!rx)
 		goto usage;
 #if defined(__OpenBSD__)
-        if (pledge("stdio rpath tty", NULL) == -1)
-          err(1, "pledge");
+	if (pledge("stdio rpath tty", NULL) == -1)
+		err(1, "pledge");
 #endif
 	*rx++ = 0;
 	int r = regcomp(&pattern, rx, REG_EXTENDED | iflag);

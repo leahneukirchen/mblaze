@@ -401,8 +401,8 @@ main(int argc, char *argv[])
 
 	optional = 1;
 #if defined(__OpenBSD__)
-        if (pledge("stdio rpath tty", NULL) == -1)
-          err(1, "pledge");
+	if (pledge("stdio rpath tty", NULL) == -1)
+	  err(1, "pledge");
 #endif
 	while ((c = getopt(argc, argv, "S:v")) != -1)
 		switch (c) {

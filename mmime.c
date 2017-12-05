@@ -90,7 +90,7 @@ gen_qp(uint8_t *s, off_t size, size_t maxlinelen, size_t linelen)
 		    (s[i] == '=') ||
 		    (linelen == 0 &&
 		     (strncmp((char *)s, "From ", 5) == 0 ||
-	             (s[i] == '.' && i+1 < size &&
+		     (s[i] == '.' && i+1 < size &&
 		      (s[i+1] == '\n' || s[i+1] == '\r'))))) {
 			printf("=%02X", s[i]);
 			linelen += 3;
@@ -500,9 +500,9 @@ usage:
 
 	if (argc != optind)
 		goto usage;
-        
-        if (pledge("stdio rpath tty", NULL) == -1)
-          err(1, "pledge");
+	
+	if (pledge("stdio rpath tty", NULL) == -1)
+	  err(1, "pledge");
 
 	if (cflag)
 		return check();

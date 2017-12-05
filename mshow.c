@@ -476,7 +476,7 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 						    1, blaze822_headerlen(msg),
 						    stdout);
 						if (blaze822_orig_header(msg)[
-						        blaze822_headerlen(msg)]
+							blaze822_headerlen(msg)]
 						    == '\r')
 							printf("\r\n\r\n");
 						else
@@ -758,8 +758,8 @@ main(int argc, char *argv[])
 	if (!rflag && !Oflag && !Rflag)
 		safe_output = 1;
 
-        if (pledge("stdio rpath tty cpath proc", NULL) == -1)
-          err(1, "pledge");
+	if (pledge("stdio rpath tty cpath proc", NULL) == -1)
+	  err(1, "pledge");
 
 	if (safe_output && isatty(1)) {
 		char *pg;
@@ -782,8 +782,8 @@ main(int argc, char *argv[])
 		}
 	}
 
-        if (pledge("stdio rpath cpath tty", NULL) == -1)
-          err(1, "pledge");
+	if (pledge("stdio rpath cpath tty", NULL) == -1)
+	  err(1, "pledge");
 
 	if (xflag) { // extract
 		extract(xflag, argc-optind, argv+optind, 0);

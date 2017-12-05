@@ -295,8 +295,8 @@ usage:
 			exit(1);
 		}
 
-        if (pledge("stdio rpath wpath cpath tty", NULL) == -1)
-          err(1, "pledge");
+	if (pledge("stdio rpath wpath cpath tty", NULL) == -1)
+	  err(1, "pledge");
 
 	if (cflag)
 		blaze822_loop1(cflag, overridecur);
