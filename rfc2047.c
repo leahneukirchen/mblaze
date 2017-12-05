@@ -130,6 +130,9 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 	iconv_t ic = (iconv_t)-1;
 	char *srcenc = 0;
 
+	char *startdst = dst;
+	size_t startdlen = dlen;
+
 	char *b = src;
 
 	// XXX use memmem
@@ -233,9 +236,6 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 			}
 		}
 
-		if (memchr(dst, 0, dlen))
-			goto nocode;
-
 		while (!partial && declen && dlen) {
 			*dst++ = *dec++;
 			declen--;
@@ -250,6 +250,12 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 	while (*b && dlen > 1) {
 		*dst++ = *b++;
 		dlen--;
+	}
+
+	if (memchr(startdst, 0, dst - startdst)) {
+		dst = startdst;
+		dlen = startdlen;
+		goto nocodeok;
 	}
 
 	*dst = 0;
