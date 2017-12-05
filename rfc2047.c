@@ -132,7 +132,7 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 
 	char *b = src;
 
-	// use memmem
+	// XXX use memmem
 	char *s = strstr(src, "=?");
 	if (!s)
 		goto nocodeok;
@@ -232,6 +232,9 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 				goto nocode;
 			}
 		}
+
+		if (memchr(dst, 0, dlen))
+			goto nocode;
 
 		while (!partial && declen && dlen) {
 			*dst++ = *dec++;
