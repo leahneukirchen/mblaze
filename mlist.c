@@ -204,7 +204,7 @@ listarg(char *arg)
 		if (!maildir)
 			listdir(arg);
 
-		if (iflag && imatched) {
+		if (iflag && (imatched || (maildir && !flagset))) {
 			tdirs++;
 			printf("%6ld unseen  %3ld flagged  %6ld msg  %s\n",
 			    iunseen, iflagged, icount, arg);
