@@ -59,6 +59,7 @@ list(char *prefix, char *file)
 		if (!f)
 			return;
 		icount++;
+		tcount++;
 		f += 3;
 		while (*f) {
 			if (flags[(unsigned int)*f] == -1)
