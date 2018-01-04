@@ -5,10 +5,11 @@ PATH="${0%/*}:$PATH"
 
 colorscan() {
 awk '
+function co(n, c) { e = ENVIRON["MCOLOR_" n]; return e ? e : c }
 function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
 function so(s) { return sprintf("\033[1m%s\033[0m", s) }
-/^>/ { print so(fg(119, $0)); next }
-/^ *\\_/ { print fg(242, $0); next }
+/^>/ { print so(fg(co("CUR",119), $0)); next }
+/^ *\\_/ { print fg(co("MISS",242), $0); next }
 { print }'
 }
 
