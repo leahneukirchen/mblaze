@@ -14,7 +14,7 @@ signed && content && !signature && indent == si+2 { signature = 0+$1; type = $2 
 function q(a) { gsub("\\47", "\47\\\47\47", a); return "\47"a"\47" }
 END {
 	if (type == "" && plain) {  // guess plain text armored signature
-		exit(system("mshow -R " q(msg) " | gpg --verify"));
+		exit(system("mshow -r " q(msg) " | gpg --verify"));
 	} else if (type == "") {
 		print("No signature found.")
 		exit(100)
