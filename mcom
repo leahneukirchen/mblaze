@@ -149,7 +149,11 @@ fi
 		[ "$from" ] && printf 'Resent-From: %s\n' "$from"
 		msgid | sed 's/^/Resent-/'
 		printf 'Resent-Date: %s\n' "$(mdate)"
-		mseq "${@:-.}" | xargs -d'\n' cat
+		(
+			IFS='
+'
+			cat $(mseq "${@:-.}")
+		)
 		;;
 	*mrep*)
 		[ "$#" -eq 0 ] && set -- .
