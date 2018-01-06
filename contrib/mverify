@@ -20,7 +20,7 @@ END {
 		exit(100)
 	} else if (type == "application/pgp-signature") {
 		exit(system("mshow -r -O " q(msg) " " q(content) \
-			" | sed '/$/!s/$//' | " \
+			" | sed \"/$/!s/$//\" | " \
 			" { mshow -O " q(msg) " " q(signature) \
 			" | gpg --verify - /dev/fd/3; } 3<&0"))
 	} else if (type == "application/pkcs7-signature") {
