@@ -1,5 +1,9 @@
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <search.h>
 #include <stdio.h>
@@ -186,22 +190,22 @@ stdinmode()
 	char *seqfile = 0;
 
 	if (Sflag) {
-		// XXX locking?
 		seqfile = getenv("MAILSEQ");
 		if (!seqfile)
 			seqfile = blaze822_home_file("seq");
 		snprintf(tmpfile, sizeof tmpfile, "%s-", seqfile);
 		snprintf(oldfile, sizeof oldfile, "%s.old", seqfile);
-		outfile = fopen(tmpfile, "w+");
-		if (!outfile) {
+		int fd = open(tmpfile, O_RDWR | O_EXCL | O_CREAT, 0666);
+		if (fd < 0) {
 			fprintf(stderr,
-			    "mseq: Could not create sequence file '%s': %s.\n",
-			    seqfile, strerror(errno));
+			    "mseq: Could not create temporary sequence file '%s': %s.\n",
+			    tmpfile, strerror(errno));
 			fprintf(stderr,
 			    "mseq: Ensure %s exists and is writable.\n",
 			    blaze822_home_file(""));
 			exit(2);
 		}
+		outfile = fdopen(fd, "w+");
 		if (Aflag) {
 			FILE *seq = fopen(seqfile, "r");
 			if (seq) {
