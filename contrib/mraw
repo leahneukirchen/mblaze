@@ -1,0 +1,6 @@
+#!/bin/sh
+# mraw [MSGS...] - display raw messages
+
+IFS='
+'
+exec cat -- $(mseq "${@:-.}")
