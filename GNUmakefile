@@ -60,6 +60,7 @@ install: FRC all
 	install -m0755 $(ALL) $(SCRIPT) $(DESTDIR)$(BINDIR)
 	ln -sf mless $(DESTDIR)$(BINDIR)/mnext
 	ln -sf mless $(DESTDIR)$(BINDIR)/mprev
+	ln -sf mcom $(DESTDIR)$(BINDIR)/mbnc
 	ln -sf mcom $(DESTDIR)$(BINDIR)/mfwd
 	ln -sf mcom $(DESTDIR)$(BINDIR)/mrep
 	install -m0644 man/*.1 $(DESTDIR)$(MANDIR)/man1

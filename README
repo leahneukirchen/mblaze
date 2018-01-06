@@ -13,6 +13,7 @@ DESCRIPTION
      mblaze consists of these Unix tools that each do one job:
      maddr(1)     extract addresses from mail
      magrep(1)    find mails matching a pattern
+     mbnc(1)      bounces mail
      mcom(1)      compose and send mail
      mdeliver(1)  deliver messages or import mailboxes
      mdirs(1)     find Maildir folders
@@ -126,6 +127,6 @@ LICENSE
      To the extent possible under law, the creator of this work has waived all
      copyright and related or neighboring rights to this work.
 
-     http://creativecommons.org/publicdomain/zero/1.0/
+           http://creativecommons.org/publicdomain/zero/1.0/
 
-Void Linux                       June 30, 2017                      Void Linux
+Void Linux                      January 6, 2018                     Void Linux

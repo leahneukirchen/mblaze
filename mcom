@@ -143,6 +143,14 @@ fi
 			done
 		) fi
 		;;
+	*mbnc*)
+		printf '%s: \n' Resent-To
+		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
+		[ "$from" ] && printf 'Resent-From: %s\n' "$from"
+		msgid | sed 's/^/Resent-/'
+		printf 'Resent-Date: %s\n' "$(mdate)"
+		mseq "${@:-.}" | xargs -d'\n' cat
+		;;
 	*mrep*)
 		[ "$#" -eq 0 ] && set -- .
 		ng=$(mhdr -h newsgroups "$1")
@@ -178,16 +186,20 @@ fi
 		;;
 	esac
 
-	if [ -f "$MBLAZE/signature" ]; then
-		SIGNATURE="$MBLAZE/signature"
-	elif [ -f ~/.signature ]; then
-		SIGNATURE="$HOME/.signature"
-	fi
+	case "$0" in
+	*mbnc*) ;;
+	*)
+		if [ -f "$MBLAZE/signature" ]; then
+			SIGNATURE="$MBLAZE/signature"
+		elif [ -f ~/.signature ]; then
+			SIGNATURE="$HOME/.signature"
+		fi
 
-	if [ -n "$SIGNATURE" ]; then
-		printf '%s\n' '-- '
-		cat "$SIGNATURE"
-	fi
+		if [ -n "$SIGNATURE" ]; then
+			printf '%s\n' '-- '
+			cat "$SIGNATURE"
+		fi
+	esac
 } >$draft
 
 automime=
@@ -198,6 +210,14 @@ while :; do
 		case "$(mhdr -h newsgroups "$draft")" in
 			*gmane.*) sendmail="mblow -s news.gmane.org";;
 			*.*) sendmail="mblow";;
+		esac
+
+		resent="$(maddr -h resent-to "$draft")"
+		case "$resent" in
+		?*)
+			sendmail=$(mhdr -h sendmail "$MBLAZE/profile")
+			sendmail="${sendmail:-sendmail} -- $resent"
+			;;
 		esac
 
 		if [ -e $draftmime ]; then

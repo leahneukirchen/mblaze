@@ -1,11 +1,12 @@
-.Dd July 22, 2016
+.Dd January 6, 2017
 .Dt MCOM 1
 .Os
 .Sh NAME
 .Nm mcom ,
 .Nm mfwd ,
+.Nm mbnc ,
 .Nm mrep
-.Nd compose, forward, reply to, and send mail
+.Nd compose, forward, bounce, reply to, and send mail
 .Sh SYNOPSIS
 .Nm mcom
 .Op Ar recipients\ ...
@@ -14,6 +15,8 @@
 .Nm mfwd
 .Op Fl r
 .Op Ar msgs\ ...
+.Nm mbnc
+.Ar msg
 .Nm mrep
 .Ar msg
 .Sh DESCRIPTION
@@ -39,6 +42,15 @@ Use
 to forward as
 .Xr mshow 1
 rendered plain text, using RFC934 message encapsulation.
+.Pp
+.Nm mbnc
+behaves like
+.Nm mcom
+but creates the draft from the original
+.Ar msg
+(including headers)
+and adds a Resent-To header, to which the message will
+be bounced directly.
 .Pp
 .Nm mrep
 behaves like
