@@ -1,8 +1,6 @@
 #!/bin/sh
 # mless [MSG] - less(1)-wrapper around mshow
 
-PATH="${0%/*}:$PATH"
-
 colorscan() {
 awk '
 function co(n, c) { e = ENVIRON["MCOLOR_" n]; return e ? e : c }
