@@ -1,7 +1,7 @@
 #!/bin/sh
 # mverify MSG - verify a OpenPGP or SMIME message
 
-# Needs bash, unix2dos, gpg and openssl.
+# Needs gpg (for OpenPGP) and openssl (for SMIME).
 
 [ "$#" -eq 0 ] && set -- .
 
@@ -19,9 +19,10 @@ END {
 		print("No signature found.")
 		exit(100)
 	} else if (type == "application/pgp-signature") {
-		exit(system("bash -c " q("mshow -r -O " q(msg) " " q(content) \
-			" | unix2dos | gpg --verify <(mshow -O " q(msg) \
-			" " q(signature) " ) -")))
+		exit(system("mshow -r -O " q(msg) " " q(content) \
+			" | sed '/$/!s/$//' | " \
+			" { mshow -O " q(msg) " " q(signature) \
+			" | gpg --verify - /dev/fd/3; } 3<&0"))
 	} else if (type == "application/pkcs7-signature") {
 		exit(system("mshow -r -O " q(msg) " " q(signed) \
 			" | openssl smime -verify"))
