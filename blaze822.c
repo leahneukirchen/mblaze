@@ -128,107 +128,166 @@ fail:
 	return -1;
 }
 
+static char *
+skip_comment(char *s)
+{
+	if (*s != '(')
+		return s;
+
+	long d = 0;
+	do {
+		if (!*s)
+			break;
+		else if (*s == '(')
+			d++;
+		else if (*s == ')')
+			d--;
+		s++;
+	} while (d > 0);
+
+	return s;
+}
+
+// always 0 terminates
+// never writes more than dstmax to dst
+// returns how many bytes were appended
+static size_t
+safe_append(char *dst, size_t dstmax, char *strbeg, char *strend)
+{
+	size_t dstlen = strlen(dst);
+	if (dstmax - dstlen - 1 < strend - strbeg)
+		strend = strbeg + (dstmax - dstlen - 1);
+	memcpy(dst + dstlen, strbeg, strend - strbeg);
+	dst[dstlen + (strend - strbeg) + 1] = 0;
+	return strend - strbeg;
+}
+
+static size_t
+safe_append_space(char *dst, size_t dstmax)
+{
+	char sp[] = " ";
+	char *se = sp + 1;
+
+	return safe_append(dst, dstmax, sp, se);
+}
+
 char *
 blaze822_addr(char *s, char **dispo, char **addro)
 {
 	static char disp[1024];
 	static char addr[1024];
-	char *c, *e;
 
-	while (iswsp(*s))
-		s++;
+	memset(addr, 0, sizeof addr);
+	memset(disp, 0, sizeof disp);
 
-	if (!*s) {
-		if (dispo) *dispo = 0;
-		if (addro) *addro = 0;
-		return 0;
-	}
+	char ttok[1024] = { 0 };
+	char *tc = ttok;
+	char *te = ttok + sizeof ttok;
 
-	c = disp;
-	e = disp + sizeof disp - 1;
+	int not_addr = 0;
 
-	*disp = 0;
-	*addr = 0;
-
-	while (*s && c < e) {
-startover:
-		if (*s == '<') {
-			char *c = addr;
-			char *e = addr + sizeof addr;
-
+	while (1) {
+		if (!*s || iswsp(*s) || *s == ',' || *s == ';') {
+			if (tc != ttok) {
+				if (!*addr && !not_addr && memchr(ttok, '@', tc - ttok)) {
+					safe_append(addr, sizeof addr, ttok, tc);
+				} else {
+					if (*disp)
+						safe_append_space(disp, sizeof disp);
+					safe_append(disp, sizeof disp,
+					    ttok, tc);
+				}
+				tc = ttok;
+				not_addr = 0;
+			}
+			if (!*s) {
+				if (!*addr && !*disp) {
+					if (dispo) *dispo = 0;
+					if (addro) *addro = 0;
+					return 0;
+				}
+				break;
+			}
+			if (*s == ',' || *s == ';') {
+				s++;
+				if (*addr || *disp)
+					break;
+			}
+			s++;
+		} else if (*s == '<') {
+			char tok[1024] = { 0 };
+			char *c = tok;
+			char *e = tok + sizeof tok;
 			s++;
 			while (*s && c < e && *s != '>') {
-				if (*s == '<') {
-					goto startover;
-				} else if (*s == '"') {
+				s = skip_comment(s);
+				if (*s == '"') {
 					// local part may be quoted, allow all
 					s++;
-					while (*s && c < e && *s != '"')
+					while (*s && c < e && *s != '"') {
+						if (*s == '\\')
+							s++;
 						*c++ = *s++;
+					}
 					if (*s == '"')
 						s++;
 				} else {
-					*c++ = *s++;
+					if (iswsp(*s))
+						s++;
+					else
+						*c++ = *s++;
 				}
 			}
 			if (*s == '>')
 				s++;
-			while (iswsp(*s))
-				s++;
-			*c = 0;
+			safe_append(addr, sizeof addr, tok, c);
 		} else if (*s == '"') {
+			char tok[1024] = { 0 };
+			char *c = tok;
+			char *e = tok + sizeof tok;
 			s++;
 			while (*s && c < e && *s != '"') {
-				if (*s == '\\' && *(s+1))
+				if (*s == '\\')
 					s++;
 				*c++ = *s++;
 			}
 			if (*s == '"')
 				s++;
-		} else if (*s == '(') {   // XXX recurse to conform?
-			s++;
 
-			if (!*addr) {   // assume: user@host (name)
-				*c-- = 0;
-				while (c > disp && iswsp(*c))
-					*c-- = 0;
-				c++;
-				memcpy(addr, disp, (c - disp) + 1);
-				c = disp;
-				*c = 0;
+			if (memchr(tok, '@', c - tok))
+				not_addr = 1;  // @ inside "" is never an addr
+
+			if (tc != ttok)
+				tc += safe_append_space(ttok, sizeof ttok);
+			tc += safe_append(ttok, sizeof ttok, tok, c);
+		} else if (*s == '(') {
+			char *z = skip_comment(s);
+			if (!*disp && *addr)  // user@host (name)
+				safe_append(disp, sizeof disp, s + 1, z - 1);
+			else if (*disp) {  // copy comment
+				safe_append_space(disp, sizeof disp);
+				safe_append(disp, sizeof disp, s, z);
 			}
-
-			while (*s && c < e && *s != ')')
-				*c++ = *s++;
-			if (*s == ')')
-				s++;
-		} else if (*s == '\\') {
-			s++;
-			if (*s)
-				*c++ = *s++;
+			s = z;
 		} else if (*s == ':') {
-			s++;
-			while (iswsp(*s))
+			if (memchr(ttok, '[', tc - ttok)) {
+				// in ipv6 address
+				if (tc < te)
+					*tc++ = *s++;
+			} else {  // ignore group name and start over
 				s++;
-			c = disp;  // forget already read group name
-		} else if (*s == ',' || *s == ';') {
-			s++;
-			break;
+				tc = ttok;
+				memset(addr, 0, sizeof addr);
+				memset(disp, 0, sizeof disp);
+				*ttok = 0;
+				not_addr = 0;
+			}
 		} else {
-			*c++ = *s++;
+			if (*s == '\\' && *(s+1))
+				s++;
+			if (tc < te)
+				*tc++ = *s++;
 		}
-	}
-
-	*c-- = 0;
-	// strip trailing ws
-	while (c > disp && iswsp(*c))
-		*c-- = 0;
-
-	if (*disp && !*addr && strchr(disp, '@')) {
-		// just mail address was given
-		c++;
-		memcpy(addr, disp, (c - disp) + 1);
-		*disp = 0;
 	}
 
 	char *host = strrchr(addr, '@');
