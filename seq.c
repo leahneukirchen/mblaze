@@ -509,13 +509,13 @@ iterdir(char *dir, void (*cb)(char *))
 	return i;
 }
 
-int
+long
 blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 {
 	char *line = 0;
 	size_t linelen = 0;
 	ssize_t rd;
-	int i = 0;
+	long i = 0;
 
 	if (argc == 0) {
 		while ((rd = getdelim(&line, &linelen, '\n', stdin)) != -1) {
@@ -545,7 +545,7 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 	return j;
 }
 
-int
+long
 blaze822_loop1(char *arg, void (*cb)(char *))
 {
 	char *args[] = { arg };

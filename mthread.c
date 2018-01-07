@@ -396,7 +396,8 @@ print_tree(struct container *c, int depth)
 int
 main(int argc, char *argv[])
 {
-	int c, i;
+	int c;
+	long i;
 
 	optional = 1;
 
@@ -422,7 +423,7 @@ main(int argc, char *argv[])
 	sort_tree(top, -1);
 	print_tree(top, -1);
 
-	fprintf(stderr, "%d mails threaded\n", i);
+	fprintf(stderr, "%ld mails threaded\n", i);
 
 	return 0;
 }
