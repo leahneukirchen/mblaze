@@ -33,6 +33,12 @@ stampdate() {
 	fi
 }
 
+stripempty() {
+	tmp=$(mktemp -t mcom.XXXXXX)
+	msed 's/^[ \t]*$//d' "$1" >"$tmp"
+	mv "$tmp" "$1"
+}
+
 needs_multipart() {
 	mhdr -h attach "$1" >/dev/null ||
 		grep -q '^#[^ ]*/[^ ]* ' "$1"
@@ -278,6 +284,7 @@ while :; do
 		if ! ${EDITOR:-vi} $draft; then
 			c=c
 		fi
+		stripempty $draft
 		if mmime -c <$draft; then
 			automime=
 		else
