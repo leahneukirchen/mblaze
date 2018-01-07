@@ -125,6 +125,25 @@ The environment variable
 .Ev PIPE_CHARSET
 will be set to the charset declared in the MIME part,
 if known.
+.Pp
+Filters can communicate with
+.Nm
+using their exit status:
+.Bl -tag -compact -width 8n
+.It 0
+The output is printed as plain text.
+.It 62
+The output is printed raw, without escaping.
+.It 63
+Behave as if the filter never ran.
+.It 64
+The output is a RFC5322 message that should be rendered again.
+.It 65 to 80
+Render the
+.Va n Ns \&- Ns 64th
+part of this text/multipart part.
+.El
+All other exit statuses are regarded as errors.
 .Sh ENVIRONMENT
 .Bl -tag -width MBLAZE_NOCOLOR
 .It Ev MBLAZE_PAGER
