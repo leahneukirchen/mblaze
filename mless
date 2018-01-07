@@ -76,6 +76,9 @@ while :; do
 			"+:e $(mscan -n .)$nl" //scan $(mscan -n :)
 	case "$?" in
 	0|1) exit $?;;
+	36) # $ goto end
+		mseq -C '$' 2>/dev/null
+		;;
 	78) # N go to next unseen message
 		nu=$(magrep -v -m1 :S .:) && mseq -C "$nu"
 		;;

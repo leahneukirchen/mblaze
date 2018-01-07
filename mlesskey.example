@@ -4,6 +4,9 @@ Q quit \1
 :cq quit \1
 [ prev-file
 ] next-file
+{ noaction E1\n
+} quit $
+$ quit $
 S noaction E//scan\n
 ` noaction E\#\n
 H quit H
