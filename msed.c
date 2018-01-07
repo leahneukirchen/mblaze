@@ -20,8 +20,9 @@ subst(char *str, char *srch, char *repl, char *flags)
 	static char buf[4096];
 	char *bufe = buf + sizeof buf;
 
-	int iflag = !!strchr(flags, 'i');
+	int dflag = !!strchr(flags, 'd');
 	int gflag = !!strchr(flags, 'g');
+	int iflag = !!strchr(flags, 'i');
 
 #define APP(o, l) do { if (bufe-b < (ssize_t)l) return str; memcpy(b, str+i+o, l); b += l; } while (0)
 #define APPC(c) do { if (b >= bufe) return str; *b++ = c; } while (0)
@@ -37,6 +38,9 @@ subst(char *str, char *srch, char *repl, char *flags)
 	while (1) {
 		if (regexec(&srchrx, str+i, 9, pmatch, 0) != 0)
 			break;
+
+		if (dflag)
+			return 0;
 
 		APP(0, pmatch[0].rm_so);
 
@@ -186,7 +190,7 @@ sed(char *file)
 					while (*e && *e != sep)
 						e++;
 					char *u = ++e;
-					while (*e == 'i' || *e == 'g')
+					while (*e == 'd' || *e == 'g' || *e == 'i')
 						e++;
 
 					if (!(*e == ' ' || *e == ';' || *e == '\n' || !*e)) {
@@ -200,9 +204,13 @@ sed(char *file)
 					char *flags = strndup(u, e-u);
 
 					char *ov = v;
-					v = strdup(subst(ov, from, to, flags));
-					free(ov);
+					char *r = subst(ov, from, to, flags);
+					if (r)
+						v = strdup(r);
+					else
+						v = 0;
 
+					free(ov);
 					free(from);
 					free(to);
 					free(flags);
