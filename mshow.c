@@ -36,6 +36,8 @@ struct message *filters;
 static int mimecount;
 static int safe_output;
 
+static int reply_found;
+
 static char defaultAflags[] = "text/plain:text/html";
 static char *Aflag = defaultAflags;
 
@@ -356,6 +358,7 @@ reply_mime(int depth, struct message *msg, char *body, size_t bodylen)
 			print_ascii(body, bodylen);
 		else
 			print_u8recode(body, bodylen, charset);
+		reply_found++;
 		free(charset);
 	}
 
@@ -404,7 +407,10 @@ reply(char *file)
 	struct message *msg = blaze822_file(file);
 	if (!msg)
 		return;
+	reply_found = 0;
 	blaze822_walk_mime(msg, 0, reply_mime);
+	if (!reply_found)
+		exit(1);
 }
 
 static int extract_argc;
