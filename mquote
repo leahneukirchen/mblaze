@@ -6,7 +6,7 @@
 : ${from:=Someone}
 
 printf '%s wrote:\n' "$from"
-mshow -R "$1" |
+{ mshow -R "$1" || mshow -h '' -N "$1"; } |
 	sed -n '/^-- $/,$!p'   |                   # strip signature
 	sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' |    # strip empty lines
 	sed 's/^/> /'                              # prefix with >
