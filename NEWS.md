@@ -3,11 +3,12 @@
 * New tool mflow to reformat format=flowed plain text mails.
 * New tool mbnc to bounce mails (send original mail to someone else).
 * mshow filters can output raw text now, e.g. for HTML rendering with colors.
+* mrep can quote mail that doesn't have a plain text part.
+* mcom runs mmime when deemed necessary.
 * mhdr can extract MIME parameters.
 * New contrib: mrecode
 * New contrib: mraw
 * mshow regards non-MIME mails as MIME mails with one part now.
-* mcom runs mmime when deemed necessary.
 * mshow -F to disable MIME filters.
 * mpick supports negations now.
 * msed can remove headers depending on their value.
