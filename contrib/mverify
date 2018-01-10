@@ -5,7 +5,7 @@
 
 [ "$#" -eq 0 ] && set -- .
 
-mshow -t "$1" | awk -v "msg=$1" '
+mshow -t "$1" | DOS2UNIX='/$/!s/$//' awk -v "msg=$1" '
 { match($0, "^ *"); indent = RLENGTH }
 $2 == "text/plain" { plain++ }
 $2 == "multipart/signed" { signed = 0+$1; si = indent; next }
@@ -20,7 +20,7 @@ END {
 		exit(100)
 	} else if (type == "application/pgp-signature") {
 		exit(system("mshow -r -O " q(msg) " " q(content) \
-			" | sed \"/$/!s/$//\" | " \
+			" | sed $DOS2UNIX | " \
 			" { mshow -O " q(msg) " " q(signature) \
 			" | gpg --verify - /dev/fd/3; } 3<&0"))
 	} else if (type == "application/pkcs7-signature") {
