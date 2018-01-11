@@ -270,8 +270,8 @@ nocode:
 	fprintf(stderr, "error decoding rfc2047\n");
 	if (ic != (iconv_t)-1)
 		iconv_close(ic);
-	free(srcenc);
 nocodeok:
+	free(srcenc);
 	while (*src && dlen > 1) {
 		*dst++ = *src++;
 		dlen--;
