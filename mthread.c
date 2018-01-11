@@ -184,6 +184,8 @@ thread(char *file)
 
 		if (strcmp(irt, mid) != 0) {
 			parent = midcont(irt);
+		} else {
+			free(irt);
 		}
 	}
 out:
