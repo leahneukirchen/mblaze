@@ -161,12 +161,14 @@ sed(char *file)
 					if ((*e == ' ' || *e == ';' || *e == '\n' || !*e)) {
 						break;
 					}
-					sep = *e;
+					sep = *e++;
 					if (!sep) {
 						fprintf(stderr, "msed: unterminated a command\n");
 						exit(1);
 					}
 					while (*e && *e != sep)
+						e++;
+					if (*e == sep)
 						e++;
 					if (!(*e == ' ' || *e == ';' || *e == '\n' || !*e)) {
 						fprintf(stderr, "msed: unterminated a command\n");
