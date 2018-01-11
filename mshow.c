@@ -383,6 +383,7 @@ list_mime(int depth, struct message *msg, char *body, size_t bodylen)
 	print_filename(filename);
 	printf("\n");
 
+	free(mt);
 	return MIME_CONTINUE;
 }
 
