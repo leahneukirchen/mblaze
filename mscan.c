@@ -53,13 +53,12 @@ u8putstr(FILE *out, char *s, ssize_t l, int pad)
 			if (r < 0) {
 				r = 1;
 				fprintf(out, "%lc", (wint_t)replacement);
-				s++;
 			} else {
 				l -= wcwidth((wchar_t)c);
 				if (l >= 0)
 					fwrite(s, 1, r, out);
-				s += r;
 			}
+			s += r;
 		}
 	}
 	if (pad)
