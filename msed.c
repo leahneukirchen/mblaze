@@ -283,11 +283,16 @@ sed(char *file)
 				v = strndup(s, e-s);
 			}
 
-			if (blaze822_chdr(msg, h))
+			if (blaze822_chdr(msg, h)) {
+				free(h);
+				free(v);
 				break;
+			}
 
 			printhdr(h, 0);
 			printf(": %s\n", v);
+			free(h);
+			free(v);
 
 			break;
 
