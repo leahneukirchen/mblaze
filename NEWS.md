@@ -1,4 +1,4 @@
-## HEAD
+## 0.3 (2018-01-12)
 
 * New tool mflow to reformat format=flowed plain text mails.
 * New tool mbnc to bounce mails (send original mail to someone else).
