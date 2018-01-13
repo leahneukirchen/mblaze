@@ -158,7 +158,7 @@ safe_append(char *dst, size_t dstmax, char *strbeg, char *strend)
 	if (dstmax - dstlen - 1 < strend - strbeg)
 		strend = strbeg + (dstmax - dstlen - 1);
 	memcpy(dst + dstlen, strbeg, strend - strbeg);
-	dst[dstlen + (strend - strbeg) + 1] = 0;
+	dst[dstlen + (strend - strbeg)] = 0;
 	return strend - strbeg;
 }
 
