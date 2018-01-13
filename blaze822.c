@@ -240,6 +240,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 			}
 			if (*s == '>')
 				s++;
+			*addr = 0;
 			safe_append(addr, sizeof addr, tok, c);
 		} else if (*s == '"') {
 			char tok[1024] = { 0 };
