@@ -302,7 +302,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 
 	char *host = strrchr(addr, '@');
 	char *u;
-	if (host && (u = strpbrk(addr, "()<>[]:;@\\,\"")) && u < host) {
+	if (host && (u = strpbrk(addr, "()<>[]:;@\\,\" \t")) && u < host) {
 		// need to "-quote local-part
 
 		ssize_t hlen = strlen(host);
