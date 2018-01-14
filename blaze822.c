@@ -198,6 +198,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 					    ttok, tc);
 				}
 				tc = ttok;
+				*ttok = 0;
 				not_addr = 0;
 			}
 			if (!*s) {
