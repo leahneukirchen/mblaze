@@ -264,7 +264,8 @@ nofilter:
 		if (!Nflag)
 			printf(" ---\n");
 
-		if (strncmp(ct, "text/", 5) == 0) {
+		if (strncmp(ct, "text/", 5) == 0 ||
+		    strncmp(ct, "message/delivery-status", 23) == 0) {
 			char *charset = 0, *cs, *cse;
 			if (blaze822_mime_parameter(ct, "charset", &cs, &cse))
 				charset = strndup(cs, cse-cs);
