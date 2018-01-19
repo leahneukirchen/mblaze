@@ -20,6 +20,15 @@ if the value of
 .Ar header
 matches the POSIX Extended Regular Expression
 .Ar regex .
+(See
+.Xr mmsg 7
+for the message argument syntax.)
+If no
+.Ar msgs
+are specified and
+.Nm
+is used interactively,
+the current sequence will be searched.
 .Pp
 If
 .Ar header
@@ -36,16 +45,6 @@ is
 searches any plain text parts of the
 .Ar msgs
 .Em body .
-.Pp
-See
-.Xr mmsg 7
-for the message argument syntax.
-If no
-.Ar msgs
-are specified, and
-.Nm
-is used interactively,
-the current sequence will be searched.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -109,7 +108,18 @@ and >1 if an error occurs.
 .Sh SEE ALSO
 .Xr grep 1 ,
 .Xr mmsg 7 ,
+.Xr re_format 7 ,
 .Xr regex 7
+.Sh STANDARDS
+.Rs
+.%R RFC 2822
+.%T Internet Message Format
+.Re
+.Pp
+.Rs
+.%R RFC 2047
+.%T MIME (Multipurpose Internet Mail Extensions) Part Three: Message Header Extensions for Non-ASCII Text
+.Re
 .Sh AUTHORS
 .An Leah Neukirchen Aq Mt leah@vuxu.org
 .Sh TRIVIA
