@@ -10,10 +10,10 @@ The
 message system can be configured with a
 .Pa profile
 file,
-which is located in the directory
+located in the directory
 .Pa ~/.mblaze
 (or
-.Ev MBLAZE
+.Ev MBLAZE ,
 if set.)
 .Pp
 .Pa profile
@@ -32,6 +32,14 @@ The following
 are used by
 .Xr mblaze 7 :
 .Bl -tag -width Ds
+.It Li Local\&-Mailbox\&:
+Your primary mail address, used as the default value for
+.Li From\&:
+in
+.Xr mcom 1 ,
+and in
+.Xr mscan 1
+to recognize messages sent to you.
 .It Li Alternate\&-Mailboxes\&:
 A comma-separated list of mail addresses that belong to you, for
 .Xr mscan 1
@@ -41,18 +49,10 @@ The fully qualified domain name used for
 .Li Message\&-Id\&:
 generation in
 .Xr mgenmid 1 .
-.It Li Local\&-Mailbox\&:
-Your primary mail address, used as the default value for
-.Li From\&:
-in
-.Xr mcom 1 ,
-and in
-.Xr mscan 1
-to recognize messages sent to you.
 .It Li Outbox\&:
 If set,
 .Xr mcom 1
-will create draft messages in this Maildir,
+will create draft messages in this maildir,
 and save messages there after sending.
 .It Li Scan\&-Format\&:
 The default format string for
