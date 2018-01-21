@@ -1,9 +1,9 @@
-.Dd September 6, 2017
+.Dd January 21, 2018
 .Dt MFLOW 1
 .Os
 .Sh NAME
 .Nm mflow
-.Nd reflow format=flowed plain text mails
+.Nd reflow format=flowed plain text messages
 .Sh SYNOPSIS
 .Nm
 .Op Fl f
@@ -19,16 +19,16 @@ of RFC 3676.
 is inspected, making this a suitable filter
 for
 .Sq text/plain
-messages for
+messages using
 .Xr mshow 1 .
-Mails not using
+Messages not using
 .Sq format=flowed
 are output as is.
 .Pp
 Text is reflowed (where allowed) to
 fit the width given in the environment variable
 .Ev COLUMNS ,
-the terminal width, or 80 characters by default.
+or the terminal width, or 80 characters by default.
 .Pp
 If defined,
 the environment variable
@@ -41,16 +41,18 @@ The options are as follows:
 Force line wrapping of long lines.
 .It Fl q
 Prefix lines with
-.Sq Li \&< .
+.Sq Li \&> .
 Can be used multiple times.
 .It Fl w Ar width
 Set maximum line length to
-.Ar width .
+.Ar width
+columns.
 .El
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
 .Xr mshow 1
+.Sh STANDARDS
 .Rs
 .%A R. Gellens
 .%D February 2004
