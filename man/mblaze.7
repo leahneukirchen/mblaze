@@ -102,23 +102,17 @@ are in the file system cache, everything is blazingly fast.
 The utilities are written to be memory efficient
 .Pq i.e. not wasteful ,
 but whole messages are assumed to fit into RAM easily
-.Po
-one at a time
-.Pc .
+.Pq one at a time .
 .Pp
 .Nm
 has been written from scratch and is now well tested,
 but it is not 100% RFC-conforming
-.Po
-which is neither worth it, nor desirable
-.Pc .
+.Pq which is neither worth it, nor desirable .
 There may be issues with very old, nonconforming, messages.
 .Pp
 .Nm
 is written in portable C, using only POSIX functions
-.Po
-apart from a tiny Linux-only optimization
-.Pc ,
+.Pq apart from a tiny Linux-only optimization ,
 and has no external dependencies.
 It supports MIME and more than 7-bit messages
 .Po
@@ -175,13 +169,9 @@ As usual with pipes, the sky is the limit.
 .Sh CONCEPTS
 .Nm
 deals with messages
-.Po
-which are files
-.Pc ,
+.Pq which are files ,
 folders
-.Po
-which are maildir folders
-.Pc ,
+.Pq which are maildir folders ,
 sequences
 .Po
 which are newline-separated lists of messages, possibly saved on disk in
@@ -198,9 +188,7 @@ syntax as explained in
 .Xr mmsg 7 .
 .Pp
 Many utilities have a default behavior when used interactively from a terminal
-.Po
-e.g. operate on the current message or the current sequence
-.Pc .
+.Pq e.g. operate on the current message or the current sequence .
 For scripting, you must make these arguments explicit.
 .Pp
 For configuration, see
