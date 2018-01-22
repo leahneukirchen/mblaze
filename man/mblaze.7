@@ -20,7 +20,7 @@ consists of these Unix utilities that each do one job:
 .It Xr maddr 1
 extract mail addresses from messages
 .It Xr magrep 1
-print messages matching a pattern
+search messages matching a pattern
 .It Xr mbnc 1
 bounce messages
 .It Xr mcom 1
@@ -49,7 +49,7 @@ conveniently read messages in
 .It Xr mlist 1
 list and filter messages
 .It Xr mmime 1
-encode MIME messages
+create MIME messages
 .It Xr mmkdir 1
 create new maildir folders
 .It Xr mpick 1
@@ -100,9 +100,7 @@ Parsing message metadata is optimized to limit I/O requests.
 Initial operations on a large maildir may feel slow, but as soon as they
 are in the file system cache, everything is blazingly fast.
 The utilities are written to be memory efficient
-.Po
-i.e. not wasteful
-.Pc ,
+.Pq i.e. not wasteful ,
 but whole messages are assumed to fit into RAM easily
 .Po
 one at a time
@@ -143,14 +141,14 @@ and integrate well into a Unix workflow.
 .Pp
 For example, you could decide you want to look at all unseen messages in your
 INBOX, oldest first.
-.Dl mlist -s ~/maildir/INBOX | msort -d | mscan
+.Dl mlist -s ~/Maildir/INBOX | msort -d | mscan
 .Pp
 To operate on a set of messages in multiple steps,
 you can save it as a sequence,
 e.g. add a call to
 .Ql mseq -S
 to the above command:
-.Dl mlist -s ~/maildir/INBOX | msort -d | mseq -S | mscan
+.Dl mlist -s ~/Maildir/INBOX | msort -d | mseq -S | mscan
 .Pp
 Now mscan will show message numbers and you could look at the first
 five messages at once, for example:
@@ -165,10 +163,10 @@ to
 .Pc
 all new messages in all folders,
 thread it and look at it interactively:
-.Dl mdirs ~/maildir | xargs minc | mthread | mless
+.Dl mdirs ~/Maildir | xargs minc | mthread | mless
 .Pp
 Or you could list the attachments of the 20 largest messages in your INBOX:
-.Dl mlist ~/maildir/INBOX | msort -S | tail -20 | mshow -t
+.Dl mlist ~/Maildir/INBOX | msort -S | tail -20 | mshow -t
 .Pp
 Or apply the patches from the current message:
 .Dl mshow -O . '*.diff' | patch
