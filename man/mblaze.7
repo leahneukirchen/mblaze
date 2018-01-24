@@ -3,81 +3,82 @@
 .Os
 .Sh NAME
 .Nm mblaze
-.Nd introduction to mblaze
+.Nd introduction to the mblaze message system
 .Sh DESCRIPTION
 The
 .Nm
-message system is a set of Unix utilities to deal with
-mail kept in Maildir folders.
+message system is a set of Unix utilities for processing and
+interacting with mail messages which are stored in maildir folders.
 .Pp
 Its design is roughly inspired by MH, the RAND Message Handling
 System, but it is a complete implementation from scratch.
 .Pp
 .Nm
-consists of these Unix tools that each do one job:
+consists of these Unix utilities that each do one job:
+.Pp
 .Bl -tag -width 11n -compact
 .It Xr maddr 1
-extract addresses from mail
+extract mail addresses from messages
 .It Xr magrep 1
-find mails matching a pattern
+search messages matching a pattern
 .It Xr mbnc 1
-bounces mail
+bounce messages
 .It Xr mcom 1
-compose and send mail
+compose and send messages
 .It Xr mdeliver 1
-deliver messages or import mailboxes
+deliver messages or import mbox file
 .It Xr mdirs 1
-find Maildir folders
+list maildir folders, recursively
 .It Xr mexport 1
-export Maildir folders as mailboxes
+export messages as mbox file
 .It Xr mflag 1
-change flags (marks) of mail
+manipulate maildir flags
 .It Xr mflow 1
-reflow format=flowed plain text mails
+reflow format=flowed plain text messages
 .It Xr mfwd 1
-forward mail
+forward messages
 .It Xr mgenmid 1
-generate Message-IDs
+generate a Message-ID
 .It Xr mhdr 1
-extract mail headers
+print message headers
 .It Xr minc 1
-incorporate new mail
+incorporate new messages
 .It Xr mless 1
-conveniently read mail in
+conveniently read messages in
 .Xr less 1
 .It Xr mlist 1
-list and filter mail messages
+list and filter messages
 .It Xr mmime 1
 create MIME messages
 .It Xr mmkdir 1
-create new Maildir
+create new maildir folders
 .It Xr mpick 1
-advanced mail filter
+advanced message filter
 .It Xr mrep 1
-reply to mail
+reply to messages
 .It Xr mscan 1
-generate one-line summaries of mail
+generate one-line message summaries
 .It Xr msed 1
-manipulate mail headers
+manipulate message headers
 .It Xr mseq 1
-manipulate mail sequences
+manipulate message sequences
 .It Xr mshow 1
-render mail and extract attachments
+render messages and extract MIME parts
 .It Xr msort 1
-sort mail
+sort messages
 .It Xr mthread 1
-arrange mail into discussions
+arrange messages into discussions
 .El
-.Sh PRINCIPLES
+.Pp
 .Nm
 is a classic command line MUA and has no features
-for receiving or transferring mail;
-you are expected to fetch your mail using
+for receiving or transferring messages;
+you can operate on messages in a local maildir spool,
+or fetch your messages using
 .Xr fdm 1 ,
-.Xr getmail 1
+.Xr getmail 1 ,
 .Xr offlineimap 1 ,
-.Xr procmail 1 ,
-or similar ,
+or similar utilities,
 and send it using
 .Xr dma 8 ,
 .Xr msmtp 1 ,
@@ -86,53 +87,56 @@ as provided by
 OpenSMTPD,
 Postfix,
 or similar.
-.Nm
-expects your mail to reside in Maildir folders.
 .Pp
 .Nm
-operates directly on Maildir folders and doesn't
+operates directly on maildir folders and doesn't
 use its own caches or databases.
 There is no setup needed for many uses.
-All tools have been written with performance in mind.
-Enumeration of all mails in a Maildir is avoided unless necessary,
+All utilities have been written with performance in mind.
+Enumeration of all messages in a maildir is avoided unless necessary,
 and then optimized to limit syscalls.
-Parsing mail metadata is optimized to limit I/O requests.
-Initial operations on a large Maildir may feel slow, but as soon as they
+Parsing message metadata is optimized to limit I/O requests.
+Initial operations on a large maildir may feel slow, but as soon as they
 are in the file system cache, everything is blazingly fast.
-The tools are written to be memory efficient (i.e. not wasteful), but
-whole messages are assumed to fit into RAM easily (one at a time).
+The utilities are written to be memory efficient
+.Pq i.e. not wasteful ,
+but whole messages are assumed to fit into RAM easily
+.Pq one at a time .
 .Pp
 .Nm
-has been written from scratch and tested on a large corpus of personal mail,
-but is not actually 100% RFC-conforming
-(which is neither worth it nor desirable).
+has been written from scratch and is now well tested,
+but it is not 100% RFC-conforming
+.Pq which is neither worth it, nor desirable .
 There may be issues with very old, nonconforming, messages.
 .Pp
 .Nm
-is written in portable C, using only POSIX functions (apart from a tiny
-Linux-only optimization),
+is written in portable C, using only POSIX functions
+.Pq apart from a tiny Linux-only optimization ,
 and has no external dependencies.
-It supports MIME and more than 7-bit messages (everything the host
+It supports MIME and more than 7-bit messages
+.Po
+everything the host
 .Xr iconv 3
-can decode).
+can decode
+.Pc .
 It assumes you work in a UTF-8 environment.
 .Nm
-works well together with other Unix mail tools such as
+works well with other Unix utilities such as
 .Xr mairix 1 ,
 .Xr mu 1 ,
 or
 .Xr offlineimap 1 .
 .Sh EXAMPLES
 .Nm
-tools are designed to be composed together in a pipe.
+utilities are designed to be composed together in a pipe.
 They are suitable for interactive use and for scripting,
 and integrate well into a Unix workflow.
 .Pp
-For example, you could decide you want to look at all unseen mail in your
+For example, you could decide you want to look at all unseen messages in your
 INBOX, oldest first.
 .Dl mlist -s ~/Maildir/INBOX | msort -d | mscan
 .Pp
-To operate on a set of mails in multiple steps,
+To operate on a set of messages in multiple steps,
 you can save it as a sequence,
 e.g. add a call to
 .Ql mseq -S
@@ -140,39 +144,50 @@ to the above command:
 .Dl mlist -s ~/Maildir/INBOX | msort -d | mseq -S | mscan
 .Pp
 Now mscan will show message numbers and you could look at the first
-five mails at once, for example:
+five messages at once, for example:
 .Dl mshow 1:5
 .Pp
-Likewise, you could decide to incorporate (by moving from
+Likewise, you could decide to incorporate
+.Po
+by moving from
 .Pa new
 to
-.Pa cur )
-all new mail in all folders,
+.Pa cur
+.Pc
+all new messages in all folders,
 thread it and look at it interactively:
 .Dl mdirs ~/Maildir | xargs minc | mthread | mless
 .Pp
-Or you could list the attachments of the 20 largest mails in your INBOX:
+Or you could list the attachments of the 20 largest messages in your INBOX:
 .Dl mlist ~/Maildir/INBOX | msort -S | tail -20 | mshow -t
 .Pp
-Or apply the patches from the current mail:
+Or apply the patches from the current message:
 .Dl mshow -O . '*.diff' | patch
 .Pp
 As usual with pipes, the sky is the limit.
 .Sh CONCEPTS
 .Nm
-deals with messages (which are files),
-folders (which are Maildir folders),
-sequences (which are newline-separated lists of messages, possibly saved on disk in
-.Pa ${MBLAZE:-$HOME/.mblaze}/seq ) ,
-and the current message (kept as a symlink in
-.Pa ${MBLAZE:-$HOME/.mblaze}/cur ) .
+deals with messages
+.Pq which are files ,
+folders
+.Pq which are maildir folders ,
+sequences
+.Po
+which are newline-separated lists of messages, possibly saved on disk in
+.Pa ${MBLAZE:-$HOME/.mblaze}/seq
+.Pc ,
+and the current message
+.Po
+kept as a symlink in
+.Pa ${MBLAZE:-$HOME/.mblaze}/cur
+.Pc .
 .Pp
 Messages in the saved sequence can be referred to using special
 syntax as explained in
 .Xr mmsg 7 .
 .Pp
 Many utilities have a default behavior when used interactively from a terminal
-(e.g. operate on the current message or the current sequence).
+.Pq e.g. operate on the current message or the current sequence .
 For scripting, you must make these arguments explicit.
 .Pp
 For configuration, see
@@ -186,12 +201,14 @@ For configuration, see
 .Pp
 There is a mailing list available at
 .Mt mblaze@googlegroups.com
-(to subscribe, send a mail to
-.Mt mblaze+subscribe@googlegroups.com .
-Please report security-related bugs directly to the author),
-as well as an IRC channel
+.Po
+to subscribe, send a message to
+.Mt mblaze+subscribe@googlegroups.com
+.Pc
+and an IRC channel
 .Li #vuxu
 on irc.freenode.net.
+Please report security-related bugs directly to the author.
 .Sh LICENSE
 .Nm
 is in the public domain.
