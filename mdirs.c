@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "blaze822.h"
+
 void
 pwd()
 {
