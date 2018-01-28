@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm magrep
-.Nd print mails matching a pattern
+.Nd search messages matching a pattern
 .Sh SYNOPSIS
 .Nm
 .Op Fl c | Fl q | Fl m Ar max
@@ -20,12 +20,17 @@ if the value of
 .Ar header
 matches the POSIX Extended Regular Expression
 .Ar regex .
+.Po
+See
+.Xr mmsg 7
+for the message argument syntax.
+.Pc
 .Pp
 If
 .Ar header
 is empty,
 .Nm
-matches against the Maildir flags of
+matches against the maildir flags of
 .Ar msgs .
 .Pp
 If
@@ -37,12 +42,9 @@ searches any plain text parts of the
 .Ar msgs
 body.
 .Pp
-See
-.Xr mmsg 7
-for the message argument syntax.
 If no
 .Ar msgs
-are specified, and
+are specified and
 .Nm
 is used interactively,
 the current sequence will be searched.
