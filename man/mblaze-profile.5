@@ -32,15 +32,6 @@ The following
 are used by
 .Xr mblaze 7 :
 .Bl -tag -width Ds
-.It Li Alternate\&-Mailboxes\&:
-A comma-separated list of mail addresses that belong to you, for
-.Xr mscan 1
-to recognize messages sent by or directly to you.
-.It Li FQDN\&:
-The fully qualified domain name used for
-.Li Message\&-Id\&:
-generation in
-.Xr mgenmid 1 .
 .It Li Local\&-Mailbox\&:
 Your primary mail address, used as the default value for
 .Li From\&:
@@ -49,10 +40,19 @@ in
 and in
 .Xr mscan 1
 to recognize messages sent to you.
+.It Li Alternate\&-Mailboxes\&:
+A comma-separated list of mail addresses that also belong to you, for
+.Xr mscan 1
+to recognize messages sent by or directly to you.
+.It Li FQDN\&:
+The fully qualified domain name used for
+.Li Message\&-Id\&:
+generation in
+.Xr mgenmid 1 .
 .It Li Outbox\&:
 If set,
 .Xr mcom 1
-will create draft messages in this Maildir,
+will create draft messages in this maildir,
 and save messages there after sending.
 .It Li Scan\&-Format\&:
 The default format string for
