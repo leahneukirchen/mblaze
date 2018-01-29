@@ -4,8 +4,8 @@
 function co(n, c) { e = ENVIRON["MCOLOR_" n]; return e ? e : c }
 function fg(c, s) { return sprintf("\033[38;5;%03dm%s\033[0m", c, s) }
 function so(s) { return sprintf("\033[1m%s\033[0m", s) }
-BEGIN { hdr = 1; if (match(ENVIRON["TERM"], "^(dumb|network|9term)")) dumb = 1 }
-dumb { print; next }
+BEGIN { hdr = 1; if ("NO_COLOR" in ENVIRON || match(ENVIRON["TERM"], "^(dumb|network|9term)")) no_color = 1 }
+no_color { print; next }
 /\r$/ { sub(/\r$/, "") }
 /^\014$/ { nextmail = 1; next }
 /^$/ { hdr = 0 }
