@@ -11,6 +11,10 @@ function so(s) { return sprintf("\033[1m%s\033[0m", s) }
 { print }'
 }
 
+if [ -n "${NO_COLOR+set}" ]; then
+	colorscan() { cat -; }
+fi
+
 if [ "$1" = --filter ]; then
 	if [ "$2" = //scan ]; then
 		mscan : 2>/dev/null | colorscan
