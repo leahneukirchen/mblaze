@@ -1,3 +1,11 @@
+## 0.3.1 (2018-01-30)
+
+* mless: support $NO_COLOR
+* mcolor: support $NO_COLOR
+* blaze822.h: ensure PATH_MAX is defined
+* Improved documentation.
+* Many fixes for address parser.
+
 ## 0.3 (2018-01-12)
 
 * New tool mflow to reformat format=flowed plain text mails.
