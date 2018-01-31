@@ -6,33 +6,35 @@
 .Nm mfwd ,
 .Nm mbnc ,
 .Nm mrep
-.Nd compose, forward, bounce, reply to, and send mail
+.Nd compose, reply, forward, bounce, send messages
 .Sh SYNOPSIS
 .Nm mcom
 .Op Ar recipients\ ...
 .Nm mcom
 .Fl r Op draft
+.Nm mrep
+.Ar msg
 .Nm mfwd
 .Op Fl r
 .Op Ar msgs\ ...
 .Nm mbnc
 .Ar msg
-.Nm mrep
-.Ar msg
 .Sh DESCRIPTION
 .Nm mcom
-creates a new draft mail and opens it in an editor.
-After editing, a loop is started where the user can re-edit,
-send or cancel the mail.
+creates a new draft message and opens it in an editor.
+After editing, a loop is started where the user can send,
+re-edit or cancel the message.
 Use
 .Sq Nm Fl r
 to resume the editing of a draft;
 by default, the last modified draft will be edited.
 .Pp
+.Nm mrep
+creates the draft such that the message will be a reply to
+.Ar msg .
+.Pp
 .Nm mfwd
-behaves like
-.Nm mcom
-but creates the draft with a subject and body appropriate
+creates the draft with a subject and body appropriate
 for forwarding the message.
 By default, messages are forwarded verbatim as MIME
 .Sq Li message/rfc822
@@ -41,32 +43,26 @@ Use
 .Fl r
 to forward as
 .Xr mshow 1
-rendered plain text, using RFC934 message encapsulation.
+rendered plain text, using RFC 934 message encapsulation.
 .Pp
 .Nm mbnc
-behaves like
-.Nm mcom
-but creates the draft from the original
+creates the draft from the original
 .Ar msg
-(including headers)
+.Pq including headers
 and adds a Resent-To header, to which the message will
 be bounced directly.
-.Pp
-.Nm mrep
-behaves like
-.Nm mcom
-but creates the draft such that the mail will be a reply to
-.Ar msg .
+.Po
 See
 .Xr mmsg 7
 for the message argument syntax.
+.Pc
 .Sh MENU COMMANDS
 .Bl -tag -width 2n
 .It Ic s
-Send the mail.
+Send the message.
 The MIME version will be used when one has been created.
 .It Ic c
-Cancel sending and quit after displaying
+Cancel sending and quit, after displaying
 the filename of the saved draft.
 .It Ic m
 Run
@@ -74,14 +70,14 @@ Run
 on the draft, and print the result of
 .Ic mshow -t .
 .It Ic e
-Re-run the editor on the draft.
+Re-edit the draft.
 .It Ic d
 Delete the draft and quit.
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width Ds
 .It Ev EDITOR
-Editor used to compose mail.
+Editor used to compose messages.
 .It Ev MBLAZE
 Directory containing mblaze configuration files.
 (Default:
@@ -94,7 +90,7 @@ Draft messages, kept in current directory.
 This can be configured in
 .Xr mblaze-profile 5 .
 .It Pa ${MBLAZE:-$HOME/.mblaze}/headers
-Default headers for each mail.
+Default headers for each message.
 .It Pa ${MBLAZE:-$HOME/.mblaze}/signature No or Pa ~/.signature
 Default signature.
 .El
