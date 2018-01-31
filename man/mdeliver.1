@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm mdeliver
-.Nd deliver message or mailbox into Maildir
+.Nd deliver messages or import mbox file
 .Sh SYNOPSIS
 .Nm
 .Op Fl c
@@ -22,15 +22,15 @@
 .Ar mbox
 .Sh DESCRIPTION
 .Nm
-adds a message given on standard input
-as a new message in the Maildir
+adds a message given on the standard input
+as a new message in the maildir
 .Ar dir .
 .Pp
 When
 .Fl M
 is used,
 .Nm
-will regard standard input as
+will regard the standard input as
 an MBOXRD mailbox, split it on
 .Dq Li "From "
 and deliver each message,
@@ -38,12 +38,12 @@ decoding it according to the MBOXRD convention.
 .Nm
 will set the mtime according to the value of
 .Sq Li Date\&:
-and the Maildir flags according to the value of
+and the maildir flags according to the value of
 .Sq Li Status\&:
 or
 .Sq Li X-Status\&: .
 .Pp
-The messages are delivered in a reliable way and use default
+The messages are delivered in a reliable way and use the default
 .Xr umask 2 .
 .Pp
 Please note that no syntactical checks are performed
@@ -60,7 +60,7 @@ not
 .Pa new/
 (the default).
 .It Fl v
-Print each message filename after delivery.
+Print each new message filename after delivery.
 .It Fl X Ar flg
 Override the flags of the new message file to be
 .Ar flg .
