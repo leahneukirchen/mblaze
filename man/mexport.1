@@ -10,18 +10,22 @@
 .Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
-exports the specified messages as an MBOXRD file,
-to the standard output.
+writes the specified
+.Ar msgs
+to the standard output
+as an MBOXRD file.
+.Po
 See
 .Xr mmsg 7
 for the message argument syntax.
+.Pc
 .Pp
 If no
 .Ar msgs
 are specified,
 .Nm
 reads filenames from the standard input,
-or uses the mails in the current sequence if used interactively.
+or uses the messages in the current sequence if used interactively.
 .Pp
 .Nm
 uses the
@@ -30,7 +34,7 @@ uses the
 .Sq Li X\&-Envelope\&-To\&: )
 and
 .Sq Li Date\&:
-headers from the message for the mbox
+headers from each message for the mbox
 .Sq Li "From "
 line.
 .Pp
@@ -43,7 +47,7 @@ and
 .Sq Li X\&-Status\&:
 headers according to the
 .Ar msgs
-Maildir flags.
+maildir flags.
 .El
 .Sh EXIT STATUS
 .Ex -std
