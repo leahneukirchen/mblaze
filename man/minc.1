@@ -3,23 +3,23 @@
 .Os
 .Sh NAME
 .Nm minc
-.Nd incorporate new Maildir mail
+.Nd incorporate new messages
 .Sh SYNOPSIS
 .Nm
 .Op Fl q
 .Ar dirs\ ...
 .Sh DESCRIPTION
 .Nm
-incorporates new mail in the specified Maildir folders
+incorporates new messages in the maildir folders
 .Ar dirs
 by moving them from
 .Pa new
 to
-.Pa cur
+.Pa cur ,
 and adjusting the filenames.
 .Pp
-By default, the new Maildir filenames
-are printed, one per line
+By default, the new filenames are printed,
+separated by newlines.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
