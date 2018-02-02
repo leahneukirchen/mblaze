@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm mflag
-.Nd manipulate Maildir mail flags
+.Nd manipulate maildir flags
 .Sh SYNOPSIS
 .Nm
 .Op Fl DFPRST
@@ -16,12 +16,14 @@
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
-changes the flags of the specified Maildir
+changes the flags of the specified maildir
 .Ar msgs
 according to the options supplied.
+.Po
 See
 .Xr mmsg 7
 for the message argument syntax.
+.Pc
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -36,7 +38,8 @@ as flagged.
 .It Fl P
 Mark
 .Ar msgs
-as passed (resent/forwarded/bounced).
+as passed
+.Pq resent/forwarded/bounced .
 .It Fl R
 Mark
 .Ar msgs
@@ -65,7 +68,8 @@ as flagged.
 .It Fl p
 Unmark
 .Ar msgs
-as passed (resent/forwarded/bounced).
+as passed
+.Pq resent/forwarded/bounced .
 .It Fl r
 Unmark
 .Ar msgs
@@ -83,12 +87,11 @@ Unmark
 .Ar msgs
 with the characters in
 .Ar str .
-(Remember to use uppercase characters.)
+.Pq Remember to use uppercase characters.
 .It Fl v
-Read Maildir mails from the standard input
-(or use the whole current sequence, if used interactively)
+Read messages from the standard input
+.Pq or use the whole current sequence, if used interactively
 and print the transformed list of filenames.
-.Pp
 This can be used to keep the sequence intact in the case of renames.
 .El
 .Pp
