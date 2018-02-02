@@ -8,27 +8,27 @@
 .Nm
 .Sh DESCRIPTION
 .Nm
-generates a fresh Message-ID and prints it.
-The Message-ID consists of a timestamp,
+generates and prints a unique Message-ID.
+The Message-ID consists of an encoded timestamp,
 a random value,
 and a fully qualified domain name.
 .Pp
-The fully qualified domain name is computed by:
+The fully qualified domain name is arrived at by:
 .Bl -enum
 .It
 Using
 .Sq Li FQDN\&:
 from
 .Pa "${MBLAZE:-$HOME/.mblaze}/profile"
-(if set).
+.Pq if set .
 .It
 Resolving the current hostname.
 .It
-Using the host part of the address in
+Using the domain component of the mail address in
 .Sq Li Local\&-Mailbox\&:
 from
 .Pa "${MBLAZE:-$HOME/.mblaze}/profile"
-(if set).
+.Pq if set .
 .El
 .Pp
 If these steps don't result in a fully qualified domain name,
