@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm mflow
-.Nd reflow format=flowed plain text mails
+.Nd reflow format=flowed plain text messages
 .Sh SYNOPSIS
 .Nm
 .Op Fl f
@@ -21,9 +21,9 @@ for
 .Sq text/plain
 messages for
 .Xr mshow 1 .
-Mails not using
+Messages not specified as
 .Sq format=flowed
-are output as is.
+are output unchanged.
 .Pp
 Text is reflowed (where allowed) to
 fit the width given in the environment variable
@@ -38,7 +38,7 @@ specifies the maximum line length.
 The options are as follows:
 .Bl -tag -width Ds
 .It Fl f
-Force line wrapping of long lines.
+Force wrapping of long lines.
 .It Fl q
 Prefix lines with
 .Sq Li \&> .
