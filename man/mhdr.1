@@ -3,10 +3,10 @@
 .Os
 .Sh NAME
 .Nm mhdr
-.Nd show mail headers
+.Nd print message headers
 .Sh SYNOPSIS
 .Nm
-.Op Fl h Ar header Op Fl p Ar parameter
+.Op Fl h Ar hdrs Op Fl p Ar parameter
 .Op Fl d
 .Op Fl H
 .Op Fl M
@@ -14,11 +14,13 @@
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
-prints the mail headers of the specified
+prints the headers of the specified
 .Ar msgs .
+.Po
 See
 .Xr mmsg 7
 for the message argument syntax.
+.Pc
 .Pp
 If no
 .Ar msgs
@@ -26,25 +28,37 @@ are specified,
 .Nm
 will default to the current message.
 .Pp
+If no
+.Ar hdrs
+are specified,
+.Nm
+will print all headers.
+.Pp
 The options are as follows:
 .Bl -tag -width Ds
-.It Fl h Ar header
-Only print the values of the headers in the colon-separated list
-.Ar header .
+.It Fl h Ar hdrs
+Only print the values of headers in the colon-separated list
+.Ar hdrs .
 .It Fl p Ar parameter
 Extract a particular RFC 2045
 .Ar parameter
-from the specified headers.
+from the specified
+.Ar hdrs .
 .It Fl d
-Decode the headers according to RFC 2047.
+Decode the
+.Ar hdrs
+according to RFC 2047.
 .It Fl H
 Prefix output lines with the filename of the message,
 followed by a tab.
 .It Fl M
-Search for all occurrences of the headers
-(default: only the first).
+Search for all occurrences of the
+.Ar hdrs
+.Pq default: only the first .
 .It Fl A
-Scan for RFC 5322 addresses in the headers and print them, one per line.
+Scan for RFC 5322 addresses in the
+.Ar hdrs
+and print them, one per line.
 .It Fl D
 Assume header contains RFC 5322 date and print as Unix timestamp.
 .El
