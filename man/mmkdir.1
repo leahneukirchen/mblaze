@@ -3,19 +3,19 @@
 .Os
 .Sh NAME
 .Nm mmkdir
-.Nd create new Maildir folders
+.Nd create new maildir folders
 .Sh SYNOPSIS
 .Nm
-.Ar dirs\ ...
+.Ar dir\ ...
 .Sh DESCRIPTION
 .Nm
-creates new Maildir folders.
+creates new maildir folders.
 .Pp
 Parent directories are created as needed,
 and attempting to create an existing
-Maildir is not an error.
+maildir is not an error.
 .Pp
-New Maildir folders are created with mode 0700, i.e.
+New maildir folders are created with mode 0700, i.e.
 readable and writable by the owner only.
 .Sh EXIT STATUS
 .Ex -std
@@ -27,8 +27,8 @@ readable and writable by the owner only.
 .An Leah Neukirchen Aq Mt leah@vuxu.org
 .Sh CAVEATS
 .Nm
-does not support Maildir++,
-you need to transform nested Maildir++ folder names yourself.
+does not support maildir++,
+you need to transform nested maildir++ folder names yourself.
 .Sh LICENSE
 .Nm
 is in the public domain.
