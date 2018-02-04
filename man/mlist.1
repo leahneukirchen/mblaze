@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm mlist
-.Nd list messages in Maildir folders
+.Nd list and filter messages
 .Sh SYNOPSIS
 .Nm
 .Op Fl DFPRST
@@ -18,13 +18,12 @@
 .Op Ar dirs\ ...
 .Sh DESCRIPTION
 .Nm
-lists all messages in the specified Maildir folders
+lists messages in the specified maildir folders
 .Ar dirs ,
-one per line.
-If used non-interactively,
-with no specified folders,
+separated by newlines.
+If used non-interactively with no specified folders,
 .Nm
-reads directory names from standard input.
+reads directory names from the standard input.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -33,7 +32,8 @@ Only list messages marked as draft.
 .It Fl F
 Only list messages marked as flagged.
 .It Fl P
-Only list messages marked as passed (resent/forwarded/bounced).
+Only list messages marked as passed
+.Pq resent/forwarded/bounced .
 .It Fl R
 Only list messages marked as replied-to.
 .It Fl S
@@ -48,7 +48,8 @@ Don't list messages marked as draft.
 .It Fl f
 Don't list messages marked as flagged.
 .It Fl p
-Don't list messages marked as passed (resent/forwarded/bounced).
+Don't list messages marked as passed
+.Pq resent/forwarded/bounced .
 .It Fl r
 Don't list messages marked as replied-to.
 .It Fl s
@@ -58,7 +59,7 @@ Don't list messages marked as trashed.
 .It Fl x Ar str
 Don't list messages marked with the characters in
 .Ar str .
-(Remember to use uppercase characters.)
+.Pq Remember to use uppercase characters.
 .It Fl C
 Only list messages in
 .Pa cur .
@@ -76,8 +77,8 @@ Don't print filenames.
 Instead, print a one-line summary for each folder,
 showing the number of unseen, flagged and total messages,
 along with the folder name.
-.Pp
-If two or more folders are specified, a total will also be printed.
+If two or more folders are specified,
+a total for all folders will also be printed.
 .El
 .Pp
 Multiple options are regarded as a conjunction.
