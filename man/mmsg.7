@@ -6,7 +6,7 @@
 .Nd mblaze message argument syntax
 .Sh DESCRIPTION
 This document outlines the message syntax used by many
-of the tools in the
+of the utilities in the
 .Xr mblaze 7
 message system.
 .Pp
@@ -14,10 +14,12 @@ In general, you can always specify a filename as a message,
 if it contains a
 .Sq Li \&/
 character.
-(Use
+.Po
+Use
 .Sq Li \&./
-to prefix messages in the current directory.)
-You can also specify a Maildir folder, which will be expanded
+to prefix messages in the current directory.
+.Pc
+You can also specify a maildir folder, which will be expanded
 to all messages in the
 .Pa cur/
 directory.
@@ -68,7 +70,11 @@ and may be repeated to refer to grandparents.
 .Sq Ar msg Ns Cm \&_
 refers to the subthread headed by
 .Ar msg
-(i.e. all messages below, with more indentation).
+.Po
+i.e. all messages below
+.Ar msg ,
+with more indentation
+.Pc .
 .Pp
 The following special shortcuts may be used:
 .Bl -tag -width 3n
@@ -80,23 +86,41 @@ and
 .Sq Li \&.- Ns Ar N
 can be used to refer to messages relative to the current message.
 .It Sq Li \&+
-refers to the next message (like
-.Sq Li \&.+1 ) .
+refers to the next message
+.Po
+like
+.Sq Li \&.+1
+.Pc
 .It Sq Li \&-
-refers to the previous message (like
-.Sq Li \&.-1 ) .
+refers to the previous message
+.Po
+like
+.Sq Li \&.-1
+.Pc
 .It Sq Li \&$
-refers to the last message (like
-.Sq Li -1 ) .
+refers to the last message
+.Po
+like
+.Sq Li -1
+.Pc
 .It Sq Li \&^
-refers to the current parent message (like
-.Sq Li \&.^ ) .
+refers to the current parent message
+.Po
+like
+.Sq Li \&.^
+.Pc
 .It Sq Li \&=
-refers to the current thread (like
-.Sq Li \&.= ) .
+refers to the current thread
+.Po
+like
+.Sq Li \&.=
+.Pc
 .It Sq Li \&_
-refers to the current subthread (like
-.Sq Li \&._ ) .
+refers to the current subthread
+.Po
+like
+.Sq Li \&._
+.Pc
 .El
 .Sh SEE ALSO
 .Xr mblaze 7
