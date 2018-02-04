@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm mthread
-.Nd thread mail messages
+.Nd arrange messages into discussions
 .Sh SYNOPSIS
 .Nm
 .Op Fl v
@@ -13,9 +13,11 @@
 .Nm
 groups messages together in parent/child relationships, based on
 which messages are replies to which others.
+.Po
 See
 .Xr mmsg 7
 for the message argument syntax.
+.Pc
 .Pp
 If no messages are specified,
 .Nm
@@ -23,7 +25,7 @@ will read filenames from the standard input,
 or use the default sequence if used interactively.
 .Pp
 .Nm
-prints the threaded messages one per line,
+prints the threaded messages separated by newlines and
 indented according to their depth in the message tree.
 Unresolved Message-IDs are printed as-is.
 .Pp
