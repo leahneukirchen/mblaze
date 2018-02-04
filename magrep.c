@@ -119,6 +119,24 @@ match_body(char *file)
 }
 
 void
+match_value(char *file, char *h, char *v)
+{
+	if (dflag) {
+		char d[4096];
+		blaze822_decode_rfc2047(d, v, sizeof d, "UTF-8");
+		match(file, h, d);
+	} else if (aflag) {
+		char *disp, *addr;
+		while ((v = blaze822_addr(v, &disp, &addr))) {
+			if (addr && match(file, h, addr))
+				break;
+		}
+	} else {
+		match(file, h, v);
+	}
+}
+
+void
 magrep(char *file)
 {
 	if (!*header) {
@@ -139,21 +157,20 @@ magrep(char *file)
 	if (!msg)
 		return;
 
-	char *v = blaze822_chdr(msg, header);
-	if (v) {
-		if (dflag) {
-			char d[4096];
-			blaze822_decode_rfc2047(d, v, sizeof d, "UTF-8");
-			match(file, header, d);
-		} else if (aflag) {
-			char *disp, *addr;
-			while ((v = blaze822_addr(v, &disp, &addr))) {
-				if (addr && match(file, header, addr))
-					break;
+	if (strcmp(header, "*") == 0) {
+		char *hdr = 0;
+		while ((hdr = blaze822_next_header(msg, hdr))) {
+			char *v = strchr(hdr, ':');
+			if (v) {
+				*v = 0;
+				match_value(file, hdr, v + 1 + (v[1] == ' '));
+				*v = ':';
 			}
-		} else {
-			match(file, header, v);
 		}
+	} else {
+		char *v = blaze822_chdr(msg, header);
+		if (v)
+			match_value(file, header, v);
 	}
 
 	blaze822_free(msg);
