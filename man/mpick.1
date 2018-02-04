@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm mpick
-.Nd filter mail messages
+.Nd advanced message filter
 .Sh SYNOPSIS
 .Nm
 .Op Fl T
@@ -32,7 +32,9 @@ see
 .El
 .Sh MSGLISTS
 .Nm
-message lists (msglist) are mostly compatible with
+message lists
+.Pq msglist
+are mostly compatible with
 .Xr mailx 1 .
 They are message specifications used as shortened
 .Sx TESTS ,
@@ -52,7 +54,8 @@ All messages from
 .It Cm \&/ Ns Ar string
 All messages with
 .Ar string
-in the subject line (case ignored).
+in the subject line
+.Pq case ignored .
 .It Cm \&: Ns Ar c
 All messages of type
 .Ar c ,
@@ -63,7 +66,9 @@ shall be one of:
 .It Cm D
 Draft messages.
 .It Cm P
-Passed (resent, forwarded or bounced) messages.
+Passed
+.Pq resent, forwarded or bounced
+messages.
 .It Cm R
 Replied messages.
 .It Cm F
