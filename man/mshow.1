@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm mshow
-.Nd render mail and extract MIME parts
+.Nd render messages and extract MIME parts
 .Sh SYNOPSIS
 .Nm
 .Op Fl h Ar headers
@@ -23,13 +23,18 @@
 .Fl R
 .Ar msg
 .Sh DESCRIPTION
-By default,
 .Nm
-renders the specified messages to the standard output.
+renders the specified
+.Ar msgs
+to the standard output, by default.
+.Po
 See
 .Xr mmsg 7
 for the message argument syntax.
-If used interactively, and no messages are specified,
+.Pc
+If used interactively and no
+.Ar msgs
+are specified,
 .Nm
 displays the current message using colorization and a pager.
 .Pp
@@ -111,11 +116,13 @@ parts,
 and re-encodes them into UTF-8 if necessary.
 .Pp
 Other filters can be specified in the file
-.Pa ${MBLAZE:-$HOME/.mblaze}/filter
-in the format
+.Pa ${MBLAZE:-$HOME/.mblaze}/filter ,
+in the format:
+.Pp
 .D1 Ar type/subtype Ns Li \&: Ar command
 or
 .D1 Ar type Ns Li \&: Ar command
+.Pp
 .Nm
 will then spawn a pipe to
 .Ar command ,
@@ -137,7 +144,7 @@ The output is printed raw, without escaping.
 .It 63
 Behave as if the filter never ran.
 .It 64
-The output is a RFC5322 message that should be rendered again.
+The output is an RFC 5322 message that should be rendered again.
 .It 65 to 80
 Render the
 .Va n Ns \&- Ns 64th
