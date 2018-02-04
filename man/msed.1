@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm msed
-.Nd stream editor for transforming mail
+.Nd manipulate message headers
 .Sh SYNOPSIS
 .Nm
 .Ar script
@@ -12,11 +12,13 @@
 .Nm
 prints the messages
 .Ar msgs
-with mail headers transformed by the commands in
+with message headers transformed by the commands in
 .Ar script .
+.Po
 See
 .Xr mmsg 7
 for the message argument syntax.
+.Pc
 If no
 .Ar msgs
 are passed,
@@ -26,14 +28,14 @@ will default to the current message.
 .Nm
 scripts are akin to a subset of
 .Xr sed 1
-scripts, but optimized for modifying mail.
+scripts, but optimized for modifying messages.
 Note that
 .Nm
-unfolds and normalizes mail headers,
+unfolds and normalizes message headers,
 so they may need to be passed through
 .Xr mmime 7
 to ensure RFC 5322 conformance.
-The mail body is copied as-is.
+The message body is not affected.
 .Pp
 .Nm
 supports the following commands.
@@ -47,7 +49,7 @@ Multiple commands can be separated by
 .It Cm \&/ Ns Ar header Ns Cm \&/ Ns Ic a Ns Cm \&/ Ns Ar value Ns Cm \&/
 If the header
 .Sq Ar header Ns Cm \&:
-is not set in the message, add it with given
+is not set in the message, add it with the given
 .Ar value .
 .It Cm \&/ Ns Ar headers Ns Cm \&/ Ns Ic c Ns Cm \&/ Ns Ar value Ns Cm \&/
 Change colon-separated headers matching the regular expression
@@ -67,7 +69,7 @@ For example,
 .Sq Li "/x-.*/d"
 will delete all headers starting with
 .Sq Li "X-"
-(always case insensitive),
+.Pq always case insensitive ,
 and
 .Sq Li "/from:to:cc/d"
 will delete the headers
@@ -81,7 +83,7 @@ Substitute matches of the POSIX Basic Regular Expression
 in headers matching the POSIX Basic Regular Expression
 .Ar headers ,
 with implicit anchoring to the header name
-(or all headers, if omitted),
+.Pq or all headers, if omitted ,
 with the string
 .Ar replacement ,
 expanding
