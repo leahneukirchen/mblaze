@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm mmime
-.Nd encode MIME mails
+.Nd create MIME messages
 .Sh SYNOPSIS
 .Nm
 .Op Fl c | Fl r
@@ -14,9 +14,9 @@
 .Nm
 generates a
 .Sq Li multipart/mixed
-mail from standard input,
+message from the standard input,
 extending, wrapping, and encoding the header as necessary,
-and replacing lines in the message body, of the form
+and replacing lines in the message body of the form
 .Pp
 .D1 Li # Ns Ar content Ns Li / Ns Ar type Ns Oo Ns Li # Ns Ar content-disposition Oc Pa path Ns Oo Li > Ns Ar filename Oc
 .Pp
@@ -36,7 +36,7 @@ The options are as follows:
 .It Fl c
 Check mode: don't output anything,
 exit with status 1 if MIME-encoding the message is required,
-or with status 0 else.
+or else exit with status 0.
 .It Fl r
 Raw mode: don't expand MIME parts in the body, generate a
 .Sq Li text/plain
