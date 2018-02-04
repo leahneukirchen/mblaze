@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm msort
-.Nd sort mail messages
+.Nd sort messages
 .Sh SYNOPSIS
 .Nm
 .Op Fl r
@@ -11,11 +11,13 @@
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
-sorts mail messages according to various orders,
-and prints, one per line, the sorted message names.
+sorts messages according to various orders,
+and prints, separated by newlines, the resulting message names.
+.Po
 See
 .Xr mmsg 7
 for the message argument syntax.
+.Pc
 .Pp
 If no messages are specified,
 .Nm
