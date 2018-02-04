@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm mseq
-.Nd manipulate mail sequence
+.Nd manipulate message sequences
 .Sh SYNOPSIS
 .Nm
 .Op Fl fr
@@ -23,10 +23,12 @@
 .Fl C Ar msg
 .Sh DESCRIPTION
 .Nm
-prints, fixes and sets messages in the mail sequence.
+prints, fixes and sets the message sequence.
+.Po
 See
 .Xr mmsg 7
 for the message argument syntax.
+.Pc
 .Pp
 If no
 .Ar msgs
@@ -41,8 +43,11 @@ With
 or
 .Fl A ,
 .Nm
-will replace (resp. append) the default sequence.
-If standard output is not a terminal, the new sequence is also printed.
+will replace
+.Pq resp. append
+the default sequence.
+If the standard output is not a terminal,
+the new sequence is also printed.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
@@ -52,15 +57,16 @@ Behave as if
 was the current message.
 .It Fl f
 Fix non-existing filenames by searching for a message with the same
-Maildir id (but different flags).
+maildir id
+.Pq but different flags .
 .It Fl r
 Remove leading indentation from the filenames.
 .It Fl S
-Set the mail sequence to the filenames passed on standard input.
+Set the message sequence to the filenames passed on standard input.
 .It Fl A
 Like
 .Fl S ,
-but append to the mail sequence instead of replacing it.
+but append to the message sequence instead of replacing it.
 .It Fl C Ar msg
 Set the current message to
 .Ar msg
@@ -70,21 +76,29 @@ and exit.
 .Bl -tag -width Ds
 .It Ev MBLAZE
 Directory containing mblaze configuration.
-(Default:
-.Pa $HOME/.mblaze )
+.Po
+Default:
+.Pa $HOME/.mblaze
+.Pc
 .It Ev MAILCUR
 Symbolic link referring to the current message.
-(Default:
-.Pa ${MBLAZE:-$HOME/.mblaze}/cur )
+.Po
+Default:
+.Pa ${MBLAZE:-$HOME/.mblaze}/cur
+.Pc
 .It Ev MAILDOT
 When set to a filename, overrides the current message.
-(Prefer using
+.Po
+Prefer using
 .Fl c
-instead.)
+instead.
+.Pc
 .It Ev MAILSEQ
 File were the sequence is stored.
-(Default:
-.Pa ${MBLAZE:-$HOME/.mblaze}/seq )
+.Po
+Default:
+.Pa ${MBLAZE:-$HOME/.mblaze}/seq
+.Pc
 .El
 .Sh EXIT STATUS
 .Ex -std
