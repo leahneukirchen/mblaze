@@ -903,8 +903,7 @@ eval(struct expr *e, struct mailinfo *m)
 		case PROP_FLAG: v = m->flags; break;
 		case PROP_INDEX: v = m->index; break;
 		case PROP_DEPTH: v = m->depth; break;
-		default:
-			parse_error("unknown property");
+		default: parse_error("unknown property");
 		}
 
 		switch (e->op) {
@@ -916,6 +915,7 @@ eval(struct expr *e, struct mailinfo *m)
 		case EXPR_GT: return v > n;
 		case EXPR_ALLSET: return (v & n) == n;
 		case EXPR_ANYSET: return (v & n) > 0;
+		default: parse_error("invalid operator");
 		}
 	}
 	case EXPR_STREQ:
