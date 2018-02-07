@@ -210,7 +210,8 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		char *charset = 0, *cs, *cse;
 		if (blaze822_mime_parameter(ct, "charset", &cs, &cse)) {
 			charset = strndup(cs, cse-cs);
-			printf(" charset=\"%s\"", charset);
+			if (!Nflag)
+				printf(" charset=\"%s\"", charset);
 			setenv("PIPE_CHARSET", charset, 1);
 			free(charset);
 		}
@@ -244,14 +245,16 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		} else if (e >= 65 && e <= 80) { // choose N-64th part
 			struct message *imsg = 0;
 			int n = e - 64;
-			printf(" selector=\"%s\" part=%d ---\n", cmd, n);
+			if (!Nflag)
+				printf(" selector=\"%s\" part=%d ---\n", cmd, n);
 			while (blaze822_multipart(msg, &imsg)) {
 				if (--n == 0)
 					blaze822_walk_mime(imsg, depth+1, render_mime);
 			}
 			blaze822_free(imsg);
 		} else {
-			printf(" filter=\"%s\" FAILED status=%d", cmd, e);
+			if (!Nflag)
+				printf(" filter=\"%s\" FAILED status=%d", cmd, e);
 			free(output);
 			goto nofilter;
 		}
