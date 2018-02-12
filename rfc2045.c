@@ -161,6 +161,8 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 	char *nextpart = mymemmem(part, msg->bodyend - part, mboundary, boundarylen);
 	if (!nextpart)
 		return 0;   // XXX error condition
+	if (nextpart == part)  // invalid empty MIME part
+		return 0;   // XXX error condition
 
 	if (*(nextpart-1) == '\n')
 		nextpart--;
