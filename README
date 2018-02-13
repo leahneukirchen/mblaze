@@ -1,102 +1,102 @@
 MBLAZE(7)              Miscellaneous Information Manual              MBLAZE(7)
 
 NAME
-     mblaze – introduction to mblaze
+     mblaze – introduction to the mblaze message system
 
 DESCRIPTION
-     The mblaze message system is a set of Unix utilities to deal with mail
-     kept in Maildir folders.
+     The mblaze message system is a set of Unix utilities for processing and
+     interacting with mail messages which are stored in maildir folders.
 
      Its design is roughly inspired by MH, the RAND Message Handling System,
      but it is a complete implementation from scratch.
 
-     mblaze consists of these Unix tools that each do one job:
-     maddr(1)     extract addresses from mail
-     magrep(1)    find mails matching a pattern
-     mbnc(1)      bounces mail
-     mcom(1)      compose and send mail
-     mdeliver(1)  deliver messages or import mailboxes
-     mdirs(1)     find Maildir folders
-     mexport(1)   export Maildir folders as mailboxes
-     mflag(1)     change flags (marks) of mail
-     mflow(1)     reflow format=flowed plain text mails
-     mfwd(1)      forward mail
-     mgenmid(1)   generate Message-IDs
-     mhdr(1)      extract mail headers
-     minc(1)      incorporate new mail
-     mless(1)     conveniently read mail in less(1)
-     mlist(1)     list and filter mail messages
+     mblaze consists of these Unix utilities that each do one job:
+
+     maddr(1)     extract mail addresses from messages
+     magrep(1)    search messages matching a pattern
+     mbnc(1)      bounce messages
+     mcom(1)      compose and send messages
+     mdeliver(1)  deliver messages or import mbox file
+     mdirs(1)     list maildir folders, recursively
+     mexport(1)   export messages as mbox file
+     mflag(1)     manipulate maildir flags
+     mflow(1)     reflow format=flowed plain text messages
+     mfwd(1)      forward messages
+     mgenmid(1)   generate a Message-ID
+     mhdr(1)      print message headers
+     minc(1)      incorporate new messages
+     mless(1)     conveniently read messages in less(1)
+     mlist(1)     list and filter messages
      mmime(1)     create MIME messages
-     mmkdir(1)    create new Maildir
-     mpick(1)     advanced mail filter
-     mrep(1)      reply to mail
-     mscan(1)     generate one-line summaries of mail
-     msed(1)      manipulate mail headers
-     mseq(1)      manipulate mail sequences
-     mshow(1)     render mail and extract attachments
-     msort(1)     sort mail
-     mthread(1)   arrange mail into discussions
+     mmkdir(1)    create new maildir folders
+     mpick(1)     advanced message filter
+     mrep(1)      reply to messages
+     mscan(1)     generate one-line message summaries
+     msed(1)      manipulate message headers
+     mseq(1)      manipulate message sequences
+     mshow(1)     render messages and extract MIME parts
+     msort(1)     sort messages
+     mthread(1)   arrange messages into discussions
 
-PRINCIPLES
      mblaze is a classic command line MUA and has no features for receiving or
-     transferring mail; you are expected to fetch your mail using fdm(1),
-     getmail(1) offlineimap(1), procmail(1), or similar , and send it using
-     dma(8), msmtp(1), sendmail(8), as provided by OpenSMTPD, Postfix, or
-     similar.  mblaze expects your mail to reside in Maildir folders.
+     transferring messages; you can operate on messages in a local maildir
+     spool, or fetch your messages using fdm(1), getmail(1), offlineimap(1),
+     or similar utilities, and send it using dma(8), msmtp(1), sendmail(8), as
+     provided by OpenSMTPD, Postfix, or similar.
 
-     mblaze operates directly on Maildir folders and doesn't use its own
-     caches or databases.  There is no setup needed for many uses.  All tools
-     have been written with performance in mind.  Enumeration of all mails in
-     a Maildir is avoided unless necessary, and then optimized to limit
-     syscalls.  Parsing mail metadata is optimized to limit I/O requests.
-     Initial operations on a large Maildir may feel slow, but as soon as they
-     are in the file system cache, everything is blazingly fast.  The tools
-     are written to be memory efficient (i.e. not wasteful), but whole
-     messages are assumed to fit into RAM easily (one at a time).
+     mblaze operates directly on maildir folders and doesn't use its own
+     caches or databases.  There is no setup needed for many uses.  All
+     utilities have been written with performance in mind.  Enumeration of all
+     messages in a maildir is avoided unless necessary, and then optimized to
+     limit syscalls.  Parsing message metadata is optimized to limit I/O
+     requests.  Initial operations on a large maildir may feel slow, but as
+     soon as they are in the file system cache, everything is blazingly fast.
+     The utilities are written to be memory efficient (i.e. not wasteful), but
+     whole messages are assumed to fit into RAM easily (one at a time).
 
-     mblaze has been written from scratch and tested on a large corpus of
-     personal mail, but is not actually 100% RFC-conforming (which is neither
-     worth it nor desirable).  There may be issues with very old,
-     nonconforming, messages.
+     mblaze has been written from scratch and is now well tested, but it is
+     not 100% RFC-conforming (which is neither worth it, nor desirable).
+     There may be issues with very old, nonconforming, messages.
 
      mblaze is written in portable C, using only POSIX functions (apart from a
      tiny Linux-only optimization), and has no external dependencies.  It
      supports MIME and more than 7-bit messages (everything the host iconv(3)
      can decode).  It assumes you work in a UTF-8 environment.  mblaze works
-     well together with other Unix mail tools such as mairix(1), mu(1), or
+     well with other Unix utilities such as mairix(1), mu(1), or
      offlineimap(1).
 
 EXAMPLES
-     mblaze tools are designed to be composed together in a pipe.  They are
-     suitable for interactive use and for scripting, and integrate well into a
-     Unix workflow.
+     mblaze utilities are designed to be composed together in a pipe.  They
+     are suitable for interactive use and for scripting, and integrate well
+     into a Unix workflow.
 
-     For example, you could decide you want to look at all unseen mail in your
-     INBOX, oldest first.
+     For example, you could decide you want to look at all unseen messages in
+     your INBOX, oldest first.
            mlist -s ~/Maildir/INBOX | msort -d | mscan
 
-     To operate on a set of mails in multiple steps, you can save it as a
+     To operate on a set of messages in multiple steps, you can save it as a
      sequence, e.g. add a call to ‘mseq -S’ to the above command:
            mlist -s ~/Maildir/INBOX | msort -d | mseq -S | mscan
 
      Now mscan will show message numbers and you could look at the first five
-     mails at once, for example:
+     messages at once, for example:
            mshow 1:5
 
      Likewise, you could decide to incorporate (by moving from new to cur) all
-     new mail in all folders, thread it and look at it interactively:
+     new messages in all folders, thread it and look at it interactively:
            mdirs ~/Maildir | xargs minc | mthread | mless
 
-     Or you could list the attachments of the 20 largest mails in your INBOX:
+     Or you could list the attachments of the 20 largest messages in your
+     INBOX:
            mlist ~/Maildir/INBOX | msort -S | tail -20 | mshow -t
 
-     Or apply the patches from the current mail:
+     Or apply the patches from the current message:
            mshow -O. '*.diff' | patch
 
      As usual with pipes, the sky is the limit.
 
 CONCEPTS
-     mblaze deals with messages (which are files), folders (which are Maildir
+     mblaze deals with messages (which are files), folders (which are maildir
      folders), sequences (which are newline-separated lists of messages,
      possibly saved on disk in ${MBLAZE:-$HOME/.mblaze}/seq), and the current
      message (kept as a symlink in ${MBLAZE:-$HOME/.mblaze}/cur).
@@ -117,9 +117,9 @@ AUTHORS
      Leah Neukirchen <leah@vuxu.org>
 
      There is a mailing list available at mblaze@googlegroups.com (to
-     subscribe, send a mail to mblaze+subscribe@googlegroups.com.  Please
-     report security-related bugs directly to the author), as well as an IRC
-     channel #vuxu on irc.freenode.net.
+     subscribe, send a message to mblaze+subscribe@googlegroups.com) and an
+     IRC channel #vuxu on irc.freenode.net.  Please report security-related
+     bugs directly to the author.
 
 LICENSE
      mblaze is in the public domain.
