@@ -1,3 +1,10 @@
+## 0.3.2 (2018-02-13)
+
+* magrep: add *:REGEX to search in any header
+* Fix of a buffer overflow in blaze822_multipart.
+* Small bug fixes.
+* Many documentation improvements by Larry Hynes.
+
 ## 0.3.1 (2018-01-30)
 
 * mless: support $NO_COLOR
