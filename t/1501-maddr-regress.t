@@ -1,7 +1,7 @@
 #!/bin/sh
 cd ${0%/*}
 . ./lib.sh
-plan 26
+plan 27
 
 check_addr() {
   printf "From: %s\n" "$1" | check_test "parse $1" = "$2" "maddr /dev/stdin"
@@ -40,3 +40,4 @@ check_addr 'foo@[::1] (ipv6)' 'ipv6 <foo@[::1]>'
 # invalid addresses
 check_addr '<Foo Bar <foobar@qux.com>' 'foobar@qux.com'
 check_addr '"abc@def"@ghi' ''
+check_addr '"foo@" <bar.com foo@bar.com>' '"foo@" <bar.comfoo@bar.com>'
