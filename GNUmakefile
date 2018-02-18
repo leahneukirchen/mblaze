@@ -37,10 +37,17 @@ msort : mystrverscmp.o
 mmime : slurp.o
 minc mlist : squeeze_slash.o
 
+DATE_FMT = %Y-%m-%d
+ifdef SOURCE_DATE_EPOCH
+	BUILD_DATE ?= $(shell date -u -d "@$(SOURCE_DATE_EPOCH)" "+$(DATE_FMT)"  2>/dev/null || date -u -r "$(SOURCE_DATE_EPOCH)" "+$(DATE_FMT)" 2>/dev/null || date -u "+$(DATE_FMT)")
+else
+	BUILD_DATE ?= $(shell date "+$(DATE_FMT)")
+endif
+
 museragent: FRC
 	@printf '#!/bin/sh\nprintf "User-Agent: mblaze/%s (%s)\\n"\n' \
 		"$$({ git describe --always --dirty 2>/dev/null || cat VERSION; } | sed 's/^v//')" \
-		"$$(date +%Y-%m-%d)" >$@
+		"$(BUILD_DATE)" >$@
 	@chmod +x $@
 
 README: man/mblaze.7
