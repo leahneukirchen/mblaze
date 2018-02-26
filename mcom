@@ -1,6 +1,9 @@
 #!/bin/sh
 # mcom [TO] - compose mail
 
+NL='
+'
+
 commajoin() {
 	awk 'NR==1 {l=$0; next}
 	     {l=l", "$0}
@@ -47,8 +50,7 @@ needs_multipart() {
 do_mime() {
 	if needs_multipart "$draft"; then
 		(
-			IFS='
-'
+			IFS=$NL
 			msed '/attach/d' $draft
 			for f in $(mhdr -M -h attach $draft); do
 				printf '#%s %s\n' \
@@ -137,8 +139,7 @@ fi
 			mseq -r "$@" | sed 's:^:#message/rfc822#inline :; s:$:>:'
 		else (
 			SEP=-----
-			IFS='
-'
+			IFS=$NL
 			for f in $(mseq -r "$@"); do
 				printf '%s Forwarded message from %s %s\n\n' \
 				       $SEP "$(mhdr -d -h from "$f")" $SEP
@@ -156,8 +157,7 @@ fi
 		msgid | sed 's/^/Resent-/'
 		printf 'Resent-Date: %s\n' "$(mdate)"
 		(
-			IFS='
-'
+			IFS=$NL
 			cat $(mseq "${@:-.}")
 		)
 		;;
