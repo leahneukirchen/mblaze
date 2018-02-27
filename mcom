@@ -68,11 +68,21 @@ MBLAZE=${MBLAZE:-$HOME/.mblaze}
 sendmail=$(mhdr -h sendmail "$MBLAZE/profile")
 sendmail_args=$(mhdr -h sendmail-args "$MBLAZE/profile")
 sendmail="${sendmail:-sendmail} ${sendmail_args:--t}"
+default_from=$(mhdr -h local-mailbox "$MBLAZE/profile")
 
+hdrs=
 resume=
 case "$0" in
-	*mcom*)
-		if [ "$1" = -r ]; then
+*mcom*)
+	hdr=to
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		--)
+			# -- is like -to, really
+			shift
+			hdr=to
+			;;
+		-r)
 			shift
 			resume=1
 			if [ "$#" -gt 0 ]; then
@@ -80,9 +90,89 @@ case "$0" in
 				draft="$1"
 				shift
 			fi
-		fi
-		;;
+			;;
+		-??*)
+			hdr=${1#-}
+			shift;;
+		[!-]*)
+			hdrs="$hdrs$NL$(printf '%s: %s\n' "${hdr}" "$1")"
+			shift;;
+		*)
+			printf 'mcom: invalid argument %s\n' "$1" 1>&2
+			exit 1;;
+		esac
+	done
+	;;
+*mfwd*)
+	hdr=
+	raw=
+ 	while [ $# -gt 0 ]; do
+		case "$1" in
+		--)
+			shift
+			break;;
+		-r)
+			shift
+			raw=1;;
+		-??*)
+			hdr=${1#-}
+			shift;;
+		[!-]*)
+			[ -z "$hdr" ] && break;
+			hdrs="$hdrs$NL$(printf '%s: %s\n' "${hdr}" "$1")"
+			shift;;
+		*)
+			printf 'mfwd: invalid argument %s\n' "$1" 1>&2
+			exit 1;;
+		esac
+	done
+	[ "$#" -eq 0 ] && set -- .
+	;;
+*mbnc*)
+	hdr=
+ 	while [ $# -gt 0 ]; do
+		case "$1" in
+		--)
+			shift
+			break;;
+		-??*)
+			hdr=${1#-}
+			shift;;
+		[!-]*)
+			[ -z "$hdr" ] && break;
+			hdrs="$hdrs$NL$(printf '%s: %s\n' "${hdr}" "$1")"
+			shift;;
+		*)
+			printf 'mbnc: invalid argument %s\n' "$1" 1>&2
+			exit 1;;
+		esac
+	done
+	[ "$#" -eq 0 ] && set -- .
+	;;
+*mrep*)
+	hdr=
+ 	while [ $# -gt 0 ]; do
+		case "$1" in
+		--)
+			shift
+			break;;
+		-??*)
+			hdr=${1#-}
+			shift;;
+		[!-]*)
+			[ -z "$hdr" ] && break;
+			hdrs="$hdrs$NL$(printf '%s: %s\n' "${hdr}" "$1")"
+			shift;;
+		*)
+			printf 'mrep: invalid argument %s\n' "$1" 1>&2
+			exit 1;;
+		esac
+	done
+	[ "$#" -eq 0 ] && set -- .
+	;;
 esac
+
+hdrs="$(printf '%s\n' "${hdrs#$NL}" | mhdr /dev/stdin)"
 
 outbox=$(mhdr -h outbox "$MBLAZE/profile")
 if [ -z "$outbox" ]; then
@@ -113,27 +203,36 @@ fi
 {
 	case "$0" in
 	*mcom*)
-		printf 'To: '
-		printf '%s\n' "$@" | commajoin
-		printf '%s: \n' Cc Bcc Subject
-		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
-		[ "$from" ] && printf 'From: %s\n' "$from"
-		cat "$MBLAZE/headers" 2>/dev/null
+		{
+			printf '%s' "$hdrs" | mhdr -M -h to /dev/stdin |
+				commajoin | sed 's/^/To: /'
+			printf '%s' "$hdrs" | mhdr -M -h cc /dev/stdin |
+				commajoin | sed 's/^/Cc: /'
+			printf '%s' "$hdrs" | mhdr -M -h bcc /dev/stdin |
+				commajoin | sed 's/^/Bcc: /'
+			printf '%s\n' "$hdrs" | awk '{ print }' |
+				msed "/to/d; /cc/d; /bcc/d" /dev/stdin
+		} | msed "/cc/a//; /bcc/a//; /subject/a//; /from/a/$default_from/" /dev/stdin | sed '/^$/d'
 		msgid
 		museragent
+		cat "$MBLAZE/headers" 2>/dev/null
 		printf '\n\n'
 		;;
 	*mfwd*)
-		raw=
-		[ "$1" = -r ] && raw=1 && shift
-		[ "$#" -eq 0 ] && set -- .
-		printf '%s: \n' To Cc Bcc
-		COLUMNS=10000 mscan -f 'Subject: [%f] %s' "$@" | sed 1q
-		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
-		[ "$from" ] && printf 'From: %s\n' "$from"
-		cat "$MBLAZE/headers" 2>/dev/null
+		{
+			printf '%s' "$hdrs" | mhdr -M -h to /dev/stdin |
+				commajoin | sed 's/^/To: /'
+			printf '%s' "$hdrs" | mhdr -M -h cc /dev/stdin |
+				commajoin | sed 's/^/Cc: /'
+			printf '%s' "$hdrs" | mhdr -M -h bcc /dev/stdin |
+				commajoin | sed 's/^/Bcc: /'
+			COLUMNS=10000 mscan -f 'Subject: [%f] %s' "$@" 2>/dev/null | sed 1q
+			printf '%s\n' "$hdrs" | awk '{ print }' |
+				msed "/to/d; /cc/d; /bcc/d" /dev/stdin
+		} | msed "/cc/a//; /bcc/a//; /from/a/$default_from/" /dev/stdin | sed '/^$/d'
 		msgid
 		museragent
+		cat "$MBLAZE/headers" 2>/dev/null
 		printf '\n\n'
 		if [ -z "$raw" ]; then
 			mseq -r "$@" | sed 's:^:#message/rfc822#inline :; s:$:>:'
@@ -144,16 +243,22 @@ fi
 				printf '%s Forwarded message from %s %s\n\n' \
 				       $SEP "$(mhdr -d -h from "$f")" $SEP
 				DISPLAY= mshow -n -N "$f" </dev/null |
-					sed 's/^-/- &/'    # RFC934
+					sed 's/^-/- &/'    # RFC 934
 				printf '\n%s %s %s\n\n' \
 				       $SEP 'End forwarded message' $SEP
 			done
 		) fi
 		;;
 	*mbnc*)
-		printf '%s: \n' Resent-To
-		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
-		[ "$from" ] && printf 'Resent-From: %s\n' "$from"
+		{
+			printf '%s' "$hdrs" | mhdr -M -h resent-to /dev/stdin |
+				commajoin | sed 's/^/Resent-To: /'
+			printf '%s' "$hdrs" | mhdr -M -h resent-cc /dev/stdin |
+				commajoin | sed 's/^/Resent-Cc: /'
+			printf '%s\n' "$hdrs" | awk '{ print }' |
+				msed "/resent-to/d; /resent-cc/d" /dev/stdin
+		} |
+			msed "/resent-to/a//; /resent-from/a/$default_from/" /dev/stdin | sed '/^$/d'
 		msgid | sed 's/^/Resent-/'
 		printf 'Resent-Date: %s\n' "$(mdate)"
 		(
@@ -162,7 +267,6 @@ fi
 		)
 		;;
 	*mrep*)
-		[ "$#" -eq 0 ] && set -- .
 		ng=$(mhdr -h newsgroups "$1")
 		if [ "$ng" ]; then
 			printf 'Newsgroups: %s\n' "$ng"
@@ -173,11 +277,11 @@ fi
 			printf 'Cc: %s\n' \
 			       "$(mhdr -d -A -h to:cc: "$1" |notmine |commajoin)"
 			printf 'Bcc: \n'
+			printf '%s\n' "$hdrs" | awk '{ print }'
 		fi
 		printf 'Subject: Re: %s\n' "$(COLUMNS=10000 mscan -f '%S' "$1")"
 		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
 		[ "$from" ] && printf 'From: %s\n' "$from"
-		cat "$MBLAZE/headers" 2>/dev/null
 		mid=$(mhdr -h message-id "$1")
 		if [ "$mid" ]; then
 			printf 'References:'
@@ -189,6 +293,7 @@ fi
 		fi
 		msgid
 		museragent
+		cat "$MBLAZE/headers" 2>/dev/null
 		printf '\n'
 
 		mquote "$1"

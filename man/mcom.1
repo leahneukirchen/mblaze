@@ -9,15 +9,19 @@
 .Nd compose, reply, forward, bounce, send messages
 .Sh SYNOPSIS
 .Nm mcom
+.Op Fl Ar header Ar values\ ...
 .Op Ar recipients\ ...
 .Nm mcom
 .Fl r Op draft
 .Nm mrep
+.Op Fl Ar header Ar values\ ... Fl -
 .Ar msg
 .Nm mfwd
 .Op Fl r
+.Op Fl Ar header Ar values\ ... Fl -
 .Op Ar msgs\ ...
 .Nm mbnc
+.Op Fl Ar header Ar values\ ... Fl -
 .Ar msg
 .Sh DESCRIPTION
 .Nm mcom
@@ -56,6 +60,30 @@ See
 .Xr mmsg 7
 for the message argument syntax.
 .Pc
+.Pp
+All commands can take optional
+.Ar header
+flags
+.Pq which consist of two or more characters
+to prefill header fields,
+e.g. you can use
+.Sq Nm mcom Fl to No merrilyn Fl cc No elea becci Fl subject No 'Party invite'
+to create a draft with the To, Cc and Subject fields already set.
+Note that these flags apply to
+.Em all
+arguments after them
+.Po e.g.
+.Sq mcom Fl attach No *.c
+works
+.Pc ,
+so you
+need to use
+.Sq Fl -
+when you want to use this feature together with
+.Nm mrep ,
+.Nm mfwd ,
+or
+.Nm mbnc .
 .Sh MENU COMMANDS
 .Bl -tag -width 2n
 .It Ic s
