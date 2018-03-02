@@ -118,7 +118,7 @@ case "$0" in
 			hdr=${1#-}
 			shift;;
 		[!-]*)
-			[ -z "$hdr" ] && break;
+			[ -z "$hdr" ] && break
 			hdrs="$hdrs$NL$(printf '%s: %s\n' "${hdr}" "$1")"
 			shift;;
 		*)
@@ -139,7 +139,7 @@ case "$0" in
 			hdr=${1#-}
 			shift;;
 		[!-]*)
-			[ -z "$hdr" ] && break;
+			[ -z "$hdr" ] && break
 			hdrs="$hdrs$NL$(printf '%s: %s\n' "${hdr}" "$1")"
 			shift;;
 		*)
@@ -160,7 +160,7 @@ case "$0" in
 			hdr=${1#-}
 			shift;;
 		[!-]*)
-			[ -z "$hdr" ] && break;
+			[ -z "$hdr" ] && break
 			hdrs="$hdrs$NL$(printf '%s: %s\n' "${hdr}" "$1")"
 			shift;;
 		*)
