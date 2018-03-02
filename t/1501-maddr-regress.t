@@ -40,4 +40,4 @@ check_addr 'foo@[::1] (ipv6)' 'ipv6 <foo@[::1]>'
 # invalid addresses
 check_addr '<Foo Bar <foobar@qux.com>' 'foobar@qux.com'
 check_addr '"abc@def"@ghi' ''
-check_addr '"foo@" <bar.com foo@bar.com>' '"foo@" <bar.comfoo@bar.com>'
+check_addr '"foo@" <bar.com foo@bar.com>' 'foo@ <bar.comfoo@bar.com>'
