@@ -342,7 +342,7 @@ compress_hdr(char *s, char *end)
 		while (h < end && *h) {
 			if (*h == '\n') {
 				*t++ = ' ';
-				while (*h && isfws(*h))
+				while (*h && isfws(*h) && *(h+1))
 					h++;
 			}
 			*t++ = *h++;
