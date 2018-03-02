@@ -277,7 +277,7 @@ fi
 			printf 'Cc: %s\n' \
 			       "$(mhdr -d -A -h to:cc: "$1" |notmine |commajoin)"
 			printf 'Bcc: \n'
-			printf '%s\n' "$hdrs" | awk '{ print }'
+			printf '%s\n' "$hdrs" | awk '/./ { print }'
 		fi
 		printf 'Subject: Re: %s\n' "$(COLUMNS=10000 mscan -f '%S' "$1")"
 		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
