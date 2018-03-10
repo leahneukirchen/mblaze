@@ -211,12 +211,17 @@ fi
 			printf '%s' "$hdrs" | mhdr -M -h bcc /dev/stdin |
 				commajoin | sed 's/^/Bcc: /'
 			printf '%s\n' "$hdrs" | awk '{ print }' |
-				msed "/to/d; /cc/d; /bcc/d" /dev/stdin
+				msed "/to/d; /cc/d; /bcc/d; /body/d" /dev/stdin
 		} | msed "/cc/a//; /bcc/a//; /subject/a//; /from/a/$default_from/" /dev/stdin | sed '/^$/d'
 		msgid
 		museragent
 		cat "$MBLAZE/headers" 2>/dev/null
-		printf '\n\n'
+		printf '\n'
+		(
+			IFS=$NL
+			cat -- /dev/null $(printf '%s' "$hdrs" | mhdr -M -h body /dev/stdin)
+		)
+		printf '\n'
 		;;
 	*mfwd*)
 		{
@@ -277,8 +282,9 @@ fi
 			printf 'Cc: %s\n' \
 			       "$(mhdr -d -A -h to:cc: "$1" |notmine |commajoin)"
 			printf 'Bcc: \n'
-			printf '%s\n' "$hdrs" | awk '/./ { print }'
-		fi
+			printf '%s\n' "$hdrs" | awk '{ print }' |
+				msed "/body/d" /dev/stdin
+		fi | sed '/^$/d'
 		printf 'Subject: Re: %s\n' "$(COLUMNS=10000 mscan -f '%S' "$1")"
 		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
 		[ "$from" ] && printf 'From: %s\n' "$from"
@@ -297,6 +303,11 @@ fi
 		printf '\n'
 
 		mquote "$1"
+		printf '\n'
+		(
+			IFS=$NL
+			cat -- /dev/null $(printf '%s' "$hdrs" | mhdr -M -h body /dev/stdin)
+		)
 		printf '\n'
 		;;
 	esac
