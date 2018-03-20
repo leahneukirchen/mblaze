@@ -1,0 +1,15 @@
+#!/bin/sh
+# mp7m - decode S/MIME .p7m format
+
+tmp=$(mktemp -t mp7m.XXXXXX)
+trap "rm -f '$tmp'" INT TERM EXIT
+
+cat >"$tmp"
+
+if openssl pkcs7 -print_certs <"$tmp" |
+    openssl smime -verify -in "$tmp" -inform DER -noverify -signer /dev/stdin
+then
+	exit 64
+else
+	exit 63
+fi
