@@ -3,7 +3,7 @@
 .Os
 .Sh NAME
 .Nm mless
-.Nd interactive wrapper around mshow
+.Nd conveniently read messages in less(1)
 .Sh SYNOPSIS
 .Nm
 .Op Ar msg
@@ -17,25 +17,27 @@ for the current sequence.
 Display starts with the current message, or
 .Ar msg
 if passed.
+.Po
 See
 .Xr mmsg 7
 for the message argument syntax.
+.Pc
 .Pp
-When no messages are passed and standard input is from a pipe,
+When no messages are passed and the standard input is from a pipe,
 .Ql mseq -S
-will be called to set the current sequence and
+is called to set the current sequence;
 .Nm
-is run on the resulting sequence.
+is then run on the resulting sequence.
 The first "file" of the less instance will be the output of
 .Xr mscan 1 .
 This makes
 .Nm
-convenient for use at the end of a pipe.
+convenient for use at the end of a pipeline.
 .Pp
 .Nm
 will start
 .Xr less 1
-displaying the current message if possible.
+and display the current message, if possible.
 Use
 .Sq Ic ":n"
 and
