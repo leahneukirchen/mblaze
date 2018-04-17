@@ -15,6 +15,7 @@
 
 #include "blaze822.h"
 
+static int Bflag;
 static int rflag;
 static int Rflag;
 static int qflag;
@@ -164,6 +165,12 @@ mime_filename(struct message *msg)
 		if (blaze822_mime2231_parameter(v, "name",
 		    buf, sizeof buf, "UTF-8"))
 			filename = buf;
+	}
+
+	if (Bflag && filename) {
+		static char buf2[512];
+		blaze822_decode_rfc2047(buf2, filename, sizeof buf2, "UTF-8");
+		filename = buf2;
 	}
 
 	return filename;
@@ -743,10 +750,11 @@ main(int argc, char *argv[])
 	pid_t pid1 = -1, pid2 = -1;
 
 	int c;
-	while ((c = getopt(argc, argv, "h:A:qrtFHLNx:O:Rn")) != -1)
+	while ((c = getopt(argc, argv, "h:A:BqrtFHLNx:O:Rn")) != -1)
 		switch (c) {
 		case 'h': hflag = optarg; break;
 		case 'A': Aflag = optarg; break;
+		case 'B': Bflag = 1; break;
 		case 'q': qflag = 1; break;
 		case 'r': rflag = 1; break;
 		case 'F': Fflag = 1; break;

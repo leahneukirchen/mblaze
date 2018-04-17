@@ -1,4 +1,4 @@
-.Dd July 22, 2016
+.Dd April 17, 2018
 .Dt MSHOW 1
 .Os
 .Sh NAME
@@ -8,7 +8,7 @@
 .Nm
 .Op Fl h Ar headers
 .Op Fl A Ar mimetypes
-.Op Fl nqrFHLN
+.Op Fl nqrBFHLN
 .Op Ar msgs\ ...
 .Nm
 .Fl x Ar msg
@@ -67,6 +67,11 @@ Don't render the body, stop after header output.
 .It Fl r
 Don't render the body, print raw body.
 This may be dangerous to use on a tty.
+.It Fl B
+Decode encoded-words also in MIME parameters in direct violation
+of RFC 2047.
+This is useful if the attachment names look like
+.Sq Li =?UTF-8?Q?stuff?= .
 .It Fl F
 Don't apply filters to MIME parts.
 .It Fl H
