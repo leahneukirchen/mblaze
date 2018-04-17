@@ -356,7 +356,6 @@ while :; do
 					else
 						rm $draft $draftmime
 					fi
-					exit 0
 				else
 					printf '%s\n' "mcom: $sendmail failed, kept draft $draft"
 					exit 2
@@ -374,7 +373,6 @@ while :; do
 					else
 						rm $draft
 					fi
-					exit 0
 				else
 					printf '%s\n' "mcom: $sendmail failed, kept draft $draft"
 					exit 2
@@ -384,6 +382,14 @@ while :; do
 				c=
 			fi
 		fi
+
+		case "$0" in
+			*mrep*) mflag -R -- "$1" ;;
+			*mbnc*) mflag -P -- "$1" ;;
+			*mfwd*) mflag -P -- "$@" ;;
+		esac
+
+		exit 0
 		;;
 	c|cancel)
 		stampdate $draft
