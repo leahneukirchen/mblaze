@@ -352,7 +352,7 @@ while :; do
 				if $sendmail <$draftmime; then
 					if [ "$outbox" ]; then
 						mv $draftmime $draft
-						mflag -d $draft
+						mflag -d -S $draft
 					else
 						rm $draft $draftmime
 					fi
@@ -370,7 +370,7 @@ while :; do
 				stampdate $draft
 				if $sendmail <$draft; then
 					if [ "$outbox" ]; then
-						mflag -d $draft
+						mflag -d -S $draft
 					else
 						rm $draft
 					fi
