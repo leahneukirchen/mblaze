@@ -27,8 +27,8 @@ all: $(ALL) museragent
 $(ALL) : % : %.o
 maddr magrep mdeliver mexport mflag mflow mgenmid mhdr mpick mscan msed mshow \
   msort mthread : blaze822.o mymemmem.o mytimegm.o
-maddr magrep mexport mflag mgenmid mhdr mlist mpick mscan msed mseq mshow msort \
-  mthread : seq.o slurp.o
+maddr magrep mdeliver mexport mflag mgenmid mhdr mlist mpick mscan msed mseq \
+  mshow msort mthread : seq.o slurp.o
 maddr magrep mflow mhdr mpick mscan mshow : rfc2047.o
 magrep mflow mhdr mshow : rfc2045.o
 mshow : filter.o safe_u8putstr.o rfc2231.o pipeto.o
@@ -64,6 +64,7 @@ install: FRC all
 	ln -sf mcom $(DESTDIR)$(BINDIR)/mbnc
 	ln -sf mcom $(DESTDIR)$(BINDIR)/mfwd
 	ln -sf mcom $(DESTDIR)$(BINDIR)/mrep
+	ln -sf mdeliver $(DESTDIR)$(BINDIR)/mrefile
 	install -m0644 man/*.1 $(DESTDIR)$(MANDIR)/man1
 	install -m0644 man/*.5 $(DESTDIR)$(MANDIR)/man5
 	install -m0644 man/*.7 $(DESTDIR)$(MANDIR)/man7

@@ -23,6 +23,7 @@ design rationale:
 */
 
 static int cflag;
+static int kflag;
 static int Mflag;
 static int vflag;
 static char *Xflag;
@@ -182,9 +183,69 @@ tryagain:
 	return 0;
 }
 
+void
+refile(char *file)
+{
+	while (*file == ' ' || *file == '\t')
+		file++;
+
+	FILE *f = fopen(file, "r");
+	if (!f) {
+		fprintf(stderr, "mrefile: %s: %s\n", file, strerror(errno)); 
+		return;
+	}
+
+	// keep flags
+	char *flags = strstr(file, ":2,");
+	if (flags)
+		Xflag = flags + 3;
+	else
+		Xflag = "";
+
+	if (deliver(f) < 0) {
+		perror("mrefile");
+		return;
+	}
+
+	fclose(f);
+	if (!kflag)
+		unlink(file);
+}
+
 int
 main(int argc, char *argv[])
 {
+	if (strchr(argv[0], 'f')) {
+		// mrefile(1)
+
+		cflag = 1;  // use cur/
+
+		int c;
+		while ((c = getopt(argc, argv, "kv")) != -1)
+			switch (c) {
+			case 'k': kflag = 1; break;
+			case 'v': vflag = 1; break;
+			default:
+usage:
+				fprintf(stderr,
+				    "Usage: mrefile [-kv] [msgs...] maildir\n");
+			exit(1);
+		}
+
+		if (argc == optind)
+			goto usage;
+
+		targetdir = argv[argc - 1];
+		gethost();
+
+		if (argc == optind + 1 && isatty(0))
+			blaze822_loop1(".", refile);
+		else
+			blaze822_loop(argc - 1 - optind, argv + optind, refile);
+
+		return 0;
+	}
+
 	int c;
 	while ((c = getopt(argc, argv, "cMvX:")) != -1)
 		switch (c) {
