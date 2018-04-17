@@ -63,8 +63,7 @@ deliver(FILE *infile)
 			ssize_t rd = getdelim(&line, &linelen, '\n', infile);
 			if (rd == -1) {
 				if (errno == 0)
-					// invalid mbox file
-					errno = EINVAL;
+					errno = EINVAL;  // invalid mbox file
 				return -1;
 			}
 
