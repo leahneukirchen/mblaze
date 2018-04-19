@@ -1,0 +1,59 @@
+.Dd April 19, 2018
+.Dt MREFILE 1
+.Os
+.Sh NAME
+.Nm mrefile
+.Nd move or copy messages between maildir folders
+.Sh SYNOPSIS
+.Nm
+.Op Fl k
+.Op Fl v
+.Op Ar msgs\ ...
+.Ar dir
+.Sh DESCRIPTION
+.Nm
+moves the messages given on the command line
+.Pq or the standard input
+into the maildir
+.Ar dir ,
+assigning new message file names,
+but keeping the message flags.
+Message are moved directly into the
+.Pa cur/
+directory.
+.Pp
+If used interactively and no
+.Ar msgs
+are specified,
+.Nm
+moves the current message.
+.Pp
+See
+.Xr mmsg 7
+for the message argument syntax.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl k
+keep the messages in their respective folders,
+i.e. copy into
+.Ar dir .
+.It Fl v
+Print each resulting message filename.
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh SEE ALSO
+.Xr mdeliver 1
+.Sh AUTHORS
+.An Leah Neukirchen Aq Mt leah@vuxu.org
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/
