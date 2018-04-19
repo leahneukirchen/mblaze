@@ -30,6 +30,7 @@ DESCRIPTION
      mmime(1)     create MIME messages
      mmkdir(1)    create new maildir folders
      mpick(1)     advanced message filter
+     mrefile(1)   move or copy messages between maildir folders
      mrep(1)      reply to messages
      mscan(1)     generate one-line message summaries
      msed(1)      manipulate message headers
