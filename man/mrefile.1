@@ -12,19 +12,21 @@
 .Ar dir
 .Sh DESCRIPTION
 .Nm
-moves the messages given on the command line
+moves the
+.Ar msgs
+given on the command line
 .Pq or the standard input
 into the maildir
 .Ar dir ,
-assigning new message file names,
-but keeping the message flags.
-Message are moved directly into the
+assigning new filenames but keeping any message flags.
+Messages are moved directly into the
 .Pa cur/
 directory.
-.Pp
+.Po
 See
 .Xr mmsg 7
 for the message argument syntax.
+.Pc
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
