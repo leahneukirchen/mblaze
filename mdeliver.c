@@ -239,7 +239,7 @@ usage:
 		gethost();
 
 		if (argc == optind + 1 && isatty(0))
-			blaze822_loop1(".", refile);
+			goto usage;
 		else
 			blaze822_loop(argc - 1 - optind, argv + optind, refile);
 
