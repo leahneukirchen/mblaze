@@ -138,7 +138,7 @@ headermany(struct message *msg)
 				*n = 0;
 
 			size_t l = strlen(h);
-			if (strncmp(hdr, h, l) == 0 && hdr[l] == ':') {
+			if (strncasecmp(hdr, h, l) == 0 && hdr[l] == ':') {
 				hdr += l + 1;
 				while (*hdr == ' ' || *hdr == '\t')
 					hdr++;
