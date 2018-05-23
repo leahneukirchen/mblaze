@@ -66,7 +66,7 @@ print_quoted(char *s)
 	for (t = s; *t; t++)
                 if ((unsigned char)*t < 32 || strchr("()<>[]:;@\\,.\"", *t))
 			goto quote;
-	
+
 	printf("%s", s);
 	return;
 
