@@ -59,6 +59,29 @@ headerall(struct message *msg)
 }
 
 void
+print_quoted(char *s)
+{
+	char *t;
+
+	for (t = s; *t; t++)
+                if ((unsigned char)*t < 32 || strchr("()<>[]:;@\\,.\"", *t))
+			goto quote;
+	
+	printf("%s", s);
+	return;
+
+quote:
+	putchar('"');
+	for (t = s; *t; t++) {
+		if (*t == '"' || *t == '\\')
+			putchar('\\');
+		putchar(*t);
+	}
+	putchar('"');
+
+}
+
+void
 print_addresses(char *s)
 {
 	char *disp, *addr;
@@ -74,10 +97,12 @@ print_addresses(char *s)
 		if (Hflag && addr)
 			printf("%s\t", curfile);
 
-		if (disp && addr)
-			printf("%s <%s>\n", disp, addr);
-		else if (addr)
+		if (disp && addr) {
+			print_quoted(disp);
+			printf(" <%s>\n", addr);
+		} else if (addr) {
 			printf("%s\n", addr);
+		}
 	}
 }
 

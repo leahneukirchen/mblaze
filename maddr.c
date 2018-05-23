@@ -14,6 +14,29 @@ static char defaulthflags[] = "from:sender:reply-to:to:cc:bcc:"
 static char *hflag = defaulthflags;
 
 void
+print_quoted(char *s)
+{
+	char *t;
+
+	for (t = s; *t; t++)
+                if ((unsigned char)*t < 32 || strchr("()<>[]:;@\\,.\"", *t))
+			goto quote;
+	
+	printf("%s", s);
+	return;
+
+quote:
+	putchar('"');
+	for (t = s; *t; t++) {
+		if (*t == '"' || *t == '\\')
+			putchar('\\');
+		putchar(*t);
+	}
+	putchar('"');
+
+}
+
+void
 addr(char *file)
 {
 	while (*file == ' ' || *file == '\t')
@@ -41,10 +64,12 @@ addr(char *file)
 				if (disp && addr && strcmp(disp, addr) == 0)
 					disp = 0;
 				if (disp && addr) {
-					if (aflag)
+					if (aflag) {
 						printf("%s\n", addr);
-					else
-						printf("%s <%s>\n", disp, addr);
+					} else {
+						print_quoted(disp);
+						printf(" <%s>\n", addr);
+					}
 				} else if (addr) {
 					printf("%s\n", addr);
 				}
