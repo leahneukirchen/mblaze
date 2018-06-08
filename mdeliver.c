@@ -107,7 +107,8 @@ tryagain:
 			}
 			char *line_start = line;
 
-			if (line[0] == '\n' && !line[1])
+			if (line[0] == '\n' && (!line[1] ||
+			                        (line[1] == '\r' && !line[2])))
 				in_header = 0;
 
 			if (Mflag && strncmp("From ", line, 5) == 0)
