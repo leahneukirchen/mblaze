@@ -115,15 +115,16 @@ tryagain:
 				break;
 
 			if (Mflag && in_header &&
-			    (strncasecmp("status:", line, 6) == 0 ||
-			     strncasecmp("x-status:", line, 8) == 0)) {
+			    (strncasecmp("status:", line, 7) == 0 ||
+			     strncasecmp("x-status:", line, 9) == 0)) {
 				char *v = strchr(line, ':');
-				if (strchr(v, 'F')) statusflags[0] = 'F';
-				if (strchr(v, 'A')) statusflags[1] = 'R';
-				if (strchr(v, 'R')) statusflags[2] = 'S';
-				if (strchr(v, 'D')) statusflags[3] = 'T';
-				if (strchr(v, 'O')) is_old = 1;
-
+				if (v) {
+					if (strchr(v, 'F')) statusflags[0] = 'F';
+					if (strchr(v, 'A')) statusflags[1] = 'R';
+					if (strchr(v, 'R')) statusflags[2] = 'S';
+					if (strchr(v, 'D')) statusflags[3] = 'T';
+					if (strchr(v, 'O')) is_old = 1;
+				}
 				continue;  // drop header
 			}
 
