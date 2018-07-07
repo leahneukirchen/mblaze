@@ -1,4 +1,4 @@
-.Dd February 15, 2017
+.Dd July 7, 2018
 .Dt MAGREP 1
 .Os
 .Sh NAME
@@ -9,6 +9,7 @@
 .Op Fl c | Fl q | Fl m Ar max
 .Op Fl v
 .Op Fl i
+.Op Fl l
 .Op Fl a | Fl d
 .Ar header Ns Cm \&: Ns Ar regex
 .Op Ar msgs\ ...
@@ -78,6 +79,8 @@ according to RFC 2047 prior to searching.
 Match
 .Ar regex
 case insensitively.
+.It Fl l
+Only search a message until a match has been found.
 .It Fl m Ar max
 Do not show more than
 .Ar max
