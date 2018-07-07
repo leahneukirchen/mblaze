@@ -15,6 +15,7 @@ static int aflag;
 static int cflag;
 static int dflag;
 static int iflag;
+static int lflag;
 static int oflag;
 static int pflag;
 static int qflag;
@@ -29,7 +30,7 @@ static char *curfile;
 int
 match(char *file, char *hdr, char *s)
 {
-	if (oflag && !cflag && !qflag && !vflag) {
+	if (oflag && !cflag && !qflag && !vflag && !lflag) {
 		regmatch_t pmatch;
 		int len, matched;
 		matched = 0;
@@ -118,22 +119,23 @@ match_body(char *file)
 	blaze822_walk_mime(msg, 0, match_part);
 }
 
-void
+int
 match_value(char *file, char *h, char *v)
 {
 	if (dflag) {
 		char d[4096];
 		blaze822_decode_rfc2047(d, v, sizeof d, "UTF-8");
-		match(file, h, d);
+		return match(file, h, d);
 	} else if (aflag) {
 		char *disp, *addr;
 		while ((v = blaze822_addr(v, &disp, &addr))) {
 			if (addr && match(file, h, addr))
-				break;
+				return 1;
 		}
 	} else {
-		match(file, h, v);
+		return match(file, h, v);
 	}
+	return 0;
 }
 
 void
@@ -163,14 +165,15 @@ magrep(char *file)
 			char *v = strchr(hdr, ':');
 			if (v) {
 				*v = 0;
-				match_value(file, hdr, v + 1 + (v[1] == ' '));
+				if (match_value(file, hdr, v + 1 + (v[1] == ' ')) && lflag)
+					break;
 				*v = ':';
 			}
 		}
 	} else {
 		char *v = blaze822_chdr(msg, header);
 		if (v)
-			match_value(file, header, v);
+			(void)match_value(file, header, v);
 	}
 
 	blaze822_free(msg);
@@ -180,12 +183,13 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "acdim:opqv")) != -1)
+	while ((c = getopt(argc, argv, "acdilm:opqv")) != -1)
 		switch (c) {
 		case 'a': aflag = 1; break;
 		case 'c': cflag = 1; break;
 		case 'd': dflag = 1; break;
 		case 'i': iflag = REG_ICASE; break;
+		case 'l': lflag = 1; break;
 		case 'm': mflag = atol(optarg); break;
 		case 'o': oflag = 1; break;
 		case 'p': pflag = 1; break;
@@ -194,7 +198,7 @@ main(int argc, char *argv[])
 		default:
 usage:
 			fprintf(stderr,
-"Usage: magrep [-c|-o|-p|-q|-m max] [-v] [-i] [-a|-d] header:regex [msgs...]\n");
+"Usage: magrep [-c|-o|-p|-q|-m max] [-v] [-i] [-l] [-a|-d] header:regex [msgs...]\n");
 			exit(2);
 		}
 
