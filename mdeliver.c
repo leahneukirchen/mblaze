@@ -89,7 +89,7 @@ tryagain:
 			if (errno == EEXIST)
 				goto tryagain;
 			fprintf(stderr, "mrefile: %s: %s\n",
-			    tmp, strerror(errno)); 
+			    tmp, strerror(errno));
 			return -1;
 		}
 
@@ -195,7 +195,7 @@ refile(char *file)
 
 	FILE *f = fopen(file, "r");
 	if (!f) {
-		fprintf(stderr, "mrefile: %s: %s\n", file, strerror(errno)); 
+		fprintf(stderr, "mrefile: %s: %s\n", file, strerror(errno));
 		return;
 	}
 
