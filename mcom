@@ -407,7 +407,7 @@ while :; do
 			c=c
 		fi
 		stripempty $draft
-		if mmime -c <$draft; then
+		if mmime -c <$draft && ! needs_multipart $draft; then
 			automime=
 		else
 			automime=1
