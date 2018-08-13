@@ -15,6 +15,10 @@ notmine() {
 	grep -Fv -e "$mine"
 }
 
+ouniq() {
+	awk '!seen[$0]++' 
+}
+
 reffmt() {
 	sed 's/^[^<]*//g;s/[^>]*$//g;s/>[^<]*</>\
 </g' | uniq | sed 's/^/ /'
@@ -280,7 +284,9 @@ fi
 			[ -z "$to" ] && to=$(mhdr -h from "$1")
 			printf 'To: %s\n' "$to"
 			printf 'Cc: %s\n' \
-			       "$(mhdr -d -A -h to:cc: "$1" |notmine |commajoin)"
+			       "$(mhdr -d -A -h to:cc: "$1" |
+			       	       notmine |grep -Fv -e "$to" |
+				       ouniq |commajoin)"
 			printf 'Bcc: \n'
 			printf '%s\n' "$hdrs" | awk '{ print }' |
 				msed "/body/d" /dev/stdin
