@@ -1,3 +1,15 @@
+## 0.4 (2018-08-15)
+
+* New tool mrefile to move or copy messages.
+* contrib/mp7m: add application/pkcs7-mime decoder
+* mcom: allow setting arbitrary headers from command line
+* mcom: add -body to prepopulate drafts
+* mcom: mark drafts as seen after sending
+* mcom: update flags after mrep/mbnc/mfwd
+* mshow: add -B to decode MIME parameters in broken mails
+* magrep: add -l flag
+* Many bug fixes.
+
 ## 0.3.2 (2018-02-13)
 
 * magrep: add *:REGEX to search in any header
