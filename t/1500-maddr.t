@@ -78,7 +78,7 @@ check_test 'from name only' -eq 0 'maddr 4 | wc -l'
 check_same 'specific header' 'maddr -h foo 4' 'echo "Perico de los palotes <palotes@example.com>"'
 check_same 'long addr' 'maddr -h long 4' 'echo "heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeelloooooooooooooooooo@woooooooooooooooooooooooooooooooooooooorld.com"'
 check_same 'decode iso8859' 'maddr -h DecodeISO8859 5' 'echo "Keld Jørn Simonsen <keld@dkuug.dk>"'
-check_same 'decode long iso8859' 'maddr -h DecodeLongISO8859 5' 'echo "If you can read this you understand the example. z a b <foo@example.com>"'
+check_same 'decode long iso8859' 'maddr -h DecodeLongISO8859 5' 'echo "\"If you can read this you understand the example. z a b\" <foo@example.com>"'
 check_same 'decode utf8' 'maddr -h DecodeUTF8 5' 'echo "z’z <bar@example.com>"'
 
 )
