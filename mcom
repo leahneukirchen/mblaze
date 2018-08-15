@@ -16,7 +16,7 @@ notmine() {
 }
 
 ouniq() {
-	awk '!seen[$0]++' 
+	awk '!seen[$0]++'
 }
 
 reffmt() {
@@ -285,7 +285,7 @@ fi
 			printf 'To: %s\n' "$to"
 			printf 'Cc: %s\n' \
 			       "$(mhdr -d -A -h to:cc: "$1" |
-			       	       notmine |grep -Fv -e "$to" |
+				       notmine |grep -Fv -e "$to" |
 				       ouniq |commajoin)"
 			printf 'Bcc: \n'
 			printf '%s\n' "$hdrs" | awk '{ print }' |
