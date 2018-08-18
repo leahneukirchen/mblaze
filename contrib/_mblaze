@@ -1,0 +1,401 @@
+#compdef maddr magrep mbnc mcom mdeliver mdirs mexport mflag mflow mfwd mgenmid mhdr minc mless mlist mmime mmkdir mpick mrep mscan msed mseq mshow msort mthread
+
+_mblaze_colon_separated_headers() {
+  _message 'headers (colon separated)'
+}
+
+_mblaze_message() {
+  local ret=1 expl tmp curmsg
+  local -a mseq mseqnums mshortcuts mshortcutdescrs
+  setopt localoptions extendedglob
+
+  if [[ -prefix './' ]]; then
+    _description files expl 'message file'
+    _files "$expl[@]" && ret=0
+  fi
+
+  curmsg=$(mseq .)
+  if [[ -z $curmsg || ! -f $curmsg ]]; then
+    _message 'no current sequence'
+    return $ret
+  fi
+
+  mseq=( ${(f)"$(mscan -f '%3n %c%u%r %10d %17f %t %2i%s' : 2>/dev/null)"} )
+  mseqnums=( ${(M)${mseq## #}##<->} )
+  mseq=( ${mseq//:/\\:} )
+  _describe -V -t mseq 'seq messages' mseq mseqnums && ret=0
+
+  mshortcuts=( '.' '+' '$' '^' '=' '_' )
+  mshortcutdescrs=(
+    ' . current message'
+    ' + next message'
+    # ' - previous message'
+    ' $ last message'
+    ' ^ parent message'
+    ' = current thread'
+    ' _ current subthread'
+  )
+
+  _describe -t mshortcuts 'shortcuts' mshortcutdescrs mshortcuts -S '' && ret=0
+
+  return $ret
+}
+
+_mblaze_message_part() {
+  setopt localoptions noksharrays extendedglob
+  local ret=1 expl tmp msgarg parts partnums
+  tmp=$words[(i)(-O|-x)]
+  if (( tmp >= $#words )); then
+    _message -e mparts 'message parts (parse error)'
+    return 1
+  fi
+
+  msgarg=$words[$tmp+1]
+  parts=( ${(f)"$(mshow -t $msgarg)"} )
+  parts=( ${(M)parts:# ##<->:*} )
+  if [[ -n $parts ]]; then
+    partnums=( ${${parts## #}%%:*} )
+    parts=( ${parts//:/\\:} )
+    _describe -V -t mparts 'message parts' parts partnums -l && ret=0
+  else
+    _message -e mparts 'message parts (none found)'
+  fi
+
+  return $ret
+}
+
+_mblaze_dirs() {
+  local ret=1 expl countnew countcur
+  local -a mailboxes mailbox_descriptions
+  setopt localoptions extendedglob
+
+  mailboxes=( */cur(:h) )
+  mailbox_descriptions=( ${(f)"$(mlist -i $mailboxes)"} )
+  _describe -t mailboxes "mailboxes" mailbox_descriptions mailboxes && ret=0
+
+  _description files expl 'directories'
+  _path_files "$expl[@]" -g "^(${(j:|:)mailboxes})(/)" && ret=0
+}
+
+_mblaze_header_regex() {
+  _message header\ regex
+}
+
+_mblaze_flags() {
+  _message flags
+}
+
+
+_maddr() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-a[print addr-spec address without display name]' \
+    '-h[search only given headers]:header list:_mblaze_colon_separated_headers' \
+    '*:message:_mblaze_message'
+}
+
+_magrep() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-a[search for regex in RFC 2822 address header parts only]' \
+    '-c[only print a count of matching messages]' \
+    '-d[decode the header according to RFC 2047 prior to searching]' \
+    '-i[match regex case insensitively]' \
+    '-m[do not show more than max matches]:max: ' \
+    '(-c -q -v)-o[print matches only]' \
+    '(-c -q -v)-p[print filename, header and matching]' \
+    '-q[quiet mode: do not print anything]' \
+    '-v[invert match]' \
+    '*:message:_mblaze_header_regex'
+}
+
+_mbnc() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    ':message:_mblaze_message'
+}
+
+_mcom() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    - resume \
+      '-r[resume editing]:draft: ' \
+    - recip \
+      '*:recipients: '
+}
+
+_mdeliver() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-c[deliver into cur/ instead of new/]' \
+    '-v[print message filename after delivery]' \
+    '-X[override flags]:flags:_mblaze_flags' \
+    '-M[deliver messages from mbox]' \
+    ':dir:_mblaze_dirs'
+}
+
+_mdirs() {
+  _mblaze_dirs
+}
+
+_mexport() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-S[add Status and X-Status headers according to flags]' \
+    '*:messages:_mblaze_message'
+}
+
+_mflag() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '(-d)-D[mark as draft]' \
+    '(-f)-F[mark as flagged]' \
+    '(-p)-P[mark as passed (resent/forwarded/bounced)]' \
+    '(-r)-R[mark as replied-to]' \
+    '(-s)-S[mark as seen]' \
+    '(-t)-T[mark as trashed]' \
+    '-X[mark with characters]:marking characters: ' \
+    '(-D)-d[unmark as draft]' \
+    '(-F)-f[unmark as flagged]' \
+    '(-P)-p[unmark as passed (resent/forwarded/bounced)]' \
+    '(-R)-r[unmark as replied-to]' \
+    '(-S)-s[unmark as seen]' \
+    '(-T)-t[unmark as trashed]' \
+    '-x[unmark with characters]:marked chacaters: ' \
+    '-v[read messages from standard input or current sequence]' \
+    '*:dirs:_mblaze_dirs'
+}
+
+_mflow() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-f[force wrapping of long lines]' \
+    '*-q[prefix lines with >]' \
+    '-w[set maximum line length]:width: ' \
+    '*:dirs:_mblaze_dirs'
+}
+
+_mfwd() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-r[forward as plain text]' \
+    ':*:message:_mblaze_message'
+}
+
+_mgenmid() {
+  _message 'no arguments'
+}
+
+_mhdr() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-h[print specific headers only]:headers: ' \
+    '-p[print specific parameter from header only]:parameter: ' \
+    '-d[print headers decoded]' \
+    '-H[prefix output with filename]' \
+    '-M[print all occurrences, not only the first]' \
+    '(-D)-A[print addresses from headers]' \
+    '(-A)-D[print date as unix timestamp]' \
+    ':*:message:_mblaze_message'
+}
+
+_minc() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-q[quiet mode: don'\''t print filenames]' \
+    ':*:dirs:_mblaze_dirs'
+}
+
+_mless() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    ':message:_mblaze_message'
+}
+
+_mlist() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '(-d)-D[only list messages marked as draft]' \
+    '(-f)-F[only list messages marked as flagged]' \
+    '(-p)-P[only list messages marked as passed (resent/forwarded/bounced)]' \
+    '(-r)-R[only list messages marked as replied-to]' \
+    '(-s)-S[only list messages marked as seen]' \
+    '(-t)-T[only list messages marked as trashed]' \
+    '-X[only list messages marked with characters]:marked characters: ' \
+    '(-D)-d[don'\''t list messages marked as draft]' \
+    '(-F)-f[don'\''t list messages marked as flagged]' \
+    '(-P)-p[don'\''t list messages marked as passed (resent/forwarded/bounced)]' \
+    '(-R)-r[don'\''t list messages marked as replied-to]' \
+    '(-S)-s[don'\''t list messages marked as seen]' \
+    '(-T)-t[don'\''t list messages marked as trashed]' \
+    '-x[don'\''t list messages marked with characters]:marked chacaters: ' \
+    '(-c -N)-C[only list messages in cur]' \
+    '(-n -C)-N[only list messages in new]' \
+    '(-C -N)-c[don'\''t list messages in cur]' \
+    '(-N -C)-n[don'\''t list messages in new]' \
+    '-i[print summaries instead of folder names]' \
+    '*:dirs:_mblaze_dirs'
+}
+
+_mmkdir() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '*:directory name: '
+}
+
+_mmime() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '(-r)-c[check mode (don'\''t output anything)]' \
+    '(-c)-r[raw mode (generate text/plain)]' \
+    '-t[override Content-Type of toplevel part]:Content-Type: '
+}
+
+_mpick() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-T[include whole thread]' \
+    '-t[limit messages to test]:test: ' \
+    '*:message:_mblaze_message'
+}
+
+_mrep() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    ':message:_mblaze_message'
+}
+
+_mscan() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-n[only print message numbers]' \
+    '-I[force ISO date output]' \
+    '-f[specify output format]:format: ' \
+    '*:messages:_mblaze_message'
+}
+
+_msed() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    ':sed script: ' \
+    '*:messages:_mblaze_message'
+}
+
+_mseq() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '(Cmode)-f[fix non-existing filenames]' \
+    '(Cmode)-r[remove leading indentation from filenames]' \
+    - argmode \
+      '-c[use current message]:message:_mblaze_message' \
+      '*:messages:_mblaze_message' \
+    - Smode \
+      '-S[set message sequence from stdin]' \
+    - Amode \
+      '-A[append message sequence from stdin]' \
+    - Cmode \
+      '-C[set current message]:message:_mblaze_message'
+}
+
+_mshow() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    - regular \
+      '-n[only print message numbers]' \
+      '-h[display only given headers]:header list:_mblaze_colon_separated_headers' \
+      '-A[mixed/alternative preference]:mime type: ' \
+      '-n[don'\''t update current message link]' \
+      '(-r)-q[print only header]' \
+      '(-q)-r[print body raw]' \
+      '(-q)-F[don'\''t apply MIME filters]' \
+      '-H[print headers raw]' \
+      '-L[don'\''t filter headers]' \
+      '(-q)-N[don'\''t show MIME structure markers]' \
+      '*:messages:_mblaze_message' \
+    - xmode \
+      '-x[extraction mode]:message:_mblaze_message:*:part:_mblaze_message_part' \
+    - Omode \
+      '-O[extraction mode to standard output]:message:_mblaze_message:*:part:_mblaze_message_part' \
+    - tmode \
+      '-t[list mode]:*:message:_mblaze_message' \
+    - Rmode \
+      '-R[render text parts]:message:_mblaze_message'
+}
+
+_msort() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-r[reverse order]' \
+    '*:message:_mblaze_message' \
+    + '(order)' \
+      '-f[sort by From]' \
+      '-d[sort by Date]' \
+      '-s[sort by Subject]' \
+      '-F[sort by filename]' \
+      '-M[sort by file modification time]' \
+      '-S[sort by file size]' \
+      '-U[sort unread messages after read messages]' \
+      '-I[sort flagged messages before unflagged messages]'
+}
+
+_mthread() {
+  local context state line expl
+  local -A opt_args
+
+  _arguments \
+    '-a[don'\''t prune unresolved Message-IDs]' \
+    '-S[treat as optional messages]:optional message:_mblaze_message' \
+    '*:message:_mblaze_message'
+}
+
+_mblaze() {
+  local ret=1
+  _call_function ret _$service
+  return ret
+}
+
+_mblaze "$@"
