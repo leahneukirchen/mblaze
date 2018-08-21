@@ -307,7 +307,8 @@ prune_tree(struct container *c, int depth)
 			c->mid = c->child->mid;
 			c->file = c->child->file;
 			c->msg = c->child->msg;
-			c->date = c->child->date;
+			if (c->child->date > c->date)
+				c->date = c->child->date;
 			c->optional = c->child->optional;
 			c->child = c->child->child;
 		}
