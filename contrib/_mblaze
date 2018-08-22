@@ -21,6 +21,7 @@ _mblaze_message() {
   fi
 
   mseq=( ${(f)"$(mscan -f '%3n %c%u%r %10d %17f %t %2i%s' : 2>/dev/null)"} )
+  mseq=( ${(M)mseq:# #<->*} )
   mseqnums=( ${(M)${mseq## #}##<->} )
   mseq=( ${mseq//:/\\:} )
   _describe -V -t mseq 'seq messages' mseq mseqnums && ret=0
