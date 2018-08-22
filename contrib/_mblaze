@@ -178,7 +178,7 @@ _mflag() {
     '(-T)-t[unmark as trashed]' \
     '-x[unmark with characters]:marked chacaters: ' \
     '-v[read messages from standard input or current sequence]' \
-    '*:dirs:_mblaze_dirs'
+    '*:messages:_mblaze_message'
 }
 
 _mflow() {
