@@ -1,4 +1,4 @@
-.Dd April 17, 2018
+.Dd August 24, 2018
 .Dt MSHOW 1
 .Os
 .Sh NAME
@@ -121,7 +121,11 @@ parts,
 and re-encodes them into UTF-8 if necessary.
 .Pp
 Other filters can be specified in the file
-.Pa ${MBLAZE:-$HOME/.mblaze}/filter ,
+.Pa ${MBLAZE:-$HOME/.mblaze}/filter
+.Po
+or via
+.Ev MAILFILTER
+.Pc ,
 in the format:
 .Pp
 .D1 Ar type/subtype Ns Li \&: Ar command
@@ -132,6 +136,7 @@ or
 will then spawn a pipe to
 .Ar command ,
 write the MIME part
+to standard input
 and display the output.
 The environment variable
 .Ev PIPE_CHARSET
@@ -158,6 +163,14 @@ part of this text/multipart part.
 All other exit statuses are regarded as errors.
 .Sh ENVIRONMENT
 .Bl -tag -width MBLAZE_NOCOLOR
+.It Ev MAILFILTER
+Path to an alternative
+.Pa filter
+file.
+.It Ev MBLAZE_NOCOLOR
+If non-empty,
+.Nm
+will not spawn a colorization filter.
 .It Ev MBLAZE_PAGER
 Any non-empty value of the environment variable
 .Ev MBLAZE_PAGER
@@ -166,10 +179,6 @@ is used instead of the standard pagination program, specified in
 When empty or set to
 .Sq Ic cat ,
 no pager is spawned.
-.It Ev MBLAZE_NOCOLOR
-If non-empty,
-.Nm
-will not spawn a colorization filter.
 .El
 .Sh EXIT STATUS
 .Ex -std
