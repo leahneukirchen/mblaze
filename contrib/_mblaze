@@ -217,7 +217,7 @@ _mhdr() {
     '-M[print all occurrences, not only the first]' \
     '(-D)-A[print addresses from headers]' \
     '(-A)-D[print date as unix timestamp]' \
-    ':*:message:_mblaze_message'
+    '*:message:_mblaze_message'
 }
 
 _minc() {
@@ -226,7 +226,7 @@ _minc() {
 
   _arguments \
     '-q[quiet mode: don'\''t print filenames]' \
-    ':*:dirs:_mblaze_dirs'
+    '*:dirs:_mblaze_dirs'
 }
 
 _mless() {
