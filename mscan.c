@@ -338,12 +338,12 @@ oneline(char *file)
 			wleft--;
 			break;
 		case 'u':  // unseen
-			if (strchr(flags, 'F'))
+			if (strchr(flags, 'T'))
+				putchar('x');
+			else if (strchr(flags, 'F'))
 				putchar('*');
 			else if (msg && !strchr(flags, 'S'))
 				putchar('.');
-			else if (strchr(flags, 'T'))
-				putchar('x');
 			else
 				putchar(' ');
 			wleft--;
