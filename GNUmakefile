@@ -38,7 +38,7 @@ mmime : slurp.o
 minc mlist : squeeze_slash.o
 
 museragent: FRC
-	@test -n "$$SOURCE_TIME_EPOCH" || BUILDDATE=$$(date '+ (%Y-%m-%d)'); \
+	@test -n "$$SOURCE_DATE_EPOCH" || BUILDDATE=$$(date '+ (%Y-%m-%d)'); \
 		printf '#!/bin/sh\nprintf "User-Agent: mblaze/%s%s\\n"\n' \
 		"$$({ git describe --always --dirty 2>/dev/null || cat VERSION; } | sed 's/^v//')" \
 		"$$BUILDDATE" >$@
