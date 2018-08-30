@@ -809,7 +809,7 @@ msg_hdr(struct mailinfo *m, const char *h)
 	if (!m->msg || !(b = blaze822_chdr(m->msg, h)))
 		goto err;
 
-	char buf[100];
+	char buf[4096];
 	blaze822_decode_rfc2047(buf, b, sizeof buf - 1, "UTF-8");
 	if (!*buf)
 		goto err;
