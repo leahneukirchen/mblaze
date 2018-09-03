@@ -14,7 +14,7 @@ n=$(mshow -t "$tmp" | awk -F: '
 	/: application\/octet-stream/ {if (supported) print $1}')
 
 if [ "$n" ]; then
-	mshow -O "$tmp" "$n" | gpg -d 2>&1
+	mshow -O "$tmp" "$n" | gpg -d 2>&1 || exit 0
 	exit 64
 fi
 exit 63
