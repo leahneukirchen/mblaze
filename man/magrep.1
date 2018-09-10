@@ -1,4 +1,4 @@
-.Dd July 7, 2018
+.Dd September 10, 2018
 .Dt MAGREP 1
 .Os
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd search messages matching a pattern
 .Sh SYNOPSIS
 .Nm
-.Op Fl c | Fl q | Fl m Ar max
+.Op Fl c | Fl h | Fl o | Fl p | Fl q | Fl m Ar max
 .Op Fl v
 .Op Fl i
 .Op Fl l
@@ -75,6 +75,10 @@ count non-matching headers instead.
 Decode the
 .Ar header
 according to RFC 2047 prior to searching.
+.It Fl h
+Like
+.Fl p
+but do not print the file name.
 .It Fl i
 Match
 .Ar regex

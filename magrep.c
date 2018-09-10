@@ -14,6 +14,7 @@
 static int aflag;
 static int cflag;
 static int dflag;
+static int hflag;
 static int iflag;
 static int lflag;
 static int oflag;
@@ -42,6 +43,8 @@ match(char *file, char *hdr, char *s)
 			}
 			if (pflag)
 				printf("%s: %s: ", file, hdr);
+			else if (hflag)
+				printf("%s: ", hdr);
 			printf("%.*s\n", len, s);
 			s += len;
 			matched++;
@@ -52,9 +55,12 @@ match(char *file, char *hdr, char *s)
 			exit(0);
 		matches++;
 		if (!cflag) {
-			printf("%s", file);
+			if (vflag || !hflag)
+				printf("%s", file);
 			if (pflag && !vflag)
 				printf(": %s: %s", hdr, s);
+			else if (hflag && !vflag)
+				printf("%s: %s", hdr, s);
 			putchar('\n');
 		}
 		if (mflag && matches >= mflag)
@@ -82,7 +88,7 @@ match_part(int depth, struct message *msg, char *body, size_t bodylen)
 		    strcasecmp(charset, "utf-8") == 0 ||
 		    strcasecmp(charset, "utf8") == 0 ||
 		    strcasecmp(charset, "us-ascii") == 0) {
-			if (pflag && !cflag && !oflag && !vflag) {
+			if ((hflag || pflag) && !cflag && !oflag && !vflag) {
 				char *s, *p;
 				for (p = s = body; p < body+bodylen+1; p++) {
 					if (*p == '\r' || *p == '\n') {
@@ -183,11 +189,12 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "acdilm:opqv")) != -1)
+	while ((c = getopt(argc, argv, "acdhilm:opqv")) != -1)
 		switch (c) {
 		case 'a': aflag = 1; break;
 		case 'c': cflag = 1; break;
 		case 'd': dflag = 1; break;
+		case 'h': hflag = 1; break;
 		case 'i': iflag = REG_ICASE; break;
 		case 'l': lflag = 1; break;
 		case 'm': mflag = atol(optarg); break;
@@ -198,7 +205,7 @@ main(int argc, char *argv[])
 		default:
 usage:
 			fprintf(stderr,
-"Usage: magrep [-c|-o|-p|-q|-m max] [-v] [-i] [-l] [-a|-d] header:regex [msgs...]\n");
+"Usage: magrep [-c|-h|-o|-p|-q|-m max] [-v] [-i] [-l] [-a|-d] header:regex [msgs...]\n");
 			exit(2);
 		}
 
