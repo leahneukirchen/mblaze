@@ -52,6 +52,7 @@ u8putstr(FILE *out, char *s, ssize_t l, int pad)
 			int r = u8decode(s, &c);
 			if (r < 0) {
 				r = 1;
+				l--;
 				fprintf(out, "%lc", (wint_t)replacement);
 			} else {
 				l -= wcwidth((wchar_t)c);
