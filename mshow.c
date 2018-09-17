@@ -224,6 +224,11 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		}
 		setenv("PIPE_CONTENTTYPE", ct, 1);
 
+		char *messageid = blaze822_hdr(msg, "message-id");
+		if (messageid) {
+			setenv("MESSAGE_ID", messageid, 1);
+		}
+
 		char *output;
 		size_t outlen;
 		int e = filter(body, bodylen, cmd, &output, &outlen);
