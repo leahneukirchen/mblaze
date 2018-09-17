@@ -241,6 +241,8 @@ fmt_to_flag(struct message *msg)
 		return ":";
 	else if ((v = blaze822_hdr(msg, "from")) && itsme(v))
 		return "<";
+	else if (blaze822_hdr(msg, "list-id"))
+		return "=";
 	else
 		return " ";
 }
