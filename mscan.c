@@ -563,12 +563,10 @@ main(int argc, char *argv[])
 				fflag = v;
 	}
 
-	long i;
 	if (argc == optind && isatty(0))
-		i = blaze822_loop1(":", oneline);
+		blaze822_loop1(":", oneline);
 	else
-		i = blaze822_loop(argc-optind, argv+optind, oneline);
-	fprintf(stderr, "%ld mails scanned\n", i);
+		blaze822_loop(argc-optind, argv+optind, oneline);
 
 	if (pid1 > 0)
 		pipeclose(pid1);
