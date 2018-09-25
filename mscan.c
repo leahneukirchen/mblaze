@@ -491,7 +491,7 @@ oneline(char *file)
 int
 main(int argc, char *argv[])
 {
-	pid_t pid1 = -1;
+	pid_t pager_pid = -1;
 
 	int c;
 	while ((c = getopt(argc, argv, "If:nv")) != -1)
@@ -531,8 +531,8 @@ main(int argc, char *argv[])
 		if (!pg)
 			pg = getenv("PAGER");
 		if (pg && *pg && strcmp(pg, "cat") != 0) {
-			pid1 = pipeto(pg);
-			if (pid1 < 0)
+			pager_pid = pipeto(pg);
+			if (pager_pid < 0)
 				fprintf(stderr,
 				    "mscan: spawning pager '%s': %s\n",
 				    pg, strerror(errno));
@@ -571,8 +571,8 @@ main(int argc, char *argv[])
 	else
 		i = blaze822_loop(argc-optind, argv+optind, oneline);
 
-	if (pid1 > 0)
-		pipeclose(pid1);
+	if (pager_pid > 0)
+		pipeclose(pager_pid);
 
 	if (vflag)
 		fprintf(stderr, "%ld mails scanned\n", i);
