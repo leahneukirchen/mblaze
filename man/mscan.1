@@ -1,4 +1,4 @@
-.Dd June 28, 2017
+.Dd September 25, 2018
 .Dt MSCAN 1
 .Os
 .Sh NAME
@@ -6,9 +6,10 @@
 .Nd generate one-line message summaries
 .Sh SYNOPSIS
 .Nm
-.Op Fl n
-.Op Fl f Ar format
 .Op Fl I
+.Op Fl n
+.Op Fl v
+.Op Fl f Ar format
 .Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
@@ -55,13 +56,15 @@ format may be specified in the user's
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
-.It Fl n
-Only print message numbers
-.Pq or filenames, if the message is not in the current sequence .
 .It Fl I
 Force ISO date output,
 even for
 .Sq Cm "%d" .
+.It Fl n
+Only print message numbers
+.Pq or filenames, if the message is not in the current sequence .
+.It Fl v
+Print how many messages were scanned to standard error.
 .It Fl f Ar format
 Format according to the string
 .Ar format ,

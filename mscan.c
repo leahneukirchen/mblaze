@@ -29,6 +29,7 @@ static int alias_idx;
 
 static int Iflag;
 static int nflag;
+static int vflag;
 static int curyear;
 static time_t now;
 static char default_fflag[] = "%c%u%r %-3n %10d %17f %t %2i%s";
@@ -493,13 +494,14 @@ main(int argc, char *argv[])
 	pid_t pid1 = -1;
 
 	int c;
-	while ((c = getopt(argc, argv, "If:n")) != -1)
+	while ((c = getopt(argc, argv, "If:nv")) != -1)
 		switch (c) {
 		case 'I': Iflag++; break;
 		case 'f': fflag = optarg; break;
 		case 'n': nflag = 1; break;
+		case 'v': vflag = 1; break;
 		default:
-			fprintf(stderr, "Usage: mscan [-n] [-f format] [-I] [msgs...]\n");
+			fprintf(stderr, "Usage: mscan [-Inv] [-f format] [msgs...]\n");
 			exit(1);
 		}
 
@@ -568,10 +570,12 @@ main(int argc, char *argv[])
 		i = blaze822_loop1(":", oneline);
 	else
 		i = blaze822_loop(argc-optind, argv+optind, oneline);
-	fprintf(stderr, "%ld mails scanned\n", i);
 
 	if (pid1 > 0)
 		pipeclose(pid1);
+
+	if (vflag)
+		fprintf(stderr, "%ld mails scanned\n", i);
 
 	return 0;
 }
