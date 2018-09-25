@@ -1142,15 +1142,18 @@ main(int argc, char *argv[])
 {
 	long i;
 	int c;
+	int vflag;
 
 	argv0 = argv[0];
 	now = time(0);
 	num = 1;
+	vflag = 0;
 
-	while ((c = getopt(argc, argv, "Tt:")) != -1)
+	while ((c = getopt(argc, argv, "Tt:v")) != -1)
 		switch (c) {
 		case 'T': Tflag = need_thr = 1; break;
 		case 't': expr = chain(expr, EXPR_AND, parse_expr(optarg)); break;
+		case 'v': vflag = 1; break;
 		default:
 			fprintf(stderr, "Usage: %s [-T] [-t test] [msglist ...]\n", argv0);
 			exit(1);
@@ -1169,6 +1172,7 @@ main(int argc, char *argv[])
 	if (Tflag && thr)
 		do_thr();
 
-	fprintf(stderr, "%ld mails tested, %ld picked.\n", i, kept);
+	if (vflag)
+		fprintf(stderr, "%ld mails tested, %ld picked.\n", i, kept);
 	return 0;
 }
