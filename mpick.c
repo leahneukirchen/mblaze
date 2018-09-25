@@ -1155,7 +1155,7 @@ main(int argc, char *argv[])
 		case 't': expr = chain(expr, EXPR_AND, parse_expr(optarg)); break;
 		case 'v': vflag = 1; break;
 		default:
-			fprintf(stderr, "Usage: %s [-T] [-t test] [msglist ...]\n", argv0);
+			fprintf(stderr, "Usage: %s [-Tv] [-t test] [msglist ...]\n", argv0);
 			exit(1);
 		}
 
