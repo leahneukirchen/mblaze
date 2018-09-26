@@ -1,0 +1,70 @@
+.Dd September 26, 2018
+.Dt MSEARCH 1
+.Os
+.Sh NAME
+.Nm msearch
+.Nd search messages
+.Sh SYNOPSIS
+.Nm
+.Op Fl n | Fl m
+.Op Fl -
+.Op Ar query
+.Sh DESCRIPTION
+.Nm
+searches for messages matching
+.Ar query ,
+using an external search engine, and prints file names separated by newlines.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl n
+Search using
+.Xr notmuch-search 1 .
+.It Fl m
+Search using
+.Xr mu-find 1 .
+.It Fl -
+Stop scanning for arguments.
+.It Ar query
+The search query, whose interpretation is up to the search engine.
+This can also contain additional arguments for them
+.El
+.Pp
+If no search engine is specified as an argument,
+.Sq Li Search-Engine\&:
+from
+.Pa "${MBLAZE:-$HOME/.mblaze}/profile"
+is used.
+Valid values for this setting are
+.Sq notmuch
+and
+.Sq mu .
+If that is unset,
+.Xr notmuch-search 1
+is used.
+.Sh ENVIRONMENT
+.Bl -tag -width Ds
+.It Ev MBLAZE
+Directory containing mblaze configuration files.
+(Default:
+.Pa $HOME/.mblaze )
+.El
+.Sh EXIT STATUS
+.Ex -std
+Note that the called programs may have their own exit values.
+.Sh SEE ALSO
+.Xr notmuch-search 1 ,
+.Xr mu-find 1 ,
+.Xr mblaze-profile 5
+.Sh AUTHORS
+.An Thomas Schneider Aq Mt qsx@chaotikum.eu
+.Sh LICENSE
+.Nm
+is in the public domain.
+.Pp
+To the extent possible under law,
+the creator of this work
+has waived all copyright and related or
+neighboring rights to this work.
+.Pp
+.Lk http://creativecommons.org/publicdomain/zero/1.0/
