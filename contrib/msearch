@@ -3,7 +3,7 @@
 MBLAZE=${MBLAZE:-$HOME/.mblaze}
 engine=$(mhdr -h search-engine "$MBLAZE/profile")
 
-while getopts nmx- opt; do
+while getopts nmx opt; do
     case $opt in
 	n)
 	    engine=notmuch
@@ -17,9 +17,6 @@ while getopts nmx- opt; do
 	'?')
 	    printf "Usage: %s: [-n | -m | -x] query\n" $0
 	    exit 1
-	    ;;
-	-)
-	    break
 	    ;;
     esac
 done
