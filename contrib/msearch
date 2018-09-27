@@ -15,7 +15,7 @@ while getopts nmx opt; do
 	    engine=mairix
 	    ;;
 	'?')
-	    printf "Usage: %s: [-n | -m | -x] query\n" $0
+	    printf "Usage: %s: [-n | -m | -x] query\n" "$0" 1>&2
 	    exit 1
 	    ;;
     esac
@@ -33,7 +33,7 @@ case $engine in
 	;;
     mairix)
 	if [ "$#" -eq 0 ]; then
-	   printf "Usage: %s -x query\n" $0
+	   printf "Usage: %s -x query\n" "$0" 1>&2
 	   exit 1
 	fi
         exec mairix -r "$@"
