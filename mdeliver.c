@@ -88,8 +88,12 @@ tryagain:
 		if (outfd < 0) {
 			if (errno == EEXIST)
 				goto tryagain;
-			fprintf(stderr, "mrefile: %s: %s\n",
-			    tmp, strerror(errno));
+			if (errno == ENOENT)
+				fprintf(stderr, "mrefile: %s/tmp: %s\n",
+				    targetdir, strerror(errno));
+			else
+				fprintf(stderr, "mrefile: %s: %s\n",
+				    tmp, strerror(errno));
 			return -1;
 		}
 
