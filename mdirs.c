@@ -83,8 +83,19 @@ usage:
 	if (argc == optind)
 		goto usage;
 
-	for (i = 0; i < argc; i++)
+	char toplevel[PATH_MAX];
+	if (!getcwd(toplevel, sizeof toplevel)) {
+		perror("mdirs: getcwd");
+		exit(-1);
+	}
+
+	for (i = 0; i < argc; i++) {
 		mdirs(argv[i]);
+		if (chdir(toplevel) < 0) {
+			perror("mdirs: chdir");
+			exit(-1);
+		}
+	}
 
 	return 0;
 }
