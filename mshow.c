@@ -326,6 +326,10 @@ choose_alternative(struct message *msg, int depth)
 	struct message *imsg = 0;
 	while (blaze822_multipart(msg, &imsg)) {
 		m++;
+
+		if (blaze822_bodylen(imsg) == 0)
+			continue;
+
 		char *ict = blaze822_hdr(imsg, "content-type");
 		if (!ict)
 			ict = fallback_ct;
