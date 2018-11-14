@@ -34,7 +34,7 @@ safe_u8putstr(char *s0, size_t l, FILE *stream)
 				fputc(0xc0 | (*s >> 6), stream);
 				fputc(0x80 | (*s & 0x3f), stream);
 			}
-		} else if (c < 32 && 
+		} else if (c < 32 &&
 		    *s != ' ' && *s != '\t' && *s != '\n' && *s != '\r') {
 			// NUL
 			if (l == 0)
