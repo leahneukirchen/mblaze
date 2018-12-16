@@ -555,6 +555,8 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 void
 extract_cb(char *file)
 {
+	while (*file == ' ' || *file == '\t')
+		file++;
 	struct message *msg = blaze822_file(file);
 	if (!msg)
 		return;
