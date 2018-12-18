@@ -123,6 +123,7 @@ match_body(char *file)
 		return;
 
 	blaze822_walk_mime(msg, 0, match_part);
+	blaze822_free(msg);
 }
 
 int
