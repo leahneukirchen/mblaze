@@ -1,3 +1,4 @@
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
 
@@ -84,7 +85,11 @@ tryagain:
 
 		snprintf(tmp, sizeof tmp, "%s/tmp/%s", targetdir, id);
 
-		outfd = open(tmp, O_CREAT | O_WRONLY | O_EXCL, 0666);
+		struct stat st;
+		if (fstat(fileno(infile), &st) < 0)
+			st.st_mode = 0600;
+		outfd = open(tmp, O_CREAT | O_WRONLY | O_EXCL,
+		    st.st_mode & 07777);
 		if (outfd < 0) {
 			if (errno == EEXIST)
 				goto tryagain;
