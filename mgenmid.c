@@ -85,30 +85,35 @@ int main()
 	struct timeval tp;
 	gettimeofday(&tp, (struct timezone *)0);
 
-	uint64_t rnd;
+	uint64_t rnd1, rnd2;
 
 	int rndfd = open("/dev/urandom", O_RDONLY);
 	if (rndfd >= 0) {
-		unsigned char rndb[8];
+		unsigned char rndb[16];
 		if (read(rndfd, rndb, sizeof rndb) != sizeof rndb)
 			goto fallback;
 		close(rndfd);
 
 		int i;
-		for (i = 0, rnd = 0; i < 8; i++)
-			rnd = rnd*256 + rndb[i];
+		for (i = 0, rnd1 = 0; i < 8; i++)
+			rnd1 = rnd1*256 + rndb[i];
+		for (i = 0, rnd2 = 0; i < 8; i++)
+			rnd2 = rnd2*256 + rndb[i+8];
 	} else {
 fallback:
 		srand48(tp.tv_sec ^ tp.tv_usec ^ getpid());
-		rnd = ((uint64_t)lrand48() << 32) + lrand48();
+		rnd1 = ((uint64_t)lrand48() << 32) + lrand48();
+		rnd2 = ((uint64_t)lrand48() << 32) + lrand48();
 	}
 
-	rnd |= (1ULL << 63);  // set highest bit to force full width
+	rnd1 ^= ((uint64_t)tp.tv_sec * 1000000LL + tp.tv_usec);
+	rnd1 |= (1ULL << 63);  // set highest bit to force full width
+	rnd2 |= (1ULL << 63);  // set highest bit to force full width
 
 	putchar('<');
-	printb36(((uint64_t)tp.tv_sec * 1000000LL + tp.tv_usec));
+	printb36(rnd1);
 	putchar('.');
-	printb36(rnd);
+	printb36(rnd2);
 	putchar('@');
 	fputs(host, stdout);
 	putchar('>');
