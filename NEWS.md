@@ -1,3 +1,18 @@
+## HEAD
+
+* New tool msearch to wrap several mail indexers
+* New zsh completion _mblaze
+* mnext/mprev were removed (you can call `mless +`/`mless -`).
+* mshow exits with error if it could not extract all attachments
+* mrep: add -noquote to disable quoting the message replied to
+* mdeliver: keep permissions of messages
+* mcom: aborting the editor is now more like delete than cancel
+* mpick: new flag -v for statistics
+* mscan: new flag -v for statistics
+* magrep: add -h, which is like -p but doesn't print the file name
+* mscan: prioritize displaying trashed mail over other markers
+* Many bug fixes
+
 ## 0.4 (2018-08-15)
 
 * New tool mrefile to move or copy messages.
