@@ -76,6 +76,7 @@ default_from=$(mhdr -h local-mailbox "$MBLAZE/profile")
 
 hdrs=
 resume=
+noquote=
 case "$0" in
 *mcom*)
 	hdr=to
@@ -160,6 +161,9 @@ case "$0" in
 		--)
 			shift
 			break;;
+		-noquote)
+			noquote=1
+			shift;;
 		-??*)
 			hdr=${1#-}
 			shift;;
@@ -308,8 +312,10 @@ fi
 		cat "$MBLAZE/headers" 2>/dev/null
 		printf '\n'
 
-		mquote "$1"
-		printf '\n'
+		if [ -z "$noquote" ]; then
+			mquote "$1"
+			printf '\n'
+		fi
 		(
 			IFS=$NL
 			cat -- /dev/null $(printf '%s' "$hdrs" | mhdr -M -h body /dev/stdin)

@@ -14,6 +14,7 @@
 .Nm mcom
 .Fl r Op draft
 .Nm mrep
+.Op Fl noquote
 .Op Fl Ar header Ar values\ ... Fl -
 .Ar msg
 .Nm mfwd
@@ -36,6 +37,9 @@ by default, the last modified draft will be edited.
 .Nm mrep
 creates the draft such that the message will be a reply to
 .Ar msg .
+Unless
+.Fl noquote
+is passed, it will contain the original mail quoted.
 .Pp
 .Nm mfwd
 creates the draft with a subject and body appropriate
