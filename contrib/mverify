@@ -1,7 +1,7 @@
 #!/bin/sh
 # mverify MSG - verify a OpenPGP or SMIME message
 
-# Needs gpg (for OpenPGP) and openssl (for SMIME).
+# Needs gpg2 (for OpenPGP) and openssl (for SMIME).
 
 [ "$#" -eq 0 ] && set -- .
 
@@ -14,7 +14,7 @@ signed && content && !signature && indent == si+2 { signature = 0+$1; type = $2 
 function q(a) { gsub("\\47", "\47\\\47\47", a); return "\47"a"\47" }
 END {
 	if (type == "" && plain) {  // guess plain text armored signature
-		exit(system("mshow -r " q(msg) " | gpg --verify"));
+		exit(system("mshow -r " q(msg) " | gpg2 --verify"));
 	} else if (type == "") {
 		print("No signature found.")
 		exit(100)
@@ -22,7 +22,7 @@ END {
 		exit(system("mshow -r -O " q(msg) " " q(content) \
 			" | sed $DOS2UNIX | " \
 			" { mshow -O " q(msg) " " q(signature) \
-			" | gpg --verify - /dev/fd/3; } 3<&0"))
+			" | gpg2 --verify - /dev/fd/3; } 3<&0"))
 	} else if (type == "application/pkcs7-signature") {
 		exit(system("mshow -r -O " q(msg) " " q(signed) \
 			" | openssl smime -verify"))
