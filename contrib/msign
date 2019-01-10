@@ -10,7 +10,7 @@ TMPD=$(mktemp -d -t msign.XXXXXX)
 trap "rm -rf '$TMPD'" INT TERM EXIT
 
 awk '/^$/,0' "$1" | mmime | sed 's/$//' >"$TMPD"/content
-gpg --armor --detach-sign -o "$TMPD"/signature.asc "$TMPD"/content ||
+gpg2 --armor --detach-sign -o "$TMPD"/signature.asc "$TMPD"/content ||
 	exit $?
 
 {
