@@ -1,4 +1,4 @@
 #!/bin/sh
 # mmairix QUERY - mblaze wrapper around mairix
 
-mairix -r "$@" | sed 's,//*,/,g' | mless
+mairix -r "$@" | sed 's,//*,/,g' | msort -rd | mless
