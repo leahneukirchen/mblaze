@@ -40,7 +40,7 @@ fixed(int quotes, char *line, size_t linelen)
 	if (column == 0) {
 		for (; column < quotes; column++)
 			putchar('>');
-		if (quotes)
+		if (quotes && *line != ' ')
 			putchar(' ');
 	}
 
@@ -60,7 +60,7 @@ flowed(int quotes, char *line, ssize_t linelen)
 			for (; column < quotes; column++)
 				putchar('>');
 			column++;
-			if (quotes)
+			if (quotes && *line != ' ')
 				putchar(' ');
 		}
 
