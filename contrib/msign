@@ -9,8 +9,11 @@ IFS='
 TMPD=$(mktemp -d -t msign.XXXXXX)
 trap "rm -rf '$TMPD'" INT TERM EXIT
 
+FROM=$(maddr -a -h from "$1" | sed 1q)
+[ "$FROM" ] && key="--default-key=$FROM"
+
 awk '/^$/,0' "$1" | mmime | sed 's/$//' >"$TMPD"/content
-gpg2 --armor --detach-sign -o "$TMPD"/signature.asc "$TMPD"/content ||
+gpg2 $key --armor --detach-sign -o "$TMPD"/signature.asc "$TMPD"/content ||
 	exit $?
 
 {
