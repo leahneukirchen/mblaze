@@ -467,44 +467,53 @@ blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
 	return r;
 }
 
+int mystrverscmp(const char *, const char *);
+
+static int
+mailsort(const struct dirent **a, const struct dirent **b)
+{
+	return mystrverscmp((*a)->d_name, (*b)->d_name);
+}
+
 static long
 iterdir(char *dir, void (*cb)(char *))
 {
-	DIR *fd, *fd2;
-	struct dirent *d;
+	struct dirent **namelist;
 
-	long i = 0;
+	int n;
 
-	fd = opendir(dir);
-	if (!fd) {
+	char sub[PATH_MAX];
+	snprintf(sub, sizeof sub, "%s/cur", dir);
+
+	char *m = "/cur";
+
+	n = scandir(sub, &namelist, 0, mailsort);
+	if (n == -1 && (errno == ENOENT || errno == ENOTDIR)) {
+		m = "";
+		n = scandir(dir, &namelist, 0, mailsort);
+	}
+		
+	if (n == -1) {	
 		if (errno == ENOTDIR)
 			cb(dir);
 		return 1;
 	}
 
-	char sub[PATH_MAX];
-	snprintf(sub, sizeof sub, "%s/cur", dir);
-	fd2 = opendir(sub);
-	if (fd2) {
-		closedir(fd);
-		fd = fd2;
-	}
-
-	while ((d = readdir(fd))) {
+	long i = 0;
+	for (i = 0; i < n; i++) {
+		if (namelist[i]->d_name[0] != '.')
 #if defined(DT_REG) && defined(DT_UNKNOWN)
-		if (d->d_type != DT_REG && d->d_type != DT_UNKNOWN)
-			continue;
+		if (namelist[i]->d_type == DT_REG ||
+		    namelist[i]->d_type == DT_UNKNOWN)
 #endif
-		if (d->d_name[0] == '.')
-			continue;
-		if (fd2)
-			snprintf(sub, sizeof sub, "%s/cur/%s", dir, d->d_name);
-		else
-			snprintf(sub, sizeof sub, "%s/%s", dir, d->d_name);
-		cb(sub);
-		i++;
+		{
+			snprintf(sub, sizeof sub, "%s%s/%s",
+			    dir, m, namelist[i]->d_name);
+			cb(sub);
+		}
+		free(namelist[i]);
 	}
-	closedir(fd);
+	free(namelist);
 
 	return i;
 }

@@ -28,12 +28,11 @@ $(ALL) : % : %.o
 maddr magrep mdeliver mexport mflag mflow mgenmid mhdr mpick mscan msed mshow \
   msort mthread : blaze822.o mymemmem.o mytimegm.o
 maddr magrep mdeliver mexport mflag mgenmid mhdr mlist mpick mscan msed mseq \
-  mshow msort mthread : seq.o slurp.o
+  mshow msort mthread : seq.o slurp.o mystrverscmp.o
 maddr magrep mflow mhdr mpick mscan mshow : rfc2047.o
 magrep mflow mhdr mshow : rfc2045.o
 mshow : filter.o safe_u8putstr.o rfc2231.o pipeto.o
 mscan : pipeto.o
-msort : mystrverscmp.o
 mmime : slurp.o
 minc mlist : squeeze_slash.o
 
