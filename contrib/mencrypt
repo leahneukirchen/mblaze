@@ -5,14 +5,17 @@
 
 IFS='
 '
-FLAGS=$(mhdr -d -A -h from:to:cc:bcc: "$1" |sort -u |sed 's/^/--recipient=/')
+FLAGS=$(maddr -a -h from:to:cc:bcc: "$1" |sort -u |sed 's/^/--recipient=/')
+
+FROM=$(maddr -a -h from "$1" | sed 1q)
+[ "$FROM" ] && key="--default-key=$FROM"
 
 TMPD=$(mktemp -d -t mencrypt.XXXXXX)
 trap "rm -rf '$TMPD'" INT TERM EXIT
 
 awk '/^$/,0' "$1" |
 	mmime |
-	gpg --armor --encrypt --sign $FLAGS -o $TMPD/msg.asc ||
+	gpg2 $key --armor --encrypt --sign $FLAGS -o $TMPD/msg.asc ||
 	exit $?
 
 printf 'Version: 1\n' >$TMPD/version
