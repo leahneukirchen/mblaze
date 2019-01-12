@@ -1,7 +1,7 @@
 ## HEAD
 
-* New tool msearch to wrap several mail indexers
-* New zsh completion _mblaze
+* New tool msearch to wrap several mail indexers.
+* New zsh completion _mblaze.
 * mnext/mprev were removed (you can call `mless +`/`mless -`).
 * The GnuPG tools in contrib/ now use gpg2.
 * mshow exits with error if it could not extract all attachments
