@@ -367,7 +367,7 @@ while :; do
 		esac
 
 		if [ -e $draftmime ]; then
-			if [ $draft -ot $draftmime ] || [ "$automime" -eq 1 ]; then
+			if [ $draft -ot $draftmime ] || [ "$automime" = 1 ]; then
 				stampdate $draftmime
 				if $sendmail <$draftmime; then
 					if [ "$outbox" ]; then
