@@ -401,6 +401,7 @@ while :; do
 			else
 				printf '%s\n' "mcom: message needs to be MIME-encoded first."
 				c=
+				continue
 			fi
 		fi
 
