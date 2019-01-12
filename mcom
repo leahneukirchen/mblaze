@@ -383,6 +383,7 @@ while :; do
 			else
 				printf 'mcom: re-run mmime first.\n'
 				c=
+				continue
 			fi
 		else
 			if mmime -c <$draft; then
