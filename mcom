@@ -91,8 +91,16 @@ case "$0" in
 			shift
 			resume=1
 			if [ "$#" -gt 0 ]; then
-				echo "used draft $1"
-				draft="$1"
+				case "$1" in
+					/*|./*) draft="$1";;
+					*) draft="./$1";;
+				esac
+				if ! [ -f "$draft" ]; then
+					printf 'mcom: no such draft %s\n' \
+					       "$draft" 1>&2
+					exit 1
+				fi
+				echo "using draft $draft"
 				shift
 			fi
 			;;
