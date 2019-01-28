@@ -46,6 +46,7 @@
 enum op {
 	EXPR_OR = 1,
 	EXPR_AND,
+	EXPR_COND,
 	EXPR_NOT,
 	EXPR_LT,
 	EXPR_LE,
@@ -115,7 +116,7 @@ struct expr {
 		int64_t num;
 		regex_t *regex;
 		enum var var;
-	} a, b;
+	} a, b, c;
 	int extra;
 };
 
@@ -263,7 +264,7 @@ parse_op()
 }
 
 static struct expr *parse_cmp();
-static struct expr *parse_or();
+static struct expr *parse_cond();
 
 static struct expr *
 parse_inner()
@@ -285,7 +286,7 @@ parse_inner()
 		not->a.expr = e;
 		return not;
 	} else if (token("(")) {
-		struct expr *e = parse_or();
+		struct expr *e = parse_cond();
 		if (token(")"))
 			return e;
 		parse_error("missing ) at '%.15s'", pos);
@@ -723,10 +724,33 @@ parse_or()
 }
 
 static struct expr *
-parse_expr(char *s)
+parse_cond()
+{
+	struct expr *e1 = parse_or();
+
+	if (token("?")) {
+		struct expr *e2 = parse_or();
+		if (token(":")) {
+			struct expr *e3 = parse_cond();
+			struct expr *r = mkexpr(EXPR_COND);
+			r->a.expr = e1;
+			r->b.expr = e2;
+			r->c.expr = e3;
+
+			return r;
+		} else {
+			parse_error("expected : at '%.15s'", pos);
+		}
+	}
+
+	return e1;
+}
+
+static struct expr *
+parse_expr()
 {
 	pos = s;
-	struct expr *e = parse_or();
+	struct expr *e = parse_cond();
 	if (*pos)
 		parse_error("trailing garbage at '%.15s'", pos);
 	return e;
@@ -942,6 +966,10 @@ eval(struct expr *e, struct mailinfo *m)
 		return eval(e->a.expr, m) || eval(e->b.expr, m);
 	case EXPR_AND:
 		return eval(e->a.expr, m) && eval(e->b.expr, m);
+	case EXPR_COND:
+		return eval(e->a.expr, m)
+		    ? eval(e->b.expr, m)
+			: eval(e->c.expr, m);
 	case EXPR_NOT:
 		return !eval(e->a.expr, m);
 		return 1;

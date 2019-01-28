@@ -92,7 +92,8 @@ Unread messages.
 .Nm
 tests are given by the following EBNF:
 .Bd -literal
-<expr>     ::= <expr> || <expr>  -- disjunction
+<expr>     ::= <expr> ? <expr> : <expr>  -- ternary operator
+             | <expr> || <expr>  -- disjunction
              | <expr> && <expr>  -- conjunction
              | ! <expr>          -- negation
              | ( <expr> )
