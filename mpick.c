@@ -872,12 +872,13 @@ parse_msglist(char *s)
 	int r;
 	struct expr *e1, *e2;
 	char *d;
+	enum flags flag;
 
 	switch (*s) {
 	case '/':
 		s++;
 		e1 = mkexpr(EXPR_REGEXI);
-		e1->a.string = "subject";
+		e1->a.string = xstrdup("subject");
 		e1->b.regex = malloc(sizeof (regex_t));
 		r = regcomp(e1->b.regex, s, REG_EXTENDED | REG_NOSUB | REG_ICASE);
 		if (r != 0) {
@@ -887,13 +888,10 @@ parse_msglist(char *s)
 		}
 		return e1;
 	case ':':
-		if (strlen(s) <= 1)
-			parse_error("missing type at '%.15s'", s);
-
-		enum flags flag;
 		n = 0;
 
 		switch (*++s) {
+		case '\0': parse_error("missing flag at '%s'", s-1);
 		case 'P': flag = FLAG_PASSED; break;
 		case 'F': flag = FLAG_FLAGGED; break;
 		case 'D': flag = FLAG_DRAFT; break;
@@ -905,7 +903,7 @@ parse_msglist(char *s)
 		case 'o': n = 1; /* FALL THROUGH */
 		case 'n': flag = FLAG_NEW; break;
 		case 'R': flag = FLAG_REPLIED; break;
-		default: parse_error("unknown type at '%.15s'", s);
+		default: parse_error("unknown flag at '%s'", s);
 		}
 
 		e1 = mkexpr(EXPR_ANYSET);
@@ -946,9 +944,9 @@ parse_msglist(char *s)
 
 			blaze822_addr(s, &disp, &addr);
 			if (!disp && !addr)
-				parse_error("invalid address at '%.15s'", pos);
+				parse_error("invalid address '%s'", s);
 
-			d = xstrdup((disp) ? disp : addr);
+			d = (disp) ? disp : addr;
 
 			e1 = mkexpr(EXPR_REGEXI);
 			e1->a.prop = PROP_FROM;
