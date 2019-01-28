@@ -23,6 +23,7 @@
 #endif
 
 #include <sys/ioctl.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -858,8 +859,18 @@ parse_cond()
 static struct expr *
 parse_expr()
 {
-	pos = s;
-	struct expr *e = parse_cond();
+	ws();
+	return parse_cond();
+}
+
+static struct expr *
+parse_buf(const char *f, char *s)
+{
+	struct expr *e;
+	fname = f;
+	line = pos = s;
+	linenr = 1;
+	e = parse_expr();
 	if (*pos)
 		parse_error_at(NULL, "trailing garbage");
 	return e;
@@ -1377,16 +1388,40 @@ main(int argc, char *argv[])
 	while ((c = getopt(argc, argv, "Tt:v")) != -1)
 		switch (c) {
 		case 'T': Tflag = need_thr = 1; break;
-		case 't': expr = chain(expr, EXPR_AND, parse_expr(optarg)); break;
+		case 't': expr = chain(expr, EXPR_AND, parse_buf("argv", optarg)); break;
 		case 'v': vflag = 1; break;
 		default:
 			fprintf(stderr, "Usage: %s [-Tv] [-t test] [msglist ...]\n", argv0);
 			exit(1);
 		}
 
-	if (optind != argc)
-		for (c = optind; c < argc; c++)
+	if (optind != argc) {
+		for (c = optind; c < argc; c++) {
+			if (strchr(argv[c], '/') && access(argv[c], R_OK) == 0)
+				break;
 			expr = chain(expr, EXPR_AND, parse_msglist(argv[c]));
+		}
+
+		struct stat st;
+		int fd;
+		size_t len;
+		for (; c < argc; c++) {
+			if ((fd = open(argv[c], O_RDONLY)) == -1)
+				exit(1);
+			if (fstat(fd, &st) == -1)
+				exit(1);
+			len = st.st_size;
+			char *s = mmap(0, len+1, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
+			if (s == MAP_FAILED) {
+				perror("mmap");
+				exit(1);
+			}
+			s[len+1] = '\0';
+			close(fd);
+			expr = chain(expr, EXPR_AND, parse_buf(argv[c], s));
+			munmap(s, len+1);
+		}
+	}
 
 	if (isatty(0))
 		i = blaze822_loop1(":", need_thr ? collect : oneline);
