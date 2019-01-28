@@ -61,6 +61,8 @@ enum op {
 	EXPR_REGEXI,
 	EXPR_PRUNE,
 	EXPR_PRINT,
+	EXPR_REDIR_FILE,
+	EXPR_REDIR_PIPE,
 	EXPR_TYPE,
 	EXPR_ALLSET,
 	EXPR_ANYSET,
@@ -143,6 +145,14 @@ struct thread {
 	struct mlist *cur;
 };
 
+struct file {
+	enum op op;
+	const char *name;
+	const char *mode;
+	FILE *fp;
+	struct file *next;
+};
+
 static struct thread *thr;
 
 static char *argv0;
@@ -159,6 +169,8 @@ static char *cur;
 static char *pos;
 static time_t now;
 static int prune;
+
+static struct file *files, *fileq = NULL;
 
 static void
 ws()
@@ -177,6 +189,12 @@ token(char *token)
 	} else {
 		return 0;
 	}
+}
+
+static int
+peek(char *token)
+{
+	return strncmp(pos, token, strlen(token)) == 0;
 }
 
 noreturn static void
@@ -643,13 +661,42 @@ parse_timecmp()
 }
 
 static struct expr *
+parse_redir(struct expr *e)
+{
+	char *s;
+	const char *m;
+
+	if (peek("||"))
+		return e;
+
+	if (token("|")) {
+		if (!parse_string(&s))
+			parse_error("expected command");
+		struct expr *r = mkexpr(EXPR_REDIR_PIPE);
+		r->a.string = s;
+		r->b.string = "w";
+		return chain(e, EXPR_AND, r);
+	}
+	else if (token(">>")) m = "a+";
+	else if (token(">")) m = "w+";
+	else return e;
+
+	if (!parse_string(&s))
+		parse_error("expected file name");
+	struct expr *r = mkexpr(EXPR_REDIR_FILE);
+	r->a.string = s;
+	r->b.string = m;
+	return chain(e, EXPR_AND, r);
+}
+
+static struct expr *
 parse_and()
 {
-	struct expr *e1 = parse_timecmp();
+	struct expr *e1 = parse_redir(parse_timecmp());
 	struct expr *r = e1;
 
 	while (token("&&")) {
-		struct expr *e2 = parse_timecmp();
+		struct expr *e2 = parse_redir(parse_timecmp());
 		r = chain(r, EXPR_AND, e2);
 	}
 
@@ -843,9 +890,48 @@ msg_addr(struct mailinfo *m, char *h, int t)
 	}
 }
 
+FILE *
+redir(struct expr *e)
+{
+	struct file *file;
+	FILE *fp;
+
+	for (file = files; file; file = file->next) {
+		if (e->op == file->op &&
+		    strcmp(e->a.string, file->name) == 0 &&
+			strcmp(e->b.string, file->mode) == 0)
+			return file->fp;
+	}
+
+	fflush(stdout);
+	fp = NULL;
+	switch (e->op) {
+	case EXPR_REDIR_FILE: fp = fopen(e->a.string, e->b.string); break;
+	case EXPR_REDIR_PIPE: fp = popen(e->a.string, e->b.string); break;
+	}
+	if (!fp) {
+		fprintf(stderr, "%s: %s: %s\n", argv0, e->a.string, strerror(errno));
+		exit(3);
+	}
+	file = calloc(1, sizeof (struct file));
+	if (!file) {
+		perror("calloc");
+		exit(2);
+	}
+	file->op = e->op;
+	file->name = e->a.string;
+	file->mode = e->b.string;
+	file->fp = fp;
+	if (!files) files = file;
+	if (fileq) fileq->next = file;
+	fileq = file;
+	return fp;
+}
+
 int
 eval(struct expr *e, struct mailinfo *m)
 {
+	FILE *fp;
 	switch (e->op) {
 	case EXPR_OR:
 		return eval(e->a.expr, m) || eval(e->b.expr, m);
@@ -858,6 +944,13 @@ eval(struct expr *e, struct mailinfo *m)
 		prune = 1;
 		return 1;
 	case EXPR_PRINT:
+		return 1;
+	case EXPR_REDIR_FILE:
+	case EXPR_REDIR_PIPE:
+		fp = redir(e);
+		fputs(m->fpath, fp);
+		putc('\n', fp);
+		fflush(fp);
 		return 1;
 	case EXPR_LT:
 	case EXPR_LE:
@@ -1040,10 +1133,10 @@ do_thr()
 		if (((Tflag && thr->matched) || ml->m->matched) && !ml->m->prune) {
 			int i;
 			for (i = 0; i < ml->m->depth; i++)
-				putchar(' ');
+				putc(' ', stdout);
 
 			fputs(ml->m->fpath, stdout);
-			putchar('\n');
+			putc('\n', stdout);
 
 			kept++;
 		}
@@ -1126,7 +1219,8 @@ oneline(char *file)
 		goto out;
 
 	fputs(file, stdout);
-	putchar('\n');
+	putc('\n', stdout);
+	fflush(stdout);
 	kept++;
 
 out:
@@ -1174,5 +1268,15 @@ main(int argc, char *argv[])
 
 	if (vflag)
 		fprintf(stderr, "%ld mails tested, %ld picked.\n", i, kept);
+
+	for (; files; files = fileq) {
+		fileq = files->next;
+		if (files->op == EXPR_REDIR_PIPE)
+			pclose(files->fp);
+		else
+			fclose(files->fp);
+		free(files);
+	}
+
 	return 0;
 }
