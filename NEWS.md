@@ -14,6 +14,7 @@
 * mscan: new flag -v for statistics
 * magrep: add -h, which is like -p but doesn't print the file name
 * mscan: prioritize displaying trashed mail over other markers
+* mpick: fix off-by-one in expression parsing
 * Many bug fixes
 
 ## 0.4 (2018-08-15)

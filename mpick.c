@@ -284,7 +284,7 @@ parse_string(char **s)
 		pos++;
 		while (*pos &&
 		    (*pos != '"' || (*pos == '"' && *(pos+1) == '"'))) {
-			if (len >= bufsiz) {
+			if (len+1 >= bufsiz) {
 				bufsiz = 2*bufsiz + 16;
 				buf = realloc(buf, bufsiz);
 				if (!buf)
