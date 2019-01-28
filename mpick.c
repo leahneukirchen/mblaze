@@ -173,6 +173,26 @@ static int prune;
 
 static struct file *files, *fileq = NULL;
 
+static void *
+xcalloc(size_t nmemb, size_t size)
+{
+	void *r;
+	if ((r = calloc(nmemb, size)))
+		return r;
+	perror("calloc");
+	exit(2);
+}
+
+static char *
+xstrdup(const char *s)
+{
+	char *r;
+	if ((r = strdup(s)))
+		return r;
+	perror("strdup");
+	exit(2);
+}
+
 static void
 ws()
 {
@@ -460,26 +480,25 @@ parse_strcmp()
 		char *disp, *addr;
 		blaze822_addr(s, &disp, &addr);
 		if (!disp && !addr)
-			parse_error("invalid address at '%.15s'", pos);
-		s = strdup((disp) ? disp : addr);
+			parse_error_at(NULL, "invalid address");
+		free(s);
+		s = xstrdup((disp) ? disp : addr);
 		e->extra = (disp) ? 0 : 1;
 	}
 
-	if (op == EXPR_REGEX) {
+	if (op == EXPR_REGEX || op == EXPR_REGEXI) {
 		e->b.regex = malloc(sizeof (regex_t));
-		r = regcomp(e->b.regex, s, REG_EXTENDED | REG_NOSUB);
-	} else if (op == EXPR_REGEXI) {
-		e->b.regex = malloc(sizeof (regex_t));
-		r = regcomp(e->b.regex, s, REG_EXTENDED | REG_NOSUB | REG_ICASE);
+		r = regcomp(e->b.regex, s, REG_EXTENDED | REG_NOSUB |
+		    (op == EXPR_REGEXI ? REG_ICASE : 0));
+		if (r != 0) {
+			char msg[256];
+			regerror(r, e->b.regex, msg, sizeof msg);
+			parse_error("invalid regex '%s': %s", s, msg);
+			exit(2);
+		}
+		free(s);
 	} else {
 		e->b.string = s;
-	}
-
-	if (r != 0) {
-		char msg[256];
-		regerror(r, e->b.regex, msg, sizeof msg);
-		parse_error("invalid regex '%s': %s", s, msg);
-		exit(2);
 	}
 
 	if (negate) {
@@ -724,7 +743,7 @@ parse_redir(struct expr *e)
 			parse_error("expected command");
 		struct expr *r = mkexpr(EXPR_REDIR_PIPE);
 		r->a.string = s;
-		r->b.string = "w";
+		r->b.string = xstrdup("w");
 		return chain(e, EXPR_AND, r);
 	}
 	else if (token(">>")) m = "a+";
@@ -735,7 +754,7 @@ parse_redir(struct expr *e)
 		parse_error("expected file name");
 	struct expr *r = mkexpr(EXPR_REDIR_FILE);
 	r->a.string = s;
-	r->b.string = m;
+	r->b.string = xstrdup(m);
 	return chain(e, EXPR_AND, r);
 }
 
@@ -883,7 +902,7 @@ parse_msglist(char *s)
 			if (!disp && !addr)
 				parse_error("invalid address at '%.15s'", pos);
 
-			d = strdup((disp) ? disp : addr);
+			d = xstrdup((disp) ? disp : addr);
 
 			e1 = mkexpr(EXPR_REGEXI);
 			e1->a.prop = PROP_FROM;
@@ -986,11 +1005,7 @@ redir(struct expr *e)
 		fprintf(stderr, "%s: %s: %s\n", argv0, e->a.string, strerror(errno));
 		exit(3);
 	}
-	file = calloc(1, sizeof (struct file));
-	if (!file) {
-		perror("calloc");
-		exit(2);
-	}
+	file = xcalloc(1, sizeof (struct file));
 	file->op = e->op;
 	file->name = e->a.string;
 	file->mode = e->b.string;
@@ -1247,12 +1262,7 @@ collect(char *file)
 			do_thr();
 
 		/* new thread */
-		thr = calloc(1, sizeof *thr);
-		if (!thr) {
-			fprintf(stderr, "calloc");
-			exit(2);
-		}
-
+		thr = xcalloc(1, sizeof *thr);
 		thr->matched = 0;
 		ml = thr->cur = thr->childs;
 		thr->cur->m = m;
