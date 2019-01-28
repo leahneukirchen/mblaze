@@ -96,6 +96,9 @@ tests are given by the following EBNF:
              | <expr> && <expr>  -- conjunction
              | ! <expr>          -- negation
              | ( <expr> )
+             | <expr> "|"  <str> -- pipe current mail to command
+             | <expr> ">>" <str> -- append current mail to file
+             | <expr> ">"  <str> -- write current mail to file
              | <flagprop>
              | <timeprop> <numop> <dur>
              | <numprop> <numop> <num>
