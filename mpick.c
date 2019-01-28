@@ -220,6 +220,50 @@ mkexpr(enum op op)
 	return e;
 }
 
+static void
+freeexpr(struct expr *e)
+{
+	if (!e) return;
+	switch (e->op) {
+	case EXPR_OR:
+	case EXPR_AND:
+		freeexpr(e->a.expr);
+		freeexpr(e->b.expr);
+		break;
+	case EXPR_COND:
+		freeexpr(e->a.expr);
+		freeexpr(e->b.expr);
+		freeexpr(e->c.expr);
+		break;
+	case EXPR_NOT:
+		freeexpr(e->a.expr);
+		break;
+	case EXPR_REDIR_FILE:
+	case EXPR_REDIR_PIPE:
+		free(e->a.string);
+		free(e->b.string);
+		break;
+	case EXPR_STREQ:
+	case EXPR_STREQI:
+	case EXPR_GLOB:
+	case EXPR_GLOBI:
+	case EXPR_REGEX:
+	case EXPR_REGEXI:
+		switch (e->a.prop) {
+		case PROP_PATH:
+		case PROP_FROM:
+		case PROP_TO:
+			break;
+		default: free(e->a.string);
+		}
+		if (e->op == EXPR_REGEX || e->op == EXPR_REGEXI)
+			regfree(e->b.regex);
+		else
+			free(e->b.string);
+	}
+	free(e);
+}
+
 static struct expr *
 chain(struct expr *e1, enum op op, struct expr *e2)
 {
@@ -1298,6 +1342,8 @@ main(int argc, char *argv[])
 	/* print and free last thread */
 	if (Tflag && thr)
 		do_thr();
+
+	freeexpr(expr);
 
 	if (vflag)
 		fprintf(stderr, "%ld mails tested, %ld picked.\n", i, kept);
