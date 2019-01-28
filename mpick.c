@@ -154,6 +154,12 @@ struct file {
 	struct file *next;
 };
 
+struct pos {
+	char *pos;
+	char *line;
+	size_t linenr;
+};
+
 static struct thread *thr;
 
 static char *argv0;
@@ -167,9 +173,13 @@ static long num;
 static struct expr *expr;
 static long cur_idx;
 static char *cur;
-static char *pos;
 static time_t now;
 static int prune;
+
+static char *pos;
+static const char *fname;
+static char *line = NULL;
+static int linenr = 0;
 
 static struct file *files, *fileq = NULL;
 
@@ -196,8 +206,21 @@ xstrdup(const char *s)
 static void
 ws()
 {
-	while (isspace((unsigned char)*pos))
-		pos++;
+	for (; *pos;) {
+		while (isspace((unsigned char)*pos)) {
+			if (*pos == '\n') {
+				line = pos+1;
+				linenr++;
+			}
+			pos++;
+		}
+		if (*pos != '#')
+			break;
+
+		pos += strcspn(pos, "\n\0");
+		if (*pos != '\n')
+			break;
+	}
 }
 
 static int
@@ -223,9 +246,31 @@ parse_error(char *msg, ...)
 {
 	va_list ap;
 	va_start(ap, msg);
-	fprintf(stderr, "%s: parse error: ", argv0);
+	fprintf(stderr, "%s: parse error: %s:%d:%ld: ", argv0, fname, linenr, pos-line+1);
 	vfprintf(stderr, msg, ap);
 	fprintf(stderr, "\n");
+	exit(2);
+}
+
+noreturn static void
+parse_error_at(struct pos *savepos, char *msg, ...)
+{
+	char *e;
+
+	if (savepos) {
+		pos = savepos->pos;
+		line = savepos->line;
+		linenr = savepos->linenr;
+	}
+
+	va_list ap;
+	va_start(ap, msg);
+	fprintf(stderr, "%s: parse error: %s:%d:%ld: ", argv0, fname, linenr, pos-line+1);
+	vfprintf(stderr, msg, ap);
+	fprintf(stderr, " at '");
+	for (e = pos+15; *pos && *pos != '\n' && pos <= e; pos++)
+		putc(*pos, stderr);
+	fprintf(stderr, "'\n");
 	exit(2);
 }
 
@@ -460,11 +505,11 @@ parse_strcmp()
 	else if (token("!==") || token("!="))
 		negate = 1, op = EXPR_STREQ;
 	else
-		parse_error("invalid string operator at '%.15s'", pos);
+		parse_error_at(NULL, "invalid string operator");
 
 	char *s;
 	if (!parse_string(&s)) {
-		parse_error("invalid string at '%.15s'", pos);
+		parse_error_at(NULL, "invalid string");
 		return 0;
 	}
 
@@ -598,7 +643,7 @@ parse_cmp()
 		return parse_flag();
 
 	if (!(op = parse_op()))
-		parse_error("invalid comparison at '%.15s'", pos);
+		parse_error_at(NULL, "invalid comparison");
 
 	int64_t n;
 	if (parse_num(&n)) {
@@ -716,7 +761,7 @@ parse_timecmp()
 
 	op = parse_op();
 	if (!op)
-		parse_error("invalid comparison at '%.15s'", pos);
+		parse_error_at(NULL, "invalid comparison");
 
 	int64_t n;
 	if (parse_num(&n) || parse_dur(&n)) {
@@ -740,7 +785,7 @@ parse_redir(struct expr *e)
 
 	if (token("|")) {
 		if (!parse_string(&s))
-			parse_error("expected command");
+			parse_error_at(NULL, "expected command");
 		struct expr *r = mkexpr(EXPR_REDIR_PIPE);
 		r->a.string = s;
 		r->b.string = xstrdup("w");
@@ -751,7 +796,7 @@ parse_redir(struct expr *e)
 	else return e;
 
 	if (!parse_string(&s))
-		parse_error("expected file name");
+		parse_error_at(NULL, "expected file name");
 	struct expr *r = mkexpr(EXPR_REDIR_FILE);
 	r->a.string = s;
 	r->b.string = xstrdup(m);
@@ -802,7 +847,7 @@ parse_cond()
 
 			return r;
 		} else {
-			parse_error("expected : at '%.15s'", pos);
+			parse_error_at(NULL, "expected :", pos);
 		}
 	}
 
@@ -815,7 +860,7 @@ parse_expr()
 	pos = s;
 	struct expr *e = parse_cond();
 	if (*pos)
-		parse_error("trailing garbage at '%.15s'", pos);
+		parse_error_at(NULL, "trailing garbage");
 	return e;
 }
 
