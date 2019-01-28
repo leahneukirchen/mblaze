@@ -121,6 +121,7 @@ struct expr {
 };
 
 struct mailinfo {
+	char *file;
 	char *fpath;
 	struct stat *sb;
 	struct message *msg;
@@ -973,8 +974,13 @@ msg_date(struct mailinfo *m)
 	if (m->date)
 		return m->date;
 
-	if (!m->msg)
-		m->msg = blaze822(m->fpath);
+	// XXX: date comparisation should handle zero dates
+	if (!m->msg && m->fpath) {
+		if (!(m->msg = blaze822(m->fpath))) {
+			m->fpath = NULL;
+			return -1;
+		}
+	}
 
 	char *b;
 	if (m->msg && (b = blaze822_hdr(m->msg, "date")))
@@ -986,28 +992,35 @@ msg_date(struct mailinfo *m)
 char *
 msg_hdr(struct mailinfo *m, const char *h)
 {
-	if (!m->msg)
-		m->msg = blaze822(m->fpath);
+	static char hdrbuf[4096];
+
+	if (!m->msg && m->fpath) {
+		if (!(m->msg = blaze822(m->fpath))) {
+			m->fpath = NULL;
+			*hdrbuf = 0;
+			return hdrbuf;
+		}
+	}
 
 	char *b;
-	if (!m->msg || !(b = blaze822_chdr(m->msg, h)))
-		goto err;
+	if (!m->msg || !(b = blaze822_chdr(m->msg, h))) {
+		*hdrbuf = 0;
+		return hdrbuf;
+	}
 
-	char buf[4096];
-	blaze822_decode_rfc2047(buf, b, sizeof buf - 1, "UTF-8");
-	if (!*buf)
-		goto err;
-
-	return strdup(buf);
-err:
-	return "";
+	blaze822_decode_rfc2047(hdrbuf, b, sizeof hdrbuf - 1, "UTF-8");
+	return hdrbuf;
 }
 
 char *
 msg_addr(struct mailinfo *m, char *h, int t)
 {
-	if (!m->msg)
-		m->msg = blaze822(m->fpath);
+	if (!m->msg && m->fpath) {
+		if (!(m->msg = blaze822(m->fpath))) {
+			m->fpath = NULL;
+			return "";
+		}
+	}
 
 	char *b;
 	if (m->msg == 0 || (b = blaze822_chdr(m->msg, h)) == 0)
@@ -1085,7 +1098,7 @@ eval(struct expr *e, struct mailinfo *m)
 	case EXPR_REDIR_FILE:
 	case EXPR_REDIR_PIPE:
 		fp = redir(e);
-		fputs(m->fpath, fp);
+		fputs(m->file, fp);
 		putc('\n', fp);
 		fflush(fp);
 		return 1;
@@ -1099,15 +1112,15 @@ eval(struct expr *e, struct mailinfo *m)
 	case EXPR_ANYSET: {
 		long v = 0, n;
 
-		if (!m->sb && (
+		if (!m->sb && m->fpath && (
 		    e->a.prop == PROP_ATIME ||
 		    e->a.prop == PROP_CTIME ||
 		    e->a.prop == PROP_MTIME ||
-		    e->a.prop == PROP_SIZE) &&
-		    (m->sb = calloc(1, sizeof *m->sb)) &&
-		    stat(m->fpath, m->sb) != 0) {
-			fprintf(stderr, "stat");
-			exit(2);
+		    e->a.prop == PROP_SIZE)) {
+			m->sb = xcalloc(1, sizeof *m->sb);
+			if (stat(m->fpath, m->sb) == -1)
+				m->fpath = NULL;
+			// XXX: stat based expressions should handle 0
 		}
 
 		n = e->b.num;
@@ -1154,9 +1167,9 @@ eval(struct expr *e, struct mailinfo *m)
 	case EXPR_GLOBI:
 	case EXPR_REGEX:
 	case EXPR_REGEXI: {
-		const char *s = "";
+		const char *s;
 		switch (e->a.prop) {
-		case PROP_PATH: s = m->fpath; break;
+		case PROP_PATH: s = m->fpath ? m->fpath : ""; break;
 		case PROP_FROM: s = msg_addr(m, "from", e->extra); break;
 		case PROP_TO: s = msg_addr(m, "to", e->extra); break;
 		default: s = msg_hdr(m, e->a.string); break;
@@ -1175,7 +1188,7 @@ eval(struct expr *e, struct mailinfo *m)
 }
 
 struct mailinfo *
-mailfile(char *file)
+mailfile(struct mailinfo *m, char *file)
 {
 	static int init;
 	if (!init) {
@@ -1186,45 +1199,36 @@ mailfile(char *file)
 		cur = blaze822_seq_cur();
 		init = 1;
 	}
+	char *fpath = file;
 
-	struct mailinfo *m;
-	m = calloc(1, sizeof *m);
-	if (!m) {
-		fprintf(stderr, "calloc");
-		exit(2);
-	}
-	m->fpath = file;
 	m->index = num++;
-	m->flags = 0;
-	m->replies = 0;
-	m->depth = 0;
-	m->sb = 0;
-	m->msg = 0;
+	m->file = file;
 
-	while (*m->fpath == ' ' || *m->fpath == '\t') {
+	while (*fpath == ' ' || *fpath == '\t') {
 		m->depth++;
-		m->fpath++;
+		fpath++;
 	}
 
-	char *e = m->fpath + strlen(m->fpath) - 1;
-	while (m->fpath < e && (*e == ' ' || *e == '\t'))
+	char *e = fpath + strlen(fpath) - 1;
+	while (fpath < e && (*e == ' ' || *e == '\t'))
 		*e-- = 0;
 
-	if (m->fpath[0] == '<') {
+	if (fpath[0] == '<') {
 		m->flags |= FLAG_SEEN | FLAG_INFO;
+		m->fpath = NULL;
 		return m;
 	}
 
-	if ((e = strrchr(m->fpath, '/') - 1) && (e - m->fpath) >= 2 &&
+	if ((e = strrchr(fpath, '/') - 1) && (e - fpath) >= 2 &&
 	    *e-- == 'w' && *e-- == 'e' && *e-- == 'n')
 		m->flags |= FLAG_NEW;
 
-	if (cur && strcmp(cur, m->fpath) == 0) {
+	if (cur && strcmp(cur, fpath) == 0) {
 		m->flags |= FLAG_CUR;
 		cur_idx = m->index;
 	}
 
-	char *f = strstr(m->fpath, ":2,");
+	char *f = strstr(fpath, ":2,");
 	if (f) {
 		if (strchr(f, 'P'))
 			m->flags |= FLAG_PASSED;
@@ -1240,6 +1244,7 @@ mailfile(char *file)
 			m->flags |= FLAG_FLAGGED;
 	}
 
+	m->fpath = fpath;
 	return m;
 }
 
@@ -1268,11 +1273,7 @@ do_thr()
 			break;
 
 		if (((Tflag && thr->matched) || ml->m->matched) && !ml->m->prune) {
-			int i;
-			for (i = 0; i < ml->m->depth; i++)
-				putc(' ', stdout);
-
-			fputs(ml->m->fpath, stdout);
+			fputs(ml->m->file, stdout);
 			putc('\n', stdout);
 
 			kept++;
@@ -1285,7 +1286,7 @@ do_thr()
 		if (ml->m->sb)
 			free(ml->m->sb);
 
-		free(ml->m->fpath);
+		free(ml->m->file);
 		free(ml->m);
 	}
 
@@ -1298,11 +1299,14 @@ collect(char *file)
 {
 	struct mailinfo *m;
 	struct mlist *ml;
+	char *f;
 
-	if ((m = mailfile(file)) == 0)
-		return;
+	f = xstrdup(file);
+	m = xcalloc(1, sizeof *m);
+	m = mailfile(m, f);
 
 	if (m->depth == 0) {
+		/* process previous thread */
 		if (thr)
 			do_thr();
 
@@ -1337,17 +1341,15 @@ collect(char *file)
 
 	for (ml = ml->parent; ml; ml = ml->parent)
 		ml->m->replies++;
-
-	m->fpath = strdup(m->fpath);
 }
 
 void
 oneline(char *file)
 {
-	struct mailinfo *m;
-
-	m = mailfile(file);
-	if (expr && !eval(expr, m))
+	struct mailinfo m = { 0 };
+	m.index = num++;
+	(void) mailfile(&m, file);
+	if (expr && !eval(expr, &m))
 		goto out;
 
 	fputs(file, stdout);
@@ -1356,11 +1358,10 @@ oneline(char *file)
 	kept++;
 
 out:
-	if (m->msg)
-		blaze822_free(m->msg);
-	if (m->sb)
-		free(m->sb);
-	free(m);
+	if (m.msg)
+		blaze822_free(m.msg);
+	if (m.sb)
+		free(m.sb);
 }
 
 int
