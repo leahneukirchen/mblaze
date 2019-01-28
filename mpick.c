@@ -381,11 +381,9 @@ static struct expr *
 parse_inner()
 {
 	if (token("prune")) {
-		struct expr *e = mkexpr(EXPR_PRUNE);
-		return e;
+		return mkexpr(EXPR_PRUNE);
 	} else if (token("print")) {
-		struct expr *e = mkexpr(EXPR_PRINT);
-		return e;
+		return mkexpr(EXPR_PRINT);
 	} else if (token("skip")) {
 		struct expr *e = mkexpr(EXPR_PRINT);
 		struct expr *not = mkexpr(EXPR_NOT);
@@ -396,11 +394,14 @@ parse_inner()
 		struct expr *not = mkexpr(EXPR_NOT);
 		not->a.expr = e;
 		return not;
-	} else if (token("(")) {
+	}
+	if (peek("(")) {
+		struct pos savepos = { pos, line, linenr };
+		(void) token("(");
 		struct expr *e = parse_cond();
 		if (token(")"))
 			return e;
-		parse_error("missing ) at '%.15s'", pos);
+		parse_error_at(&savepos, "unterminated (");
 		return 0;
 	} else {
 		parse_error("unknown expression at '%.15s'", pos);
