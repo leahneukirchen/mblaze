@@ -107,6 +107,8 @@ tests are given by the following EBNF:
              | prune             -- do not match further messages in thread
              | print             -- always true value
              | skip              -- always false value
+             | <let>
+             | <ident>
 
 <flagprop> ::= child | draft | flagged | info | new | parent | passed
              | replied  | seen | selected | trashed
@@ -149,6 +151,15 @@ tests are given by the following EBNF:
 
 <str>      ::= " ([^"] | "")+ "  -- use "" for a single " inside "
              | $[A-Za-z0-9_]+    -- environment variable
+
+-- let expressions evaluate the expression following the `in` keyword,
+-- the bindings are lazily evaluated.
+<let>      ::= { let <ident> = <scope> } in <scope>
+
+-- Inside the scope previously defined idents are replaced with expressions
+<scope>    ::= <expr>
+
+<ident>    ::= [A-Za-z_][A-Za-z0-9_]+
 .Ed
 .Sh EXIT STATUS
 .Ex -std

@@ -162,6 +162,21 @@ struct pos {
 	size_t linenr;
 };
 
+struct binding {
+	char *name;
+	size_t nlen;
+	size_t refcount;
+	struct expr *expr;
+	struct binding *next;
+};
+
+struct scope {
+	struct binding *bindings;
+	struct scope *prev;
+};
+
+struct scope *scopeq = NULL;
+
 static struct thread *thr;
 
 static char *argv0;
@@ -374,8 +389,101 @@ parse_op()
 	return 0;
 }
 
-static struct expr *parse_cmp();
+static int
+parse_ident(char **sp, size_t *lp)
+{
+	char *p = pos;
+	if (!isalpha(*pos) && *pos != '_')
+		return 0;
+	p++;
+	while (*p && (isalnum(*p) || *p == '_'))
+		p++;
+	*sp = pos;
+	*lp = p-pos;
+	pos = p;
+	ws();
+	return 1;
+}
+
+static struct expr *
+parse_binding()
+{
+	struct scope *sc;
+	struct binding *b;
+	char *s;
+	size_t l = 0;
+
+	if (parse_ident(&s, &l)) {
+		for (sc = scopeq; sc; sc = sc->prev) {
+			for (b = sc->bindings; b; b = b->next) {
+				if (b->nlen == l && strncmp(b->name, s, l) == 0) {
+					b->refcount++;
+					return b->expr;
+				}
+			}
+		}
+	}
+	// back to the start of the ident if there was one
+	pos = pos-l;
+	parse_error_at(NULL, "unknown expression");
+	return 0;
+}
+
 static struct expr *parse_cond();
+
+static struct expr *
+parse_let()
+{
+	if (!token("let"))
+		return parse_binding();
+
+	struct scope *sc;
+	char *s;
+	size_t l;
+
+	sc = xcalloc(1, sizeof (struct scope));
+	sc->prev = scopeq;
+	scopeq = sc;
+
+	struct binding *b, *bq;
+	struct expr *e;
+	bq = NULL;
+	for (;;) {
+		if (!parse_ident(&s, &l))
+			parse_error_at(NULL, "missing ident");
+		if (!token("="))
+			parse_error_at(NULL, "missing =");
+		e = parse_cond();
+		b = xcalloc(1, sizeof (struct binding));
+		b->name = s;
+		b->nlen = l;
+		b->expr = e;
+		if (!sc->bindings) sc->bindings = b;
+		if (bq) bq->next = b;
+		bq = b;
+		if (!token("let"))
+			break;
+	}
+	if (!token("in"))
+		parse_error_at(NULL, "missing `in`");
+
+	e = parse_cond();
+
+	struct binding *bs;
+	for (b = sc->bindings; b; b = bs) {
+		bs = b->next;
+		if (b->refcount == 0)
+			freeexpr(b->expr);
+		free(b);
+	}
+
+	scopeq = sc->prev;
+	free(sc);
+
+	return e;
+}
+
+static struct expr *parse_cmp();
 
 static struct expr *
 parse_inner()
@@ -403,10 +511,8 @@ parse_inner()
 			return e;
 		parse_error_at(&savepos, "unterminated (");
 		return 0;
-	} else {
-		parse_error("unknown expression at '%.15s'", pos);
-		return 0;
 	}
+	return parse_let();
 }
 
 static int
