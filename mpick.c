@@ -80,11 +80,12 @@ enum prop {
 	PROP_REPLIES,
 	PROP_SIZE,
 	PROP_TOTAL,
-	PROP_FROM,
-	PROP_TO,
 	PROP_INDEX,
 	PROP_DATE,
 	PROP_FLAG,
+	PROP_HDR,
+	PROP_HDR_ADDR,
+	PROP_HDR_DISP,
 };
 
 enum flags {
@@ -332,16 +333,17 @@ freeexpr(struct expr *e)
 	case EXPR_REGEX:
 	case EXPR_REGEXI:
 		switch (e->a.prop) {
-		case PROP_PATH:
-		case PROP_FROM:
-		case PROP_TO:
-			break;
-		default: free(e->a.string);
+		case PROP_PATH: break;
+		case PROP_HDR:
+		case PROP_HDR_ADDR:
+		case PROP_HDR_DISP:
+			free(e->b.string);
+		default: return;
 		}
 		if (e->op == EXPR_REGEX || e->op == EXPR_REGEXI)
-			regfree(e->b.regex);
+			regfree(e->c.regex);
 		else
-			free(e->b.string);
+			free(e->c.string);
 	}
 	free(e);
 }
@@ -579,13 +581,24 @@ parse_strcmp()
 	negate = 0;
 
 	if (token("from"))
-		prop = PROP_FROM;
+		h = xstrdup("from");
 	else if (token("to"))
-		prop = PROP_TO;
+		h = xstrdup("to");
 	else if (token("subject"))
-		h = "subject";
+		h = xstrdup("subject");
+	else if (token("path"))
+		prop = PROP_PATH;
 	else if (!parse_string(&h))
 		return parse_inner();
+
+	if (!prop) {
+		if (token(".")) {
+			if (token("addr"))      prop = PROP_HDR_ADDR;
+			else if (token("disp")) prop = PROP_HDR_DISP;
+			else parse_error_at(NULL, "unknown decode parameter");
+		} else
+			prop = PROP_HDR;
+	}
 
 	if (token("~~~"))
 		op = EXPR_GLOBI;
@@ -624,35 +637,29 @@ parse_strcmp()
 
 	int r = 0;
 	struct expr *e = mkexpr(op);
-
-	if (prop)
-		e->a.prop = prop;
-	else
-		e->a.string = h;
-
-	if (prop == PROP_FROM || prop == PROP_TO) {
-		char *disp, *addr;
-		blaze822_addr(s, &disp, &addr);
-		if (!disp && !addr)
-			parse_error_at(NULL, "invalid address");
-		free(s);
-		s = xstrdup((disp) ? disp : addr);
-		e->extra = (disp) ? 0 : 1;
+	e->a.prop = prop;
+	switch (prop) {
+	case PROP_HDR:
+	case PROP_HDR_ADDR:
+	case PROP_HDR_DISP:
+		e->b.string = h;
+		break;
+	case PROP_PATH: break;
 	}
 
 	if (op == EXPR_REGEX || op == EXPR_REGEXI) {
-		e->b.regex = malloc(sizeof (regex_t));
-		r = regcomp(e->b.regex, s, REG_EXTENDED | REG_NOSUB |
+		e->c.regex = malloc(sizeof (regex_t));
+		r = regcomp(e->c.regex, s, REG_EXTENDED | REG_NOSUB |
 		    (op == EXPR_REGEXI ? REG_ICASE : 0));
 		if (r != 0) {
 			char msg[256];
-			regerror(r, e->b.regex, msg, sizeof msg);
+			regerror(r, e->c.regex, msg, sizeof msg);
 			parse_error("invalid regex '%s': %s", s, msg);
 			exit(2);
 		}
 		free(s);
 	} else {
-		e->b.string = s;
+		e->c.string = s;
 	}
 
 	if (negate) {
@@ -996,12 +1003,13 @@ parse_msglist(char *s)
 	case '/':
 		s++;
 		e1 = mkexpr(EXPR_REGEXI);
-		e1->a.string = xstrdup("subject");
-		e1->b.regex = malloc(sizeof (regex_t));
-		r = regcomp(e1->b.regex, s, REG_EXTENDED | REG_NOSUB | REG_ICASE);
+		e1->a.prop = PROP_HDR;
+		e1->b.string = xstrdup("subject");
+		e1->c.regex = malloc(sizeof (regex_t));
+		r = regcomp(e1->c.regex, s, REG_EXTENDED | REG_NOSUB | REG_ICASE);
 		if (r != 0) {
 			char msg[256];
-			regerror(r, e1->b.regex, msg, sizeof msg);
+			regerror(r, e1->c.regex, msg, sizeof msg);
 			parse_error("invalid regex '%s': %s", s, msg);
 		}
 		return e1;
@@ -1067,14 +1075,14 @@ parse_msglist(char *s)
 			d = (disp) ? disp : addr;
 
 			e1 = mkexpr(EXPR_REGEXI);
-			e1->a.prop = PROP_FROM;
-			e1->b.regex = malloc(sizeof (regex_t));
-			e1->extra = (disp) ? 0 : 1;
+			e1->a.prop = (disp) ? PROP_HDR_DISP : PROP_HDR_ADDR;
+			e1->b.string = xstrdup("from");
+			e1->c.regex = malloc(sizeof (regex_t));
 
-			r = regcomp(e1->b.regex, d, REG_EXTENDED | REG_NOSUB | REG_ICASE);
+			r = regcomp(e1->c.regex, d, REG_EXTENDED | REG_NOSUB | REG_ICASE);
 			if (r != 0) {
 				char msg[256];
-				regerror(r, e1->b.regex, msg, sizeof msg);
+				regerror(r, e1->c.regex, msg, sizeof msg);
 				parse_error("invalid regex '%s': %s", d, msg);
 			}
 
@@ -1106,54 +1114,64 @@ msg_date(struct mailinfo *m)
 }
 
 char *
-msg_hdr(struct mailinfo *m, const char *h)
+msg_hdr(char **s, const char *h, struct mailinfo *m)
 {
 	static char hdrbuf[4096];
 
 	if (!m->msg && m->fpath) {
 		if (!(m->msg = blaze822(m->fpath))) {
 			m->fpath = NULL;
-			*hdrbuf = 0;
-			return hdrbuf;
+			return NULL;
 		}
 	}
 
+	// XXX: only return one header for now
+	if (*s)
+		return NULL;
+
 	char *b;
-	if (!m->msg || !(b = blaze822_chdr(m->msg, h))) {
-		*hdrbuf = 0;
-		return hdrbuf;
-	}
+	if (!m->msg || !(b = blaze822_chdr(m->msg, h)))
+		return NULL;
+	*s = b;
 
 	blaze822_decode_rfc2047(hdrbuf, b, sizeof hdrbuf - 1, "UTF-8");
 	return hdrbuf;
 }
 
 char *
-msg_addr(struct mailinfo *m, char *h, int t)
+msg_hdr_addr(char **s, const char *h, struct mailinfo *m, int rdisp)
 {
 	if (!m->msg && m->fpath) {
 		if (!(m->msg = blaze822(m->fpath))) {
 			m->fpath = NULL;
-			return "";
+			return NULL;
 		}
 	}
 
-	char *b;
-	if (m->msg == 0 || (b = blaze822_chdr(m->msg, h)) == 0)
-		return "";
+	char *b = *s;
+	if (!b) {
+		if (!m->msg || !(b = blaze822_chdr(m->msg, h)))
+			return NULL;
+	}
 
 	char *disp, *addr;
-	blaze822_addr(b, &disp, &addr);
+	*s = blaze822_addr(b, &disp, &addr);
 
-	if (t) {
-		if (!addr)
-			return "";
-		return addr;
-	} else {
-		if (!disp)
-			return "";
+	if (rdisp)
 		return disp;
-	}
+	return addr;
+}
+
+char *
+msg_hdr_address(char **s, const char *h, struct mailinfo *m)
+{
+	return msg_hdr_addr(s, h, m, 0);
+}
+
+char *
+msg_hdr_display(char **s, const char *h, struct mailinfo *m)
+{
+	return msg_hdr_addr(s, h, m, 1);
 }
 
 FILE *
@@ -1283,21 +1301,34 @@ eval(struct expr *e, struct mailinfo *m)
 	case EXPR_GLOBI:
 	case EXPR_REGEX:
 	case EXPR_REGEXI: {
-		const char *s;
+		const char *s = NULL;
+		char *p = NULL;
+		char *(*fn)(char **, const char *, struct mailinfo *) = 0;
+		int rv = 0;
 		switch (e->a.prop) {
+		case PROP_HDR: fn = msg_hdr; break;
+		case PROP_HDR_ADDR: fn = msg_hdr_address; break;
+		case PROP_HDR_DISP: fn = msg_hdr_display; break;
 		case PROP_PATH: s = m->fpath ? m->fpath : ""; break;
-		case PROP_FROM: s = msg_addr(m, "from", e->extra); break;
-		case PROP_TO: s = msg_addr(m, "to", e->extra); break;
-		default: s = msg_hdr(m, e->a.string); break;
+		default: return 0;
 		}
-		switch (e->op) {
-		case EXPR_STREQ: return strcmp(e->b.string, s) == 0;
-		case EXPR_STREQI: return strcasecmp(e->b.string, s) == 0;
-		case EXPR_GLOB: return fnmatch(e->b.string, s, 0) == 0;
-		case EXPR_GLOBI: return fnmatch(e->b.string, s, FNM_CASEFOLD) == 0;
-		case EXPR_REGEX:
-		case EXPR_REGEXI: return regexec(e->b.regex, s, 0, 0, 0) == 0;
+		for (;;) {
+			if (fn && !(s = fn(&p, e->b.string, m)))
+				break;
+			switch (e->op) {
+			case EXPR_STREQ: rv = strcmp(e->c.string, s) == 0; break;
+			case EXPR_STREQI: rv = strcasecmp(e->c.string, s) == 0; break;
+			case EXPR_GLOB: rv = fnmatch(e->c.string, s, 0) == 0; break;
+			case EXPR_GLOBI:
+				rv = fnmatch(e->c.string, s, FNM_CASEFOLD) == 0; break;
+			case EXPR_REGEX:
+			case EXPR_REGEXI:
+				rv = regexec(e->c.regex, s, 0, 0, 0) == 0;
+				break;
+			}
+			if (!fn || rv) return rv;
 		}
+		return 0;
 	}
 	}
 	return 0;
@@ -1504,8 +1535,9 @@ main(int argc, char *argv[])
 
 	if (optind != argc) {
 		for (c = optind; c < argc; c++) {
-			if (strchr(argv[c], '/') && access(argv[c], R_OK) == 0)
+			if (strchr(argv[c], '/') && access(argv[c], R_OK) == 0) {
 				break;
+			}
 			expr = chain(expr, EXPR_AND, parse_msglist(argv[c]));
 		}
 
