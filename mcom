@@ -74,6 +74,8 @@ sendmail_args=$(mhdr -h sendmail-args "$MBLAZE/profile")
 sendmail="${sendmail:-sendmail} ${sendmail_args:--t}"
 default_from=$(mhdr -h local-mailbox "$MBLAZE/profile")
 
+defaultc=e
+
 hdrs=
 resume=
 noquote=
@@ -104,6 +106,9 @@ case "$0" in
 				shift
 			fi
 			;;
+		-send)
+			defaultc=justsend
+			shift;;
 		-??*)
 			hdr=${1#-}
 			shift;;
@@ -127,6 +132,9 @@ case "$0" in
 		-r)
 			shift
 			raw=1;;
+		-send)
+			defaultc=justsend
+			shift;;
 		-??*)
 			hdr=${1#-}
 			shift;;
@@ -148,6 +156,9 @@ case "$0" in
 		--)
 			shift
 			break;;
+		-send)
+			defaultc=justsend
+			shift;;
 		-??*)
 			hdr=${1#-}
 			shift;;
@@ -169,6 +180,9 @@ case "$0" in
 		--)
 			shift
 			break;;
+		-send)
+			defaultc=justsend
+			shift;;
 		-noquote)
 			noquote=1
 			shift;;
@@ -349,7 +363,7 @@ fi
 } >$draft
 
 automime=
-c=e
+c=$defaultc
 while :; do
 	case "$c" in
 	s|send)
@@ -435,6 +449,16 @@ while :; do
 			automime=1
 			do_mime
 		fi
+		;;
+	justsend)
+		stripempty $draft
+		if mmime -c <$draft && ! needs_multipart $draft; then
+			automime=
+		else
+			automime=1
+			do_mime
+		fi
+		c=send
 		;;
 	d|delete)
 		rm -i $draft

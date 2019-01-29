@@ -1,4 +1,4 @@
-.Dd January 6, 2017
+.Dd January 29, 2019
 .Dt MCOM 1
 .Os
 .Sh NAME
@@ -97,6 +97,12 @@ when you want to use this feature together with
 .Nm mfwd ,
 or
 .Nm mbnc .
+.Pp
+If the flag
+.Fl send
+is passed,
+the message will be sent directly using the data on
+the command line, and no editor or edit loop will be run.
 .Sh MENU COMMANDS
 .Bl -tag -width 2n
 .It Ic s
