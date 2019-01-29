@@ -103,6 +103,7 @@ tests are given by the following EBNF:
              | <flagprop>
              | <timeprop> <numop> <dur>
              | <numprop> <numop> <num>
+             | <hdrprop> <decodeop> <strop> <str>
              | <strprop> <strop> <str>
              | prune             -- do not match further messages in thread
              | print             -- always true value
@@ -139,8 +140,13 @@ tests are given by the following EBNF:
                       | T )?     -- *1024*1024*1024*1024
              | cur               -- index of cur message
 
-<strprop>  ::= from | subject | to
-             | <str>             -- header name
+<hdrprop>  ::= from | to | subject | <str>
+
+<decodeop> ::= . addr          -- match address parts
+             | . disp          -- match address display parts
+             |                 -- empty matches raw headers
+
+<strprop>  ::= path
 
 <strop>    ::= == | = | !=       -- string (in)equality
              | ===    | !===     -- case insensitive string (in)equality

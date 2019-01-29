@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 13
+plan 15
 
 rm -rf test.dir
 mkdir test.dir
@@ -66,5 +66,7 @@ check_test 'search addr' -eq 2 'mlist inbox | mpick peter@example.org | wc -l'
 check_test 'search name' -eq 2 'mlist inbox | mpick "Peter Example" | wc -l'
 check_test 'search spam' -eq 1 'mlist inbox | mpick -t "trashed && subject =~ \"pdf\"" | wc -l'
 check_test 'any header' -eq 1 'mlist inbox | mpick -t "\"Foo\" =~~ \"bar\"" | wc -l'
+check_test 'addr decode addr' -eq 2 'mlist inbox | mpick -t "from.addr == \"peter@example.org\"" | wc -l'
+check_test 'addr decode disp' -eq 2 'mlist inbox | mpick -t "from.disp == \"Peter Example\"" | wc -l'
 
 )
