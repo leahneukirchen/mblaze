@@ -1,5 +1,5 @@
 CFLAGS?=-g -O2 -fstack-protector-strong -D_FORTIFY_SOURCE=2
-override CFLAGS:=-Wall -Wno-switch -Wextra $(CFLAGS)
+override CFLAGS:=-Wall -Werror -Wno-switch -Wextra $(CFLAGS)
 LDLIBS=-lrt
 
 OS := $(shell uname)

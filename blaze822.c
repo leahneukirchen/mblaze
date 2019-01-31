@@ -152,14 +152,18 @@ skip_comment(char *s)
 // never writes more than dstmax to dst
 // returns how many bytes were appended
 static size_t
-safe_append(char *dst, size_t dstmax, char *strbeg, char *strend)
+safe_append(char *dst, size_t dstmax, char *postbeg, char *postend)
 {
 	size_t dstlen = strlen(dst);
-	if (dstmax - dstlen - 1 < strend - strbeg)
-		strend = strbeg + (dstmax - dstlen - 1);
-	memcpy(dst + dstlen, strbeg, strend - strbeg);
-	dst[dstlen + (strend - strbeg)] = 0;
-	return strend - strbeg;
+	size_t postlen = postend - postbeg;
+	if (postend - postbeg < 0)
+		return 0;
+
+	if (dstmax - dstlen - 1 < postlen)
+		postlen = dstmax - dstlen - 1;
+	memcpy(dst + dstlen, postbeg, postlen);
+	dst[dstlen + postlen] = 0;
+	return postlen;
 }
 
 static size_t
