@@ -19,7 +19,7 @@ DESCRIPTION
      mdeliver(1)  deliver messages or import mbox file
      mdirs(1)     list maildir folders, recursively
      mexport(1)   export messages as mbox file
-     mflag(1)     manipulate maildir flags
+     mflag(1)     manipulate maildir message flags
      mflow(1)     reflow format=flowed plain text messages
      mfwd(1)      forward messages
      mgenmid(1)   generate a Message-ID
@@ -128,6 +128,6 @@ LICENSE
      To the extent possible under law, the creator of this work has waived all
      copyright and related or neighboring rights to this work.
 
-           http://creativecommons.org/publicdomain/zero/1.0/
+     http://creativecommons.org/publicdomain/zero/1.0/
 
 Void Linux                      January 6, 2018                     Void Linux
