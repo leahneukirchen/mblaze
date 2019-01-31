@@ -314,7 +314,7 @@ print_header(char *line) {
 		if (!highbit) {
 			if (e-s >= 998)
 				goto force_qp;
-			if (e-s >= 78 - linelen) {
+			if (linelen + e-s >= 78) {
 				// wrap in advance before long word
 				printf("\n");
 				linelen = 0;
@@ -336,7 +336,7 @@ force_qp:
 				s++;
 			if (linelen >= 78 - 13 - 4 ||
 			    (e-s < (78 - 13)/3 &&
-			     e-s >= (78 - linelen - 13)/3)) {
+			     e-s >= (int)(78 - linelen - 13)/3)) {
 				// wrap in advance
 				printf("\n");
 				linelen = 0;
