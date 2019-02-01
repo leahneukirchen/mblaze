@@ -155,8 +155,8 @@ static size_t
 safe_append(char *dst, size_t dstmax, char *postbeg, char *postend)
 {
 	size_t dstlen = strlen(dst);
-        size_t postlen = postend - postbeg;
-        if (postend - postbeg < 0)
+	size_t postlen = postend - postbeg;
+	if (postend - postbeg < 0)
 		return 0;
 
 	if (dstmax - dstlen - 1 < postlen)
