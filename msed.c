@@ -218,6 +218,8 @@ sed(char *file)
 					free(flags);
 
 					break;
+				case '\0':
+					break;
 				default:
 					fprintf(stderr, "msed: unknown command: '%c'\n", *e);
 					exit(1);
