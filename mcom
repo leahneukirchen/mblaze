@@ -40,6 +40,27 @@ stampdate() {
 	fi
 }
 
+checksensible() {
+	awk '
+		/^$/ {
+			seenheader=1
+			exit
+		}
+		!(/^[^ \t][^ \t]*[ \t]*:/ || /^[ \t]/) {
+			bad=1
+			print "invalid header line: "$0 >"/dev/stderr"
+		}
+		END {
+			if (!seenheader) {
+				print "warning: message does not contain an empty line between headers and body." >"/dev/stderr"
+				exit 1
+			}
+			if (bad)
+				exit 1
+		}
+' "$1"
+}
+
 stripempty() {
 	tmp=$(mktemp -t mcom.XXXXXX)
 	msed 's/^[ \t]*$//d' "$1" >"$tmp"
@@ -441,13 +462,18 @@ while :; do
 		c=
 		if ! ${EDITOR:-vi} $draft; then
 			c=d
-		fi
-		stripempty $draft
-		if mmime -c <$draft && ! needs_multipart $draft; then
-			automime=
 		else
-			automime=1
-			do_mime
+			if checksensible $draft; then
+				stripempty $draft
+				if mmime -c <$draft && ! needs_multipart $draft; then
+					automime=
+				else
+					automime=1
+					do_mime
+				fi
+			else
+				printf '\n'
+			fi
 		fi
 		;;
 	justsend)
