@@ -37,9 +37,9 @@ if [ "$1" = --filter ]; then
 			mshow "$2"
 		fi | mcolor
 	else
-		mseq -r $2
+		mseq -r "$2"
 		echo
-		cat "$(mseq -r $2)"
+		cat "$(mseq -r "$2")"
 	fi
 	exit $?
 fi
@@ -64,12 +64,12 @@ nl="
 export MLESS_RAW=0
 export MLESS_HTML=0
 while :; do
-	if [ -f $MBLAZE/mless ]; then
-		export LESSKEY=$MBLAZE/mless
-	elif [ -f $HOME/.mblaze/mless ]; then
-		export LESSKEY=$HOME/.mblaze/mless
-	elif [ -f $HOME/.mless ]; then
-		export LESSKEY=$HOME/.mless
+	if [ -f "$MBLAZE/mless" ]; then
+		export LESSKEY="$MBLAZE/mless"
+	elif [ -f "$HOME/.mblaze/mless" ]; then
+		export LESSKEY="$HOME/.mblaze/mless"
+	elif [ -f "$HOME/.mless" ]; then
+		export LESSKEY="$HOME/.mless"
 	fi
 	LESSOPEN="|$0 --filter %s" \
 		less -Ps"mless %f?m (message %i of %m).." -R \
