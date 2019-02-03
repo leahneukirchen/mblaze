@@ -76,13 +76,13 @@ do_mime() {
 	if needs_multipart "$draft"; then
 		(
 			IFS=$NL
-			msed '/attach/d' $draft
-			for f in $(mhdr -M -h attach $draft); do
+			msed '/attach/d' "$draft"
+			for f in "$(mhdr -M -h attach "$draft")"; do
 				printf '#%s %s\n' \
 				       "$(file -Lbi $f | sed 's/ //g')" \
 				       "$f"
 			done
-		) | mmime >$draftmime
+		) | mmime >"$draftmime"
 	else
 		mmime -r <"$draft" >"$draftmime"
 	fi
@@ -381,7 +381,7 @@ fi
 			cat "$SIGNATURE"
 		fi
 	esac
-} >$draft
+} >"$draft"
 
 automime=
 c=$defaultc
@@ -401,15 +401,15 @@ while :; do
 			;;
 		esac
 
-		if [ -e $draftmime ]; then
+		if [ -e "$draftmime" ]; then
 			if [ $draft -ot $draftmime ] || [ "$automime" = 1 ]; then
-				stampdate $draftmime
-				if $sendmail <$draftmime; then
+				stampdate "$draftmime"
+				if $sendmail <"$draftmime"; then
 					if [ "$outbox" ]; then
-						mv $draftmime $draft
-						mflag -d -S $draft
+						mv "$draftmime" "$draft"
+						mflag -d -S "$draft"
 					else
-						rm $draft $draftmime
+						rm "$draft" "$draftmime"
 					fi
 				else
 					printf '%s\n' "mcom: $sendmail failed, kept draft $draft"
@@ -421,13 +421,13 @@ while :; do
 				continue
 			fi
 		else
-			if mmime -c <$draft; then
-				stampdate $draft
-				if $sendmail <$draft; then
+			if mmime -c <"$draft"; then
+				stampdate "$draft"
+				if $sendmail <"$draft"; then
 					if [ "$outbox" ]; then
-						mflag -d -S $draft
+						mflag -d -S "$draft"
 					else
-						rm $draft
+						rm "$draft"
 					fi
 				else
 					printf '%s\n' "mcom: $sendmail failed, kept draft $draft"
@@ -449,23 +449,23 @@ while :; do
 		exit 0
 		;;
 	c|cancel)
-		stampdate $draft
+		stampdate "$draft"
 		printf '%s\n' "mcom: cancelled draft $draft"
 		exit 1
 		;;
 	m|mime)
 		do_mime
-		mshow -t $draftmime
+		mshow -t "$draftmime"
 		c=
 		;;
 	e|edit)
 		c=
-		if ! ${EDITOR:-vi} $draft; then
+		if ! ${EDITOR:-vi} "$draft"; then
 			c=d
 		else
-			if checksensible $draft; then
-				stripempty $draft
-				if mmime -c <$draft && ! needs_multipart $draft; then
+			if checksensible "$draft"; then
+				stripempty "$draft"
+				if mmime -c <"$draft" && ! needs_multipart "$draft"; then
 					automime=
 				else
 					automime=1
@@ -477,8 +477,8 @@ while :; do
 		fi
 		;;
 	justsend)
-		stripempty $draft
-		if mmime -c <$draft && ! needs_multipart $draft; then
+		stripempty "$draft"
+		if mmime -c <"$draft" && ! needs_multipart "$draft"; then
 			automime=
 		else
 			automime=1
@@ -487,26 +487,26 @@ while :; do
 		c=send
 		;;
 	d|delete)
-		rm -i $draft
-		if ! [ -f $draft ]; then
-			rm -f $draftmime
+		rm -i "$draft"
+		if ! [ -f "$draft" ]; then
+			rm -f "$draftmime"
 			printf '%s\n' "mcom: deleted draft $draft"
 			exit 0
 		fi
 		c=
 		;;
 	sign)
-		msign $draft >$draftmime
-		mshow -t $draftmime
+		msign "$draft" >"$draftmime"
+		mshow -t "$draftmime"
 		c=
 		;;
 	encrypt)
-		mencrypt $draft >$draftmime
-		mshow -t $draftmime
+		mencrypt "$draft" >"$draftmime"
+		mshow -t "$draftmime"
 		c=
 		;;
 	show)
-		if [ -e $draftmime ]; then
+		if [ -e "$draftmime" ]; then
 			mshow "$draftmime"
 		else
 			mshow "$draft"
