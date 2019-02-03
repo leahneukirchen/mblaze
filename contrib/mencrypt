@@ -15,10 +15,10 @@ trap "rm -rf '$TMPD'" INT TERM EXIT
 
 awk '/^$/,0' "$1" |
 	mmime |
-	gpg2 $key --armor --encrypt --sign $FLAGS -o $TMPD/msg.asc ||
+	gpg2 "$key" --armor --encrypt --sign $FLAGS -o "$TMPD/msg.asc" ||
 	exit $?
 
-printf 'Version: 1\n' >$TMPD/version
+printf 'Version: 1\n' >"$TMPD/version"
 
 {
 	sed '/^$/q' "$1"
