@@ -88,6 +88,8 @@ tryagain:
 		struct stat st;
 		if (fstat(fileno(infile), &st) < 0)
 			st.st_mode = 0600;
+		if (S_ISFIFO(st.st_mode))
+			st.st_mode = 0600;
 		outfd = open(tmp, O_CREAT | O_WRONLY | O_EXCL,
 		    st.st_mode & 07777);
 		if (outfd < 0) {
