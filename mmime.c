@@ -299,7 +299,7 @@ print_header(char *line) {
 
 	int prevq = 0;  // was the previous word encoded as qp?
 
-	size_t linelen = s - line;
+	ssize_t linelen = s - line;
 
 	while (*s) {
 		size_t highbit = 0;
