@@ -77,9 +77,9 @@ do_mime() {
 		(
 			IFS=$NL
 			msed '/attach/d' "$draft"
-			for f in "$(mhdr -M -h attach "$draft")"; do
+			for f in $(mhdr -M -h attach "$draft"); do
 				printf '#%s %s\n' \
-				       "$(file -Lbi $f | sed 's/ //g')" \
+				       "$(file -Lbi "$f" | sed 's/ //g')" \
 				       "$f"
 			done
 		) | mmime >"$draftmime"
