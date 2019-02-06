@@ -11,7 +11,7 @@ commajoin() {
 }
 
 notmine() {
-	mine="$(maddr -a -h local-mailbox:alternate-mailboxes: $MBLAZE/profile)"
+	mine="$(maddr -a -h local-mailbox:alternate-mailboxes: "$MBLAZE/profile")"
 	grep -Fv -e "$mine"
 }
 
