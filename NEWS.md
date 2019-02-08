@@ -8,6 +8,8 @@
 * mrep: add -noquote to disable quoting the message replied to
 * mdeliver: keep permissions of messages
 * mcom: aborting the editor is now more like delete than cancel
+* mcom: add -send to send directly without editing
+* mcom: check if mail is formatted sensibly
 * mpick: new flag -v for statistics
 * mscan: new flag -v for statistics
 * magrep: add -h, which is like -p but doesn't print the file name
