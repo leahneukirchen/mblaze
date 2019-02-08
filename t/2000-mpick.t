@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 15
+plan 26
 
 rm -rf test.dir
 mkdir test.dir
@@ -61,6 +61,12 @@ Greetings
 #application/pdf ../../mshow
 !
 
+cat <<! >shebang
+#!$(command -v mpick)
+from.addr == "peter@example.org" && from.disp == "Peter Example"
+!
+chmod +x shebang
+
 check 'search subject' 'mlist inbox | mpick /wow | grep -q inbox/cur/9:2,'
 check_test 'search addr' -eq 2 'mlist inbox | mpick peter@example.org | wc -l'
 check_test 'search name' -eq 2 'mlist inbox | mpick "Peter Example" | wc -l'
@@ -68,5 +74,48 @@ check_test 'search spam' -eq 1 'mlist inbox | mpick -t "trashed && subject =~ \"
 check_test 'any header' -eq 1 'mlist inbox | mpick -t "\"Foo\" =~~ \"bar\"" | wc -l'
 check_test 'addr decode addr' -eq 2 'mlist inbox | mpick -t "from.addr == \"peter@example.org\"" | wc -l'
 check_test 'addr decode disp' -eq 2 'mlist inbox | mpick -t "from.disp == \"Peter Example\"" | wc -l'
+check_test 'shebang' -eq 2 'mlist inbox | ./shebang | wc -l'
+check_test 'ternary' -eq 2 'mlist inbox | mpick -t "from.addr == \"peter@example.org\" ? print : skip" | wc -l'
+
+check_same 'pipe command' 'mlist inbox | mpick -t "print |\"cat -n\" && skip"' 'mlist inbox | cat -n'
+check_same 'create file' 'mlist inbox | mpick -t "print >\"foo\" && skip" && cat foo' 'mlist inbox'
+check_same 'overwrite file' 'mlist inbox | mpick -t "print >\"foo\" && skip" && cat foo' 'mlist inbox'
+check_same 'append file' 'mlist inbox | mpick -t "print >>\"foo\" && skip" && cat foo' 'mlist inbox && mlist inbox'
+
+cat <<! >expr
+let foo = from.addr == "peter@example.org"
+let bar = from.disp == "Peter Example"
+# random comment
+in
+  foo && bar # another comment
+!
+check_test 'let expression' -eq 2 'mlist inbox | mpick ./expr | wc -l'
+
+cat <<! >expr
+let foo =
+  let bar = from.disp == "Peter Example"
+  in
+    bar && from.addr == "peter@example.org"
+in
+  foo
+!
+check_test 'let expression nested' -eq 2 'mlist inbox | mpick ./expr | wc -l'
+
+cat <<! >expr
+let foo = from.addr == "peter@example.org"
+let bar = foo && subject =~ "wow"
+in
+  bar
+!
+check_test 'let scoping' -eq 1 'mlist inbox | mpick ./expr | wc -l'
+
+cat <<! >expr
+let foo = from.addr == "peter@example.org"
+let bar = from.disp == "Peter Example"
+in
+  foo |"sed ""s/^/1:&/""" && bar |"sed ""s/^/2:&/""" && skip
+!
+check_test 'multi redir' -eq 4 'mlist inbox | mpick ./expr | wc -l'
+check_test 'multi redir prefixes' -eq 2 'mlist inbox | mpick ./expr | cut -d: -f1 | sort -u | wc -l'
 
 )
