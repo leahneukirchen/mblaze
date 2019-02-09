@@ -1,4 +1,4 @@
-## HEAD
+## 0.5 (2019-02-09)
 
 * New tool msearch to wrap several mail indexers.
 * New zsh completion _mblaze.
