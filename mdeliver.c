@@ -93,7 +93,7 @@ deliver(char *infilename)
 		}
 	}
 
-	while (!infile || !feof(infile)) {
+	do {
 		delivery++;
 try_again:
 		gettimeofday(&tv, 0);
@@ -107,11 +107,9 @@ try_again:
 		if (try_rename) {
 			snprintf(dst, sizeof dst, "%s/%s/%s:2,%s",
 			    targetdir, cflag ? "cur" : "new", id, Xflag);
-			if (rename(infilename, dst) == 0) {
-				if (vflag)
-					printf("%s\n", dst);
+			if (rename(infilename, dst) == 0)
 				goto success;
-			}
+
 			/* rename failed, open file and try copying */
 
 			infile = fopen(infilename, "r");
@@ -238,11 +236,11 @@ try_again:
 		if (rename(tmp, dst) != 0)
 			goto fail;
 
+success:
 		if (vflag)
 			printf("%s\n", dst);
-	}
+	} while (Mflag && !feof(infile));
 
-success:
 	if (infile)
 		fclose(infile);
 	return 0;
