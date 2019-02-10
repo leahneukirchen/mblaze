@@ -54,8 +54,10 @@ found_extended:
 				if (!srcenc)
 					return 0;
 				sbuf = strchr(sbuf+1, '\'');
-				if (!sbuf)
+				if (!sbuf) {
+					free(srcenc);
 					return 0;
+				}
 				sbuf++;
 			}
 			while (sbuf < ebuf && dst < dstend) {
