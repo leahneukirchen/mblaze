@@ -67,6 +67,21 @@ stripempty() {
 	mv "$tmp" "$1"
 }
 
+draft_to_sketch() {
+	msg_sketch=$(mktemp -t mcom.XXXXXX)
+	if [ -f "$draft" ]; then
+		cp -f "$draft" "$msg_sketch"
+	fi
+}
+
+sketch_to_draft() {
+	if ! mmime -c <"$msg_sketch" || needs_multipart "$msg_sketch"; then
+		do_mime
+	else
+		cp -f "$msg_sketch" "$draft"
+	fi
+}
+
 needs_multipart() {
 	mhdr -h attach "$1" >/dev/null ||
 		grep -q '^#[^ ]*/[^ ]* ' "$1"
@@ -115,15 +130,15 @@ case "$0" in
 			resume=1
 			if [ "$#" -gt 0 ]; then
 				case "$1" in
-					/*|./*) msg_sketch="$1";;
-					*) msg_sketch="./$1";;
+					/*|./*) draft="$1";;
+					*) draft="./$1";;
 				esac
-				if ! [ -f "$msg_sketch" ]; then
+				if ! [ -f "$draft" ]; then
 					printf 'mcom: no such draft %s\n' \
-					       "$msg_sketch" 1>&2
+					       "$draft" 1>&2
 					exit 1
 				fi
-				echo "using draft $msg_sketch"
+				echo "using draft $draft"
 				shift
 			fi
 			;;
@@ -232,23 +247,23 @@ if [ -z "$outbox" ]; then
 		while [ -f "snd.$i" ]; do
 			i=$((i+1))
 		done
-		msg_sketch="./snd.$i"
-	elif [ -z "$msg_sketch" ]; then
-		msg_sketch=$(ls -1t ./snd.*[0-9] | sed 1q)
+		draft="./snd.$i"
+	elif [ -z "$draft" ]; then
+		draft=$(ls -1t ./snd.*[0-9] | sed 1q)
 	fi
-	draft="$msg_sketch.mime"
 else
 	if [ -z "$resume" ]; then
-		msg_sketch="$(true | mdeliver -v -c -XD "$outbox")"
-		if [ -z "$msg_sketch" ]; then
+		draft="$(true | mdeliver -v -c -XD "$outbox")"
+		if [ -z "$draft" ]; then
 			printf '%s\n' "$0: failed to create draft in outbox $outbox." 1>&2
 			exit 1
 		fi
-	elif [ -z "$msg_sketch" ]; then
-		msg_sketch=$(mlist -D "$outbox" | msort -r -M | sed 1q)
+	elif [ -z "$draft" ]; then
+		draft=$(mlist -D "$outbox" | msort -r -M | sed 1q)
 	fi
-	draft="$(printf '%s\n' "$msg_sketch" | sed 's,\(.*\)/cur/,\1/tmp/mime-,')"
 fi
+draft_to_sketch
+trap 'rm -f "$msg_sketch"; trap "" EXIT' INT TERM EXIT
 
 [ -z "$resume" ] &&
 {
@@ -383,7 +398,6 @@ fi
 	esac
 } >"$msg_sketch"
 
-automime=
 c=$defaultc
 while :; do
 	case "$c" in
@@ -401,43 +415,17 @@ while :; do
 			;;
 		esac
 
-		if [ -e "$draft" ]; then
-			if [ "$msg_sketch" -ot "$draft" ] || [ "$automime" = 1 ]; then
-				stampdate "$draft"
-				if $sendmail <"$draft"; then
-					if [ "$outbox" ]; then
-						mv "$draft" "$msg_sketch"
-						mflag -d -S "$msg_sketch"
-					else
-						rm "$msg_sketch" "$draft"
-					fi
-				else
-					printf '%s\n' "mcom: $sendmail failed, kept draft $msg_sketch"
-					exit 2
-				fi
+		sketch_to_draft
+		stampdate "$draft"
+		if $sendmail <"$draft"; then
+			if [ "$outbox" ]; then
+				mflag -d -S "$draft"
 			else
-				printf 'mcom: re-run mmime first.\n'
-				c=
-				continue
+				rm "$draft"
 			fi
 		else
-			if mmime -c <"$msg_sketch"; then
-				stampdate "$msg_sketch"
-				if $sendmail <"$msg_sketch"; then
-					if [ "$outbox" ]; then
-						mflag -d -S "$msg_sketch"
-					else
-						rm "$msg_sketch"
-					fi
-				else
-					printf '%s\n' "mcom: $sendmail failed, kept draft $msg_sketch"
-					exit 2
-				fi
-			else
-				printf '%s\n' "mcom: message needs to be MIME-encoded first."
-				c=
-				continue
-			fi
+			printf '%s\n' "mcom: $sendmail failed, kept draft $draft"
+			exit 2
 		fi
 
 		case "$0" in
@@ -449,14 +437,9 @@ while :; do
 		exit 0
 		;;
 	c|cancel)
-		stampdate "$msg_sketch"
-		printf '%s\n' "mcom: cancelled draft $msg_sketch"
+		stampdate "$draft"
+		printf '%s\n' "mcom: cancelled draft $draft"
 		exit 1
-		;;
-	m|mime)
-		do_mime
-		mshow -t "$draft"
-		c=
 		;;
 	e|edit)
 		c=
@@ -465,46 +448,30 @@ while :; do
 		else
 			if checksensible "$msg_sketch"; then
 				stripempty "$msg_sketch"
-				if mmime -c <"$msg_sketch" && ! needs_multipart "$msg_sketch"; then
-					automime=
-				else
-					automime=1
-					do_mime
-				fi
 			else
 				printf '\n'
 			fi
 		fi
+		sketch_to_draft
 		;;
 	justsend)
 		stripempty "$msg_sketch"
-		if mmime -c <"$msg_sketch" && ! needs_multipart "$msg_sketch"; then
-			automime=
-		else
-			automime=1
-			do_mime
-		fi
 		c=send
 		;;
 	d|delete)
-		rm -i "$msg_sketch"
-		if ! [ -f "$msg_sketch" ]; then
-			rm -f "$draft"
-			printf '%s\n' "mcom: deleted draft $msg_sketch"
+		rm -i "$draft"
+		if ! [ -f "$draft" ]; then
+			printf '%s\n' "mcom: deleted draft $draft"
 			exit 0
 		fi
 		c=
 		;;
 	show)
-		if [ -e "$draft" ]; then
-			mshow "$draft"
-		else
-			mshow "$msg_sketch"
-		fi
+		mshow "$draft"
 		c=
 		;;
 	*)
-		printf 'What now? (%s[s]end, [c]ancel, [d]elete, [e]dit, [m]ime) ' "${automime:+mime and }"
+		printf 'What now? ([s]end, [c]ancel, [d]elete, [e]dit) '
 		read -r c
 		;;
 	esac
