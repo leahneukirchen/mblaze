@@ -32,6 +32,7 @@ static char *Xflag;
 char *targetdir;
 long delivery;
 int preserve_mtime;
+int try_rename;
 
 char host[64];
 void
@@ -47,7 +48,7 @@ gethost() {
 }
 
 int
-deliver(FILE *infile)
+deliver(char *infilename, FILE *infile)
 {
 	int outfd;
 	FILE *outfile;
@@ -85,6 +86,16 @@ tryagain:
 		    delivery, host);
 
 		snprintf(tmp, sizeof tmp, "%s/tmp/%s", targetdir, id);
+
+		if (try_rename) {
+			snprintf(dst, sizeof dst, "%s/%s/%s:2,%s",
+			    targetdir, cflag ? "cur" : "new", id, Xflag);
+			if (rename(infilename, dst) == 0) {
+				if (vflag)
+					printf("%s\n", dst);
+				return 0;
+			}
+		}
 
 		struct stat st;
 		if (fstat(fileno(infile), &st) < 0)
@@ -227,13 +238,13 @@ refile(char *file)
 	else
 		Xflag = "";
 
-	if (deliver(f) < 0) {
+	if (deliver(file, f) < 0) {
 		perror("mrefile");
 		return;
 	}
 
 	fclose(f);
-	if (!kflag)
+	if (!kflag && !try_rename)
 		unlink(file);
 }
 
@@ -245,11 +256,12 @@ main(int argc, char *argv[])
 
 		cflag = 1;  // use cur/
 		preserve_mtime = 1;
+		try_rename = 1;
 
 		int c;
 		while ((c = getopt(argc, argv, "kv")) != -1)
 			switch (c) {
-			case 'k': kflag = 1; break;
+			case 'k': kflag = 1; try_rename = 0; break;
 			case 'v': vflag = 1; break;
 			default:
 usage:
@@ -296,7 +308,7 @@ usage:
 
 	gethost();
 
-	if (deliver(stdin) < 0) {
+	if (deliver(0, stdin) < 0) {
 		perror("mdeliver");
 		return 2;
 	}
