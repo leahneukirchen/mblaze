@@ -669,6 +669,7 @@ blaze822_mmap(char *file)
 
 	char *buf = mmap(0, len+1, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 	if (buf == MAP_FAILED) {
+		free(mesg);
 		perror("mmap");
 		goto error;
 	}
