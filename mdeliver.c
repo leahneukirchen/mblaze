@@ -31,6 +31,7 @@ static char *Xflag;
 
 char *targetdir;
 long delivery;
+int preserve_mtime;
 
 char host[64];
 void
@@ -187,6 +188,14 @@ tryagain:
 			blaze822_free(msg);
 		}
 
+		if (preserve_mtime) {
+			const struct timespec times[2] = {
+				{ tv.tv_sec, tv.tv_usec * 1000L },
+				st.st_mtim
+			};
+			utimensat(AT_FDCWD, tmp, times, 0);
+		}
+
 		snprintf(dst, sizeof dst, "%s/%s/%s:2,%s",
 		    targetdir, (cflag || is_old) ? "cur" : "new", id,
 		    Xflag ? Xflag : statusflags);
@@ -235,6 +244,7 @@ main(int argc, char *argv[])
 		// mrefile(1)
 
 		cflag = 1;  // use cur/
+		preserve_mtime = 1;
 
 		int c;
 		while ((c = getopt(argc, argv, "kv")) != -1)
