@@ -507,8 +507,10 @@ blaze822_mem(char *src, size_t len)
 	size_t hlen = end - src;
 
 	buf = malloc(hlen+1);
-	if (!buf)
+	if (!buf) {
+		free(mesg);
 		return 0;
+	}
 	memcpy(buf, src, hlen);
 
 	end = buf+hlen;
