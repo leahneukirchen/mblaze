@@ -184,6 +184,7 @@ tryagain:
 					utimes(tmp, times);
 				}
 			}
+			blaze822_free(msg);
 		}
 
 		snprintf(dst, sizeof dst, "%s/%s/%s:2,%s",
