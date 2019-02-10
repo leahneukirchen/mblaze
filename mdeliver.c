@@ -48,9 +48,10 @@ gethost() {
 }
 
 int
-deliver(char *infilename, FILE *infile)
+deliver(char *infilename)
 {
 	int outfd;
+	FILE *infile;
 	FILE *outfile;
 	char dst[PATH_MAX];
 	char tmp[PATH_MAX];
@@ -60,6 +61,22 @@ deliver(char *infilename, FILE *infile)
 	char *line = 0;
 	size_t linelen = 0;
 
+	if (infilename) {
+		if (try_rename) {
+			infile = 0;
+		} else {
+			infile = fopen(infilename, "r");
+			if (!infile) {
+				fprintf(stderr, "mrefile: %s: %s\n",
+				    infilename, strerror(errno));
+				return -1;
+			}
+		}
+	} else {
+		// mdeliver
+		infile = stdin;
+	}
+
 	if (Mflag) {
 		// skip to first "From " line
 		while (1) {
@@ -68,7 +85,7 @@ deliver(char *infilename, FILE *infile)
 			if (rd == -1) {
 				if (errno == 0)
 					errno = EINVAL;  // invalid mbox file
-				return -1;
+				goto fail;
 			}
 
 			if (strncmp("From ", line, 5) == 0)
@@ -76,9 +93,9 @@ deliver(char *infilename, FILE *infile)
 		}
 	}
 
-	while (!feof(infile)) {
+	while (!infile || !feof(infile)) {
 		delivery++;
-tryagain:
+try_again:
 		gettimeofday(&tv, 0);
 
 		snprintf(id, sizeof id, "%ld.M%06ldP%ldQ%ld.%s",
@@ -93,7 +110,15 @@ tryagain:
 			if (rename(infilename, dst) == 0) {
 				if (vflag)
 					printf("%s\n", dst);
-				return 0;
+				goto success;
+			}
+			/* rename failed, open file and try copying */
+
+			infile = fopen(infilename, "r");
+			if (!infile) {
+				fprintf(stderr, "mrefile: %s: %s\n",
+				    infilename, strerror(errno));
+				return -1;
 			}
 		}
 
@@ -106,14 +131,14 @@ tryagain:
 		    st.st_mode & 07777);
 		if (outfd < 0) {
 			if (errno == EEXIST)
-				goto tryagain;
+				goto try_again;
 			if (errno == ENOENT)
 				fprintf(stderr, "mrefile: %s/tmp: %s\n",
 				    targetdir, strerror(errno));
 			else
 				fprintf(stderr, "mrefile: %s: %s\n",
 				    tmp, strerror(errno));
-			return -1;
+			goto fail;
 		}
 
 		outfile = fdopen(outfd, "w");
@@ -127,7 +152,7 @@ tryagain:
 			ssize_t rd = getdelim(&line, &linelen, '\n', infile);
 			if (rd == -1) {
 				if (errno != 0)
-					return -1;
+					goto fail;
 				break;
 			}
 			char *line_start = line;
@@ -165,14 +190,14 @@ tryagain:
 			}
 
 			if (fwrite(line_start, 1, rd, outfile) != (size_t)rd)
-				return -1;
+				goto fail;
 		}
 		if (fflush(outfile) == EOF)
-			return -1;
+			goto fail;
 		if (fsync(outfd) < 0)
-			return -1;
+			goto fail;
 		if (fclose(outfile) == EOF)
-			return -1;
+			goto fail;
 
 		// compress flags
 		int i, j;
@@ -211,12 +236,21 @@ tryagain:
 		    targetdir, (cflag || is_old) ? "cur" : "new", id,
 		    Xflag ? Xflag : statusflags);
 		if (rename(tmp, dst) != 0)
-			return -1;
+			goto fail;
 
 		if (vflag)
 			printf("%s\n", dst);
 	}
+
+success:
+	if (infile)
+		fclose(infile);
 	return 0;
+
+fail:
+	if (infile)
+		fclose(infile);
+	return -1;
 }
 
 void
@@ -225,12 +259,6 @@ refile(char *file)
 	while (*file == ' ' || *file == '\t')
 		file++;
 
-	FILE *f = fopen(file, "r");
-	if (!f) {
-		fprintf(stderr, "mrefile: %s: %s\n", file, strerror(errno));
-		return;
-	}
-
 	// keep flags
 	char *flags = strstr(file, ":2,");
 	if (flags)
@@ -238,12 +266,11 @@ refile(char *file)
 	else
 		Xflag = "";
 
-	if (deliver(file, f) < 0) {
+	if (deliver(file) < 0) {
 		perror("mrefile");
 		return;
 	}
 
-	fclose(f);
 	if (!kflag && !try_rename)
 		unlink(file);
 }
@@ -308,7 +335,7 @@ usage:
 
 	gethost();
 
-	if (deliver(0, stdin) < 0) {
+	if (deliver(0) < 0) {
 		perror("mdeliver");
 		return 2;
 	}
