@@ -495,16 +495,6 @@ while :; do
 		fi
 		c=
 		;;
-	sign)
-		msign "$msg_sketch" >"$draft"
-		mshow -t "$draft"
-		c=
-		;;
-	encrypt)
-		mencrypt "$msg_sketch" >"$draft"
-		mshow -t "$draft"
-		c=
-		;;
 	show)
 		if [ -e "$draft" ]; then
 			mshow "$draft"
@@ -514,7 +504,7 @@ while :; do
 		c=
 		;;
 	*)
-		printf 'What now? (%s[s]end, [c]ancel, [d]elete, [e]dit, [m]ime, sign, encrypt) ' "${automime:+mime and }"
+		printf 'What now? (%s[s]end, [c]ancel, [d]elete, [e]dit, [m]ime) ' "${automime:+mime and }"
 		read -r c
 		;;
 	esac
