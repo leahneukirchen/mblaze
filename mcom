@@ -28,6 +28,20 @@ msgid() {
 	mgenmid 2>/dev/null | sed 's/^/Message-Id: /'
 }
 
+# $TMPDIR is used by mktemp().
+set_tmpdir() {
+	if [ -d /dev/shm -a -w /dev/shm ]; then
+		export TMPDIR='/dev/shm'
+	elif [ -n "$encrypt" ]; then
+		printf '/dev/shm is unavailable on your system. Instead '
+		printf '$TMPDIR or /tmp \nwill be used to temporarily '
+		printf 'store unencrypted data.\n'
+		printf 'Do you wish to continue? [Y/n] '
+		read -r c
+		[ -z "$c" -o "$c" = "y" -o "$c" = "Y" ] || exit 1
+	fi
+}
+
 stampdate() {
 	if ! mhdr -h date "$1" >/dev/null; then
 		tmp=$(mktemp -t mcom.XXXXXX)
@@ -275,6 +289,7 @@ case "$0" in
 	[ "$#" -eq 0 ] && set -- .
 	;;
 esac
+set_tmpdir
 
 hdrs="$(printf '%s\n' "${hdrs#$NL}" | mhdr /dev/stdin)"
 
