@@ -70,16 +70,26 @@ stripempty() {
 draft_to_sketch() {
 	msg_sketch=$(mktemp -t mcom.XXXXXX)
 	if [ -f "$draft" ]; then
+                # TODO: If $draft is an encrypted message it needs
+                # to be decrypted first. Make sure, that the decrypted
+                # message can later be correctly encrypted again.
 		cp -f "$draft" "$msg_sketch"
 	fi
 }
 
 sketch_to_draft() {
+	tmp=$(mktemp -t mcom.XXXXXX)
 	if ! mmime -c <"$msg_sketch" || needs_multipart "$msg_sketch"; then
-		do_mime
+		do_mime "$msg_sketch" >"$tmp"
 	else
-		cp -f "$msg_sketch" "$draft"
+		cp "$msg_sketch" "$tmp"
 	fi
+	if [ -n "$encrypt" ]; then
+		mencrypt "$tmp" >"$draft"
+	else
+		cp -f "$tmp" "$draft"
+	fi
+	rm "$tmp"
 }
 
 needs_multipart() {
@@ -88,18 +98,18 @@ needs_multipart() {
 }
 
 do_mime() {
-	if needs_multipart "$msg_sketch"; then
+	if needs_multipart "$1"; then
 		(
 			IFS=$NL
-			msed '/attach/d' "$msg_sketch"
-			for f in $(mhdr -M -h attach "$msg_sketch"); do
+			msed '/attach/d' "$1"
+			for f in $(mhdr -M -h attach "$1"); do
 				printf '#%s %s\n' \
 				       "$(file -Lbi "$f" | sed 's/ //g')" \
 				       "$f"
 			done
-		) | mmime >"$draft"
+		) | mmime
 	else
-		mmime -r <"$msg_sketch" >"$draft"
+		mmime -r <"$1"
 	fi
 }
 
@@ -115,6 +125,7 @@ defaultc=e
 hdrs=
 resume=
 noquote=
+encrypt=
 case "$0" in
 *mcom*)
 	hdr=to
@@ -145,6 +156,9 @@ case "$0" in
 		-send)
 			defaultc=justsend
 			shift;;
+		-encrypt)
+			encrypt=1
+			shift;;
 		-??*)
 			hdr=${1#-}
 			shift;;
@@ -171,6 +185,9 @@ case "$0" in
 		-send)
 			defaultc=justsend
 			shift;;
+		-encrypt)
+			encrypt=1
+			shift;;
 		-??*)
 			hdr=${1#-}
 			shift;;
@@ -194,6 +211,9 @@ case "$0" in
 			break;;
 		-send)
 			defaultc=justsend
+			shift;;
+		-encrypt)
+			encrypt=1
 			shift;;
 		-??*)
 			hdr=${1#-}
@@ -222,6 +242,9 @@ case "$0" in
 		-noquote)
 			noquote=1
 			shift;;
+		-encrypt)
+			encrypt=1
+			shift;;
 		-??*)
 			hdr=${1#-}
 			shift;;
@@ -239,6 +262,9 @@ case "$0" in
 esac
 
 hdrs="$(printf '%s\n' "${hdrs#$NL}" | mhdr /dev/stdin)"
+
+# TODO: When resuming: Ask the user if `encrypt` shall be set, when
+# the existing draft is already encrypted.
 
 outbox=$(mhdr -h outbox "$MBLAZE/profile")
 if [ -z "$outbox" ]; then
