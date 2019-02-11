@@ -86,6 +86,8 @@ sketch_to_draft() {
 	fi
 	if [ -n "$encrypt" ]; then
 		mencrypt "$tmp" >"$draft"
+	elif [ -n "$sign" ]; then
+		msign "$tmp" >"$draft"
 	else
 		cp -f "$tmp" "$draft"
 	fi
@@ -126,6 +128,7 @@ hdrs=
 resume=
 noquote=
 encrypt=
+sign=
 case "$0" in
 *mcom*)
 	hdr=to
@@ -159,6 +162,9 @@ case "$0" in
 		-encrypt)
 			encrypt=1
 			shift;;
+		-sign)
+			sign=1
+			shift;;
 		-??*)
 			hdr=${1#-}
 			shift;;
@@ -188,6 +194,9 @@ case "$0" in
 		-encrypt)
 			encrypt=1
 			shift;;
+		-sign)
+			sign=1
+			shift;;
 		-??*)
 			hdr=${1#-}
 			shift;;
@@ -214,6 +223,9 @@ case "$0" in
 			shift;;
 		-encrypt)
 			encrypt=1
+			shift;;
+		-sign)
+			sign=1
 			shift;;
 		-??*)
 			hdr=${1#-}
@@ -244,6 +256,9 @@ case "$0" in
 			shift;;
 		-encrypt)
 			encrypt=1
+			shift;;
+		-sign)
+			sign=1
 			shift;;
 		-??*)
 			hdr=${1#-}
