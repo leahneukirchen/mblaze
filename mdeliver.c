@@ -225,7 +225,11 @@ try_again:
 		if (preserve_mtime) {
 			const struct timespec times[2] = {
 				{ tv.tv_sec, tv.tv_usec * 1000L },
+#if (defined(__APPLE__) && defined(__MACH__))
+			        st.st_mtimespec
+#else /* POSIX.1-2008 */
 				st.st_mtim
+#endif
 			};
 			utimensat(AT_FDCWD, tmp, times, 0);
 		}
