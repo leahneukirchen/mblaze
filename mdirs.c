@@ -9,12 +9,14 @@
 
 #include "blaze822.h"
 
+static char sep = '\n';
+
 void
 pwd()
 {
 	char cwd[PATH_MAX];
 	if (getcwd(cwd, sizeof cwd))
-		puts(cwd);
+		printf("%s%c", cwd, sep);
 }
 
 void
@@ -72,11 +74,12 @@ int
 main(int argc, char *argv[])
 {
 	int c, i;
-	while ((c = getopt(argc, argv, "")) != -1)
+	while ((c = getopt(argc, argv, "0")) != -1)
 		switch (c) {
+		case '0': sep = '\0'; break;
 		default:
 usage:
-			fprintf(stderr, "Usage: mdirs dirs...\n");
+			fprintf(stderr, "Usage: mdirs [-0] dirs...\n");
 			exit(1);
 		}
 
