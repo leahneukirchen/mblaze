@@ -9,12 +9,16 @@
 
 #include "blaze822.h"
 
+static int nullflag;
+
 void
 pwd()
 {
 	char cwd[PATH_MAX];
-	if (getcwd(cwd, sizeof cwd))
-		puts(cwd);
+	if (getcwd(cwd, sizeof cwd)) {
+		printf("%s",cwd);
+		putchar( nullflag ? '\0' : '\n');
+	}
 }
 
 void
@@ -72,11 +76,12 @@ int
 main(int argc, char *argv[])
 {
 	int c, i;
-	while ((c = getopt(argc, argv, "")) != -1)
+	while ((c = getopt(argc, argv, "0")) != -1)
 		switch (c) {
+		case '0': nullflag=1; break;
 		default:
 usage:
-			fprintf(stderr, "Usage: mdirs dirs...\n");
+			fprintf(stderr, "Usage: mdirs [-0] dirs...\n");
 			exit(1);
 		}
 
