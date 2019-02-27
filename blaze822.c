@@ -155,9 +155,12 @@ static size_t
 safe_append(char *dst, size_t dstmax, char *srcbeg, char *srcend)
 {
 	size_t srclen = srcend - srcbeg;
-	size_t dstlen = strlen(dst);
+	size_t dstlen = strnlen(dst, dstmax);
 
-	if (dstmax - dstlen - 1 < srclen)
+	if (dstlen == dstmax)
+		return 0;
+
+	if (dstmax - dstlen < srclen + 1)
 		srclen = dstmax - dstlen - 1;
 	memcpy(dst + dstlen, srcbeg, srclen);
 	dst[dstlen + srclen] = 0;
