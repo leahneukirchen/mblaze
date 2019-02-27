@@ -293,6 +293,8 @@ blaze822_addr(char *s, char **dispo, char **addro)
 				// in ipv6 address
 				if (tc < te)
 					*tc++ = *s++;
+				else
+					s++;
 			} else {  // ignore group name and start over
 				s++;
 				tc = ttok;
