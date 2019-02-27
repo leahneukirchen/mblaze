@@ -219,8 +219,9 @@ blaze822_addr(char *s, char **dispo, char **addro)
 				s++;
 				if (*addr || *disp)
 					break;
+			} else {
+				s++;
 			}
-			s++;
 		} else if (*s == '<') {
 			char tok[1024] = { 0 };
 			char *c = tok;
