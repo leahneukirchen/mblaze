@@ -306,6 +306,8 @@ blaze822_addr(char *s, char **dispo, char **addro)
 				s++;
 			if (tc < te)
 				*tc++ = *s++;
+			else
+				s++;
 		}
 	}
 
