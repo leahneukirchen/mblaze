@@ -281,7 +281,8 @@ blaze822_addr(char *s, char **dispo, char **addro)
 		} else if (*s == '(') {
 			char *z = skip_comment(s);
 			if (!*disp && *addr)  // user@host (name)
-				safe_append(disp, sizeof disp, s + 1, z - 1);
+				safe_append(disp, sizeof disp, s + 1,
+				    *z ? z - 1 : z);
 			else if (*disp) {  // copy comment
 				safe_append_space(disp, sizeof disp);
 				safe_append(disp, sizeof disp, s, z);
