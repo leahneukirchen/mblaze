@@ -282,6 +282,9 @@ print_header(char *line) {
 	char *s, *e;
 	size_t l = strlen(line);
 
+	if (l == 0)
+		return;
+
 	if (line[l-1] == '\n')
 		line[l-1] = 0;
 
