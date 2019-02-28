@@ -267,7 +267,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 			char *e = tok + sizeof tok;
 			s++;
 			while (*s && c < e && *s != '"') {
-				if (*s == '\\')
+				if (*s == '\\' && *(s+1))
 					s++;
 				*c++ = *s++;
 			}
