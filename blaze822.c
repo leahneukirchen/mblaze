@@ -229,7 +229,9 @@ blaze822_addr(char *s, char **dispo, char **addro)
 			s++;
 			while (*s && c < e && *s != '>') {
 				s = skip_comment(s);
-				if (*s == '"') {
+				if (!*s) {
+					break;
+				} else if (*s == '"') {
 					// local part may be quoted, allow all
 					s++;
 					while (*s && c < e && *s != '"') {
