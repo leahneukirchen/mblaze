@@ -32,7 +32,7 @@ int
 match(char *file, char *hdr, char *s)
 {
 	if (oflag && !cflag && !qflag && !vflag && !lflag) {
-		regmatch_t pmatch;
+		regmatch_t pmatch = {0};
 		int len, matched;
 		matched = 0;
 		while (*s && regexec(&pattern, s, 1, &pmatch, 0) == 0) {
