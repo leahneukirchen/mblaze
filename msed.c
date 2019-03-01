@@ -28,7 +28,7 @@ subst(char *str, char *srch, char *repl, char *flags)
 #define APPC(c) do { if (b >= bufe) return str; *b++ = c; } while (0)
 
 	regex_t srchrx;
-	regmatch_t pmatch[10] = {0};
+	regmatch_t pmatch[10] = {{0}};
 	if (regcomp(&srchrx, srch, iflag ? REG_ICASE : 0) != 0)
 		return str;
 
