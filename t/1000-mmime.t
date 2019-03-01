@@ -9,7 +9,7 @@ References: <aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@a> <bbbbbbbbbbbbbbbbbbbbbbbbbbbb
 Body
 EOF
 
-# https://github.com/chneukirchen/mblaze/issues/20
+# https://github.com/leahneukirchen/mblaze/issues/20
 
 check 'mime -r runs' 'mmime -r <tmp >tmp2'
 check 'no overlong lines' 'awk "{if(length(\$0)>=80)exit 1}" <tmp2'
