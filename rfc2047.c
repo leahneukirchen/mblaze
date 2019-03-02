@@ -130,6 +130,10 @@ blaze822_decode_rfc2047(char *dst, char *src, size_t dlen, char *tgtenc)
 	iconv_t ic = (iconv_t)-1;
 	char *srcenc = 0;
 
+	// need space for trailing nul
+	if (dlen-- == 0)
+		return 0;
+
 	char *startdst = dst;
 	size_t startdlen = dlen;
 
