@@ -1,3 +1,10 @@
+## 0.5.1 (2019-03-03)
+
+* mdeliver: preserve mtime in mrefile
+* mdirs: add -0 to separate folders by NUL characters
+* Fixes for buffer-overflows, found by fuzzing.
+* Fixes for memleaks.
+
 ## 0.5 (2019-02-09)
 
 * New tool msearch to wrap several mail indexers.
