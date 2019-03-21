@@ -56,7 +56,10 @@ u8putstr(FILE *out, char *s, ssize_t l, int pad)
 				l--;
 				fprintf(out, "%lc", (wint_t)replacement);
 			} else {
-				l -= wcwidth((wchar_t)c);
+				int w = wcwidth((wchar_t)c);
+				if (w < 0)
+					w = 2;   /* assume worst width */
+				l -= w;
 				if (l >= 0)
 					fwrite(s, 1, r, out);
 			}
