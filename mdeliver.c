@@ -223,6 +223,7 @@ try_again:
 		}
 
 		if (preserve_mtime) {
+#if defined(AT_FDCWD) && defined(UTIME_NOW) && defined(UTIME_OMIT)
 			const struct timespec times[2] = {
 				{ tv.tv_sec, tv.tv_usec * 1000L },
 #if (defined(__APPLE__) && defined(__MACH__))
@@ -232,6 +233,13 @@ try_again:
 #endif
 			};
 			utimensat(AT_FDCWD, tmp, times, 0);
+#else
+			const struct timeval times[2] = {
+				tv,
+				{ st.st_mtime, 0 }
+			};
+			utimes(tmp, times);
+#endif
 		}
 
 		snprintf(dst, sizeof dst, "%s/%s/%s:2,%s",
