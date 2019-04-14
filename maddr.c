@@ -82,6 +82,7 @@ addr(char *file)
 			break;
 		}
 	}
+	blaze822_free(msg);
 }
 
 int
