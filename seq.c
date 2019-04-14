@@ -551,6 +551,7 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 			}
 		}
 	}
+	free(map);
 	return j;
 }
 
