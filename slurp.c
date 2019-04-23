@@ -24,11 +24,6 @@ slurp(char *filename, char **bufo, off_t *leno)
 		r = errno;
 		goto out;
 	}
-	if (st.st_size == 0) {
-		*bufo = "";
-		*leno = 0;
-		return 0;
-	}
 	*bufo = malloc(st.st_size + 1);
 	if (!*bufo) {
 		r = ENOMEM;
