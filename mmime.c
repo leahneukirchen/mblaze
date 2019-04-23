@@ -246,7 +246,7 @@ gen_file(char *file, char *ct)
 	}
 
 	if (bitlow == 0 && bithigh == 0 &&
-	    maxlinelen <= 78 && content[size-1] == '\n') {
+	    maxlinelen <= 78) {
 		if (!ct)
 			ct = "text/plain";
 		printf("Content-Type: %s\n", ct);
