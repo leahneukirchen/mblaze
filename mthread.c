@@ -74,10 +74,14 @@ struct container *
 midcont(char *mid)
 {
 	struct container key, **result;
+	if (!mid)
+		exit(111);
 	key.mid = mid;
 
 	if (!(result = tfind(&key, &mids, midorder))) {
 		struct container *c = malloc(sizeof (struct container));
+		if (!c)
+			exit(111);
 		c->mid = mid;
 		c->file = 0;
 		c->msg = 0;
@@ -281,6 +285,8 @@ void
 find_roots()
 {
 	top = malloc(sizeof (struct container));
+	if (!top)
+		exit(111);
 	top->msg = 0;
 	top->date = -1;
 	top->file = 0;
