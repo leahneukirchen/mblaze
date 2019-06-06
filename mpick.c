@@ -544,7 +544,7 @@ parse_string(char **s)
 			buf[len] = 0;
 		pos++;
 		ws();
-		*s = buf ? buf : "";
+		*s = buf ? buf : xstrdup("");
 		return 1;
 	} else if (*pos == '$') {
 		char t;
@@ -559,7 +559,7 @@ parse_string(char **s)
 		*pos = 0;
 		*s = getenv(e);
 		if (!*s)
-			*s = "";
+			*s = xstrdup("");
 		*pos = t;
 		ws();
 		return 1;
