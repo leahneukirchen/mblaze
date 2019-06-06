@@ -1542,24 +1542,17 @@ main(int argc, char *argv[])
 			expr = chain(expr, EXPR_AND, parse_msglist(argv[c]));
 		}
 
-		struct stat st;
-		int fd;
-		size_t len;
 		for (; c < argc; c++) {
-			if ((fd = open(argv[c], O_RDONLY)) == -1)
-				exit(1);
-			if (fstat(fd, &st) == -1)
-				exit(1);
-			len = st.st_size;
-			char *s = mmap(0, len+1, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
-			if (s == MAP_FAILED) {
-				perror("mmap");
+			char *s;
+			off_t len;
+			int r = slurp(argv[c], &s, &len);
+			if (r != 0) {
+				fprintf(stderr, "%s: error opening file '%s': %s\n",
+					argv0, argv[c], strerror(r));
 				exit(1);
 			}
-			s[len+1] = '\0';
-			close(fd);
 			expr = chain(expr, EXPR_AND, parse_buf(argv[c], s));
-			munmap(s, len+1);
+			free(s);
 		}
 	}
 
