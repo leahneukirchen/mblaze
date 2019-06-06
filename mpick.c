@@ -791,20 +791,20 @@ parse_dur(int64_t *n)
 			parse_error("can't stat file '%s': %s",
 			    s, strerror(errno));
 		*n = st.st_mtime;
-		return 1;
+		goto ret;
 	}
 
 	struct tm tm = { 0 };
 	r = strptime(s, "%Y-%m-%d %H:%M:%S", &tm);
 	if (r && !*r) {
 		*n = mktime(&tm);
-		return 1;
+		goto ret;
 	}
 	r = strptime(s, "%Y-%m-%d", &tm);
 	if (r && !*r) {
 		tm.tm_hour = tm.tm_min = tm.tm_sec = 0;
 		*n = mktime(&tm);
-		return 1;
+		goto ret;
 	}
 	r = strptime(s, "%H:%M:%S", &tm);
 	if (r && !*r) {
@@ -813,7 +813,7 @@ parse_dur(int64_t *n)
 		tm.tm_mon = tmnow->tm_mon;
 		tm.tm_mday = tmnow->tm_mday;
 		*n = mktime(&tm);
-		return 1;
+		goto ret;
 	}
 	r = strptime(s, "%H:%M", &tm);
 	if (r && !*r) {
@@ -823,39 +823,40 @@ parse_dur(int64_t *n)
 		tm.tm_mday = tmnow->tm_mday;
 		tm.tm_sec = 0;
 		*n = mktime(&tm);
-		return 1;
+		goto ret;
 	}
 
 	if (*s == '-') {
-		s++;
-
-		errno = 0;
 		int64_t d;
-		d = strtol(s, &r, 10);
+		errno = 0;
+		d = strtol(s+1, &r, 10);
 		if (errno == 0 && r[0] == 'd' && !r[1]) {
 			struct tm *tmnow = localtime(&now);
 			tmnow->tm_mday -= d;
 			tmnow->tm_hour = tmnow->tm_min = tmnow->tm_sec = 0;
 			*n = mktime(tmnow);
-			return 1;
+			goto ret;
 		}
 		if (errno == 0 && r[0] == 'h' && !r[1]) {
 			*n = now - (d*60*60);
-			return 1;
+			goto ret;
 		}
 		if (errno == 0 && r[0] == 'm' && !r[1]) {
 			*n = now - (d*60);
-			return 1;
+			goto ret;
 		}
 		if (errno == 0 && r[0] == 's' && !r[1]) {
 			*n = now - d;
-			return 1;
+			goto ret;
 		}
-		parse_error("invalid relative time format '%s'", s-1);
+		parse_error("invalid relative time format '%s'", s);
 	}
 
 	parse_error("invalid time format '%s'", s);
 	return 0;
+ret:
+	free(s);
+	return 1;
 }
 
 static struct expr *
