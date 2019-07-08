@@ -329,6 +329,7 @@ usage:
 		case 'v': vflag = 1; break;
 		case 'X': Xflag = optarg; break;
 		default:
+usage2:
 			fprintf(stderr,
 "Usage: mdeliver [-c] [-v] [-X flags] dir < message\n"
 "       mdeliver -M [-c] [-v] [-X flags] dir < mbox\n"
@@ -336,10 +337,8 @@ usage:
 			exit(1);
 		}
 
-	if (argc != optind+1) {
-		fprintf(stderr, "usage: mdeliver DIR\n");
-		return 1;
-	}
+	if (argc != optind+1)
+		goto usage2;
 
 	targetdir = argv[optind];
 
