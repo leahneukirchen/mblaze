@@ -800,7 +800,7 @@ main(int argc, char *argv[])
 		if (!pg) {
 			pg = getenv("PAGER");
 			if (pg && strcmp(pg, "less") == 0) {
-				static char lesscmd[] = "less -RFXe";
+				static char lesscmd[] = "less -RFX";
 				pg = lesscmd;
 			}
 		}
