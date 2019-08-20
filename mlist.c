@@ -53,9 +53,23 @@ static long tcount;
 void
 list(char *prefix, char *file)
 {
+	char *f = 0;
+
+	if (flagset || iflag) {
+		size_t prefixlen;
+
+		f = strstr(file, ":2,");
+
+		if (!f &&
+		    prefix &&
+		    (prefixlen = strlen(prefix)) &&
+		    prefixlen >= 4 &&
+		    strcmp(prefix + prefixlen - 4, "/new") == 0)
+			f = ":2,";
+	}
+
 	if (flagset) {
 		int sum = 0;
-		char *f = strstr(file, ":2,");
 		if (!f)
 			return;
 		icount++;
@@ -73,7 +87,6 @@ list(char *prefix, char *file)
 	}
 
 	if (iflag) {
-		char *f = strstr(file, ":2,");
 		if (!f)
 			return;
 		imatched++;
