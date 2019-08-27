@@ -1,4 +1,4 @@
-.Dd January 29, 2019
+.Dd August 27, 2019
 .Dt MCOM 1
 .Os
 .Sh NAME
@@ -16,14 +16,14 @@
 .Nm mrep
 .Op Fl noquote
 .Op Fl Ar header Ar values\ ... Fl -
-.Ar msg
+.Op Ar msg
 .Nm mfwd
 .Op Fl r
 .Op Fl Ar header Ar values\ ... Fl -
 .Op Ar msgs\ ...
 .Nm mbnc
 .Op Fl Ar header Ar values\ ... Fl -
-.Ar msg
+.Op Ar msg
 .Sh DESCRIPTION
 .Nm mcom
 creates a new draft message and opens it in an editor.
@@ -36,7 +36,10 @@ by default, the last modified draft will be edited.
 .Pp
 .Nm mrep
 creates the draft such that the message will be a reply to
-.Ar msg .
+.Ar msg
+.Po
+or the current message
+.Pc .
 Unless
 .Fl noquote
 is passed, it will contain the original mail quoted.
@@ -56,7 +59,10 @@ rendered plain text, using RFC 934 message encapsulation.
 .Nm mbnc
 creates the draft from the original
 .Ar msg
-.Pq including headers
+.Po
+or the current message
+.Pc
+including headers,
 and adds a Resent-To header, to which the message will
 be bounced directly.
 .Po
