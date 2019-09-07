@@ -63,14 +63,14 @@ nl="
 "
 export MLESS_RAW=0
 export MLESS_HTML=0
+if [ -f "$MBLAZE/mless" ]; then
+	export LESSKEY="$MBLAZE/mless"
+elif [ -f "$HOME/.mblaze/mless" ]; then
+	export LESSKEY="$HOME/.mblaze/mless"
+elif [ -f "$HOME/.mless" ]; then
+	export LESSKEY="$HOME/.mless"
+fi
 while :; do
-	if [ -f "$MBLAZE/mless" ]; then
-		export LESSKEY="$MBLAZE/mless"
-	elif [ -f "$HOME/.mblaze/mless" ]; then
-		export LESSKEY="$HOME/.mblaze/mless"
-	elif [ -f "$HOME/.mless" ]; then
-		export LESSKEY="$HOME/.mless"
-	fi
 	LESSOPEN="|$0 --filter %s" \
 		less -Ps"mless %f?m (message %i of %m).." -R \
 			"+:e $(mscan -n .)$nl" //scan $(mscan -n :)
