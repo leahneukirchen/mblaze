@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 static int Sflag;
 
@@ -140,6 +141,8 @@ main(int argc, char *argv[])
 		}
 
 	status = 0;
+
+	xpledge("stdio rpath", "");
 
 	if (argc == optind && isatty(0))
 		blaze822_loop1(":", export);

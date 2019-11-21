@@ -43,6 +43,7 @@
 #include <wchar.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 enum op {
 	EXPR_OR = 1,
@@ -1462,6 +1463,8 @@ main(int argc, char *argv[])
 			fprintf(stderr, "Usage: %s [-Tv] [-t test] [-F file] [msgs...]\n", argv0);
 			exit(1);
 		}
+
+	xpledge("stdio rpath", "");
 
 	void *cb = need_thr ? collect : oneline;
 	if (argc == optind && isatty(0))

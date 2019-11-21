@@ -13,6 +13,7 @@
 
 #include "blaze822.h"
 #include "blaze822_priv.h"
+#include "xpledge.h"
 
 static int8_t flags[255];
 static int vflag = 0;
@@ -133,6 +134,8 @@ main(int argc, char *argv[])
 			);
 			exit(1);
 		}
+
+	xpledge("stdio rpath cpath", "");
 
 	curfile = blaze822_seq_cur();
 

@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 static int Bflag;
 static int rflag;
@@ -797,6 +798,8 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 
+	xpledge("stdio rpath wpath cpath proc exec", NULL);
+
 	if (!rflag && !xflag && !Oflag && !Rflag)
 		safe_output = 1;
 
@@ -822,17 +825,22 @@ main(int argc, char *argv[])
 	}
 
 	if (xflag) { // extract
+		xpledge("stdio rpath wpath cpath", NULL);
 		extract(xflag, argc-optind, argv+optind, 0);
 	} else if (Oflag) { // extract to stdout
+		xpledge("stdio rpath", NULL);
 		extract(Oflag, argc-optind, argv+optind, 1);
 	} else if (tflag) { // list
+		xpledge("stdio rpath", NULL);
 		if (argc == optind && isatty(0))
 			blaze822_loop1(".", list);
 		else
 			blaze822_loop(argc-optind, argv+optind, list);
 	} else if (Rflag) { // render for reply
+		xpledge("stdio rpath", NULL);
 		blaze822_loop(argc-optind, argv+optind, reply);
 	} else { // show
+		/* XXX pledge: still r/w on the whole file-system + fork/exec */
 		if (!(qflag || rflag || Fflag)) {
 			char *f = getenv("MAILFILTER");
 			if (!f)

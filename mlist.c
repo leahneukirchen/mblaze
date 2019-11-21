@@ -13,6 +13,7 @@
 
 #include "blaze822.h"
 #include "blaze822_priv.h"
+#include "xpledge.h"
 
 /*
 
@@ -271,6 +272,8 @@ usage:
 		}
 
 	int i;
+
+	xpledge("stdio rpath", "");
 
 	for (i = 0, flagsum = 0, flagset = 0; (size_t)i < sizeof flags; i++) {
 		if (flags[i] != 0)

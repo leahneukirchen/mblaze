@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 static int aflag;
 static int dflag;
@@ -107,6 +108,8 @@ main(int argc, char *argv[])
 			    "Usage: maddr [-ad] [-h headers] [msgs...]\n");
 			exit(1);
 		}
+
+	xpledge("stdio rpath", "");
 
 	if (argc == optind && isatty(0))
 		blaze822_loop1(":", addr);
