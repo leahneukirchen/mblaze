@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 struct mail {
 	char *file;
@@ -316,6 +317,7 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 
+	xpledge("stdio rpath", "");
 
 	mails = calloc(sizeof (struct mail), mailalloc);
 	if (!mails)

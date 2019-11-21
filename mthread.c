@@ -19,6 +19,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 static int vflag;
 static int pflag;
@@ -418,6 +419,8 @@ main(int argc, char *argv[])
 	int c;
 
 	optional = 1;
+
+	xpledge("stdio rpath", "");
 
 	while ((c = getopt(argc, argv, "S:prv")) != -1)
 		switch (c) {

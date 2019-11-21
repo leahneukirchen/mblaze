@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 /*
 design rationale:
@@ -339,6 +340,8 @@ usage2:
 
 	if (argc != optind+1)
 		goto usage2;
+
+	xpledge("stdio rpath wpath cpath", "");
 
 	targetdir = argv[optind];
 

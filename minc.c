@@ -12,6 +12,7 @@
 
 #include "blaze822.h"
 #include "blaze822_priv.h"
+#include "xpledge.h"
 
 static int qflag;
 static int status;
@@ -75,6 +76,8 @@ usage:
 
 	if (optind == argc)
 		goto usage;
+
+	xpledge("stdio rpath cpath", "");
 
 	status = 0;
 	for (i = optind; i < argc; i++)

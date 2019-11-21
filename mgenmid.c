@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 void
 printb36(uint64_t x)
@@ -35,6 +36,8 @@ int main()
 
 	char *f = blaze822_home_file("profile");
 	struct message *config = blaze822(f);
+
+	xpledge("stdio rpath", "");
 
 	if (config) // try FQDN: first
 		host = blaze822_hdr(config, "fqdn");

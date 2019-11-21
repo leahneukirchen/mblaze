@@ -16,6 +16,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 static int cflag;
 static int rflag;
@@ -520,6 +521,8 @@ usage:
 
 	if (argc != optind)
 		goto usage;
+
+	xpledge("stdio rpath", "");
 
 	if (cflag)
 		return check();

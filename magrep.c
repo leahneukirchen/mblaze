@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 static int aflag;
 static int cflag;
@@ -217,6 +218,8 @@ usage:
 	char *rx = strchr(header, ':');
 	if (!rx)
 		goto usage;
+
+	xpledge("stdio rpath", "");
 
 	*rx++ = 0;
 	int r = regcomp(&pattern, rx, REG_EXTENDED | iflag);

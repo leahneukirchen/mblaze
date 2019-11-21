@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 static char *expr;
 
@@ -322,6 +323,8 @@ main(int argc, char *argv[])
 			fprintf(stderr, "Usage: msed [expr] [msgs...]\n");
 			exit(1);
 		}
+
+	xpledge("stdio rpath", "");
 
 	expr = argv[optind];
 	optind++;

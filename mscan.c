@@ -2,6 +2,8 @@
 #define _XOPEN_SOURCE 700
 #endif
 
+#include "xpledge.h"
+
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -549,6 +551,8 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 
+	xpledge("stdio rpath tty proc exec", NULL);
+
 	if (nflag) {
 		if (argc == optind && isatty(0))
 			blaze822_loop1(":", numline);
@@ -584,6 +588,9 @@ main(int argc, char *argv[])
 	}
 	if (ttyfd >= 0)
 		close(ttyfd);
+
+	xpledge("stdio rpath", "");
+
 	if (getenv("COLUMNS"))
 		cols = atoi(getenv("COLUMNS"));
 	if (cols <= 40)

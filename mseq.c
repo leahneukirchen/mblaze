@@ -13,6 +13,7 @@
 
 #include "blaze822.h"
 #include "blaze822_priv.h"
+#include "xpledge.h"
 
 static int fflag;
 static int rflag;
@@ -297,6 +298,8 @@ usage:
 			);
 			exit(1);
 		}
+
+	xpledge("stdio rpath wpath cpath", "");
 
 	if (cflag)
 		blaze822_loop1(cflag, overridecur);

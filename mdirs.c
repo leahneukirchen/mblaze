@@ -9,6 +9,7 @@
 
 #include "blaze822.h"
 #include "blaze822_priv.h"
+#include "xpledge.h"
 
 static char sep = '\n';
 int aflag;
@@ -87,6 +88,8 @@ usage:
 
 	if (argc == optind)
 		goto usage;
+
+	xpledge("stdio rpath", "");
 
 	char toplevel[PATH_MAX];
 	if (!getcwd(toplevel, sizeof toplevel)) {

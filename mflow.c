@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "xpledge.h"
 
 int column = 0;
 int maxcolumn = 80;
@@ -107,6 +108,8 @@ main(int argc, char *argv[])
 	int force = 0;
 	int delsp = 0;
 
+	xpledge("stdio rpath tty", "");
+
 	char *ct = getenv("PIPE_CONTENTTYPE");
 	if (ct) {
 		char *s, *se;
@@ -129,6 +132,8 @@ main(int argc, char *argv[])
 			close(fd);
 		}
 	}
+
+	xpledge("stdio", "");
 
 	char *maxcols = getenv("MAXCOLUMNS");
 	if (maxcols && isdigit(*maxcols)) {
