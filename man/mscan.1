@@ -1,4 +1,4 @@
-.Dd September 25, 2018
+.Dd January 2, 2020
 .Dt MSCAN 1
 .Os
 .Sh NAME
@@ -94,6 +94,11 @@ on the current message,
 otherwise a blank.
 .It Cm "%" Ns Oo Ar wd Oc Ns Cm "d"
 Adaptive date of the message.
+When
+.Ar wd
+is greater or equal to 19,
+the timestamp is shown in dottime format
+.Pq Lk https://dotti.me/ .
 .It Cm "%" Ns Oo Ar wd Oc Ns Cm "D"
 ISO date of the message
 .Pq year, month, day .

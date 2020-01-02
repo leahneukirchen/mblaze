@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <locale.h>
@@ -138,6 +139,33 @@ fmt_date(struct message *msg, int w, int iso)
 			strftime(date, sizeof date, "%Y-%m-%d %H:%M", tm);
 		else
 			strftime(date, sizeof date, "%Y-%m-%d", tm);
+	} else if (w >= 19) {
+		// https://dotti.me/
+
+		tm = gmtime(&t);
+		strftime(date, sizeof date, "%Y-%m-%dT%H\xc2\xb7%M", tm);
+		char *d = date + strlen(date);
+
+		char *e = v + strlen(v);
+		while (e > v && (*e != '+' && *e != '-'))
+			e--;
+
+		if (isdigit(e[1]) && isdigit(e[2]) && isdigit(e[3]) && isdigit(e[4])) {
+			*d++ = e[0];
+			*d++ = e[1];
+			*d++ = e[2];
+			if (e[3] != '0' || e[4] != '0') {
+				*d++ = ':';
+				*d++ = e[3];
+				*d++ = e[4];
+			}
+			*d = 0;
+		} else {
+			*d++ = '+';
+			*d++ = '0';
+			*d++ = '0';
+			*d = 0;
+		}
 	} else if (w < 10) {
 		if (tm->tm_year != curyear)
 			strftime(date, sizeof date, "%b%y", tm);
