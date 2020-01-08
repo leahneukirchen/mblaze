@@ -282,7 +282,7 @@ fi
 				commajoin | sed 's/^/Cc: /'
 			printf '%s' "$hdrs" | mhdr -M -h bcc /dev/stdin |
 				commajoin | sed 's/^/Bcc: /'
-			COLUMNS=10000 mscan -f 'Subject: [%f] %s' "$@" 2>/dev/null | sed 1q
+			COLUMNS=10000 mscan -f 'Subject: Fwd: [%f] %s' "$@" 2>/dev/null | sed 1q
 			printf '%s\n' "$hdrs" | awk '{ print }' |
 				msed "/to/d; /cc/d; /bcc/d" /dev/stdin
 		} | msed "/cc/a//; /bcc/a//; /from/a/$default_from/" /dev/stdin | sed '/^$/d'
