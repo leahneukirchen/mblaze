@@ -250,6 +250,11 @@ else
 	draftmime="$(printf '%s\n' "$draft" | sed 's,\(.*\)/cur/,\1/tmp/mime-,')"
 fi
 
+if [ -n "$resume" ] && [ -z "$draft" ]; then
+	echo "mcom: no draft found"
+	exit 1
+fi
+
 [ -z "$resume" ] &&
 {
 	case "$0" in
