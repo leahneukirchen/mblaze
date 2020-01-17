@@ -465,13 +465,21 @@ oneline(char *file)
 		case 'F':
 			{
 				char *e = file + strlen(file);
+
+				if (!msg)
+					goto empty;
+
 				while (file < e && *e != '/')
 					e--;
+				if (file == e)
+					goto empty;
 				e--;
 				while (file < e && *e != '/')
 					e--;
 				while (file < e && *e == '/')
 					e--;
+				if (file == e)
+					goto empty;
 				char *b = e;
 				e++;
 				while (file < b && *b != '/')
@@ -480,6 +488,11 @@ oneline(char *file)
 					b++;
 				if (*b == '.')
 					b++;
+
+				if (0) {
+empty:
+					b = e = "";
+				}
 				if (w) {
 					if (w < 0)
 						w = -w;
