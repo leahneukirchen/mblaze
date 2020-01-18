@@ -1,3 +1,10 @@
+## 0.6 (2020-01-18)
+
+* mfwd: prefix Subject with "Fwd:".
+* mscan: add dottime formatting.
+* mlist: look at maildir/new too for messages.
+* Many bug and portability fixes.
+
 ## 0.5.1 (2019-03-03)
 
 * mdeliver: preserve mtime in mrefile
@@ -22,7 +29,7 @@
 * magrep: add -h, which is like -p but doesn't print the file name
 * mscan: prioritize displaying trashed mail over other markers
 * mpick: fix off-by-one in expression parsing
-* Many bug fixes
+* Many bug fixes.
 
 ## 0.4 (2018-08-15)
 
