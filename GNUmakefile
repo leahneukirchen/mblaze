@@ -72,7 +72,7 @@ release:
 
 sign:
 	VERSION=$$(git describe --tags | sed 's/^v//;s/-[^.]*$$//') && \
-	gpg --armor --detach-sign mblaze-$$VERSION.tar.gz && \
+	gpg2 --armor --detach-sign mblaze-$$VERSION.tar.gz && \
 	signify -S -s ~/.signify/mblaze.sec -m mblaze-$$VERSION.tar.gz && \
 	sed -i '1cuntrusted comment: verify with mblaze.pub' mblaze-$$VERSION.tar.gz.sig
 
