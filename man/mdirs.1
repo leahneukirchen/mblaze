@@ -1,4 +1,4 @@
-.Dd July 22, 2016
+.Dd January 22, 2020
 .Dt MDIRS 1
 .Os
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd list maildir folders, recursively
 .Sh SYNOPSIS
 .Nm
-.Op Fl 0
+.Op Fl 0a
 .Ar dirs\ ...
 .Sh DESCRIPTION
 .Nm
@@ -27,11 +27,14 @@ and
 By the maildir++ convention, nested maildir folder
 names must begin with
 .Sq Li \&. .
+.Pq This can be disabled using Fl a .
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
 .It Fl 0
 Print folders separated by a NUL character.
+.It Fl a
+Traverse into all subfolders, without considering the maildir++ name conventions.
 .El
 .Sh EXIT STATUS
 .Ex -std

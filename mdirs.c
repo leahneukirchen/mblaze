@@ -10,6 +10,7 @@
 #include "blaze822.h"
 
 static char sep = '\n';
+int aflag;
 
 void
 pwd()
@@ -58,7 +59,7 @@ mdirs(char *fpath)
 		    d->d_name[2] == 0)
 			continue;
 
-		if (dotonly && d->d_name[0] != '.')
+		if (!aflag && dotonly && d->d_name[0] != '.')
 			continue;
 
 		mdirs(d->d_name);
@@ -74,12 +75,13 @@ int
 main(int argc, char *argv[])
 {
 	int c, i;
-	while ((c = getopt(argc, argv, "0")) != -1)
+	while ((c = getopt(argc, argv, "0a")) != -1)
 		switch (c) {
 		case '0': sep = '\0'; break;
+		case 'a': aflag = 1; break;
 		default:
 usage:
-			fprintf(stderr, "Usage: mdirs [-0] dirs...\n");
+			fprintf(stderr, "Usage: mdirs [-0a] dirs...\n");
 			exit(1);
 		}
 
