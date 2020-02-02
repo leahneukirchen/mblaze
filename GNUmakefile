@@ -68,6 +68,7 @@ install: FRC all
 
 release:
 	VERSION=$$(git describe --tags | sed 's/^v//;s/-[^.]*$$//') && \
+	[ "$$VERSION" = "$$(cat VERSION)" ] && \
 	git archive --prefix=mblaze-$$VERSION/ -o mblaze-$$VERSION.tar.gz HEAD
 
 sign:
