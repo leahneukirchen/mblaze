@@ -68,6 +68,7 @@ enum op {
 	EXPR_TYPE,
 	EXPR_ALLSET,
 	EXPR_ANYSET,
+	EXPR_BINDING,
 };
 
 enum prop {
@@ -118,6 +119,7 @@ struct expr {
 		int64_t num;
 		regex_t *regex;
 		enum var var;
+		struct binding *binding;
 	} a, b, c;
 	int extra;
 };
@@ -321,6 +323,13 @@ freeexpr(struct expr *e)
 	case EXPR_NOT:
 		freeexpr(e->a.expr);
 		break;
+	case EXPR_BINDING:
+		e->a.binding->refcount -= 1;
+		if (e->a.binding->refcount == 0) {
+			freeexpr(e->a.binding->expr);
+			free(e->a.binding);
+		}
+		break;
 	case EXPR_REDIR_FILE:
 	case EXPR_REDIR_PIPE:
 		free(e->a.string);
@@ -338,12 +347,12 @@ freeexpr(struct expr *e)
 		case PROP_HDR_ADDR:
 		case PROP_HDR_DISP:
 			free(e->b.string);
-		default: return;
 		}
 		if (e->op == EXPR_REGEX || e->op == EXPR_REGEXI)
 			regfree(e->c.regex);
 		else
 			free(e->c.string);
+		break;
 	}
 	free(e);
 }
@@ -419,8 +428,10 @@ parse_binding()
 		for (sc = scopeq; sc; sc = sc->prev) {
 			for (b = sc->bindings; b; b = b->next) {
 				if (b->nlen == l && strncmp(b->name, s, l) == 0) {
+					struct expr *e = mkexpr(EXPR_BINDING);
+					e->a.binding = b;
 					b->refcount++;
-					return b->expr;
+					return e;
 				}
 			}
 		}
@@ -460,9 +471,12 @@ parse_let()
 		b->name = s;
 		b->nlen = l;
 		b->expr = e;
-		if (!sc->bindings) sc->bindings = b;
-		if (bq) bq->next = b;
-		bq = b;
+		if (bq) {
+			bq->next = b;
+			bq = b;
+		} else {
+			bq = sc->bindings = b;
+		}
 		if (!token("let"))
 			break;
 	}
@@ -474,8 +488,9 @@ parse_let()
 	struct binding *bs;
 	for (b = sc->bindings; b; b = bs) {
 		bs = b->next;
-		if (b->refcount == 0)
-			freeexpr(b->expr);
+		if (b->refcount != 0)
+			continue;
+		freeexpr(b->expr);
 		free(b);
 	}
 
@@ -1224,7 +1239,8 @@ eval(struct expr *e, struct mailinfo *m)
 			: eval(e->c.expr, m);
 	case EXPR_NOT:
 		return !eval(e->a.expr, m);
-		return 1;
+	case EXPR_BINDING:
+		return eval(e->a.binding->expr, m);
 	case EXPR_PRUNE:
 		prune = 1;
 		return 1;
