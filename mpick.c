@@ -423,6 +423,7 @@ parse_binding()
 	struct binding *b;
 	char *s;
 	size_t l = 0;
+	struct pos savepos = { pos, line, linenr };
 
 	if (parse_ident(&s, &l)) {
 		for (sc = scopeq; sc; sc = sc->prev) {
@@ -436,9 +437,8 @@ parse_binding()
 			}
 		}
 	}
-	// back to the start of the ident if there was one
-	pos = pos-l;
-	parse_error_at(NULL, "unknown expression");
+
+	parse_error_at(&savepos, "unknown expression");
 	return 0;
 }
 

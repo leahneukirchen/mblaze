@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 27
+plan 28
 
 rm -rf test.dir
 mkdir test.dir
@@ -81,6 +81,9 @@ check_same 'pipe command' 'mlist inbox | mpick -t "print |\"cat -n\" && skip"' '
 check_same 'create file' 'mlist inbox | mpick -t "print >\"foo\" && skip" && cat foo' 'mlist inbox'
 check_same 'overwrite file' 'mlist inbox | mpick -t "print >\"foo\" && skip" && cat foo' 'mlist inbox'
 check_same 'append file' 'mlist inbox | mpick -t "print >>\"foo\" && skip" && cat foo' 'mlist inbox && mlist inbox'
+
+check_same 'unknown ident' 'mlist inbox | mpick -t "let x = x in x" 2>&1' \
+	"echo \"mpick: parse error: argv:1:9: unknown expression at 'x in x'\""
 
 cat <<! >expr
 let foo = from.addr == "peter@example.org"
