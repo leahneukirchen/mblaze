@@ -510,7 +510,7 @@ while :; do
 		mshow -t "$draftmime"
 		c=
 		;;
-	show)
+	p|preview|show)
 		if [ -e "$draftmime" ]; then
 			mshow "$draftmime"
 		else
@@ -519,7 +519,7 @@ while :; do
 		c=
 		;;
 	*)
-		printf 'What now? (%s[s]end, [c]ancel, [d]elete, [e]dit, [m]ime, sign, encrypt) ' "${automime:+mime and }"
+		printf 'What now? (%s[s]end, [c]ancel, [d]elete, [e]dit, [m]ime, [p]review, sign, encrypt) ' "${automime:+mime and }"
 		read -r c
 		;;
 	esac
