@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 26
+plan 27
 
 rm -rf test.dir
 mkdir test.dir
@@ -90,6 +90,15 @@ in
   foo && bar # another comment
 !
 check_test 'let expression' -eq 2 'mlist inbox | mpick ./expr | wc -l'
+
+cat <<! >expr
+let foo = from.addr == "peter@example.org"
+let bar = from.disp == "Peter Example"
+# random comment
+in
+  foo && foo
+!
+check_test 'let expression double free' -eq 2 'mlist inbox | mpick ./expr | wc -l'
 
 cat <<! >expr
 let foo =
