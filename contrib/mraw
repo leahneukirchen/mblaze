@@ -3,4 +3,4 @@
 
 IFS='
 '
-exec cat -- $(mseq "${@:-.}")
+exec cat -- $(mseq "${@:-.}" | sed 's/^ *//')
