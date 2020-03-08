@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
+#include "blaze822_priv.h"
 
 static int fflag;
 static int rflag;
@@ -58,10 +59,9 @@ namescan(char *dir)
 	if (!fd)
 		return;
 	while ((d = readdir(fd))) {
-#if defined(DT_REG) && defined(DT_UNKNOWN)
-		if (d->d_type != DT_REG && d->d_type != DT_UNKNOWN)
+		if (!MAIL_DT(d->d_type))
 			continue;
-#endif
+
 		if (d->d_name[0] == '.')
 			continue;
 
