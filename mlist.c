@@ -12,9 +12,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
-
-#define lc(c) ((c) | 0x20)
-#define uc(c) ((c) & 0xdf)
+#include "blaze822_priv.h"
 
 /*
 

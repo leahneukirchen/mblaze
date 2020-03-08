@@ -12,7 +12,8 @@ struct message {
 
 #define isfws(c)  (((unsigned char)(c) == ' ' || (unsigned char)(c) == '\t' || (unsigned char)(c) == '\n' || (unsigned char)(c) == '\r'))
 
-// ASCII lowercase without alpha check (wrong for "@[\]^_")
+// ASCII lowercase/uppercase without alpha check (wrong for "@[\]^_")
 #define lc(c) ((c) | 0x20)
+#define uc(c) ((c) & 0xdf)
 
 void *mymemmem(const void *h0, size_t k, const void *n0, size_t l);

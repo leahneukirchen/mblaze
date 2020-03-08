@@ -12,8 +12,7 @@
 #include <unistd.h>
 
 #include "blaze822.h"
-
-#define uc(c) ((c) & 0xdf)
+#include "blaze822_priv.h"
 
 static int8_t flags[255];
 static int vflag = 0;
