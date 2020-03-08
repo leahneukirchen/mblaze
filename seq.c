@@ -501,12 +501,8 @@ iterdir(char *dir, void (*cb)(char *))
 
 	long i = 0;
 	for (i = 0; i < n; i++) {
-		if (namelist[i]->d_name[0] != '.')
-#if defined(DT_REG) && defined(DT_UNKNOWN)
-		if (namelist[i]->d_type == DT_REG ||
-		    namelist[i]->d_type == DT_UNKNOWN)
-#endif
-		{
+		if (namelist[i]->d_name[0] != '.' &&
+		    MAIL_DT(namelist[i]->d_type)) {
 			snprintf(sub, sizeof sub, "%s%s/%s",
 			    dir, m, namelist[i]->d_name);
 			cb(sub);
