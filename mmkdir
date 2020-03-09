@@ -5,7 +5,7 @@ umask 077
 
 r=0
 for dir; do
-	mkdir -p "$dir"/cur "$dir"/new "$dir"/tmp || r=1
+	mkdir -p "$dir"/tmp "$dir"/new "$dir"/cur || r=1
 done
 
 exit $r
