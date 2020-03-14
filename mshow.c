@@ -791,7 +791,7 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 
-	if (!rflag && !Oflag && !Rflag)
+	if (!rflag && !xflag && !Oflag && !Rflag)
 		safe_output = 1;
 
 	if (safe_output && isatty(1)) {
