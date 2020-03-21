@@ -311,6 +311,12 @@ fi
 		) fi
 		;;
 	*mbnc*)
+		set -- $(mseq -- "$@")
+		if [ "$#" -ne 1 ]; then
+			printf 'mbnc: needs exactly one mail to bounce\n' 1>&2
+			exit 1
+		fi
+
 		{
 			printf '%s' "$hdrs" | mhdr -M -h resent-to /dev/stdin |
 				commajoin | sed 's/^/Resent-To: /'
@@ -324,10 +330,16 @@ fi
 		printf 'Resent-Date: %s\n' "$(mdate)"
 		(
 			IFS=$NL
-			cat $(mseq "${@:-.}")
+			cat $(mseq -- "$@")
 		)
 		;;
 	*mrep*)
+		set -- $(mseq -- "$@")
+		if [ "$#" -ne 1 ]; then
+			printf 'mrep: needs exactly one mail to reply to\n' 1>&2
+			exit 1
+		fi
+
 		ng=$(mhdr -h newsgroups "$1")
 		if [ "$ng" ]; then
 			printf 'Newsgroups: %s\n' "$ng"
