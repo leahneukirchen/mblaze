@@ -6,15 +6,15 @@ mytimegm(struct tm *tm)
 	int mon = tm->tm_mon + 1 - 2;  /* put March first, Feb last */
 	long long year = tm->tm_year + 1900;
 
-        if (mon <= 0 || mon >= 12) {
-                int adj = mon / 12;
-                mon %= 12;
-                if (mon <= 0) {
-                        adj--;
-                        mon += 12;
-                }
-                year += adj;
-        }
+	if (mon <= 0 || mon >= 12) {
+		int adj = mon / 12;
+		mon %= 12;
+		if (mon <= 0) {
+			adj--;
+			mon += 12;
+		}
+		year += adj;
+	}
 
 	time_t t = 0;
 	t +=            tm->tm_sec;
