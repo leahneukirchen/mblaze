@@ -85,7 +85,7 @@ int filter(char *input, size_t inlen, char *cmd, char **outputo, size_t *outleno
 
 // mygmtime.c
 
-time_t tm_to_secs(const struct tm *tm);
+time_t mytimegm(const struct tm *tm);
 
 
 // slurp.c

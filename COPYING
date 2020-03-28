@@ -5,7 +5,7 @@ has waived all copyright and related or neighboring rights to this work.
 http://creativecommons.org/publicdomain/zero/1.0/
 
 
-The files mystrverscmp.c and mymemmem.c and mytimegm.c
+The files mystrverscmp.c and mymemmem
 are MIT-licensed and were written by Rich Felker.
 
 mpick.c is largely based on code by Leah Neukirchen
