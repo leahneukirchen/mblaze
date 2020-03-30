@@ -9,6 +9,7 @@
 #include "blaze822.h"
 
 static int aflag;
+static int dflag;
 static char defaulthflags[] = "from:sender:reply-to:to:cc:bcc:"
     "resent-from:resent-sender:resent-to:resent-cc:resent-bcc:";
 static char *hflag = defaulthflags;
@@ -63,15 +64,22 @@ addr(char *file)
 			while ((v = blaze822_addr(v, &disp, &addr))) {
 				if (disp && addr && strcmp(disp, addr) == 0)
 					disp = 0;
-				if (disp && addr) {
-					if (aflag) {
+
+				if (aflag) {
+					if (addr)
 						printf("%s\n", addr);
-					} else {
+				} else if (dflag) {
+					if (disp) {
+						print_quoted(disp);
+						printf("\n");
+					}
+				} else {
+					if (disp && addr) {
 						print_quoted(disp);
 						printf(" <%s>\n", addr);
+					} else if (addr) {
+						printf("%s\n", addr);
 					}
-				} else if (addr) {
-					printf("%s\n", addr);
 				}
 			}
 		}
@@ -89,13 +97,14 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	while ((c = getopt(argc, argv, "ah:")) != -1)
+	while ((c = getopt(argc, argv, "adh:")) != -1)
 		switch (c) {
 		case 'a': aflag = 1; break;
+		case 'd': dflag = 1; break;
 		case 'h': hflag = optarg; break;
 		default:
 			fprintf(stderr,
-			    "Usage: maddr [-a] [-h headers] [msgs...]\n");
+			    "Usage: maddr [-ad] [-h headers] [msgs...]\n");
 			exit(1);
 		}
 

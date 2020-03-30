@@ -1,4 +1,4 @@
-.Dd July 22, 2016
+.Dd March 30, 2020
 .Dt MADDR 1
 .Os
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd extract mail addresses from messages
 .Sh SYNOPSIS
 .Nm
-.Op Fl a
+.Op Fl ad
 .Op Fl h Ar headers
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
@@ -36,6 +36,8 @@ The options are as follows:
 .Bl -tag -width Ds
 .It Fl a
 Only print the addr-spec address, not the display name.
+.It Fl d
+Only print the display name.
 .It Fl h Ar headers
 Only search the colon-separated list of
 .Ar headers
