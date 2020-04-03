@@ -1,7 +1,7 @@
 #!/bin/sh
 cd ${0%/*}
 . ./lib.sh
-plan 31
+plan 33
 
 check_addr() {
   printf "From: %s\n" "$1" | check_test "parse $1" = "$2" "maddr /dev/stdin"
@@ -46,3 +46,6 @@ check_addr 'test."test"@example.org' 'test.test@example.org'
 check_addr '<test."test"@example.org>' 'test.test@example.org'
 check_addr 'test"test"@example.org' 'testtest@example.org'
 check_addr '<test"test"@example.org>' 'testtest@example.org'
+
+check_addr 'foo<bar@example.org>' 'foo <bar@example.org>'
+check_addr 'xxxxxxxxx a"test"@example.org' "xxxxxxxxx <atest@example.org>"

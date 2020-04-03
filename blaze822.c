@@ -277,6 +277,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 			if (memchr(tok, '@', c - tok))
 				not_addr = 1;  // @ inside "" is never an addr
 
+			*tc = 0;
 			tc += safe_append(ttok, sizeof ttok, tok, c);
 		} else if (*s == '(') {
 			char *z = skip_comment(s);
