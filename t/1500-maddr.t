@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 10
+plan 11
 
 rm -rf test.dir
 mkdir test.dir
@@ -12,6 +12,7 @@ mkdir -p "inbox/cur"
 
 cat <<! | mmime >"inbox/cur/1:2,"
 From: Rajwinder Kaur <rajwinder@example.com>
+Obs-Test: Rajwinder Kaur <@example.org:rajwinder@example.com>
 Subject: namaste
 Date: Thu, 30 Mar 2017 15:42:05 +0200
 Message-Id: <EOH1F3NUOY.2KBVMHSBFATNY@example.org>
@@ -66,6 +67,7 @@ export MAILSEQ=seq
 
 check_same 'from one' 'maddr 1' 'echo "Rajwinder Kaur <rajwinder@example.com>"'
 check_same 'from address' 'maddr -a 1' 'echo "rajwinder@example.com"'
+check_same 'from one' 'maddr -h obs-test 1' 'echo "Rajwinder Kaur <rajwinder@example.com>"'
 
 cat <<! >expect
 имярек <имярек@example.com>

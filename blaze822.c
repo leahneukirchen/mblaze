@@ -241,7 +241,7 @@ blaze822_addr(char *s, char **dispo, char **addro)
 					}
 					if (*s == '"')
 						s++;
-				} else if (*s == '<') {
+				} else if (*s == '<' || *s == ':') {
 					c = tok;
 					s++;
 				} else {
