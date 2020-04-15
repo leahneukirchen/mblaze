@@ -66,6 +66,7 @@ ARGV.each { |group|
   msg = nntp.gets
   unless msg =~ /^211 /
     STDERR.puts msg
+    $exit = 69
     next
   end
 
@@ -135,3 +136,5 @@ ARGV.each { |group|
   
   puts
 }
+
+exit $exit || 0
