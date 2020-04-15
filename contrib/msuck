@@ -57,10 +57,6 @@ STDOUT.sync = true
 
 ARGV.each { |group|
 
-  FileUtils.mkdir_p(File.join(dir, group, "cur"))
-  FileUtils.mkdir_p(File.join(dir, group, "new"))
-  FileUtils.mkdir_p(File.join(dir, group, "tmp"))
-
   nntp.write("GROUP #{group}\r\n")
 
   msg = nntp.gets
@@ -78,6 +74,10 @@ ARGV.each { |group|
 
   low = high - LIMIT + 1  if number > LIMIT - 1
   low = 1  if low <= 0
+
+  FileUtils.mkdir_p(File.join(dir, group, "cur"))
+  FileUtils.mkdir_p(File.join(dir, group, "new"))
+  FileUtils.mkdir_p(File.join(dir, group, "tmp"))
 
   have = Dir.entries(File.join(dir, group, "cur")).
            map { |f| $1.to_i if f =~ /N=(\d+)/ }.compact
