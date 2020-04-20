@@ -10,14 +10,18 @@ commajoin() {
 	     END {print l}'
 }
 
-notmine() {
+grepmine() {
 	mine="$(maddr -a -h local-mailbox:alternate-mailboxes: "$MBLAZE/profile")"
-	grep -Fv -e "$mine"
+	grep -F -e "$mine" "$@"
 }
 
 replyfrom() {
 	addrs="$(maddr -a -h reply-from: "$MBLAZE/profile")"
-	grep -F -e "$addrs"
+	if [ -z "$addrs" ]; then
+		grepmine
+	else
+		grep -F -e "$addrs"
+	fi
 }
 
 ouniq() {
@@ -354,7 +358,7 @@ fi
 			printf 'To: %s\n' "$to"
 			printf 'Cc: %s\n' \
 			       "$(mhdr -d -A -h to:cc: "$1" |
-				       notmine |grep -Fv -e "$to" |
+				       grepmine -v |grep -Fv -e "$to" |
 				       ouniq |commajoin)"
 			printf 'Bcc: \n'
 			printf '%s\n' "$hdrs" | awk '{ print }' |
@@ -364,7 +368,8 @@ fi
 
 		addr=$(maddr -a -h to:cc:bcc: "$1" | replyfrom | head -n1)
 		if [ -n "$addr" ]; then
-			from=$(maddr -h reply-from "$MBLAZE/profile" | grep -Fi "<$addr>" | head -n1)
+			from=$(maddr -h reply-from:local-mailbox:alternate-mailboxes: \
+				"$MBLAZE/profile" | grep -Fi "<$addr>" | head -n1)
 		fi
 		if [ -z "$from" ]; then
 			from=$(mhdr -h local-mailbox "$MBLAZE/profile")
