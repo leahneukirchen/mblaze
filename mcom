@@ -15,6 +15,11 @@ notmine() {
 	grep -Fv -e "$mine"
 }
 
+replyfrom() {
+	addrs="$(maddr -a -h reply-from: "$MBLAZE/profile")"
+	grep -F -e "$addrs"
+}
+
 ouniq() {
 	awk '!seen[$0]++'
 }
@@ -356,7 +361,15 @@ fi
 				msed "/body/d" /dev/stdin
 		fi | sed '/^$/d'
 		printf 'Subject: Re: %s\n' "$(COLUMNS=10000 mscan -f '%S' "$1")"
-		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
+
+		addr=$(maddr -a -h to:cc:bcc: "$1" | replyfrom | head -n1)
+		if [ -n "$addr" ]; then
+			from=$(maddr -h reply-from "$MBLAZE/profile" | grep -Fi "<$addr>" | head -n1)
+		fi
+		if [ -z "$from" ]; then
+			from=$(mhdr -h local-mailbox "$MBLAZE/profile")
+		fi
+
 		[ "$from" ] && printf 'From: %s\n' "$from"
 		mid=$(mhdr -h message-id "$1")
 		if [ "$mid" ]; then
