@@ -72,14 +72,12 @@ list(char *prefix, char *file)
 			return;
 		icount++;
 		tcount++;
-		f += 3;
-		while (*f) {
-			if (flags[(unsigned int)*f] == -1)
+		char *g;
+		for (g = f + 3; *g; g++)
+			if (flags[(unsigned int)*g] == -1)
 				return;
-			if (flags[(unsigned int)*f] == 1)
+			else if (flags[(unsigned int)*g] == 1)
 				sum++;
-			f++;
-		}
 		if (sum != flagsum)
 			return;
 	}
