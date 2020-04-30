@@ -1,4 +1,4 @@
-.Dd December 13, 2016
+.Dd April 30, 2020
 .Dt MLIST 1
 .Os
 .Sh NAME
@@ -77,8 +77,10 @@ Don't print filenames.
 Instead, print a one-line summary for each folder,
 showing the number of unseen, flagged and total messages,
 along with the folder name.
+If any of the message selection flags are used,
+the number of matching messages is printed as well.
 If two or more folders are specified,
-a total for all folders will also be printed.
+a total for all folders will also be printed at the end.
 .El
 .Pp
 Multiple options are regarded as a conjunction.
