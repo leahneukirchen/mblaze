@@ -21,6 +21,7 @@
 #include "blaze822.h"
 
 static int vflag;
+static int pflag;
 static int rflag;
 static int optional;
 
@@ -390,7 +391,8 @@ print_tree(struct container *c, int depth)
 {
 	do {
 		// skip toplevel threads when they are unresolved or all optional
-		if (depth <= 1 &&
+		// (or when -p is given, skip those subthreads)
+		if ((depth <= 1 || pflag) &&
 		    (c->optional || !c->file) &&
 		    (!c->child || alloptional(c->child)))
 			continue;
@@ -418,13 +420,14 @@ main(int argc, char *argv[])
 
 	optional = 1;
 
-	while ((c = getopt(argc, argv, "S:rv")) != -1)
+	while ((c = getopt(argc, argv, "S:prv")) != -1)
 		switch (c) {
 		case 'S': blaze822_loop1(optarg, thread); break;
 		case 'v': vflag = 1; break;
+		case 'p': pflag = 1; break;
 		case 'r': rflag = 1; break;
 		default:
-			fprintf(stderr, "Usage: mthread [-v] [-r] [-S dir] [msgs...]\n");
+			fprintf(stderr, "Usage: mthread [-vpr] [-S dir] [msgs...]\n");
 			exit(1);
 		}
 

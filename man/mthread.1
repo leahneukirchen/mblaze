@@ -6,8 +6,7 @@
 .Nd arrange messages into discussions
 .Sh SYNOPSIS
 .Nm
-.Op Fl v
-.Op Fl r
+.Op Fl vpr
 .Op Fl S Ar msg
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
@@ -34,6 +33,10 @@ The options are as follows:
 .Bl -tag -width Ds
 .It Fl v
 Do not prune unresolved Message-IDs at the top-level.
+.It Fl p
+With
+.Fl S ,
+only add parents, not unrelated subthreads.
 .It Fl r
 Sort the top-level threads in reverse order (newest threads first).
 .It Fl S Ar msg
