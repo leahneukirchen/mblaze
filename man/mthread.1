@@ -1,4 +1,4 @@
-.Dd July 22, 2016
+.Dd May 4, 2020
 .Dt MTHREAD 1
 .Os
 .Sh NAME
@@ -7,6 +7,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl v
+.Op Fl r
 .Op Fl S Ar msg
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
@@ -33,6 +34,8 @@ The options are as follows:
 .Bl -tag -width Ds
 .It Fl v
 Do not prune unresolved Message-IDs at the top-level.
+.It Fl r
+Sort the top-level threads in reverse order (newest threads first).
 .It Fl S Ar msg
 Treat
 .Ar msg

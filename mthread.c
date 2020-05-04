@@ -21,6 +21,7 @@
 #include "blaze822.h"
 
 static int vflag;
+static int rflag;
 static int optional;
 
 struct container {
@@ -347,6 +348,12 @@ dateorder(const void *a, const void *b)
 	return 0;
 }
 
+static int
+reverse_dateorder(const void *a, const void *b)
+{
+	return dateorder(b, a);
+}
+
 void
 sort_tree(struct container *c, int depth)
 {
@@ -366,7 +373,8 @@ sort_tree(struct container *c, int depth)
 		for (r = c->child, i = 0; r; r = r->next, i++)
 			a[i] = r;
 
-		qsort(a, i, sizeof (struct container *), dateorder);
+		qsort(a, i, sizeof (struct container *),
+		    rflag && depth < 0 ? reverse_dateorder : dateorder);
 
 		c->child = a[0];
 		for (j = 0; j+1 < i; j++)
@@ -410,12 +418,13 @@ main(int argc, char *argv[])
 
 	optional = 1;
 
-	while ((c = getopt(argc, argv, "S:v")) != -1)
+	while ((c = getopt(argc, argv, "S:rv")) != -1)
 		switch (c) {
 		case 'S': blaze822_loop1(optarg, thread); break;
 		case 'v': vflag = 1; break;
+		case 'r': rflag = 1; break;
 		default:
-			fprintf(stderr, "Usage: mthread [-v] [-S dir] [msgs...]\n");
+			fprintf(stderr, "Usage: mthread [-v] [-r] [-S dir] [msgs...]\n");
 			exit(1);
 		}
 
