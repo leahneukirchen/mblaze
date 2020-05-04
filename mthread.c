@@ -438,6 +438,9 @@ main(int argc, char *argv[])
 	else
 		i = blaze822_loop(argc-optind, argv+optind, thread);
 
+	// the tree of all toplevel threads has depth -1,
+	// so toplevel threads have depth 0.
+
 	find_roots();
 	if (!vflag)
 		prune_tree(top, -1);
