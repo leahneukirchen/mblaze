@@ -182,6 +182,9 @@ blaze822_walk_mime(struct message *msg, int depth, blaze822_mime_callback visit)
 
 	blaze822_mime_action r = MIME_CONTINUE;
 
+	if (depth > 64)
+		return MIME_PRUNE;
+
 	if (blaze822_mime_body(msg, &ct, &body, &bodylen, &bodychunk)) {
 
 		r = visit(depth, msg, body, bodylen);
