@@ -1,3 +1,15 @@
+## 0.7 (2020-05-15)
+
+* All tools now follow symlinks to mails.
+* mdirs: add -a to list all subfolders, ignoring Maildir++ convention.
+* mcom: add preview alias for show command.
+* mrep/mbnc: allow only one message as argument.
+* maddr: add -d to only print display name.
+* mthread: add -r to reverse top-level order.
+* mlist: print number of matches when message selection is in place.
+* mpick: many improvements.
+* Many bug fixes.
+
 ## 0.6 (2020-01-18)
 
 * mfwd: prefix Subject with "Fwd:".
