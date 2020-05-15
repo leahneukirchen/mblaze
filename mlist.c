@@ -288,13 +288,14 @@ usage:
 			listarg(argv[i]);
 	}
 
-	if (iflag && tdirs > 1)
+	if (iflag && tdirs > 1) {
 		if (flagset)
 			printf("%6ld matched  %6ld unseen  %3ld flagged  %6ld msg\n",
 			    tmatched, tunseen, tflagged, tcount);
 		else
 			printf("%6ld unseen  %3ld flagged  %6ld msg\n",
 			    tunseen, tflagged, tcount);
+	}
 
 	return 0;
 }
