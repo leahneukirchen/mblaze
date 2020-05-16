@@ -20,6 +20,7 @@
 
 #include "blaze822.h"
 
+static int nflag;
 static int vflag;
 static int pflag;
 static int rflag;
@@ -420,14 +421,15 @@ main(int argc, char *argv[])
 
 	optional = 1;
 
-	while ((c = getopt(argc, argv, "S:prv")) != -1)
+	while ((c = getopt(argc, argv, "S:nprv")) != -1)
 		switch (c) {
 		case 'S': blaze822_loop1(optarg, thread); break;
+		case 'n': nflag = 1; break;
 		case 'v': vflag = 1; break;
 		case 'p': pflag = 1; break;
 		case 'r': rflag = 1; break;
 		default:
-			fprintf(stderr, "Usage: mthread [-vpr] [-S dir] [msgs...]\n");
+			fprintf(stderr, "Usage: mthread [-nvpr] [-S dir] [msgs...]\n");
 			exit(1);
 		}
 
@@ -447,7 +449,8 @@ main(int argc, char *argv[])
 	sort_tree(top, -1);
 	print_tree(top, -1);
 
-	fprintf(stderr, "%ld mails threaded\n", i);
+	if (nflag)
+		fprintf(stderr, "%ld mails threaded\n", i);
 
 	return 0;
 }

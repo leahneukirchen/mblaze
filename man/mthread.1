@@ -1,4 +1,4 @@
-.Dd May 4, 2020
+.Dd May 16, 2020
 .Dt MTHREAD 1
 .Os
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd arrange messages into discussions
 .Sh SYNOPSIS
 .Nm
-.Op Fl vpr
+.Op Fl nvpr
 .Op Fl S Ar msg
 .Op Ar msgs\ ...
 .Sh DESCRIPTION
@@ -31,6 +31,8 @@ Unresolved Message-IDs are printed as-is.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
+.It Fl n
+Print how many messages were threaded to standard error.
 .It Fl v
 Do not prune unresolved Message-IDs at the top-level.
 .It Fl p
