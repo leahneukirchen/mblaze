@@ -1,0 +1,10 @@
+#!/bin/sh
+# mcount - count mails from sequence on stdin
+
+[ -t 1 ] && stdout=1
+
+awk -v stdout=$stdout '
+  !/^ *</ { n++ }
+  !stdout { print }
+  END { fflush(); print n " mails processed" > "/dev/stderr" }
+'
