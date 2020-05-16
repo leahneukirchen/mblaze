@@ -416,7 +416,6 @@ int
 main(int argc, char *argv[])
 {
 	int c;
-	long i;
 
 	optional = 1;
 
@@ -434,9 +433,9 @@ main(int argc, char *argv[])
 	optional = 0;
 
 	if (argc == optind && isatty(0))
-		i = blaze822_loop1(":", thread);
+		blaze822_loop1(":", thread);
 	else
-		i = blaze822_loop(argc-optind, argv+optind, thread);
+		blaze822_loop(argc-optind, argv+optind, thread);
 
 	// the tree of all toplevel threads has depth -1,
 	// so toplevel threads have depth 0.
@@ -446,8 +445,6 @@ main(int argc, char *argv[])
 		prune_tree(top, -1);
 	sort_tree(top, -1);
 	print_tree(top, -1);
-
-	fprintf(stderr, "%ld mails threaded\n", i);
 
 	return 0;
 }
