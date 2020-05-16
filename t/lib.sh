@@ -28,8 +28,8 @@ check_test() {
 check_same() {
 	msg=$1
 	shift
-	eval "$1" 2>/dev/null 1>&2 >out1 || true
-	eval "$2" 2>/dev/null 1>&2 >out2 || true
+	eval "$1 || true" 2>/dev/null 1>&2 >out1 || true
+	eval "$2 || true" 2>/dev/null 1>&2 >out2 || true
 	diff -u out1 out2 || true
 	check "$msg" cmp out1 out2
 }
