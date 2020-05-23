@@ -356,8 +356,11 @@ fi
 				msed "/body/d" /dev/stdin
 		fi | sed '/^$/d'
 		printf 'Subject: Re: %s\n' "$(COLUMNS=10000 mscan -f '%S' "$1")"
-		from=$(mhdr -h local-mailbox "$MBLAZE/profile")
-		[ "$from" ] && printf 'From: %s\n' "$from"
+		if ! printf '%s\n' "$hdrs" | awk '{ print }' |
+		     mhdr -h from: /dev/stdin >/dev/null; then
+			from=$(mhdr -h local-mailbox "$MBLAZE/profile")
+			[ "$from" ] && printf 'From: %s\n' "$from"
+		fi
 		mid=$(mhdr -h message-id "$1")
 		if [ "$mid" ]; then
 			printf 'References:'
