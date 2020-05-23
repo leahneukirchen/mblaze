@@ -54,6 +54,21 @@ If set,
 .Xr mcom 1
 will create draft messages in this maildir,
 and save messages there after sending.
+.It Li Reply-From\&:
+A comma-separated list of mail addresses (formatted like this:
+.Sq Li My Name <username@domain> )
+that are automatically used for
+the
+.Li From\&:
+header in a reply if present in the
+.Li To\&: ,
+.Li Cc\&: ,
+or
+.Li Bcc\&:
+header.
+If not set,
+.Li Alternate\&-Mailboxes\&:
+will be used as a default.
 .It Li Scan\&-Format\&:
 The default format string for
 .Xr mscan 1 .

@@ -15,6 +15,12 @@ notmine() {
 	grep -Fv -e "$mine"
 }
 
+replyfrom() {
+	addrs="$(maddr -a -h reply-from: "$MBLAZE/profile")"
+	[ -z "$addrs" ] && addrs="$(maddr -a -h alternate-mailboxes: "$MBLAZE/profile")"
+	grep -F -e "$addrs"
+}
+
 ouniq() {
 	awk '!seen[$0]++'
 }
@@ -358,8 +364,11 @@ fi
 		printf 'Subject: Re: %s\n' "$(COLUMNS=10000 mscan -f '%S' "$1")"
 		if ! printf '%s\n' "$hdrs" | awk '{ print }' |
 		     mhdr -h from: /dev/stdin >/dev/null; then
-			from=$(mhdr -h local-mailbox "$MBLAZE/profile")
-			[ "$from" ] && printf 'From: %s\n' "$from"
+			addr=$(maddr -a -h to:cc:bcc: "$1" | replyfrom | head -n1)
+			[ -n "$addr" ] && from=$(maddr -h reply-from "$MBLAZE/profile" | grep -Fi "<$addr>" | head -n1)
+			[ -n "$addr" ] && [ -z "$from" ] && from=$(maddr -h alternate-mailboxes "$MBLAZE/profile" | grep -Fi "<$addr>" | head -n1)
+			[ -z "$from" ] && from=$(mhdr -h local-mailbox "$MBLAZE/profile")
+			[ -n "$from" ] && printf 'From: %s\n' "$from"
 		fi
 		mid=$(mhdr -h message-id "$1")
 		if [ "$mid" ]; then
