@@ -574,7 +574,8 @@ parse_string(char **s)
 		*pos = 0;
 		*s = getenv(e);
 		if (!*s)
-			*s = xstrdup("");
+			*s = "";
+		*s = xstrdup(*s);
 		*pos = t;
 		ws();
 		return 1;
