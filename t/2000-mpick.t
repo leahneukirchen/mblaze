@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 28
+plan 29
 
 rm -rf test.dir
 mkdir test.dir
@@ -131,3 +131,5 @@ check_test 'multi redir' -eq 4 'mlist inbox | mpick ./expr | wc -l'
 check_test 'multi redir prefixes' -eq 2 'mlist inbox | mpick ./expr | cut -d: -f1 | sort -u | wc -l'
 
 )
+
+check 'environment variable' 'mlist inbox | MSGID="<EOH1F3NUOY.2KBVMHSBFATNY@example.org>" mpick -t "\"message-id\" == \$MSGID"'
