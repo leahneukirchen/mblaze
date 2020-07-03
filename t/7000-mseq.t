@@ -25,7 +25,7 @@ export MAILCUR=cur MAILSEQ=seq
 
 check 'set current' 'mseq -C 1 && mseq . | grep "inbox/cur/1:2,"'
 check 'set next' 'mseq -C + && mseq . | grep "inbox/cur/2:2,"'
-check 'set prev' 'mseq -C - && mseq . | grep "inbox/cur/1:2,"'
+check 'set prev' 'mseq -C .- && mseq . | grep "inbox/cur/1:2,"'
 check 'last' 'mseq "$" | grep "inbox/cur/10:2,"'
 check_test 'whole thread' -eq 4 'mseq 6= | wc -l'
 check_test  'subthread' -eq 2 'mseq 7_ | wc -l'

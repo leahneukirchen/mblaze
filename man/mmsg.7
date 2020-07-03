@@ -1,4 +1,4 @@
-.Dd July 22, 2016
+.Dd July 3, 2020
 .Dt MMSG 7
 .Os
 .Sh NAME
@@ -77,7 +77,9 @@ with more indentation
 .Pc .
 .Pp
 The following special shortcuts may be used:
-.Bl -tag -width 3n
+.Bl -tag -width 4n
+.It Sq Li \&-
+refers to the message read directly from the standard input.
 .It Sq Li \&.
 refers to the current message.
 Additionally, the syntax
@@ -91,7 +93,7 @@ refers to the next message
 like
 .Sq Li \&.+1
 .Pc
-.It Sq Li \&-
+.It Sq Li \&.-
 refers to the previous message
 .Po
 like

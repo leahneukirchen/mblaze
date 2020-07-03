@@ -1,3 +1,12 @@
+## 1.0
+
+* Caution! Backwards incompatible changes:
+  * As a message name, `-` now refers to the message on the standard input,
+    and not the the previous message anymore.  Use `.-` to refer to
+    the previous message in a short way.
+    The tools will print a warning if you use `-` and the standard input
+    comes from a TTY.
+
 ## 0.7 (2020-05-15)
 
 * All tools now follow symlinks to mails.
@@ -28,7 +37,7 @@
 
 * New tool msearch to wrap several mail indexers.
 * New zsh completion _mblaze.
-* mnext/mprev were removed (you can call `mless +`/`mless -`).
+* mnext/mprev were removed (you can call `mless +`/`mless .-`).
 * The GnuPG tools in contrib/ now use gpg2.
 * mshow exits with error if it could not extract all attachments
 * mrep: add -noquote to disable quoting the message replied to

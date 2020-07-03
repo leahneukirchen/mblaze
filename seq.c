@@ -151,6 +151,9 @@ blaze822_seq_cur(void)
 int
 blaze822_seq_setcur(char *s)
 {
+	if (strcmp(s, "/dev/stdin") == 0)
+		return 0;
+
 	char *override = getenv("MAILDOT");
 	if (override)
 		return 0;
@@ -180,7 +183,7 @@ parse_relnum(char *a, long cur, long start, long last, long *out)
 
 	if (strcmp(a, "+") == 0)
 		a = ".+1";
-	else if (strcmp(a, "-") == 0)
+	else if (strcmp(a, ".-") == 0)
 		a = ".-1";
 	else if (strcmp(a, ".") == 0)
 		a = ".+0";
@@ -538,6 +541,14 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 	for (i = 0; i < argc; i++) {
 		if (strchr(argv[i], '/')) {  // a file name
 			j += iterdir(argv[i], cb);
+		} else if (strcmp(argv[i], "-") == 0) {
+			if (isatty(0)) {
+				fprintf(stderr, "mblaze: warning: - now means "
+				    "read mail text from standard input, "
+				    "use .- to refer to previous mail\n");
+			}
+			cb("/dev/stdin");
+			j++;
 		} else {
 			if (!map_opened) {
 				map = blaze822_seq_open(0);

@@ -592,7 +592,11 @@ blaze822_file(char *file)
 	char *buf = 0;
 	ssize_t rd = 0, n;
 
-	int fd = open(file, O_RDONLY);
+	int fd;
+	if (strcmp(file, "/dev/stdin") == 0)
+		fd = dup(0);
+	else
+		fd = open(file, O_RDONLY);
 	if (fd < 0)
 		return 0;
 
