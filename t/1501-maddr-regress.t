@@ -4,7 +4,7 @@ cd ${0%/*}
 plan 33
 
 check_addr() {
-  printf "From: %s\n" "$1" | check_test "parse $1" = "$2" "maddr /dev/stdin"
+  printf "From: %s\n" "$1" | check_test "parse $1" = "$2" "maddr -"
 }
 
 check_addr 'foo@example.org' 'foo@example.org'
