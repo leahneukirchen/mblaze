@@ -5,7 +5,7 @@
 	echo "Content-Type: $PIPE_CONTENTTYPE"
 	echo
 	cat
-} | mshow -t /dev/stdin | awk '
+} | mshow -t - | awk '
 	BEGIN { split("", ct) }
 	/^    [0-9]/ { ct[++n] = $2 }
 	function prefer(t) { for (i in ct) if (ct[i] == t) exit(64+i) }
