@@ -229,7 +229,7 @@ case "$0" in
 	;;
 esac
 
-hdrs="$(printf '%s\n' "${hdrs#$NL}" | mhdr /dev/stdin)"
+hdrs="$(printf '%s\n' "${hdrs#$NL}" | mhdr -)"
 
 outbox=$(mhdr -h outbox "$MBLAZE/profile")
 if [ -z "$outbox" ]; then
@@ -266,37 +266,37 @@ fi
 	case "$0" in
 	*mcom*)
 		{
-			printf '%s' "$hdrs" | mhdr -M -h to /dev/stdin |
+			printf '%s' "$hdrs" | mhdr -M -h to - |
 				commajoin | sed 's/^/To: /'
-			printf '%s' "$hdrs" | mhdr -M -h cc /dev/stdin |
+			printf '%s' "$hdrs" | mhdr -M -h cc - |
 				commajoin | sed 's/^/Cc: /'
-			printf '%s' "$hdrs" | mhdr -M -h bcc /dev/stdin |
+			printf '%s' "$hdrs" | mhdr -M -h bcc - |
 				commajoin | sed 's/^/Bcc: /'
 			printf '%s\n' "$hdrs" | awk '{ print }' |
-				msed "/to/d; /cc/d; /bcc/d; /body/d" /dev/stdin
-		} | msed "/cc/a//; /bcc/a//; /subject/a//; /from/a/$default_from/" /dev/stdin | sed '/^$/d'
+				msed "/to/d; /cc/d; /bcc/d; /body/d" -
+		} | msed "/cc/a//; /bcc/a//; /subject/a//; /from/a/$default_from/" - | sed '/^$/d'
 		msgid
 		museragent
 		cat "$MBLAZE/headers" 2>/dev/null
 		printf '\n'
 		(
 			IFS=$NL
-			cat -- /dev/null $(printf '%s' "$hdrs" | mhdr -M -h body /dev/stdin)
+			cat -- /dev/null $(printf '%s' "$hdrs" | mhdr -M -h body -)
 		)
 		printf '\n'
 		;;
 	*mfwd*)
 		{
-			printf '%s' "$hdrs" | mhdr -M -h to /dev/stdin |
+			printf '%s' "$hdrs" | mhdr -M -h to - |
 				commajoin | sed 's/^/To: /'
-			printf '%s' "$hdrs" | mhdr -M -h cc /dev/stdin |
+			printf '%s' "$hdrs" | mhdr -M -h cc - |
 				commajoin | sed 's/^/Cc: /'
-			printf '%s' "$hdrs" | mhdr -M -h bcc /dev/stdin |
+			printf '%s' "$hdrs" | mhdr -M -h bcc - |
 				commajoin | sed 's/^/Bcc: /'
 			COLUMNS=10000 mscan -f 'Subject: Fwd: [%f] %s' "$@" 2>/dev/null | sed 1q
 			printf '%s\n' "$hdrs" | awk '{ print }' |
-				msed "/to/d; /cc/d; /bcc/d" /dev/stdin
-		} | msed "/cc/a//; /bcc/a//; /from/a/$default_from/" /dev/stdin | sed '/^$/d'
+				msed "/to/d; /cc/d; /bcc/d" -
+		} | msed "/cc/a//; /bcc/a//; /from/a/$default_from/" - | sed '/^$/d'
 		msgid
 		museragent
 		cat "$MBLAZE/headers" 2>/dev/null
@@ -324,14 +324,14 @@ fi
 		fi
 
 		{
-			printf '%s' "$hdrs" | mhdr -M -h resent-to /dev/stdin |
+			printf '%s' "$hdrs" | mhdr -M -h resent-to - |
 				commajoin | sed 's/^/Resent-To: /'
-			printf '%s' "$hdrs" | mhdr -M -h resent-cc /dev/stdin |
+			printf '%s' "$hdrs" | mhdr -M -h resent-cc - |
 				commajoin | sed 's/^/Resent-Cc: /'
 			printf '%s\n' "$hdrs" | awk '{ print }' |
-				msed "/resent-to/d; /resent-cc/d" /dev/stdin
+				msed "/resent-to/d; /resent-cc/d" -
 		} |
-			msed "/resent-to/a//; /resent-from/a/$default_from/" /dev/stdin | sed '/^$/d'
+			msed "/resent-to/a//; /resent-from/a/$default_from/" - | sed '/^$/d'
 		msgid | sed 's/^/Resent-/'
 		printf 'Resent-Date: %s\n' "$(mdate)"
 		(
@@ -359,11 +359,11 @@ fi
 				       ouniq |commajoin)"
 			printf 'Bcc: \n'
 			printf '%s\n' "$hdrs" | awk '{ print }' |
-				msed "/body/d" /dev/stdin
+				msed "/body/d" -
 		fi | sed '/^$/d'
 		printf 'Subject: Re: %s\n' "$(COLUMNS=10000 mscan -f '%S' "$1")"
 		if ! printf '%s\n' "$hdrs" | awk '{ print }' |
-		     mhdr -h from: /dev/stdin >/dev/null; then
+		     mhdr -h from: - >/dev/null; then
 			addr=$(maddr -a -h to:cc:bcc: "$1" | replyfrom | head -n1)
 			[ -n "$addr" ] && from=$(maddr -h reply-from "$MBLAZE/profile" | grep -Fi "<$addr>" | head -n1)
 			[ -n "$addr" ] && [ -z "$from" ] && from=$(maddr -h alternate-mailboxes "$MBLAZE/profile" | grep -Fi "<$addr>" | head -n1)
@@ -390,7 +390,7 @@ fi
 		fi
 		(
 			IFS=$NL
-			cat -- /dev/null $(printf '%s' "$hdrs" | mhdr -M -h body /dev/stdin)
+			cat -- /dev/null $(printf '%s' "$hdrs" | mhdr -M -h body -)
 		)
 		printf '\n'
 		;;
