@@ -110,7 +110,6 @@ blaze822_seq_load(char *map)
 		char *e = t;
 		while (s < e && isfws(*(e-1)))
 			e--;
-//		printf("{%.*s}\n", e-s, s);
 		char *f = strndup(s, e-s);
 		if (!f)
 			return -1;
@@ -394,7 +393,6 @@ find_cur(char *map, struct blaze822_seq_iter *iter)
 		while (*s == ' ' || *s == '\t')
 			s++;
 
-//		printf("{%.*s}\n", t-s, s);
 		iter->lines++;
 		if (!cur && curfile &&
 		    strncmp(s, curfile, strlen(curfile)) == 0 &&
