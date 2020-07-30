@@ -1007,108 +1007,6 @@ parse_buf(const char *f, char *s)
 	return e;
 }
 
-static struct expr *
-parse_msglist(char *s)
-{
-	int64_t n, m;
-	int r;
-	struct expr *e1, *e2;
-	char *d;
-	enum flags flag;
-
-	switch (*s) {
-	case '/':
-		s++;
-		e1 = mkexpr(EXPR_REGEXI);
-		e1->a.prop = PROP_HDR;
-		e1->b.string = xstrdup("subject");
-		e1->c.regex = malloc(sizeof (regex_t));
-		r = regcomp(e1->c.regex, s, REG_EXTENDED | REG_NOSUB | REG_ICASE);
-		if (r != 0) {
-			char msg[256];
-			regerror(r, e1->c.regex, msg, sizeof msg);
-			parse_error("invalid regex '%s': %s", s, msg);
-		}
-		return e1;
-	case ':':
-		n = 0;
-
-		switch (*++s) {
-		case '\0': parse_error("missing flag at '%s'", s-1);
-		case 'P': flag = FLAG_PASSED; break;
-		case 'F': flag = FLAG_FLAGGED; break;
-		case 'D': flag = FLAG_DRAFT; break;
-		case 'd': /* FALL THROUGH */
-		case 'T': flag = FLAG_TRASHED; break;
-		case 'u': n = 1; /* FALL THROUGH */
-		case 'r': /* FALL THROUGH */
-		case 'S': flag = FLAG_SEEN; break;
-		case 'o': n = 1; /* FALL THROUGH */
-		case 'n': flag = FLAG_NEW; break;
-		case 'R': flag = FLAG_REPLIED; break;
-		default: parse_error("unknown flag at '%s'", s);
-		}
-
-		e1 = mkexpr(EXPR_ANYSET);
-		e1->a.prop = PROP_FLAG;
-		e1->b.num = flag;
-
-		if (!n)
-			return e1;
-
-		e2 = mkexpr(EXPR_NOT);
-		e2->a.expr = e1;
-		return e2;
-	default:
-		pos = s;
-
-		if (((d = strchr(s, ':')) || (d = strchr(s, '-')))
-		    && parse_num(&n) && (pos = d + 1) && parse_num(&m)) {
-			/* index >= n */
-			e1 = mkexpr(EXPR_GE);
-			e1->a.prop = PROP_INDEX;
-			e1->b.num = n;
-
-			/* index <= m */
-			e2 = mkexpr(EXPR_LE);
-			e2->a.prop = PROP_INDEX;
-			e2->b.num = m;
-
-			/* e1 && e2 */
-			return chain(e1, EXPR_AND, e2);
-		} else if (parse_num(&n)) {
-			e1 = mkexpr(EXPR_EQ);
-			e1->a.prop = PROP_INDEX;
-			e1->b.num = n;
-
-			return e1;
-		} else {
-			char *disp, *addr;
-
-			blaze822_addr(s, &disp, &addr);
-			if (!disp && !addr)
-				parse_error("invalid address '%s'", s);
-
-			d = (disp) ? disp : addr;
-
-			e1 = mkexpr(EXPR_REGEXI);
-			e1->a.prop = (disp) ? PROP_HDR_DISP : PROP_HDR_ADDR;
-			e1->b.string = xstrdup("from");
-			e1->c.regex = malloc(sizeof (regex_t));
-
-			r = regcomp(e1->c.regex, d, REG_EXTENDED | REG_NOSUB | REG_ICASE);
-			if (r != 0) {
-				char msg[256];
-				regerror(r, e1->c.regex, msg, sizeof msg);
-				parse_error("invalid regex '%s': %s", d, msg);
-			}
-
-			return e1;
-		}
-	}
-	return 0;
-}
-
 time_t
 msg_date(struct mailinfo *m)
 {
@@ -1541,42 +1439,35 @@ main(int argc, char *argv[])
 	num = 1;
 	vflag = 0;
 
-	while ((c = getopt(argc, argv, "Tt:v")) != -1)
+	while ((c = getopt(argc, argv, "F:Tt:v")) != -1)
 		switch (c) {
+		case 'F':
+		{
+			char *s;
+			off_t len;
+			int r = slurp(optarg, &s, &len);
+			if (r != 0) {
+				fprintf(stderr, "%s: error opening file '%s': %s\n",
+				    argv0, optarg, strerror(r));
+				exit(1);
+			}
+			expr = chain(expr, EXPR_AND, parse_buf(optarg, s));
+			free(s);
+			break;
+		}
 		case 'T': Tflag = need_thr = 1; break;
 		case 't': expr = chain(expr, EXPR_AND, parse_buf("argv", optarg)); break;
 		case 'v': vflag = 1; break;
 		default:
-			fprintf(stderr, "Usage: %s [-Tv] [-t test] [msglist ...]\n", argv0);
+			fprintf(stderr, "Usage: %s [-Tv] [-t test] [-F file] [msgs...]\n", argv0);
 			exit(1);
 		}
 
-	if (optind != argc) {
-		for (c = optind; c < argc; c++) {
-			if (strchr(argv[c], '/') && access(argv[c], R_OK) == 0) {
-				break;
-			}
-			expr = chain(expr, EXPR_AND, parse_msglist(argv[c]));
-		}
-
-		for (; c < argc; c++) {
-			char *s;
-			off_t len;
-			int r = slurp(argv[c], &s, &len);
-			if (r != 0) {
-				fprintf(stderr, "%s: error opening file '%s': %s\n",
-					argv0, argv[c], strerror(r));
-				exit(1);
-			}
-			expr = chain(expr, EXPR_AND, parse_buf(argv[c], s));
-			free(s);
-		}
-	}
-
-	if (isatty(0))
-		i = blaze822_loop1(":", need_thr ? collect : oneline);
+	void *cb = need_thr ? collect : oneline;
+	if (argc == optind && isatty(0))
+		i = blaze822_loop1(":", cb);
 	else
-		i = blaze822_loop(0, 0, need_thr ? collect : oneline);
+		i = blaze822_loop(argc-optind, argv+optind, cb);
 
 	/* print and free last thread */
 	if (Tflag && thr)

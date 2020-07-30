@@ -19,14 +19,14 @@ touch "inbox/cur/7:2,SR"
 touch "inbox/cur/8:2,SF"
 touch "inbox/cur/9:2,"
 
-check_same 'flag trashed' 'mlist inbox | mpick :T' 'mlist -T inbox'
-check_same 'flag not trashed' 'mlist inbox | mpick -t "!trashed"' 'mlist -t inbox'
-check_same 'flag seen' 'mlist inbox | mpick :S' 'mlist -S inbox'
+check_same 'flag trashed' 'mlist inbox | mpick -t trashed' 'mlist -T inbox'
+check_same 'flag not trashed' 'mlist inbox | mpick -t !trashed' 'mlist -t inbox'
+check_same 'flag seen' 'mlist inbox | mpick -t seen' 'mlist -S inbox'
 check_same 'flag not seen' 'mlist inbox | mpick -t !seen' 'mlist -s inbox'
-check_same 'flag seen and trashed' 'mlist inbox | mpick :S :T' 'mlist -ST inbox'
-check_same 'flag seen and not trashed' 'mlist inbox | mpick -t "seen && !trashed"' 'mlist -St inbox'
-check_same 'flag replied' 'mlist inbox | mpick :R' 'mlist -R inbox'
-check_same 'flag forwarded' 'mlist inbox | mpick :F' 'mlist -F inbox'
+check_same 'flag seen and trashed' 'mlist inbox | mpick -t seen -t trashed' 'mlist -ST inbox'
+check_same 'flag seen and not trashed' 'mlist inbox | mpick -t seen -t !trashed' 'mlist -St inbox'
+check_same 'flag replied' 'mlist inbox | mpick -t replied' 'mlist -R inbox'
+check_same 'flag forwarded' 'mlist inbox | mpick -t passed' 'mlist -P inbox'
 
 
 cat <<! | mmime >"inbox/cur/1:2,S"
@@ -62,14 +62,14 @@ Greetings
 !
 
 cat <<! >shebang
-#!$(command -v mpick)
+#!$(command -v mpick) -F
 from.addr == "peter@example.org" && from.disp == "Peter Example"
 !
 chmod +x shebang
 
-check 'search subject' 'mlist inbox | mpick /wow | grep -q inbox/cur/9:2,'
-check_test 'search addr' -eq 2 'mlist inbox | mpick peter@example.org | wc -l'
-check_test 'search name' -eq 2 'mlist inbox | mpick "Peter Example" | wc -l'
+check 'search subject' 'mlist inbox | mpick -t "subject =~~ \"wow\"" | grep -q inbox/cur/9:2,'
+check_test 'search addr' -eq 2 'mlist inbox | mpick -t "from.addr == \"peter@example.org\"" | wc -l'
+check_test 'search name' -eq 2 'mlist inbox | mpick -t "from.disp == \"Peter Example\"" | wc -l'
 check_test 'search spam' -eq 1 'mlist inbox | mpick -t "trashed && subject =~ \"pdf\"" | wc -l'
 check_test 'any header' -eq 1 'mlist inbox | mpick -t "\"Foo\" =~~ \"bar\"" | wc -l'
 check_test 'addr decode addr' -eq 2 'mlist inbox | mpick -t "from.addr == \"peter@example.org\"" | wc -l'
@@ -92,7 +92,7 @@ let bar = from.disp == "Peter Example"
 in
   foo && bar # another comment
 !
-check_test 'let expression' -eq 2 'mlist inbox | mpick ./expr | wc -l'
+check_test 'let expression' -eq 2 'mlist inbox | mpick -F ./expr | wc -l'
 
 cat <<! >expr
 let foo = from.addr == "peter@example.org"
@@ -101,7 +101,7 @@ let bar = from.disp == "Peter Example"
 in
   foo && foo
 !
-check_test 'let expression double free' -eq 2 'mlist inbox | mpick ./expr | wc -l'
+check_test 'let expression double free' -eq 2 'mlist inbox | mpick -F ./expr | wc -l'
 
 cat <<! >expr
 let foo =
@@ -111,7 +111,7 @@ let foo =
 in
   foo
 !
-check_test 'let expression nested' -eq 2 'mlist inbox | mpick ./expr | wc -l'
+check_test 'let expression nested' -eq 2 'mlist inbox | mpick -F ./expr | wc -l'
 
 cat <<! >expr
 let foo = from.addr == "peter@example.org"
@@ -119,7 +119,7 @@ let bar = foo && subject =~ "wow"
 in
   bar
 !
-check_test 'let scoping' -eq 1 'mlist inbox | mpick ./expr | wc -l'
+check_test 'let scoping' -eq 1 'mlist inbox | mpick -F ./expr | wc -l'
 
 cat <<! >expr
 let foo = from.addr == "peter@example.org"
@@ -127,8 +127,8 @@ let bar = from.disp == "Peter Example"
 in
   foo |"sed ""s/^/1:&/""" && bar |"sed ""s/^/2:&/""" && skip
 !
-check_test 'multi redir' -eq 4 'mlist inbox | mpick ./expr | wc -l'
-check_test 'multi redir prefixes' -eq 2 'mlist inbox | mpick ./expr | cut -d: -f1 | sort -u | wc -l'
+check_test 'multi redir' -eq 4 'mlist inbox | mpick -F ./expr | wc -l'
+check_test 'multi redir prefixes' -eq 2 'mlist inbox | mpick -F ./expr | cut -d: -f1 | sort -u | wc -l'
 
 )
 

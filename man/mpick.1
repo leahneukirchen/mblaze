@@ -1,4 +1,4 @@
-.Dd July 27, 2016
+.Dd July 30, 2020
 .Dt MPICK 1
 .Os
 .Sh NAME
@@ -6,10 +6,11 @@
 .Nd advanced message filter
 .Sh SYNOPSIS
 .Nm
+.Op Fl F Ar file
 .Op Fl T
 .Op Fl v
 .Op Fl t Ar test
-.Op Ar msglist\ ...
+.Op Ar msgs\ ...
 .Sh DESCRIPTION
 .Nm
 prints all matching messages.
@@ -23,6 +24,12 @@ will read filenames from the standard input.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
+.It Fl F Ar file
+Read expression from
+.Ar file
+and only show matching messages, see
+.Sx TESTS .
+.Ar file ,
 .It Fl T
 Include whole thread.
 .It Fl t Ar test
@@ -32,61 +39,6 @@ see
 .Sx TESTS .
 .It Fl v
 Print how many messages were tested and picked to standard error.
-.El
-.Sh MSGLISTS
-.Nm
-message lists
-.Pq msglist
-are mostly compatible with
-.Xr mailx 1 .
-They are message specifications used as shortened
-.Sx TESTS ,
-and can include:
-.Bl -tag -width Ds
-.It Ar n
-Message number
-.Ar n .
-.It Ar n Ns Cm \&: Ns Ar m , Ar n Ns Cm \&- Ns Ar m
-An inclusive range of message numbers between
-.Ar n
-and
-.Ar m .
-.It Ar address
-All messages from
-.Ar address .
-.It Cm \&/ Ns Ar string
-All messages with
-.Ar string
-in the subject line
-.Pq case ignored .
-.It Cm \&: Ns Ar c
-All messages of type
-.Ar c ,
-where
-.Ar c
-shall be one of:
-.Bl -tag -width Ds
-.It Cm D
-Draft messages.
-.It Cm P
-Passed
-.Pq resent, forwarded or bounced
-messages.
-.It Cm R
-Replied messages.
-.It Cm F
-Flagged messages.
-.It Cm d , Cm T
-Deleted messages.
-.It Cm n
-New messages.
-.It Cm o
-Old messages.
-.It Cm r , Cm S
-Read messages.
-.It Cm u
-Unread messages.
-.El
 .El
 .Sh TESTS
 .Nm
