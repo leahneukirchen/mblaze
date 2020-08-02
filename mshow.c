@@ -839,7 +839,8 @@ main(int argc, char *argv[])
 		else
 			blaze822_loop(argc-optind, argv+optind, show);
 		if (!nflag) // don't set cur
-			blaze822_seq_setcur(newcur);
+			if (newcur)
+				blaze822_seq_setcur(newcur);
 	}
 
 	if (pid2 > 0)
