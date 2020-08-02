@@ -84,7 +84,7 @@ print_u8recode(char *body, size_t bodylen, char *srcenc)
 
 	ic = iconv_open("UTF-8", srcenc);
 	if (ic == (iconv_t)-1) {
-		printf("unsupported encoding: %s\n", srcenc);
+		fprintf(stderr, "unsupported encoding: %s\n", srcenc);
 		return;
 	}
 
