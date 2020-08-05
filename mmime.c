@@ -1,6 +1,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -356,6 +357,22 @@ force_qp:
 	printf("\n");
 }
 
+static int
+valid_content_type(char *s)
+{
+	int slash = 0;
+
+	for (; *s; s++)
+		if (*s == '/')
+			slash++;
+		else if (isalnum(*s) || *s == '-' || *s == '+' || *s == '.')
+			; /* ok */
+		else
+			return 0;
+
+	return slash == 1;
+}
+
 int
 gen_build()
 {
@@ -400,7 +417,7 @@ gen_build()
 			if (f) {
 				char of = *f;
 				*f = 0;
-				if (strchr(line, '/')) {
+				if (valid_content_type(line+1)) {
 					printf("\n--%s\n", sep);
 					if (line[read-1] == '\n')
 						line[read-1] = 0;
