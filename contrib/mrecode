@@ -1,8 +1,8 @@
 #!/bin/sh
 # mrecode - recode stdin respecting PIPE_CHARSET into UTF-8
 
-if [ -n "$PIPE_CHARSET" ]; then
-	exec iconv -f "$PIPE_CHARSET" -t UTF-8
-else
-	exec cat
-fi
+case "$PIPE_CHARSET" in
+	''|*[Uu][Nn][Kk][Nn][Oo][Ww][Nn]*) exec cat;;
+	*) exec iconv -f "$PIPE_CHARSET" -t UTF-8;;
+esac
+
