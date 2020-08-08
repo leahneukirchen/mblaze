@@ -288,7 +288,10 @@ nofilter:
 			if (!charset ||
 			    strcasecmp(charset, "utf-8") == 0 ||
 			    strcasecmp(charset, "utf8") == 0 ||
-			    strcasecmp(charset, "us-ascii") == 0) {
+			    strcasecmp(charset, "us-ascii") == 0 ||
+			    /* best guess for: */
+			    strcasecmp(charset, "unknown-8bit") == 0 ||
+			    strcasecmp(charset, "x-unknown") == 0) {
 				print_ascii(body, bodylen);
 				if (bodylen > 0 && body[bodylen-1] != '\n')
 					putchar('\n');
