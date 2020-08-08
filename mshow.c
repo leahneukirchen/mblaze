@@ -189,6 +189,18 @@ print_filename(char *filename)
 	}
 }
 
+static int
+probably_utf8(char *charset)
+{
+	return !charset ||
+	    strcasecmp(charset, "utf-8") == 0 ||
+	    strcasecmp(charset, "utf8") == 0 ||
+	    strcasecmp(charset, "us-ascii") == 0 ||
+	    /* best guess for: */
+	    strcasecmp(charset, "unknown-8bit") == 0 ||
+	    strcasecmp(charset, "x-unknown") == 0;
+}
+
 blaze822_mime_action
 render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 {
@@ -285,13 +297,7 @@ nofilter:
 			char *charset = 0, *cs, *cse;
 			if (blaze822_mime_parameter(ct, "charset", &cs, &cse))
 				charset = strndup(cs, cse-cs);
-			if (!charset ||
-			    strcasecmp(charset, "utf-8") == 0 ||
-			    strcasecmp(charset, "utf8") == 0 ||
-			    strcasecmp(charset, "us-ascii") == 0 ||
-			    /* best guess for: */
-			    strcasecmp(charset, "unknown-8bit") == 0 ||
-			    strcasecmp(charset, "x-unknown") == 0) {
+			if (probably_utf8(charset)) {
 				print_ascii(body, bodylen);
 				if (bodylen > 0 && body[bodylen-1] != '\n')
 					putchar('\n');
@@ -375,10 +381,7 @@ reply_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		char *charset = 0, *cs, *cse;
 		if (blaze822_mime_parameter(ct, "charset", &cs, &cse))
 			charset = strndup(cs, cse-cs);
-		if (!charset ||
-		    strcasecmp(charset, "utf-8") == 0 ||
-		    strcasecmp(charset, "utf8") == 0 ||
-		    strcasecmp(charset, "us-ascii") == 0)
+		if (probably_utf8(charset))
 			print_ascii(body, bodylen);
 		else
 			print_u8recode(body, bodylen, charset);
