@@ -427,7 +427,7 @@ blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
 	if (!iter->lines)  // count total lines
 		find_cur(map, iter);
 
-	if (!iter->start) {
+	if (!iter->s) {
 		int ret = parse_range(map, range, &iter->start, &iter->stop,
 		    iter->cur, iter->lines);
 		if (ret == 1) {
