@@ -278,9 +278,9 @@ add(char *file)
 int
 order(const void *a, const void *b)
 {
-	int i, r;
-	for (i = 0, r = 0; i < order_idx; i++) {
-		r = (sortorders[i])(a, b);
+	int i;
+	for (i = 0; i < order_idx; i++) {
+		int r = (sortorders[i])(a, b);
 		if (r != 0)
 			return r;
 	}
