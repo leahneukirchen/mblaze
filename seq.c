@@ -114,10 +114,10 @@ blaze822_seq_load(char *map)
 		if (!f)
 			return -1;
 
-		struct msgnum key, **result;
+		struct msgnum key;
 		key.file = f;
 
-		if (!(result = tfind(&key, &msgnums, msgnumorder))) {
+		if (!tfind(&key, &msgnums, msgnumorder)) {
 			struct msgnum *c = malloc(sizeof (struct msgnum));
 			c->file = f;
 			c->pos = line;
