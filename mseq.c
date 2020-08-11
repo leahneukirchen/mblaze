@@ -321,7 +321,6 @@ usage:
 	int i;
 	char *f;
 	char *a;
-	struct blaze822_seq_iter iter = { 0 };
 
 	if (optind == argc) {
 		a = ":";
@@ -335,6 +334,7 @@ hack:
 			printf("%s\n", a);
 			continue;
 		}
+		struct blaze822_seq_iter iter = { 0 };
 		while ((f = blaze822_seq_next(seq, a, &iter))) {
 			char *s = f;
 			if (rflag)
