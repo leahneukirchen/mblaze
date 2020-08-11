@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 2
+plan 3
 
 rm -rf test.dir
 mkdir test.dir
@@ -21,11 +21,13 @@ body
 
 cat <<! >seq
 inbox/cur/1:2,
+inbox/cur/1:2,
 !
 
 export MAILSEQ=seq
 
 check_same 'ISO date' 'TZ=utc mscan -f "%16D" 1' 'echo "2017-03-30 13:42"'
 check_same 'from name' 'mscan -f "%f" 1' 'echo "Rajwinder Kaur"'
+check_test 'multuple mmsg' -eq 2 'mscan 1 1 | wc -l'
 
 )
