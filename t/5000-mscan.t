@@ -28,6 +28,6 @@ export MAILSEQ=seq
 
 check_same 'ISO date' 'TZ=utc mscan -f "%16D" 1' 'echo "2017-03-30 13:42"'
 check_same 'from name' 'mscan -f "%f" 1' 'echo "Rajwinder Kaur"'
-check_test 'multuple mmsg' -eq 2 'mscan 1 1 | wc -l'
+check_test 'multiple mmsg' -eq 2 'mscan 1 1 | wc -l'
 
 )
