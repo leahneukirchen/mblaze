@@ -536,7 +536,6 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 
 	char *map = 0;
 	int map_opened = 0;
-	struct blaze822_seq_iter iter = { 0 };
 	int j = 0;
 	for (i = 0; i < argc; i++) {
 		if (strchr(argv[i], '/')) {  // a file name
@@ -554,6 +553,7 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 				map = blaze822_seq_open(0);
 				map_opened = 1;
 			}
+			struct blaze822_seq_iter iter = { 0 };
 			while ((line = blaze822_seq_next(map, argv[i], &iter))) {
 				cb(line);
 				free(line);
