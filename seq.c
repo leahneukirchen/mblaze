@@ -427,17 +427,18 @@ blaze822_seq_next(char *map, char *range, struct blaze822_seq_iter *iter)
 	if (!iter->lines)  // count total lines
 		find_cur(map, iter);
 
-	if (!iter->s) {
-		int ret = parse_range(map, range, &iter->start, &iter->stop,
-		    iter->cur, iter->lines);
-		if (ret == 1) {
-			fprintf(stderr, "can't parse range: %s\n", range);
-			return 0;
-		} else if (ret == 2) {
-			fprintf(stderr, "message not found for specified range: %s\n", range);
-			return 0;
-		}
+	int ret = parse_range(map, range, &iter->start, &iter->stop,
+	    iter->cur, iter->lines);
 
+	if (ret == 1) {
+		fprintf(stderr, "can't parse range: %s\n", range);
+		return 0;
+	} else if (ret == 2) {
+		fprintf(stderr, "message not found for specified range: %s\n", range);
+		return 0;
+	}
+
+	if (!iter->s) {
 		iter->s = map;
 		iter->line = 1;
 	}
