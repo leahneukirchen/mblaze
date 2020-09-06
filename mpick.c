@@ -1464,7 +1464,7 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 
-	xpledge("stdio rpath", "");
+	xpledge("stdio rpath wpath cpath proc exec", 0);
 
 	void *cb = need_thr ? collect : oneline;
 	if (argc == optind && isatty(0))
