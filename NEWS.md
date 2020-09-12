@@ -1,4 +1,4 @@
-## 1.0
+## 1.0 (2020-09-12)
 
 * Caution! Backwards incompatible changes:
   * As a message name, `-` now refers to the message on the standard input,
@@ -6,6 +6,12 @@
     the previous message in a short way.
     The tools will print a warning if you use `-` and the standard input
     comes from a TTY.
+  * mpick: use the -F flag to read script files.
+  * mpick: remove msglist support, use plain mmsg(7) arguments.
+* Many mblaze tools now make use of pledge(2) on OpenBSD.
+* add contrib/mcount, a tool to count mails
+* mrep: use Reply-From configuration to find From header
+* Many bug fixes.
 
 ## 0.7 (2020-05-15)
 
