@@ -1466,7 +1466,7 @@ main(int argc, char *argv[])
 
 	xpledge("stdio rpath wpath cpath proc exec", 0);
 
-	void *cb = need_thr ? collect : oneline;
+	void (*cb)(char *) = need_thr ? collect : oneline;
 	if (argc == optind && isatty(0))
 		i = blaze822_loop1(":", cb);
 	else
