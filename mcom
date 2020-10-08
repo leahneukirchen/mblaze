@@ -231,7 +231,7 @@ esac
 
 hdrs="$(printf '%s\n' "${hdrs#$NL}" | mhdr -)"
 
-outbox=$(mhdr -h outbox "$MBLAZE/profile")
+outbox=$(mhdr -h outbox "$MBLAZE/profile" | sed "s:^~/:$HOME/:")
 if [ -z "$outbox" ]; then
 	if [ -z "$resume" ]; then
 		i=0
