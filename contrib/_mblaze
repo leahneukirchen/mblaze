@@ -14,7 +14,7 @@ _mblaze_message() {
     _files "$expl[@]" && ret=0
   fi
 
-  curmsg=$(mseq .)
+  curmsg=$(mseq . 2>/dev/null)
   if [[ -z $curmsg || ! -f $curmsg ]]; then
     _message 'no current sequence'
     return $ret
