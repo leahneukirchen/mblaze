@@ -1,0 +1,58 @@
+#!/bin/sh
+# mmailto mailto:... - mailto: handler spawning mcom in a terminal emulator
+
+tryterm() {
+	if [ -z "$TERMINAL" ] && command -v "$1" >/dev/null; then
+		TERMINAL="$*"
+	fi
+}
+
+tryterm x-terminal-emulator
+tryterm urxvt
+tryterm xterm
+
+if [ -z "$TERMINAL" ]; then
+	echo 'No terminal emulator found, set $TERMINAL.' 1>&2
+        exit 1
+fi
+
+IFS='
+'
+
+exec $TERMINAL -e mcom $(
+awk -v url="$1" '
+
+function decode(s) {
+  hexdigits = "0123456789abcdef"
+  for (i = 1; i < length(s); i++) {
+    if (substr(s, i, 3) ~ /%[0-9a-fA-F][0-9a-fA-F]/) {
+      c = sprintf("%c", (index(hexdigits, tolower(substr(s, i+1, 1)))-1) * 16 + \
+                         index(hexdigits, tolower(substr(s, i+2, 1)))-1)
+      if (c == "\n") c = " "
+      s = substr(s, 1, i-1) c substr(s, i+3)
+      i += 2
+    }
+  }
+  return s
+}
+
+BEGIN {
+  url = decode(url)
+  sub(/^mailto:/, "", url)
+  split(url, parts, "?")
+  to = parts[1]
+  split(parts[2], fields, "&") 
+  args[1] = to
+  for (i in fields) {
+    split(fields[i], kv, "=")
+    if (kv[1] != "r") {
+      args[length(args)+1] = "-" kv[1]
+      args[length(args)+1] =  kv[2]
+    }
+  }
+  for (i in args) {
+    print decode(args[i])
+  }
+}
+'
+)
