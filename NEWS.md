@@ -2,8 +2,8 @@
 
 * Caution! Backwards incompatible changes:
   * As a message name, `-` now refers to the message on the standard input,
-    and not the the previous message anymore.  Use `.-` to refer to
-    the previous message in a short way.
+    and not the previous message anymore.  Use `.-` to refer to the previous
+    message in a short way.
     The tools will print a warning if you use `-` and the standard input
     comes from a TTY.
   * mpick: use the -F flag to read script files.
