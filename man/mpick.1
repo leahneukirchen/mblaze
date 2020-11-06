@@ -92,7 +92,7 @@ tests are given by the following EBNF:
                       | T )?     -- *1024*1024*1024*1024
              | cur               -- index of cur message
 
-<hdrprop>  ::= from | to | subject | <str>
+<hdrprop>  ::= from | to | cc | subject | <str>
 
 <decodeop> ::= . addr          -- match address parts
              | . disp          -- match address display parts

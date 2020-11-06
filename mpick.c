@@ -601,6 +601,8 @@ parse_strcmp()
 		h = xstrdup("from");
 	else if (token("to"))
 		h = xstrdup("to");
+	else if (token("cc"))
+		h = xstrdup("cc");
 	else if (token("subject"))
 		h = xstrdup("subject");
 	else if (token("path"))
