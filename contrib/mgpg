@@ -1,5 +1,11 @@
 #!/bin/sh -e
 
+if command -v gpg2 >/dev/null; then
+	GPG=gpg2
+else
+	GPG=gpg
+fi
+
 tmp=$(mktemp -t mgpg.XXXXXX)
 trap "rm -f '$tmp'" INT TERM EXIT
 
@@ -14,7 +20,7 @@ n=$(mshow -t "$tmp" | awk -F: '
 	/: application\/octet-stream/ {if (supported) print $1}')
 
 if [ "$n" ]; then
-	mshow -O "$tmp" "$n" | gpg2 -d 2>&1 || exit 0
+	mshow -O "$tmp" "$n" | $GPG -d 2>&1 || exit 0
 	exit 64
 fi
 exit 63

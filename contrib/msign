@@ -3,6 +3,12 @@
 
 [ -f "$1" ] || exit 1
 
+if command -v gpg2 >/dev/null; then
+	GPG=gpg2
+else
+	GPG=gpg
+fi
+
 IFS='
 '
 
@@ -13,7 +19,7 @@ FROM=$(maddr -a -h from "$1" | sed 1q)
 [ "$FROM" ] && key="--default-key=$FROM"
 
 awk '/^$/,0' "$1" | mmime | sed 's/$//' >"$TMPD"/content
-gpg2 $key --armor --detach-sign -o "$TMPD"/signature.asc "$TMPD"/content ||
+$GPG $key --armor --detach-sign -o "$TMPD"/signature.asc "$TMPD"/content ||
 	exit $?
 
 {
