@@ -3,6 +3,12 @@
 
 # Needs gpg2 (for OpenPGP) and openssl (for SMIME).
 
+if command -v gpg2 >/dev/null; then
+	GPG=gpg2
+else
+	GPG=gpg
+fi
+
 [ "$#" -eq 0 ] && set -- .
 
 mshow -t "$1" | DOS2UNIX='/$/!s/$//' awk -v "msg=$1" '
@@ -14,7 +20,7 @@ signed && content && !signature && indent == si+2 { signature = 0+$1; type = $2 
 function q(a) { gsub("\\47", "\47\\\47\47", a); return "\47"a"\47" }
 END {
 	if (type == "" && plain) {  // guess plain text armored signature
-		exit(system("mshow -r " q(msg) " | gpg2 --verify"));
+		exit(system("mshow -r " q(msg) " | '$GPG' --verify"));
 	} else if (type == "") {
 		print("No signature found.")
 		exit(100)
@@ -22,7 +28,7 @@ END {
 		exit(system("mshow -r -O " q(msg) " " q(content) \
 			" | sed $DOS2UNIX | " \
 			" { mshow -O " q(msg) " " q(signature) \
-			" | gpg2 --verify - /dev/fd/3; } 3<&0"))
+			" | '$GPG' --verify - /dev/fd/3; } 3<&0"))
 	} else if (type == "application/pkcs7-signature") {
 		exit(system("mshow -r -O " q(msg) " " q(signed) \
 			" | openssl smime -verify"))
