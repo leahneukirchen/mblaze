@@ -92,6 +92,10 @@ do_mime() {
 	else
 		mmime -r <"$draft" >"$draftmime"
 	fi
+	if [ $? -ne 0 ]; then
+ 	     	printf 'mcom: fix above errors before continuing\n' 1>&2
+		rm -f "$draftmime"
+	fi
 }
 
 MBLAZE=${MBLAZE:-$HOME/.mblaze}
@@ -450,7 +454,7 @@ while :; do
 				continue
 			fi
 		else
-			if mmime -c <"$draft"; then
+			if mmime -c <"$draft" && ! [ "$automime" = 1 ]; then
 				stampdate "$draft"
 				if $sendmail <"$draft"; then
 					if [ "$outbox" ]; then
