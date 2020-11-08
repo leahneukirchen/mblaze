@@ -386,6 +386,7 @@ gen_build()
 	size_t linelen = 0;
 	int inheader = 1;
 	int intext = 0;
+	int ret = 0;
 
 	while (1) {
 		ssize_t read = getdelim(&line, &linelen, '\n', stdin);
@@ -423,7 +424,8 @@ gen_build()
 					printf("\n--%s\n", sep);
 					if (line[read-1] == '\n')
 						line[read-1] = 0;
-					gen_file(f+1, (char *)line+1);
+					if (gen_file(f+1, line+1) != 0)
+						ret = 1;
 					intext = 0;
 					continue;
 				}
@@ -446,7 +448,7 @@ gen_build()
 		printf("\n--%s--\n", sep);
 
 	free(line);
-	return 0;
+	return ret;
 }
 
 int
