@@ -86,6 +86,8 @@ blaze822_mime_parameter(char *s, char *name, char **starto, char **stopo)
 	while (*s) {
 		while (iswsp(*s))
 			s++;
+		if (!*s)
+			return 0;
 		if (strncasecmp(s, name, namelen) == 0 && s[namelen] == '=') {
 			s += namelen + 1;
 			break;
