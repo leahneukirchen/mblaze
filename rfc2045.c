@@ -123,7 +123,7 @@ mymemmemnl(const char *h0, size_t k, const char *n0, size_t l)
 	char *r;
 
 	while (k && (r = mymemmem(h0, k, n0, l))) {
-		if (r - h0 < (long)(k - l) &&   // check if r[l] safe to access
+		if (r + l < h0 + k &&   // check if r[l] safe to access
 		    (r[l] == '\r' || r[l] == '\n' || r[l] == '-'))
 			return r;
 		else {
