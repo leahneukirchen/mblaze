@@ -114,6 +114,26 @@ blaze822_mime_parameter(char *s, char *name, char **starto, char **stopo)
 	return 1;
 }
 
+// like mymemmem but check the match is followed by \r, \n or -.
+static char *
+mymemmemnl(const char *h0, size_t k, const char *n0, size_t l)
+{
+	char *r;
+
+	while (k && (r = mymemmem(h0, k, n0, l))) {
+		if (r - h0 < (long)(k - l) &&   // check if r[l] safe to access
+		    (r[l] == '\r' || r[l] == '\n' || r[l] == '-'))
+			return r;
+		else {
+			// skip over this match
+			k -= (r - h0) + 1;
+			h0 = r + 1;
+		}
+	}
+
+	return 0;
+}
+
 int
 blaze822_multipart(struct message *msg, struct message **imsg)
 {
@@ -144,7 +164,7 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 	else
 		prevpart = msg->body;
 
-	char *part = mymemmem(prevpart, msg->bodyend - prevpart, mboundary, boundarylen);
+	char *part = mymemmemnl(prevpart, msg->bodyend - prevpart, mboundary, boundarylen);
 	if (!part)
 		return 0;
 
@@ -158,7 +178,7 @@ blaze822_multipart(struct message *msg, struct message **imsg)
 	else
 		return 0;   // XXX error condition?
 
-	char *nextpart = mymemmem(part, msg->bodyend - part, mboundary, boundarylen);
+	char *nextpart = mymemmemnl(part, msg->bodyend - part, mboundary, boundarylen);
 	if (!nextpart)
 		return 0;   // XXX error condition
 	if (nextpart == part)  // invalid empty MIME part
