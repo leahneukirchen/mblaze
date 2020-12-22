@@ -367,7 +367,7 @@ valid_content_type(char *s)
 		if (*s == '/')
 			slash++;
 		else if (isalnum(*s) || *s == '-' || *s == '+' || *s == '.' ||
-		    *s == ';' || *s == '=')
+		    *s == ';' || *s == '=' || *s == '#')
 			; /* ok */
 		else
 			return 0;
