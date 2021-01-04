@@ -75,7 +75,7 @@ stripempty() {
 
 needs_multipart() {
 	mhdr -h attach "$1" >/dev/null ||
-		grep -q '^#[^ ]*/[^ ]* ' "$1"
+		grep -qE '^#[a-zA-Z]+/[a-zA-Z0-9+.;=#-]+ ' "$1"
 }
 
 do_mime() {
