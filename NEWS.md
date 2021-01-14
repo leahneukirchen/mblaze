@@ -2,7 +2,7 @@
 
 * mcom: allow tilde prefixed path for profile's outbox setting
 * mcom: detect and report mmime errors
-* add contrieb/mmailto, a handler for mailto: links
+* add contrib/mmailto, a handler for mailto: links
 * Bug fixes.
 
 ## 1.0 (2020-09-12)
