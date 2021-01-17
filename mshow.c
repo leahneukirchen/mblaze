@@ -316,9 +316,10 @@ nofilter:
 			}
 			printf("\n");
 		} else if (strncmp(ct, "multipart/alternative", 21) == 0) {
-			choose_alternative(msg, depth);
-
-			r = MIME_PRUNE;
+			if (strcmp(Aflag, "all") != 0) {
+				choose_alternative(msg, depth);
+				r = MIME_PRUNE;
+			} // else default blaze822_mime_walk action
 		} else if (strncmp(ct, "multipart/", 10) == 0) {
 			; // default blaze822_mime_walk action
 		} else {

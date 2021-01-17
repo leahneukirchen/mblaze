@@ -346,7 +346,7 @@ _mshow() {
     - regular \
       '-n[only print message numbers]' \
       '-h[display only given headers]:header list:_mblaze_colon_separated_headers' \
-      '-A[mixed/alternative preference]:mime type: ' \
+      '-A[multipart/alternative preference]:mime type: ' \
       '-n[don'\''t update current message link]' \
       '(-r)-q[print only header]' \
       '(-q)-r[print body raw]' \

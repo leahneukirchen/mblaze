@@ -1,4 +1,4 @@
-.Dd August 24, 2018
+.Dd January 17, 2021
 .Dt MSHOW 1
 .Os
 .Sh NAME
@@ -47,16 +47,25 @@ instead of the default headers
 .Sq Li from\&:subject\&:to\&:cc\&:date\&:reply\&-to\&: .
 .It Fl A Ar mimetypes
 Define
-.Sq Li "mixed/alternative"
+.Sq Li "multipart/alternative"
 preference.
 .Ar mimetypes
 is a colon-separated list of
 MIME types which will be preferred,
 in the order given,
 when rendering
-.Sq Li "mixed/alternative"
+.Sq Li "multipart/alternative"
 parts.
 If no MIME type matches, the first MIME part will be rendered.
+.Pp
+When
+.Ar mimetypes
+is
+.Sq Li all ,
+.Nm
+will render all parts of a
+.Sq Li "multipart/alternative"
+part.
 .Pp
 Defaults to
 .Sq Li "text/plain:text/html" .
