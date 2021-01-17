@@ -336,7 +336,7 @@ nofilter:
 static void
 choose_alternative(struct message *msg, int depth)
 {
-	int n = 1;
+	int n = 0;
 	int m = 0;
 	char *p = Aflag + strlen(Aflag);
 
@@ -362,6 +362,13 @@ choose_alternative(struct message *msg, int depth)
 		free(imt);
 	}
 	blaze822_free(imsg);
+
+	if (n == 0) {
+		// No part matched, use last part as per RFC1341 7.2.3
+		// "In general, choosing the best type means displaying
+		// only the LAST part that can be displayed."
+		n = m;
+	}
 
 	imsg = 0;
 	while (blaze822_multipart(msg, &imsg))
