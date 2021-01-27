@@ -172,23 +172,23 @@ inbox/cur/4:2,
 
 export MAILSEQ=seq
 
-check_test 'subject' -eq 1 'magrep subject:nice | wc -l'
-check_test 'ignorecase' -eq 1 'magrep -i subject:NICE | wc -l'
-check_test 'invert' -eq 2 'magrep -v subject:nice | wc -l'
-check_test 'max matches' -eq 2 'magrep -m 2 from:Piet | wc -l'
-check_test 'long subject' -eq 1 'magrep subject:aliqua | wc -l'
-check_test 'decode large rfc2047 header' -eq 1 'magrep -d to:John | wc -l'
+check_test 'subject' -eq 1 'magrep subject:nice : | wc -l'
+check_test 'ignorecase' -eq 1 'magrep -i subject:NICE : | wc -l'
+check_test 'invert' -eq 2 'magrep -v subject:nice : | wc -l'
+check_test 'max matches' -eq 2 'magrep -m 2 from:Piet : | wc -l'
+check_test 'long subject' -eq 1 'magrep subject:aliqua : | wc -l'
+check_test 'decode large rfc2047 header' -eq 1 'magrep -d to:John : | wc -l'
 
 echo 'inbox/cur/1:2,: subject: wow nice subject' >expect
-check_same 'print' 'magrep -p subject:nice' 'cat expect'
+check_same 'print' 'magrep -p subject:nice :' 'cat expect'
 
 echo 'inbox/cur/1:2,: subject: nice' >expect
-check_same 'print match' 'magrep -po subject:nice' 'cat expect'
+check_same 'print match' 'magrep -po subject:nice :' 'cat expect'
 
 echo 'nice' >expect
-check_same 'print match only' 'magrep -o subject:nice' 'cat expect'
+check_same 'print match only' 'magrep -o subject:nice :' 'cat expect'
 
 echo 'inbox/cur/3:2,' >expect
-check_same 'multiple subjects' 'magrep subject:multi' 'cat expect'
+check_same 'multiple subjects' 'magrep subject:multi :' 'cat expect'
 
 )
