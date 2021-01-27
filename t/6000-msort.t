@@ -51,7 +51,7 @@ inbox/cur/4:2,
 
 export MAILSEQ=seq
 
-check_same 'filename' 'msort -F' 'cat seq'
+check_same 'filename' 'msort -F :' 'cat seq'
 
 cat <<! >expect
 inbox/cur/3:2,
@@ -59,7 +59,7 @@ inbox/cur/1:2,
 inbox/cur/2:2,
 inbox/cur/4:2,
 !
-check_same 'date' 'msort -d' 'cat expect'
+check_same 'date' 'msort -d :' 'cat expect'
 
 cat <<! >expect
 inbox/cur/4:2,
@@ -67,7 +67,7 @@ inbox/cur/2:2,
 inbox/cur/1:2,
 inbox/cur/3:2,
 !
-check_same 'reverse date' 'msort -dr' 'cat expect'
+check_same 'reverse date' 'msort -dr :' 'cat expect'
 
 cat <<! >expect
 inbox/cur/2:2,
@@ -75,7 +75,7 @@ inbox/cur/3:2,
 inbox/cur/4:2,
 inbox/cur/1:2,
 !
-check_same 'from' 'msort -f' 'cat expect'
+check_same 'from' 'msort -f :' 'cat expect'
 
 cat <<! >expect
 inbox/cur/3:2,
@@ -83,6 +83,6 @@ inbox/cur/2:2,
 inbox/cur/4:2,
 inbox/cur/1:2,
 !
-check_same 'subject' 'msort -s' 'cat expect'
+check_same 'subject' 'msort -s :' 'cat expect'
 
 )
