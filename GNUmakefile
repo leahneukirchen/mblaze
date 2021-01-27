@@ -50,7 +50,7 @@ clean: FRC
 	-rm -f $(ALL) *.o museragent
 
 check: FRC all
-	PATH=$$(pwd):$$PATH prove -v
+	PATH=$$(pwd):$$PATH prove -v </dev/null
 
 install: FRC all
 	mkdir -p $(DESTDIR)$(BINDIR) \
