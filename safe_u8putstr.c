@@ -4,7 +4,7 @@
 #include "u8decode.h"
 
 void
-safe_u8putstr(char *s0, size_t l, FILE *stream)
+safe_u8putstr(char *s0, size_t l, int oneline, FILE *stream)
 {
 	// tty-safe output of s, with relaxed utf-8 semantics:
 	// - C0 and C1 are displayed as escape sequences
@@ -35,7 +35,8 @@ safe_u8putstr(char *s0, size_t l, FILE *stream)
 				fputc(0x80 | (*s & 0x3f), stream);
 			}
 		} else if (c < 32 &&
-		    *s != ' ' && *s != '\t' && *s != '\n' && *s != '\r') {
+		    *s != ' ' && *s != '\t' &&
+		    (oneline || (*s != '\n' && *s != '\r'))) {
 			// NUL
 			if (l == 0)
 				l = 1;

@@ -51,10 +51,10 @@ printable(int c)
 }
 
 size_t
-print_ascii(char *body, size_t bodylen)
+print_ascii(char *body, size_t bodylen, int oneline)
 {
 	if (safe_output) {
-		safe_u8putstr(body, bodylen, stdout);
+		safe_u8putstr(body, bodylen, oneline, stdout);
 		return bodylen;
 	} else {
 		return fwrite(body, 1, bodylen, stdout);
@@ -73,7 +73,7 @@ printhdr(char *hdr)
 	}
 
 	if (*hdr) {
-		print_ascii(hdr, strlen(hdr));
+		print_ascii(hdr, strlen(hdr), 1);
 		fputc('\n', stdout);
 	}
 }
@@ -98,7 +98,7 @@ print_u8recode(char *body, size_t bodylen, char *srcenc)
 		size_t r = iconv(ic, &body, &bodylen, &bufptr, &buflen);
 
 		if (bufptr != buf) {
-			print_ascii(buf, bufptr-buf);
+			print_ascii(buf, bufptr-buf, 0);
 			final_char = bufptr[-1];
 		}
 
@@ -107,7 +107,7 @@ print_u8recode(char *body, size_t bodylen, char *srcenc)
 			buflen = sizeof buf;
 			r = iconv(ic, 0, 0, &bufptr, &buflen);
 			if (bufptr != buf) {
-				print_ascii(buf, bufptr-buf);
+				print_ascii(buf, bufptr-buf, 0);
 				final_char = bufptr[-1];
 			}
 			if (r != (size_t)-1)
@@ -185,7 +185,7 @@ print_filename(char *filename)
 {
 	if (filename) {
 		printf(" name=\"");
-		safe_u8putstr(filename, strlen(filename), stdout);
+		safe_u8putstr(filename, strlen(filename), 1, stdout);
 		printf("\"");
 	}
 }
@@ -252,7 +252,7 @@ render_mime(int depth, struct message *msg, char *body, size_t bodylen)
 				printf(" render=\"%s\" ---\n", cmd);
 			if (outlen) {
 				if (e == 0)
-					print_ascii(output, outlen);
+					print_ascii(output, outlen, 0);
 				else
 					fwrite(output, 1, outlen, stdout);
 				if (output[outlen-1] != '\n')
@@ -299,7 +299,7 @@ nofilter:
 			if (blaze822_mime_parameter(ct, "charset", &cs, &cse))
 				charset = strndup(cs, cse-cs);
 			if (probably_utf8(charset)) {
-				print_ascii(body, bodylen);
+				print_ascii(body, bodylen, 0);
 				if (bodylen > 0 && body[bodylen-1] != '\n')
 					putchar('\n');
 			} else {
@@ -391,7 +391,7 @@ reply_mime(int depth, struct message *msg, char *body, size_t bodylen)
 		if (blaze822_mime_parameter(ct, "charset", &cs, &cse))
 			charset = strndup(cs, cse-cs);
 		if (probably_utf8(charset))
-			print_ascii(body, bodylen);
+			print_ascii(body, bodylen, 0);
 		else
 			print_u8recode(body, bodylen, charset);
 		reply_found++;
@@ -502,7 +502,7 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 			fwrite(body, 1, bodylen, stdout);
 		} else { // extract all named attachments
 			if (filename) {
-				safe_u8putstr(filename, strlen(filename), stdout);
+				safe_u8putstr(filename, strlen(filename), 1, stdout);
 				printf("\n");
 				writefile(filename, body, bodylen);
 			}
@@ -563,7 +563,7 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 						fwrite(body, 1, bodylen, stdout);
 					}
 				} else {
-					safe_u8putstr(filename, strlen(filename), stdout);
+					safe_u8putstr(filename, strlen(filename), 1, stdout);
 					printf("\n");
 					writefile(filename, body, bodylen);
 				}
@@ -609,7 +609,7 @@ print_date_header(char *v)
 	}
 
 	printf("Date: ");
-	print_ascii(v, strlen(v));
+	print_ascii(v, strlen(v), 1);
 
 	time_t t = blaze822_date(v);
 	if (t == -1) {
@@ -695,7 +695,7 @@ print_decode_header(char *h, char *v)
 	printhdr(h);
 	fputc(':', stdout);
 	fputc(' ', stdout);
-	print_ascii(d, strlen(d));
+	print_ascii(d, strlen(d), 1);
 	fputc('\n', stdout);
 }
 
@@ -762,7 +762,7 @@ show(char *file)
 	printf("\n");
 
 	if (rflag) {  // raw body
-		print_ascii(blaze822_body(msg), blaze822_bodylen(msg));
+		print_ascii(blaze822_body(msg), blaze822_bodylen(msg), 0);
 		goto done;
 	}
 
