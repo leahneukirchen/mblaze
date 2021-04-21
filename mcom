@@ -493,7 +493,7 @@ while :; do
 		;;
 	e|edit)
 		c=
-		if ! ${EDITOR:-vi} "$draft"; then
+		if ! ${VISUAL:-${EDITOR:-vi}} "$draft"; then
 			c=d
 		else
 			if checksensible "$draft"; then
