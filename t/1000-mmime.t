@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 8
+plan 12
 
 cat <<EOF >tmp
 References: <aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@a> <bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb@b> <ccccccccccccccccccccccccccccccc@c>
@@ -42,3 +42,50 @@ Subject: inclusion test with other disposition
 EOF
 
 check 'include works, overriding filename' 'mmime <tmp2 | grep Disposition | grep inline'
+
+
+cat <<EOF >tmp2
+Subject: message with content-type
+Content-Type: text/plain; format=flowed
+
+This message has format-flowed.
+EOF
+
+check 'content-type is respected if found in input' 'mmime -r <tmp2 |grep format=flowed'
+
+cat <<EOF >tmp2
+Subject: message with content-transfer-encoding
+Content-Transfer-Encoding: quoted-printable
+
+This message has already encoded. f=C3=B6=C3=B6.
+EOF
+
+
+check 'content-transfer-encoding is respected if found in input' 'mmime -r <tmp2 |grep f=C3=B6=C3=B6'
+
+cat <<EOF >tmp2
+Subject: message with content-type
+Content-Type: text/plain; format=flowed
+
+This message has format-flowed.
+
+#message/rfc822 $PWD/tmp
+
+This part too.
+EOF
+
+
+check 'content-type is respected if found in input, for multipart/mixed' 'mmime <tmp2 |grep format=flowed'
+
+cat <<EOF >tmp2
+Subject: message with content-transfer-encoding
+Content-Transfer-Encoding: Quoted-Printable
+
+This message has already encoded. f=C3=B6=C3=B6.
+
+#message/rfc822 $PWD/tmp
+
+This part too.
+EOF
+
+check 'content-transfer-encoding is respected if found in input, for multipart/mixed' 'mmime <tmp2 |grep f=C3=B6=C3=B6'

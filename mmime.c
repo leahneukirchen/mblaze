@@ -387,6 +387,8 @@ gen_build()
 	int inheader = 1;
 	int intext = 0;
 	int ret = 0;
+	char *contenttype = 0;
+	char *contenttransferenc = 0;
 
 	while (1) {
 		ssize_t read = getdelim(&line, &linelen, '\n', stdin);
@@ -401,16 +403,24 @@ gen_build()
 				inheader = 0;
 				printf("MIME-Version: 1.0\n");
 				if (rflag) {
-					printf("Content-Type: text/plain; charset=UTF-8\n");
-					printf("Content-Transfer-Encoding: quoted-printable\n\n");
-
+					printf("Content-Type:%s", contenttype ? contenttype : " text/plain; charset=UTF-8\n");
+					printf("Content-Transfer-Encoding:%s", contenttransferenc ? contenttransferenc : " quoted-printable\n");
+					printf("\n");
 				} else {
 					printf("Content-Type: %s; boundary=\"%s\"\n", tflag, sep);
 					printf("\n");
 					printf("This is a multipart message in MIME format.\n");
 				}
 			} else {
-				print_header(line);
+				if (strncasecmp(line, "Content-Type:", 13) == 0) {
+					free(contenttype);
+					contenttype = strdup(line+13);
+				} else if (strncasecmp(line, "Content-Transfer-Encoding:", 26) == 0) {
+					free(contenttransferenc);
+					contenttransferenc = strdup(line+26);
+				} else {
+					print_header(line);
+				}
 			}
 			continue;
 		}
@@ -435,14 +445,18 @@ gen_build()
 
 		if (!rflag && !intext) {
 			printf("\n--%s\n", sep);
-			printf("Content-Type: text/plain; charset=UTF-8\n");
+			printf("Content-Type:%s", contenttype ? contenttype : " text/plain; charset=UTF-8\n");
 			printf("Content-Disposition: inline\n");
-			printf("Content-Transfer-Encoding: quoted-printable\n\n");
+			printf("Content-Transfer-Encoding:%s", contenttransferenc ? contenttransferenc : " quoted-printable\n");
+			printf("\n");
 
 			intext = 1;
 		}
 
-		gen_qp((uint8_t *)line, strlen(line), 78, 0);
+		if (contenttransferenc)
+			printf("%s", line);
+		else
+			gen_qp((uint8_t *)line, strlen(line), 78, 0);
 	}
 	if (!rflag && !inheader)
 		printf("\n--%s--\n", sep);
