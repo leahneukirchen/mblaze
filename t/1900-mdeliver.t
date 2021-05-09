@@ -67,3 +67,19 @@ rm -f ./inbox/new/*
 mdeliver inbox/ <./tmp.4
 check 'message 4 is delivered verbatim via stdin' 'cmp ./tmp.4 ./inbox/new/*:2,'
 rm -f ./inbox/new/*
+
+
+cat <<EOF >tmp.mbox
+From nobody Thu Jan  1 00:59:59 1970
+Subject: message 1
+
+This is message 1.
+From nobody Thu Jan  1 00:59:59 1970
+Subject: message 2
+
+This is message 2.
+
+EOF
+
+mdeliver -M inbox/ <./tmp.mbox
+check 'mdeliver -M is tolerant with missing empty lines' 'ls inbox/new | wc -l | grep 2'
