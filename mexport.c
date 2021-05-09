@@ -68,7 +68,7 @@ export(char *file)
 	char *line = 0;
 	size_t linelen = 0;
 
-	printf("From %s %s", from, ctime(&date));
+	printf("From %s %s", from, asctime(gmtime(&date)));
 
 	int in_header = 1;
 	int final_nl = 0;
