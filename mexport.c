@@ -33,7 +33,7 @@ export(char *file)
 	}
 
 	char from[1024] = "nobody";
-	time_t date = -1;
+	time_t date = 0;
 
 	if (fseek(infile, 0L, SEEK_SET) && errno == ESPIPE) {
 		date = time(0);
