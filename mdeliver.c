@@ -147,6 +147,8 @@ try_again:
 
 		int in_header = 1;
 		int is_old = 0;
+		int prev_line_empty = 0;
+		int this_line_empty = 0;  // only for mbox parsing
 		while (1) {
 			errno = 0;
 			ssize_t rd = getdelim(&line, &linelen, '\n', infile);
@@ -158,8 +160,12 @@ try_again:
 			char *line_start = line;
 
 			if (line[0] == '\n' && (!line[1] ||
-			                        (line[1] == '\r' && !line[2])))
+			                        (line[1] == '\r' && !line[2]))) {
+				this_line_empty = Mflag ? 1 : 0;
 				in_header = 0;
+			} else {
+				this_line_empty = 0;
+			}
 
 			if (Mflag && strncmp("From ", line, 5) == 0)
 				break;
@@ -189,8 +195,15 @@ try_again:
 				}
 			}
 
-			if (fwrite(line_start, 1, rd, outfile) != (size_t)rd)
-				goto fail;
+			// print delayed empty line
+			if (prev_line_empty)
+				if (fputc('\n', outfile) == EOF)
+					goto fail;
+			if (!this_line_empty)
+				if (fwrite(line_start, 1, rd, outfile) != (size_t)rd)
+					goto fail;
+
+			prev_line_empty = this_line_empty;
 		}
 		if (fflush(outfile) == EOF)
 			goto fail;
