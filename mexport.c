@@ -125,6 +125,9 @@ export(char *file)
 	if (!final_nl)
 		putchar('\n');
 
+	// ensure empty line at end of message
+	putchar('\n');
+
 	fclose(infile);
 }
 
