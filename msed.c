@@ -138,7 +138,7 @@ sed(char *file)
 					if (*s == ':')
 						*s = '|';
 				int rv;
-				if ((rv = regcomp(&headerrx, headersel, REG_EXTENDED)) != 0) {
+				if ((rv = regcomp(&headerrx, headersel, REG_EXTENDED | REG_ICASE)) != 0) {
 					char buf[100];
 					regerror(rv, &headerrx, buf, sizeof buf);
 					fprintf(stderr, "msed: %s\n", buf);
