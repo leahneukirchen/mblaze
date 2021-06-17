@@ -317,12 +317,29 @@ print_header(char *line) {
 
 	while (*s) {
 		size_t highbit = 0;
+		int qs = 0;
 		e = s;
 		while (*e && *e == ' ')
 			e++;
-		for (; *e && *e != ' '; e++) {
-			if ((uint8_t)*e >= 127)
-				highbit++;
+
+		if (*e == '"') {  // scan quoted-string, encode at once
+			s = e;
+			for (e++; *e && *e != '"'; e++) {
+				if (*e == '\\')
+					e++;
+				if ((uint8_t)*e >= 127)
+					highbit++;
+			}
+			if (*e == '"')
+				e++;
+			qs = 1;
+		} else {  // scan word
+			while (*e && *e == ' ')
+				e++;
+			for (; *e && *e != ' '; e++) {
+				if ((uint8_t)*e >= 127)
+					highbit++;
+			}
 		}
 
 		if (!highbit) {
@@ -348,6 +365,12 @@ print_header(char *line) {
 force_qp:
 			if (!prevq && *s == ' ')
 				s++;
+
+			if (qs && *s == '"')
+				s++;
+			if (qs && e > s && *(e-1) == '"')
+				e--;
+
 			if (linelen >= 78 - 13 - 4 ||
 			    (e-s < (78 - 13)/3 &&
 			     e-s >= (78 - linelen - 13)/3)) {
@@ -361,6 +384,9 @@ force_qp:
 			printf("?=");
 			linelen += 2;
 			prevq = 1;
+
+			if (qs && *e == '"')
+				e++;
 		}
 		s = e;
 	}
