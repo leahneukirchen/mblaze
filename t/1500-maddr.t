@@ -20,7 +20,7 @@ Message-Id: <EOH1F3NUOY.2KBVMHSBFATNY@example.org>
 !
 
 cat <<! | mmime >"inbox/cur/2:2,"
-From: имярек <имярек@example.com>, Rajwinder Kaur <rajwinder@example.com>
+From: имярек <namearek@example.com>, Rajwinder Kaur <rajwinder@example.com>
 Subject: Здравствуйте
 Date: Thu, 30 Mar 2017 15:42:10 +0200
 Message-Id: <EOH8EKEA1Z.2YAIFN5KVCO6Z@example.org>
@@ -70,7 +70,7 @@ check_same 'from address' 'maddr -a 1' 'echo "rajwinder@example.com"'
 check_same 'from one' 'maddr -h obs-test 1' 'echo "Rajwinder Kaur <rajwinder@example.com>"'
 
 cat <<! >expect
-имярек <имярек@example.com>
+имярек <namearek@example.com>
 Rajwinder Kaur <rajwinder@example.com>
 !
 check_same 'from two' 'maddr 2' 'cat expect'
