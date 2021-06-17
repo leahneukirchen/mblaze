@@ -87,19 +87,19 @@ void
 print_addresses(char *s)
 {
 	char *disp, *addr;
-	char sdec[4096];
-
-	if (dflag) {
-		blaze822_decode_rfc2047(sdec, s, sizeof sdec, "UTF-8");
-		sdec[sizeof sdec - 1] = 0;
-		s = sdec;
-	}
+	char ddec[4096];
 
 	while ((s = blaze822_addr(s, &disp, &addr))) {
 		if (Hflag && addr)
 			printf("%s\t", curfile);
 
 		if (disp && addr) {
+			if (dflag) {
+				blaze822_decode_rfc2047(ddec, disp, sizeof ddec, "UTF-8");
+				ddec[sizeof ddec - 1] = 0;
+				disp = ddec;
+			}
+
 			print_quoted(disp);
 			printf(" <%s>\n", addr);
 		} else if (addr) {
