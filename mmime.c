@@ -312,6 +312,7 @@ print_header(char *line) {
 	}
 
 	int prevq = 0;  // was the previous word encoded as qp?
+	char prevqs = 0;  // was the previous word a quoted-string?
 
 	ssize_t linelen = s - line;
 
@@ -354,7 +355,7 @@ print_header(char *line) {
 				// space at beginning of line
 				goto force_qp;
 			}
-			if (*s != ' ') {
+			if (*s != ' ' && !(prevqs && !prevq && *(s-1) != ' ')) {
 				printf(" ");
 				linelen++;
 			}
@@ -388,6 +389,7 @@ force_qp:
 			if (qs && *e == '"')
 				e++;
 		}
+		prevqs = qs;
 		s = e;
 	}
 	printf("\n");
