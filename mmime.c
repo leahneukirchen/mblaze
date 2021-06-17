@@ -428,7 +428,9 @@ gen_build()
 	while (1) {
 		ssize_t read = getdelim(&line, &linelen, '\n', stdin);
 		if (read == -1) {
-			if (feof(stdin))
+			if (!intext && !rflag)
+				line = strdup(inheader ? "\n" : "");
+			else if (feof(stdin))
 				break;
 			else
 				exit(1);
