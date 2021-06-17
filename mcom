@@ -312,7 +312,7 @@ fi
 			IFS=$NL
 			for f in $(mseq -r "$@"); do
 				printf '%s Forwarded message from %s %s\n\n' \
-				       $SEP "$(mhdr -d -h from "$f")" $SEP
+				       $SEP "$(mhdr -d -A -h from "$f")" $SEP
 				DISPLAY= mshow -n -N "$f" </dev/null |
 					sed 's/^-/- &/'    # RFC 934
 				printf '\n%s %s %s\n\n' \
@@ -355,7 +355,7 @@ fi
 			printf 'Newsgroups: %s\n' "$ng"
 		else
 			to=$(mhdr -d -h reply-to "$1")
-			[ -z "$to" ] && to=$(mhdr -d -h from "$1")
+			[ -z "$to" ] && to=$(mhdr -d -A -h from "$1")
 			printf 'To: %s\n' "$to"
 			printf 'Cc: %s\n' \
 			       "$(mhdr -d -A -h to:cc: "$1" |
