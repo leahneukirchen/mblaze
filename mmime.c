@@ -59,6 +59,11 @@ int gen_b64(uint8_t *s, off_t size)
 	return 0;
 }
 
+#define qphrasevalid(c) ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || \
+                         (c >= 'a' && c <= 'z') || \
+                         c == '!' || c == '*' || c == '+' || c == '-' || \
+                         c == '/')
+
 size_t
 gen_qp(uint8_t *s, off_t size, size_t maxlinelen, size_t linelen)
 {
@@ -123,6 +128,10 @@ gen_qp(uint8_t *s, off_t size, size_t maxlinelen, size_t linelen)
 			putc_unlocked('\n', stdout);
 			linelen = 0;
 			prev = 0;
+		} else if (header && !qphrasevalid(s[i])) {
+			printf("=%02X", s[i]);
+			linelen += 3;
+			prev = '_';
 		} else {
 			putc_unlocked(s[i], stdout);
 			linelen++;
