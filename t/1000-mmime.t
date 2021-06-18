@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 12
+plan 16
 
 cat <<EOF >tmp
 References: <aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@a> <bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb@b> <ccccccccccccccccccccccccccccccc@c>
@@ -89,3 +89,29 @@ This part too.
 EOF
 
 check 'content-transfer-encoding is respected if found in input, for multipart/mixed' 'mmime <tmp2 |grep f=C3=B6=C3=B6'
+
+cat <<EOF >tmp2
+From: Kerstin Krüger <krueger@example.com>
+
+Body.
+EOF
+
+check 'non-ASCII is encoded as UTF-8' 'mmime <tmp2 | grep "UTF-8.*=C3=BC"'
+
+cat <<EOF >tmp2
+From: "Krüger, Kerstin" <krueger@example.com>
+
+Body.
+EOF
+
+check 'non-ASCII quoted-strings are encoded as one encoded-word' 'mmime <tmp2 | grep "UTF-8.*=2C_"'
+
+check 'non-ASCII quoted-strings are encoded without quotes' 'mmime <tmp2 | grep -v "=22"'
+
+cat <<EOF >tmp2
+From: "kerstin krueger"@example.com
+
+Body.
+EOF
+
+check 'non-encoded quoted-strings are kept correctly' 'mmime <tmp2 | grep \"@'
