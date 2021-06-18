@@ -1,4 +1,4 @@
-.Dd February 20, 2017
+.Dd June 18, 2021
 .Dt MBLAZE-PROFILE 5
 .Os
 .Sh NAME
@@ -55,17 +55,16 @@ If set,
 will create draft messages in this maildir,
 and save messages there after sending.
 .It Li Reply-From\&:
-A comma-separated list of mail addresses (formatted like this:
-.Sq Li My Name <username@domain> )
-that are automatically used for
-the
-.Li From\&:
-header in a reply if present in the
+A comma-separated list of display name and mail address pairs, formatted like this:
+.Dl Li Primary Name <myname1@domain1>, Name v.2 <myname2@domain2>, \[dq]Name, My Third\[dq] <myname3@domain3>, ...
+The first of these that appears in the
 .Li To\&: ,
 .Li Cc\&: ,
 or
 .Li Bcc\&:
-header.
+header will be used as the
+.Li From\&:
+address in a reply.
 If not set,
 .Li Alternate\&-Mailboxes\&:
 will be used as a default.
