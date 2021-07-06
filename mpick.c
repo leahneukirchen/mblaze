@@ -1256,10 +1256,8 @@ mailfile(struct mailinfo *m, char *file)
 {
 	static int init;
 	if (!init) {
-		// delay loading of the seqmap until we need to scan the first
-		// file, in case someone in the pipe updated the map before
-		char *seqmap = blaze822_seq_open(0);
-		blaze822_seq_load(seqmap);
+		// delay loading of the cur mail until we need to scan the first
+		// file, in case someone in the pipe updated it before
 		cur = blaze822_seq_cur();
 		init = 1;
 	}
