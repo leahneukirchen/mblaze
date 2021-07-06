@@ -110,6 +110,7 @@ defaultc=e
 hdrs=
 resume=
 noquote=
+template=
 case "$0" in
 *mcom*)
 	hdr=to
@@ -136,6 +137,11 @@ case "$0" in
 				echo "using draft $draft"
 				shift
 			fi
+			;;
+		-t)
+			shift
+			template="$1"
+			shift
 			;;
 		-send)
 			defaultc=justsend
@@ -214,6 +220,11 @@ case "$0" in
 		-send)
 			defaultc=justsend
 			shift;;
+		-t)
+			shift
+			template="$1"
+			shift
+			;;
 		-noquote)
 			noquote=1
 			shift;;
@@ -403,6 +414,14 @@ fi
 	case "$0" in
 	*mbnc*) ;;
 	*)
+		if [ -n "$template" ]; then
+			if [ ! -r "$template" ]; then
+				printf "The template %s in unredeable\n" "$template" >&2
+				exit 1
+			fi
+			cat "$template"
+		fi
+
 		if [ -f "$MBLAZE/signature" ]; then
 			SIGNATURE="$MBLAZE/signature"
 		elif [ -f ~/.signature ]; then
