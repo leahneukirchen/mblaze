@@ -1,7 +1,8 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 16
+
+plan 17
 
 cat <<EOF >tmp
 References: <aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@a> <bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb@b> <ccccccccccccccccccccccccccccccc@c>
@@ -115,3 +116,11 @@ Body.
 EOF
 
 check 'non-encoded quoted-strings are kept correctly' 'mmime <tmp2 | grep \"@'
+
+cat <<EOF >tmp2
+Subject: inclusion without further content
+
+#message/rfc822#inline $PWD/tmp
+EOF
+
+check 'no empty parts are generated after inclusion lines' '! mmime <tmp2 | mshow -t - | grep -q size=0'

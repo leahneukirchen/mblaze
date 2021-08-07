@@ -423,6 +423,7 @@ gen_build()
 	size_t linelen = 0;
 	int inheader = 1;
 	int intext = 0;
+	int emptybody = 1;
 	int ret = 0;
 	char *contenttype = 0;
 	char *contenttransferenc = 0;
@@ -430,12 +431,13 @@ gen_build()
 	while (1) {
 		ssize_t read = getdelim(&line, &linelen, '\n', stdin);
 		if (read == -1) {
-			if (!intext && !rflag)
+			if (feof(stdin)) {
+				if (!emptybody)
+					break;
 				line = strdup(inheader ? "\n" : "");
-			else if (feof(stdin))
-				break;
-			else
+			} else { // errored
 				exit(1);
+			}
 		}
 		if (inheader) {
 			if (line[0] == '\n') {
@@ -476,6 +478,7 @@ gen_build()
 					if (gen_file(f+1, line+1) != 0)
 						ret = 1;
 					intext = 0;
+					emptybody = 0;
 					continue;
 				}
 				*f = of;
@@ -496,6 +499,8 @@ gen_build()
 			printf("%s", line);
 		else
 			gen_qp((uint8_t *)line, strlen(line), 78, 0);
+
+		emptybody = 0;
 	}
 	if (!rflag && !inheader)
 		printf("\n--%s--\n", sep);
