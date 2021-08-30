@@ -420,10 +420,19 @@ unfold_hdr(char *buf, char *end)
 	compress_hdr(l, end);
 }
 
+static int
+is_crlf(char *s, size_t len)
+{
+	char *firsteol = memchr(s, '\n', len);
+
+	return firsteol && firsteol > s && firsteol[-1] == '\r';
+}
+
 struct message *
 blaze822(char *file)
 {
 	int fd;
+	int crlf;
 	ssize_t rd;
 	char *buf;
 	ssize_t bufalloc;
@@ -466,15 +475,21 @@ blaze822(char *file)
 			close(fd);
 			return 0;
 		}
-
-		if ((end = mymemmem(buf-overlap+used, rd+overlap, "\n\n", 2))) {
-			end++;
-			break;
+		if (used == 0) {
+			crlf = is_crlf(buf, rd);
 		}
-		if ((end = mymemmem(buf-overlap+used, rd+overlap, "\r\n\r\n", 4))) {
-			end++;
-			end++;
-			break;
+
+		if (crlf) {
+			if ((end = mymemmem(buf-overlap+used, rd+overlap, "\r\n\r\n", 4))) {
+				end++;
+				end++;
+				break;
+			}
+		} else {
+			if ((end = mymemmem(buf-overlap+used, rd+overlap, "\n\n", 2))) {
+				end++;
+				break;
+			}
 		}
 
 		used += rd;
@@ -502,11 +517,15 @@ blaze822_mem(char *src, size_t len)
 	if (!mesg)
 		return 0;
 
-	if ((end = mymemmem(src, len, "\n\n", 2))) {
-		mesg->body = end+2;
-	} else if ((end = mymemmem(src, len, "\r\n\r\n", 4))) {
-		mesg->body = end+4;
+	if (is_crlf(src, len)) {
+		if ((end = mymemmem(src, len, "\r\n\r\n", 4)))
+			mesg->body = end+4;
 	} else {
+		if ((end = mymemmem(src, len, "\n\n", 2)))
+			mesg->body = end+2;
+	}
+
+	if (!end) {
 		end = src + len;
 		mesg->body = end;
 		mesg->bodyend = end;
