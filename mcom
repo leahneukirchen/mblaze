@@ -478,6 +478,9 @@ while :; do
 			*mbnc*) mflag -P -- "$1" ;;
 			*mfwd*) mflag -P -- "$@" ;;
 		esac
+		case "$0" in
+			*mrep*|*mbnc*|*mfwd*) mseq -f | mseq -S ;;
+		esac
 
 		exit 0
 		;;
