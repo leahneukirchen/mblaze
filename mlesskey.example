@@ -1,5 +1,5 @@
 # mless(1) keybindings
-# to update: lesskey -o ~/.mless ~/.mlesskey
+# to update (only on less <590): lesskey -o ~/.mless ~/.mlesskey
 Q quit \1
 :cq quit \1
 [ prev-file

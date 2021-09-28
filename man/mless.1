@@ -43,6 +43,14 @@ Use
 and
 .Sq Ic ":p"
 to read the next (resp. previous) message.
+.Sh FILES
+.Bl -tag -width Ds
+.It Pa ${MBLAZE:-$HOME/.mblaze}/mlesskey , Pa $HOME/.mlesskey
+Additional keybindings loaded for convenience.
+.It Pa ${MBLAZE:-$HOME/.mblaze}/mless , Pa $HOME/.mless
+Additional compiled keybindings loaded for convenience.
+(Only needed for less earlier than version 590.)
+.El
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
