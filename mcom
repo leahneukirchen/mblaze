@@ -368,7 +368,7 @@ fi
 		printf 'Subject: Re: %s\n' "$(COLUMNS=10000 mscan -f '%S' "$1")"
 		if ! printf '%s\n' "$hdrs" | awk '{ print }' |
 		     mhdr -h from: - >/dev/null; then
-			addr=$(maddr -a -h to:cc:bcc: "$1" | replyfrom | head -n1)
+			addr=$(maddr -a -h delivered-to:to:cc:bcc: "$1" | replyfrom | head -n1)
 			[ -n "$addr" ] && from=$(maddr -h reply-from "$MBLAZE/profile" | grep -Fi "<$addr>" | head -n1)
 			[ -n "$addr" ] && [ -z "$from" ] && from=$(maddr -h alternate-mailboxes "$MBLAZE/profile" | grep -Fi "<$addr>" | head -n1)
 			[ -z "$from" ] && from=$(mhdr -h local-mailbox "$MBLAZE/profile")
