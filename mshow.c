@@ -808,7 +808,7 @@ main(int argc, char *argv[])
 
 	xpledge("stdio rpath wpath cpath proc exec", NULL);
 
-	if (!rflag && !xflag && !Oflag && !Rflag)
+	if (!rflag && !xflag && !Oflag && !Rflag && !tflag)
 		safe_output = 1;
 
 	if (safe_output && isatty(1)) {
