@@ -30,28 +30,6 @@ chgquote(int quotes)
 }
 
 void
-fixed(int quotes, char *line, size_t linelen)
-{
-	chgquote(quotes);
-
-	if (column && linelen > (size_t)(maxcolumn - column)) {
-		putchar('\n');
-		column = 0;
-	}
-
-	if (column == 0) {
-		for (; column < quotes; column++)
-			putchar('>');
-		if (quotes && *line != ' ')
-			putchar(' ');
-	}
-
-	fwrite(line, 1, linelen, stdout);
-	putchar('\n');
-	column = 0;
-}
-
-void
 flowed(int quotes, char *line, ssize_t linelen)
 {
 	chgquote(quotes);
@@ -94,6 +72,15 @@ flowed(int quotes, char *line, ssize_t linelen)
 			line = eow;
 		}
 	}
+}
+
+void
+fixed(int quotes, char *line, size_t linelen)
+{
+	flowed(quotes, line, linelen);
+
+	putchar('\n');
+	column = 0;
 }
 
 int
@@ -200,6 +187,11 @@ main(int argc, char *argv[])
 			if (delsp)
 				line[--rd] = 0;
 			flowed(quotes, line, rd);
+		} else if (rd == 0) {  // empty line is fixed
+			if (column > 0)
+				putchar('\n');
+			putchar('\n');
+			column = 0;
 		} else {
 			if (force && rd > maxcolumn) {
 				flowed(quotes, line, rd);
