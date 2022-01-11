@@ -2,7 +2,7 @@ CFLAGS?=-g -O2 -fstack-protector-strong -D_FORTIFY_SOURCE=2
 override CFLAGS:=-Wall -Wno-switch -Wextra $(CFLAGS)
 LDLIBS=-lrt
 
-OS := $(shell uname)
+OS ?= $(shell uname)
 
 ifeq ($(OS),OpenBSD)
 LOCALBASE=/usr/local
