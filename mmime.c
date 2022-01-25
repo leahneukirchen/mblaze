@@ -517,6 +517,7 @@ check()
 	off_t linelen = 0;
 	off_t maxheadlinelen = 0;
 	off_t maxbodylinelen = 0;
+	off_t bodylinelenlimit = getenv("MBLAZE_RELAXED_MIME") ? 998 : 78;
 
 	int c;
 	int l = -1;
@@ -554,7 +555,7 @@ check()
 	}
 
 	if (bitlow == 0 && bithigh == 0 &&
-	    maxheadlinelen < 998 && maxbodylinelen <= 78 &&
+	    maxheadlinelen < 998 && maxbodylinelen <= bodylinelenlimit &&
 	    l == '\n')
 		return 0;
 	else
