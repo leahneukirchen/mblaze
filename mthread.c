@@ -29,7 +29,6 @@ static int optional;
 struct container {
 	char *mid;
 	char *file;
-	struct message *msg;
 	time_t date;
 	struct container *parent;
 	struct container *child;
@@ -87,7 +86,6 @@ midcont(char *mid)
 			exit(111);
 		c->mid = mid;
 		c->file = 0;
-		c->msg = 0;
 		c->date = -1;
 		c->optional = 0;
 		c->parent = c->child = c->next = 0;
@@ -104,7 +102,6 @@ store_id(char *file, struct message *msg)
 
 	c = midcont(mid(msg));
 	c->file = strdup(file);
-	c->msg = msg;
 	c->optional = optional;
 
 	return c;
@@ -239,6 +236,8 @@ out2:
 			c->child = 0;
 		}
 	}
+
+	blaze822_free(msg);
 }
 
 time_t
@@ -290,7 +289,6 @@ find_roots()
 	top = malloc(sizeof (struct container));
 	if (!top)
 		exit(111);
-	top->msg = 0;
 	top->date = -1;
 	top->file = 0;
 	top->next = top->child = top->parent = 0;
@@ -315,7 +313,6 @@ prune_tree(struct container *c, int depth)
 			// turn into child if we don't exist and only have a child
 			c->mid = c->child->mid;
 			c->file = c->child->file;
-			c->msg = c->child->msg;
 			if (c->child->date > c->date)
 				c->date = c->child->date;
 			c->optional = c->child->optional;
