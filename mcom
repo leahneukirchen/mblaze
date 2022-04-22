@@ -104,6 +104,7 @@ sendmail=$(mhdr -h sendmail "$MBLAZE/profile")
 sendmail_args=$(mhdr -h sendmail-args "$MBLAZE/profile")
 sendmail="${sendmail:-sendmail} ${sendmail_args:--t}"
 default_from=$(mhdr -h local-mailbox "$MBLAZE/profile")
+sendhook=$(mhdr -h sendhook "$MBLAZE/profile")
 
 defaultc=e
 
@@ -440,7 +441,7 @@ while :; do
 				if $sendmail <"$draftmime"; then
 					if [ "$outbox" ]; then
 						mv "$draftmime" "$draft"
-						mflag -d -S "$draft"
+						${sendhook:-mflag -d -S} "$draft"
 					else
 						rm "$draft" "$draftmime"
 					fi
@@ -458,7 +459,7 @@ while :; do
 				stampdate "$draft"
 				if $sendmail <"$draft"; then
 					if [ "$outbox" ]; then
-						mflag -d -S "$draft"
+						${sendhook:-mflag -d -S} "$draft"
 					else
 						rm "$draft"
 					fi
