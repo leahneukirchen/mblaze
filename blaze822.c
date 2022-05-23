@@ -443,7 +443,10 @@ blaze822(char *file)
 	if (!mesg)
 		return 0;
 
-	fd = open(file, O_RDONLY);
+	if (strcmp(file, "/dev/stdin") == 0)
+		fd = dup(0);
+	else
+		fd = open(file, O_RDONLY);
 	if (fd < 0) {
 		free(mesg);
 		return 0;
