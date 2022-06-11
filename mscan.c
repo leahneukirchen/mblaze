@@ -1,6 +1,9 @@
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 700
 #endif
+#ifdef __sun
+#define __EXTENSIONS__ /* to get TIOCGWINSZ */
+#endif
 
 #include "xpledge.h"
 
@@ -19,6 +22,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <wchar.h>
+#include <termios.h>
 
 #include "blaze822.h"
 #include "u8decode.h"
