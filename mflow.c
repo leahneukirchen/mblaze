@@ -1,3 +1,7 @@
+#ifdef __sun
+#define __EXTENSIONS__ /* to get TIOCGWINSZ */
+#endif
+
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 
@@ -9,6 +13,7 @@
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#include <termios.h>
 
 #include "blaze822.h"
 #include "xpledge.h"
