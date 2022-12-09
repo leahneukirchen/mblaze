@@ -7,7 +7,7 @@ function so(s) { return sprintf("\033[1m%s\033[0m", s) }
 BEGIN { hdr = 1; if ("NO_COLOR" in ENVIRON || match(ENVIRON["TERM"], "^(dumb|network|9term)")) no_color = 1 }
 no_color { print; next }
 /\r$/ { sub(/\r$/, "") }
-/^\014$/ { nextmail = 1; next }
+/^\014$/ { nextmail = 1; print(fg(co("FF",232), $0)); next }
 /^$/ { hdr = 0 }
 /^-- $/ { ftr = 1 }
 /^--- .* ---/ { print fg(co("SEP",242), $0); ftr = 0; sig = 0; next }
