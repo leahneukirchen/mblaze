@@ -323,7 +323,7 @@ fi
 	*mbnc*)
 		old_ifs="$IFS"
 		IFS=$NL
-		set -- $(mseq -- "$@")
+		set -- $(mseq -r -- "$@")
 		IFS="$old_ifs"
 		if [ "$#" -ne 1 ]; then
 			printf 'mbnc: needs exactly one mail to bounce\n' 1>&2
@@ -343,13 +343,13 @@ fi
 		printf 'Resent-Date: %s\n' "$(mdate)"
 		(
 			IFS=$NL
-			cat $(mseq -- "$@")
+			cat $(mseq -r -- "$@")
 		)
 		;;
 	*mrep*)
 		old_ifs="$IFS"
 		IFS=$NL
-		set -- $(mseq -- "$@")
+		set -- $(mseq -r -- "$@")
 		IFS="$old_ifs"
 		if [ "$#" -ne 1 ]; then
 			printf 'mrep: needs exactly one mail to reply to\n' 1>&2
