@@ -158,7 +158,7 @@ mime_filename(struct message *msg)
 	static char buf[512];
 	char *v;
 	char *filename = 0;
-	
+
 	if ((v = blaze822_hdr(msg, "content-disposition")) &&
 	    blaze822_mime2231_parameter(v, "filename",
 	    buf, sizeof buf, "UTF-8")) {
