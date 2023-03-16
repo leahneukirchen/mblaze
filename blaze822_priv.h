@@ -12,9 +12,9 @@ struct message {
 
 #define isfws(c)  (((unsigned char)(c) == ' ' || (unsigned char)(c) == '\t' || (unsigned char)(c) == '\n' || (unsigned char)(c) == '\r'))
 
-// ASCII lowercase/uppercase without alpha check (wrong for "@[\]^_")
-#define lc(c) ((c) | 0x20)
-#define uc(c) ((c) & 0xdf)
+// 7bit-ASCII only lowercase/uppercase
+#define lc(c) (((unsigned)(c)-'A') < 26 ? ((c) | 0x20) : (c))
+#define uc(c) (((unsigned)(c)-'a') < 26 ? ((c) & 0xdf) : (c))
 
 // dirent type that can be a mail/dir (following symlinks)
 #if defined(DT_REG) && defined(DT_LNK) && defined(DT_UNKNOWN)
