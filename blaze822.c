@@ -396,7 +396,7 @@ unfold_hdr(char *buf, char *end)
 	s = buf;
 
 	while (s < end && *s != ':' && *s != '\n') {
-		*s = lc(*s);
+		*s = tolower(*s);
 		s++;
 	}
 
@@ -412,7 +412,7 @@ unfold_hdr(char *buf, char *end)
 			compress_hdr(l, s-1);
 			l = s;
 			while (s < end && *s != ':' && *s != '\n') {
-				*s = lc(*s);
+				*s = tolower(*s);
 				s++;
 			}
 		}
