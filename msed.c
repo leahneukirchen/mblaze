@@ -114,24 +114,19 @@ sed(char *file)
 		if (!v)
 			continue;
 		v++;
-		while (*v && (*v == ' ' || *v == '\t'))
-			v++;
+		v += strspn(v, " \t");
 
 		v = strdup(v);
 
 		char *e = expr;
 		while (*e) {
-			while (*e &&
-			    (*e == ' ' || *e == '\t' || *e == '\n' || *e == ';'))
-				e++;
-
 			*headersel = 0;
+		e += strspn(e, " \t\n;");
 			if (*e == '/') {
 				e++;
 				char *s = e;
 				// parse_headers, sets headersel
-				while (*e && *e != '/')
-					e++;
+				e = strchr(e, '/');
 				snprintf(headersel, sizeof headersel,
 				    "^(%.*s)*:", (int)(e-s), s);
 				for (s = headersel; *s && *(s+1); s++)
@@ -167,8 +162,7 @@ sed(char *file)
 						fprintf(stderr, "msed: unterminated a command\n");
 						exit(1);
 					}
-					while (*e && *e != sep)
-						e++;
+						e = strchr(e, sep);
 					if (*e == sep)
 						e++;
 					if (!(*e == ' ' || *e == ';' || *e == '\n' || !*e)) {
@@ -179,22 +173,18 @@ sed(char *file)
 				case 'c':
 					sep = *++e;
 					s = ++e;
-					while (*e && *e != sep)
-						e++;
+					e = strchr(e, sep);
 					free(v);
 					v = strndup(s, e-s);
 					break;
 				case 's':
 					sep = *++e;
 					s = ++e;
-					while (*e && *e != sep)
-						e++;
+					e = strchr(e, sep);
 					char *t = ++e;
-					while (*e && *e != sep)
-						e++;
+					e = strchr(e, sep);
 					char *u = ++e;
-					while (*e == 'd' || *e == 'g' || *e == 'i')
-						e++;
+					e += strspn(e, "dgi");
 
 					if (!(*e == ' ' || *e == ';' || *e == '\n' || !*e)) {
 						fprintf(stderr, "msed: unterminated s command\n");
@@ -226,8 +216,7 @@ sed(char *file)
 					exit(1);
 				}
 			}
-			while (*e && *e != ';' && *e != '\n')
-				e++;
+			e += strcspn(e, ";\n");
 		}
 		if (v) {
 			printhdr(h, 0);
@@ -241,17 +230,14 @@ sed(char *file)
 	char *hs, *he;
 	char *e = expr;
 	while (*e) {
-		while (*e &&
-		    (*e == ' ' || *e == '\t' || *e == '\n' || *e == ';'))
-			e++;
+		e += strspn(e, " \t\n;");
 
 		hs = he = 0;
 		if (*e == '/') {
 			e++;
 			hs = e;
 			// parse_headers, sets headersel
-			while (*e && *e != '/')
-				e++;
+			e = strchr(e, '/');
 			he = e;
 			if (*e)
 				e++;
@@ -281,8 +267,7 @@ sed(char *file)
 					exit(1);
 				}
 				s = ++e;
-				while (*e && *e != sep)
-					e++;
+				e = strchr(e, sep);
 				v = strndup(s, e-s);
 			}
 
@@ -305,8 +290,7 @@ sed(char *file)
 			// ignore here;
 			break;
 		}
-		while (*e && *e != ';' && *e != '\n')
-			e++;
+		e += strcspn(e, ";\n");
 	}
 
 	printf("\n");
