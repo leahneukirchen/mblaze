@@ -52,8 +52,11 @@ generation in
 .It Li Outbox\&:
 If set,
 .Xr mcom 1
-will create draft messages in this maildir,
-and save messages there after sending.
+will save messages in this maildir after sending.
+.It Li Drafts\&:
+If set,
+.Xr mcom 1
+will create draft messages in this maildir (defaults to Outbox). 
 .It Li Reply-From\&:
 A comma-separated list of display name and mail address pairs, formatted like this:
 .Dl Li Primary Name <myname1@domain1>, Name v.2 <myname2@domain2>, \[dq]Name, My Third\[dq] <myname3@domain3>, ...
