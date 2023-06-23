@@ -448,7 +448,7 @@ while :; do
 				if $sendmail <"$draftmime"; then
 					if [ "$outbox" ]; then
 						mv "$draftmime" "$draft"
-						mrefile $(mflag -d -S "$draft") "$outbox"
+						mrefile "$(mflag -d -S "$draft")" "$outbox"
 					else
 						rm "$draft" "$draftmime"
 					fi
@@ -466,7 +466,7 @@ while :; do
 				stampdate "$draft"
 				if $sendmail <"$draft"; then
 					if [ "$outbox" ]; then
-						mrefile $(mflag -d -S "$draft") "$outbox"
+						mrefile "$(mflag -d -S "$draft")" "$outbox"
 					else
 						rm "$draft"
 					fi
