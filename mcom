@@ -373,7 +373,7 @@ fi
 			printf '%s\n' "$hdrs" | awk '{ print }' |
 				msed "/body/d" -
 		fi | sed '/^$/d'
-		printf 'Subject: Re: %s\n' "$(COLUMNS=10000 mscan -f '%S' "$1")"
+		printf 'Subject: Re: %s\n' "$(MBLAZE_PAGER=cat COLUMNS=10000 mscan -f '%S' "$1")"
 		if ! printf '%s\n' "$hdrs" | awk '{ print }' |
 		     mhdr -h from: - >/dev/null; then
 			addr=$(maddr -a -h delivered-to:to:cc:bcc: "$1" | replyfrom | head -n1)
