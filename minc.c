@@ -74,14 +74,17 @@ usage:
 			exit(1);
 		}
 
-	if (optind == argc)
-		goto usage;
-
 	xpledge("stdio rpath cpath", "");
 
 	status = 0;
-	for (i = optind; i < argc; i++)
-		inc(argv[i]);
+	if (optind == argc) {
+		if (isatty(0))
+			goto usage;
+		blaze822_loop(0, 0, inc);
+	} else {
+		for (i = optind; i < argc; i++)
+			inc(argv[i]);
+	}
 
 	return status;
 }
