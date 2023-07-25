@@ -1,4 +1,4 @@
-.Dd January 22, 2020
+.Dd July 25, 2023
 .Dt MDIRS 1
 .Os
 .Sh NAME
@@ -16,6 +16,14 @@ for maildir
 .Pq and maildir++
 folders and prints them,
 separated by newlines.
+.Pp
+If
+.Ar dirs
+is not present then use
+.Sq Li Maildir\&:
+from
+.Pa "${MBLAZE:-$HOME/.mblaze}/profile"
+.Pq if set .
 .Pp
 To
 .Nm ,
@@ -36,10 +44,20 @@ Print folders separated by a NUL character.
 .It Fl a
 Traverse into all subfolders, without considering the maildir++ name conventions.
 .El
+.Sh ENVIRONMENT
+.Bl -tag -width Ds
+.It Ev MBLAZE
+Directory containing mblaze configuration.
+.Po
+Default:
+.Pa $HOME/.mblaze
+.Pc
+.El
 .Sh EXIT STATUS
 .Ex -std
 .Sh SEE ALSO
-.Xr find 1
+.Xr find 1 ,
+.Xr mblaze-profile 5
 .Sh AUTHORS
 .An Leah Neukirchen Aq Mt leah@vuxu.org
 .Sh LICENSE

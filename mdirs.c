@@ -3,8 +3,10 @@
 
 #include <dirent.h>
 #include <limits.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "blaze822.h"
@@ -72,6 +74,33 @@ mdirs(char *fpath)
 	closedir(dir);
 }
 
+char *
+profile_maildir()
+{
+	char *f = blaze822_home_file("profile");
+	struct message *config = blaze822(f);
+	char *maildir;
+	static char path[PATH_MAX];
+
+	if (!config)
+		return 0;
+
+	if (!(maildir = blaze822_hdr(config, "maildir")))
+		return 0;
+
+	if (strncmp(maildir, "~/", 2) == 0) {
+		const char *home = getenv("HOME");
+		if (!home) {
+			struct passwd *pw = getpwuid(getuid());
+			home = pw ? pw->pw_dir : "/dev/null/homeless";
+		}
+		snprintf(path, sizeof path, "%s/%s", home, maildir+2);
+		maildir = path;
+	}
+
+	return maildir;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -86,10 +115,16 @@ usage:
 			exit(1);
 		}
 
-	if (argc == optind)
-		goto usage;
-
 	xpledge("stdio rpath", "");
+
+	if (argc == optind) {
+		char *maildir = profile_maildir();
+		if (maildir) {
+			mdirs(maildir);
+			return 0;
+		}
+		goto usage;
+	}
 
 	char toplevel[PATH_MAX];
 	if (!getcwd(toplevel, sizeof toplevel)) {
