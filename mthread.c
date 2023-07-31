@@ -159,16 +159,17 @@ thread(char *file)
 			mid = strndup(m+1, v-m-1);
 			// XXX free?
 
-			//protonmail.internalid
-			if (mid && strlen(mid) >= 22) {
-				const char *pi = "@protonmail.internalid";
-				if (strcmp(mid + strlen(mid) - 22, pi))
-					continue;
-			}
 			me = midcont(mid);
 
 			if (me == c)
 				continue;
+
+			// ugly, skip fake Protonmail mids
+			if (strlen(mid) >= 22) {
+				const char *pi = "@protonmail.internalid";
+				if (strcmp(mid + strlen(mid) - 22, pi))
+					continue;
+			}
 
 			if (parent && !me->parent &&
 			    !reachable(me, parent) && !reachable(parent, me)) {
