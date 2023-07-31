@@ -159,6 +159,12 @@ thread(char *file)
 			mid = strndup(m+1, v-m-1);
 			// XXX free?
 
+			//protonmail.internalid
+			if (mid && strlen(mid) >= 22) {
+				const char *pi = "@protonmail.internalid";
+				if (strcmp(mid + strlen(mid) - 22, pi))
+					continue;
+			}
 			me = midcont(mid);
 
 			if (me == c)
