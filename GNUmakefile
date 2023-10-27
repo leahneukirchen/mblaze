@@ -1,5 +1,6 @@
 CFLAGS?=-g -O2 -fstack-protector-strong -D_FORTIFY_SOURCE=2
 override CFLAGS:=-Wall -Wno-switch -Wextra $(CFLAGS)
+LDFLAGS?=-fstack-protector-strong
 LDLIBS=-lrt
 
 OS := $(shell uname)
@@ -25,10 +26,10 @@ SCRIPT = mcolor mcom mless mmkdir mquote museragent
 all: $(ALL) museragent
 
 $(ALL) : % : %.o
-maddr magrep mdeliver mexport mflag mflow mgenmid mhdr mpick mscan msed mshow \
-  msort mthread : blaze822.o mymemmem.o mytimegm.o
-maddr magrep mdeliver mexport mflag mgenmid mhdr mlist mpick mscan msed mseq \
-  mshow msort mthread : seq.o slurp.o mystrverscmp.o
+maddr magrep mdeliver mdirs mexport mflag mflow mgenmid mhdr mpick mscan msed \
+  mshow msort mthread : blaze822.o mymemmem.o mytimegm.o
+maddr magrep mdeliver mdirs mexport mflag mgenmid mhdr minc mlist mpick mscan \
+  msed mseq mshow msort mthread : seq.o slurp.o mystrverscmp.o
 maddr magrep mflow mhdr mpick mscan mshow : rfc2047.o
 magrep mflow mhdr mshow : rfc2045.o
 mshow : filter.o safe_u8putstr.o rfc2231.o pipeto.o

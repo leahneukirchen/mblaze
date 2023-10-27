@@ -355,7 +355,11 @@ usage2:
 	if (argc != optind+1)
 		goto usage2;
 
-	xpledge("stdio rpath wpath cpath", "");
+	xpledge("stdio rpath wpath cpath fattr", "");
+	if (!preserve_mtime && !Mflag) {
+		/* drop fattr */
+		xpledge("stdio rpath wpath cpath", "");
+	}
 
 	targetdir = argv[optind];
 

@@ -7,15 +7,19 @@ function so(s) { return sprintf("\033[1m%s\033[0m", s) }
 BEGIN { hdr = 1; if ("NO_COLOR" in ENVIRON || match(ENVIRON["TERM"], "^(dumb|network|9term)")) no_color = 1 }
 no_color { print; next }
 /\r$/ { sub(/\r$/, "") }
-/^\014$/ { nextmail = 1; next }
-/^$/ { hdr = 0 }
+/^\014$/ { nextmail = 1; print(fg(co("FF",232), $0)); next }
+/^$/ { hdr = 0; diff = 0 }
 /^-- $/ { ftr = 1 }
+/^diff -/ { diff = 1 }
 /^--- .* ---/ { print fg(co("SEP",242), $0); ftr = 0; sig = 0; next }
 /^-----BEGIN .* SIGNATURE-----/ { sig = 1 }
 nextmail && /^From:/ { hdr = 1 }
 hdr && /^From:/ { print so(fg(co("FROM",119), $0)); next }
 hdr { print fg(co("HEADER",120), $0); next }
 ftr { print fg(co("FOOTER",244), $0); next }
+diff && /^-/ { print fg(co("DIFF_D",160), $0); next }
+diff && /^\+/ { print fg(co("DIFF_I",40), $0); next }
+diff && /^@/ { print fg(co("DIFF_R",226), $0); next }
 /^-----BEGIN .* MESSAGE-----/ ||
 /^-----END .* SIGNATURE-----/ { print fg(co("SIG",244), $0); sig = 0; next }
 sig { print fg(co("SIG",244), $0); next }

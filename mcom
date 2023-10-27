@@ -237,7 +237,9 @@ esac
 hdrs="$(printf '%s\n' "${hdrs#$NL}" | mhdr -)"
 
 outbox=$(mhdr -h outbox "$MBLAZE/profile" | sed "s:^~/:$HOME/:")
-if [ -z "$outbox" ]; then
+draftbox=$(mhdr -h drafts "$MBLAZE/profile" | sed "s:^~/:$HOME/:")
+draftbox="${draftbox:-$outbox}"
+if [ -z "$draftbox" ]; then
 	if [ -z "$resume" ]; then
 		i=0
 		while [ -f "snd.$i" ]; do
@@ -250,13 +252,13 @@ if [ -z "$outbox" ]; then
 	draftmime="$draft.mime"
 else
 	if [ -z "$resume" ]; then
-		draft="$(true | mdeliver -v -c -XD "$outbox")"
+		draft="$(true | mdeliver -v -c -XD "$draftbox")"
 		if [ -z "$draft" ]; then
-			printf '%s\n' "$0: failed to create draft in outbox $outbox." 1>&2
+			printf '%s\n' "$0: failed to create draft in outbox $draftbox." 1>&2
 			exit 1
 		fi
 	elif [ -z "$draft" ]; then
-		draft=$(mlist -D "$outbox" | msort -r -M | sed 1q)
+		draft=$(mlist -D "$draftbox" | msort -r -M | sed 1q)
 	fi
 	draftmime="$(printf '%s\n' "$draft" | sed 's,\(.*\)/cur/,\1/tmp/mime-,')"
 fi
@@ -322,7 +324,10 @@ fi
 		) fi
 		;;
 	*mbnc*)
-		set -- $(mseq -- "$@")
+		old_ifs="$IFS"
+		IFS=$NL
+		set -- $(mseq -r -- "$@")
+		IFS="$old_ifs"
 		if [ "$#" -ne 1 ]; then
 			printf 'mbnc: needs exactly one mail to bounce\n' 1>&2
 			exit 1
@@ -341,11 +346,14 @@ fi
 		printf 'Resent-Date: %s\n' "$(mdate)"
 		(
 			IFS=$NL
-			cat $(mseq -- "$@")
+			cat $(mseq -r -- "$@")
 		)
 		;;
 	*mrep*)
-		set -- $(mseq -- "$@")
+		old_ifs="$IFS"
+		IFS=$NL
+		set -- $(mseq -r -- "$@")
+		IFS="$old_ifs"
 		if [ "$#" -ne 1 ]; then
 			printf 'mrep: needs exactly one mail to reply to\n' 1>&2
 			exit 1
@@ -441,7 +449,11 @@ while :; do
 				if $sendmail <"$draftmime"; then
 					if [ "$outbox" ]; then
 						mv "$draftmime" "$draft"
-						${sendhook:-mflag -d -S} "$draft"
+            if test -z "${sendhook}"; then
+              mrefile "$(mflag -d -S "$draft")" "$outbox"
+            else
+              ${sendhook} "$draft"
+            fi
 					else
 						rm "$draft" "$draftmime"
 					fi
@@ -459,7 +471,11 @@ while :; do
 				stampdate "$draft"
 				if $sendmail <"$draft"; then
 					if [ "$outbox" ]; then
-						${sendhook:-mflag -d -S} "$draft"
+            if test -z "${sendhook}"; then
+              mrefile "$(mflag -d -S "$draft")" "$outbox"
+            else
+              ${sendhook} "$draft"
+            fi
 					else
 						rm "$draft"
 					fi

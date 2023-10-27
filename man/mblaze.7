@@ -163,6 +163,9 @@ thread it and look at it interactively:
 Or you could list the attachments of the 20 largest messages in your INBOX:
 .Dl mlist ~/Maildir/INBOX | msort -S | tail -20 | mshow -t
 .Pp
+Or delete messages beyond a certain age:
+.Dl mlist ~/Maildir/INBOX | mpick -t 'mtime < \&"-365d\&"' | xargs rm
+.Pp
 Or apply the patches from the current message:
 .Dl mshow -O . '*.diff' | patch
 .Pp
