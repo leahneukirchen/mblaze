@@ -89,7 +89,8 @@ while :; do
 	LESSOPEN="|$0 --filter %s" \
 		less -Ps"mless %f?m (message %i of %m).." -R \
 			"+:e $(mscan -n .)$nl" //scan $(mscan -n :)
-	case "$?" in
+	_c="$?"
+	case "$_c" in
 	0|1) exit $?;;
 	36) # $ goto end
 		mseq -C '$' 2>/dev/null
@@ -104,6 +105,10 @@ while :; do
 		mflag -S .
 		mseq -f : | mseq -S
 		mseq -C +
+		;;
+	117) # u extract URLs
+		_url="$(mshow -N -h ''| extract_url -l -c "$XDG_CONFIG_HOME"/urlview/config 2>&- | fzf)"
+		[ "$_url" != "" ] && handle-url "$_url"
 		;;
 	82) # R toggle raw mode
 		MLESS_RAW=$((1-$MLESS_RAW))
