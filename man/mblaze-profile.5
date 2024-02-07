@@ -1,4 +1,4 @@
-.Dd June 18, 2021
+.Dd January 27, 2024
 .Dt MBLAZE-PROFILE 5
 .Os
 .Sh NAME
@@ -60,11 +60,13 @@ will save messages in this maildir after sending.
 .It Li Drafts\&:
 If set,
 .Xr mcom 1
-will create draft messages in this maildir (defaults to Outbox). 
+will create draft messages in this maildir (defaults to Outbox).
 .It Li Reply-From\&:
-A comma-separated list of display name and mail address pairs, formatted like this:
+A comma-separated list of display name and mail address pairs,
+formatted like this:
 .Dl Li Primary Name <myname1@domain1>, Name v.2 <myname2@domain2>, \[dq]Name, My Third\[dq] <myname3@domain3>, ...
 The first of these that appears in the
+.Li Delivered-To\&: ,
 .Li To\&: ,
 .Li Cc\&: ,
 or
