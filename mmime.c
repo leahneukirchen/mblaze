@@ -347,7 +347,7 @@ print_header(char *line) {
 		if (!highbit) {
 			if (e-s >= 998)
 				goto force_qp;
-			if (e-s >= 78 - linelen) {
+			if (e-s >= 78 - linelen && linelen > 0) {
 				// wrap in advance before long word
 				printf("\n");
 				linelen = 0;

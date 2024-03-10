@@ -2,7 +2,7 @@
 cd ${0%/*}
 . ./lib.sh
 
-plan 19
+plan 21
 
 cat <<EOF >tmp
 References: <aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@a> <bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb@b> <ccccccccccccccccccccccccccccccc@c>
@@ -134,3 +134,19 @@ EOF
 
 check 'body lines longer than 78 characters needs MIME formatting' '! mmime -c <tmp2'
 check 'MBLAZE_RELAXED_MIME allows body lines longer than 78 characters' 'MBLAZE_RELAXED_MIME= mmime -c <tmp2'
+
+cat <<EOF >tmp2
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1710013705;
+	s=s1; d=tuta.io;
+	h=From:From:To:To:Subject:Subject:Content-Description:Content-ID:Content-Type:Content-Type:Content-Transfer-Encoding:Cc:Date:Date:In-Reply-To:MIME-Version:MIME-Version:Message-ID:Message-ID:Reply-To:References:Sender; bh=Jr8DQlZ7RwdJv94m7ZT/v+cv/WFsgjxpMRsHvnNfgGY=;
+	b=NXRl0YxYtVsWrR8v7tVKnvsnCSrBqqaf2h3m8OVGlzG0OqMqGcWg7fVk6x4nTYV+
+	+05afZrGfIwcfFwIe/LLvT0d3/12t4+cs/FQvmEcFUN+n2buQwt5sn8f76UUlvNMrGz
+	Xbq8HAdwhA364yWABa7DrF1EGysC8bEDJcCtSs/Wz3TL2A/MEeItEF+VijtgWUwoOwn
+	rFKkCg5Df+IOd4gEBS/KYLbzcMB1dvqy+ut2LA2+NZpzJQPgbJzWAYieT9KYgoS+hKS
+	5FfknNT+hKZz18IBEWH1UWbI+CcLRR8Sr80x2DZUKq8ryC5RmV5/uAc5Up03b/KZGRU
+	NsiBAQCx3w==
+EOF
+
+check 'header words longer then 78 characters do not cause empty lines (#257)' 'mmime < tmp2 | awk "NR < 5 && length == 0 { exit 1 }"'
+
+check 'header words longer then 78 characters are printed on their own line' 'mmime < tmp2 |grep "^[ 	]*h=From.*Sender;$"'
