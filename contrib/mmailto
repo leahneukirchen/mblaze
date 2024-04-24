@@ -19,7 +19,7 @@ fi
 IFS='
 '
 
-exec $TERMINAL -e mcom $(
+args=$(
 awk -v url="$1" '
 
 function decode(s) {
@@ -47,7 +47,7 @@ BEGIN {
     split(fields[i], kv, "=")
     if (kv[1] != "r") {
       args[length(args)+1] = "-" kv[1]
-      args[length(args)+1] =  kv[2]
+      args[length(args)+1] =  "\"" kv[2] "\""
     }
   }
   for (i in args) {
@@ -56,3 +56,5 @@ BEGIN {
 }
 '
 )
+
+exec $TERMINAL -e "mcom $args"
