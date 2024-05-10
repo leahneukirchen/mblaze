@@ -317,13 +317,10 @@ usage:
 	if (optind == argc && !isatty(0))
 		return stdinmode();
 
-	char *seq = blaze822_seq_open(0);
-	if (!seq)
-		return 1;
-
 	int i;
 	char *f;
 	char *a;
+	char *seq = 0;
 
 	if (optind == argc) {
 		a = ":";
@@ -337,6 +334,13 @@ hack:
 			printf("%s\n", a);
 			continue;
 		}
+
+		if (!seq) {
+			seq = blaze822_seq_open(0);
+			if (!seq)
+				return 1;
+		}
+
 		struct blaze822_seq_iter iter = { 0 };
 		while ((f = blaze822_seq_next(seq, a, &iter))) {
 			char *s = f;
