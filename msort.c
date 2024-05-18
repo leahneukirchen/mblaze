@@ -319,7 +319,7 @@ main(int argc, char *argv[])
 
 	xpledge("stdio rpath", "");
 
-	mails = calloc(sizeof (struct mail), mailalloc);
+	mails = calloc(mailalloc, sizeof (struct mail));
 	if (!mails)
 		exit(-1);
 
