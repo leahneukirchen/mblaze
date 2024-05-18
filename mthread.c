@@ -372,7 +372,7 @@ sort_tree(struct container *c, int depth)
 		if (i == 1)  // no sort needed
 			return;
 
-		struct container **a = calloc(sizeof (struct container *), i);
+		struct container **a = calloc(i, sizeof (struct container *));
 		if (!a)
 			return;
 

@@ -145,7 +145,7 @@ main(int argc, char *argv[])
 			return 0;
 		}
 
-		args = calloc(sizeof (char *), argsalloc);
+		args = calloc(argsalloc, sizeof (char *));
 		if (!args)
 			exit(-1);
 
