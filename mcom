@@ -306,6 +306,19 @@ fi
 		msgid
 		museragent
 		cat "$MBLAZE/headers" 2>/dev/null
+		if [ -n "$raw" ]; then
+			prev=$(pwd)
+			attachdir=$(mktemp -d)
+			cd $attachdir
+			trap 'rm -r "$attachdir"' EXIT
+
+			mseq -r "$@" \
+				| xargs -I {} mshow -Bx {} \
+				| xargs -I {} realpath {} \
+				| sed '/^$/d; s/^/Attach: /'
+			cd $prev
+		fi
+
 		printf '\n\n'
 		if [ -z "$raw" ]; then
 			mseq -r "$@" | sed 's:^:#message/rfc822#inline :; s:$:>:'
