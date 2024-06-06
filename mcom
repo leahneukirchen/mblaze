@@ -531,7 +531,7 @@ while :; do
 		c=send
 		;;
 	d|delete)
-		rm -i "$draft"
+		rm "$draft"
 		if ! [ -f "$draft" ]; then
 			rm -f "$draftmime"
 			printf '%s\n' "mcom: deleted draft $draft"
