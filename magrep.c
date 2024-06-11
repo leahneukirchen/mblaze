@@ -151,7 +151,7 @@ void
 magrep(char *file)
 {
 	if (!*header) {
-		char *flags = strstr(file, ":2,");
+		char *flags = strstr(file, MAILDIR_COLON_SPEC_VER_COMMA);
 		if (flags)
 			match(file, "flags", flags+3);
 		return;

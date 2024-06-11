@@ -87,7 +87,7 @@ export(char *file)
 
 		if (in_header && line[0] == '\n' && !line[1]) {
 			if (Sflag) {
-				char *flags = strstr(file, ":2,");
+				char *flags = strstr(file, MAILDIR_COLON_SPEC_VER_COMMA);
 				if (!flags)
 					flags = "";
 

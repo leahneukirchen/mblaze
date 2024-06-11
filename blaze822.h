@@ -8,6 +8,17 @@
 #define PATH_MAX 4096
 #endif
 
+// maildir filename suffix: use a semicolon on winnt/ntfs, otherwise a colon
+#ifdef __winnt__
+#define MAILDIR_COLON                ';'
+#define MAILDIR_COLON_SPEC_VER       ";2"
+#define MAILDIR_COLON_SPEC_VER_COMMA ";2,"
+#else
+#define MAILDIR_COLON                ':'
+#define MAILDIR_COLON_SPEC_VER       ":2"
+#define MAILDIR_COLON_SPEC_VER_COMMA ":2,"
+#endif
+
 struct message;
 
 // blaze822.c

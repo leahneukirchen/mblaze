@@ -322,7 +322,7 @@ oneline(char *file)
 	}
 
 	struct message *msg = blaze822(file);
-	char *flags = msg ? strstr(file, ":2,") : 0;
+	char *flags = msg ? strstr(file, MAILDIR_COLON_SPEC_VER_COMMA) : 0;
 	if (!flags)
 		flags = "";
 	else

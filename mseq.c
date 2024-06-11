@@ -70,7 +70,7 @@ namescan(char *dir)
 		snprintf(file, sizeof file, "%s/%s", dir, d->d_name);
 
 		char *e;
-		if ((e = strstr(d->d_name, ":2,")))
+		if ((e = strstr(d->d_name, MAILDIR_COLON_SPEC_VER_COMMA)))
 			*e = 0;
 
 		struct name *c = malloc(sizeof (struct name));
@@ -101,7 +101,7 @@ search(char *file)
 	if (!namefind(dir))
 		namescan(dir);
 
-	if ((e = strstr(file, ":2,")))
+	if ((e = strstr(file, MAILDIR_COLON_SPEC_VER_COMMA)))
 		*e = 0;
 
 	return namefind(file);
@@ -131,11 +131,11 @@ fix(FILE *out, char *file)
 	char *e;
 	char *sep;
 
-	if ((e = strstr(file, ":2,"))) {
+	if ((e = strstr(file, MAILDIR_COLON_SPEC_VER_COMMA))) {
 		sep = "";
 		e[3] = 0;
 	} else {
-		sep = ":2,";
+		sep = MAILDIR_COLON_SPEC_VER_COMMA;
 	}
 	snprintf(buf, sizeof buf, "%s%s", file, sep);
 	if (access(buf, F_OK) == 0) goto ok;
