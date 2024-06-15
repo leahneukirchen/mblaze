@@ -173,7 +173,7 @@ try_again:
 			if (Mflag && in_header &&
 			    (strncasecmp("status:", line, 7) == 0 ||
 			     strncasecmp("x-status:", line, 9) == 0)) {
-				char *v = strchr(line, MAILDIR_COLON);
+				char *v = strchr(line, ':');
 				if (v) {
 					if (strchr(v, 'F')) statusflags[0] = 'F';
 					if (strchr(v, 'A')) statusflags[1] = 'R';
