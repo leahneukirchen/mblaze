@@ -287,7 +287,7 @@ fi
 		printf '\n'
 		(
 			IFS=$NL
-			cat -- /dev/null $(printf '%s' "$hdrs" | mhdr -M -h body -)
+			cat -- /dev/null <(printf '%s' "$hdrs" | mhdr -M -h body -)
 		)
 		printf '\n'
 		;;
