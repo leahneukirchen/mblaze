@@ -107,7 +107,7 @@ try_again:
 		snprintf(tmp, sizeof tmp, "%s/tmp/%s", targetdir, id);
 
 		if (try_rename) {
-			snprintf(dst, sizeof dst, "%s/%s/%s:2,%s",
+			snprintf(dst, sizeof dst, "%s/%s/%s"MAILDIR_COLON_SPEC_VER_COMMA"%s",
 			    targetdir, cflag ? "cur" : "new", id, Xflag);
 			if (rename(infilename, dst) == 0)
 				goto success;
@@ -257,7 +257,7 @@ try_again:
 #endif
 		}
 
-		snprintf(dst, sizeof dst, "%s/%s/%s:2,%s",
+		snprintf(dst, sizeof dst, "%s/%s/%s"MAILDIR_COLON_SPEC_VER_COMMA"%s",
 		    targetdir, (cflag || is_old) ? "cur" : "new", id,
 		    Xflag ? Xflag : statusflags);
 		if (rename(tmp, dst) != 0)
@@ -285,7 +285,7 @@ refile(char *file)
 		file++;
 
 	// keep flags
-	char *flags = strstr(file, ":2,");
+	char *flags = strstr(file, MAILDIR_COLON_SPEC_VER_COMMA);
 	if (flags)
 		Xflag = flags + 3;
 	else

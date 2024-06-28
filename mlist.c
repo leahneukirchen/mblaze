@@ -58,14 +58,14 @@ list(char *prefix, char *file)
 	if (flagset || iflag) {
 		size_t prefixlen;
 
-		f = strstr(file, ":2,");
+		f = strstr(file, MAILDIR_COLON_SPEC_VER_COMMA);
 
 		if (!f &&
 		    prefix &&
 		    (prefixlen = strlen(prefix)) &&
 		    prefixlen >= 4 &&
 		    strcmp(prefix + prefixlen - 4, "/new") == 0)
-			f = ":2,";
+			f = MAILDIR_COLON_SPEC_VER_COMMA;
 	}
 
 	if (flagset) {

@@ -219,8 +219,8 @@ unreadorder(const void *a, const void *b)
 	struct mail *ia = (struct mail *)a;
 	struct mail *ib = (struct mail *)b;
 
-	char *fa = strstr(ia->file, ":2,");
-	char *fb = strstr(ib->file, ":2,");
+	char *fa = strstr(ia->file, MAILDIR_COLON_SPEC_VER_COMMA);
+	char *fb = strstr(ib->file, MAILDIR_COLON_SPEC_VER_COMMA);
 
 	int unreada = fa ? !strchr(fa, 'S') : 0;
 	int unreadb = fb ? !strchr(fb, 'S') : 0;
@@ -234,8 +234,8 @@ flaggedorder(const void *a, const void *b)
 	struct mail *ia = (struct mail *)a;
 	struct mail *ib = (struct mail *)b;
 
-	char *fa = strstr(ia->file, ":2,");
-	char *fb = strstr(ib->file, ":2,");
+	char *fa = strstr(ia->file, MAILDIR_COLON_SPEC_VER_COMMA);
+	char *fb = strstr(ib->file, MAILDIR_COLON_SPEC_VER_COMMA);
 
 	int unreada = fa ? !!strchr(fa, 'F') : 0;
 	int unreadb = fb ? !!strchr(fb, 'F') : 0;

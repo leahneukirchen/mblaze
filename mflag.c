@@ -47,7 +47,7 @@ flag(char *file)
 	while (file[indent] == ' ' || file[indent] == '\t')
 		indent++;
 
-	char *f = strstr(file, ":2,");
+	char *f = strstr(file, MAILDIR_COLON_SPEC_VER_COMMA);
 	if (!f)
 		goto skip;
 

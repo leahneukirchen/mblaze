@@ -46,7 +46,8 @@ inc(char *dir)
 		snprintf(src, sizeof src, "%s/new/%s",
 		    dir, d->d_name);
 		snprintf(dst, sizeof dst, "%s/cur/%s%s",
-		    dir, d->d_name, strstr(d->d_name, ":2,") ? "" : ":2,");
+		    dir, d->d_name,
+		    strstr(d->d_name, MAILDIR_COLON_SPEC_VER_COMMA) ? "" : MAILDIR_COLON_SPEC_VER_COMMA);
 		if (rename(src, dst) < 0) {
 			fprintf(stderr, "minc: can't rename '%s' to '%s': %s\n",
 			    src, dst, strerror(errno));

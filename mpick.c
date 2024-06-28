@@ -1290,7 +1290,7 @@ mailfile(struct mailinfo *m, char *file)
 		cur_idx = m->index;
 	}
 
-	char *f = strstr(fpath, ":2,");
+	char *f = strstr(fpath, MAILDIR_COLON_SPEC_VER_COMMA);
 	if (f) {
 		if (strchr(f, 'P'))
 			m->flags |= FLAG_PASSED;
