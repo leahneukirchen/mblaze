@@ -58,8 +58,7 @@ pipeto(const char *cmdline)
 
 		// execvp failed, write errno to parent
 		int e = errno;
-		if (write(pipe1[1], &e, sizeof e) < 0)
-			exit(111);  // do a magic dance for gcc -Wunused-result
+		(void)! write(pipe1[1], &e, sizeof e);
 		exit(111);
 	} else {  // in parent
 		close(pipe1[1]);
