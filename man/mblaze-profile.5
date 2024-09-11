@@ -1,4 +1,4 @@
-.Dd January 27, 2024
+.Dd September 11, 2024
 .Dt MBLAZE-PROFILE 5
 .Os
 .Sh NAME
@@ -92,6 +92,11 @@ Flags to be passed to the
 program.
 (Default:
 .Sq Fl t ) .
+.It Li Senthook\&:
+If set,
+.Xr mcom 1
+will call this on the mail file after sending,
+and not refile the sent mail to outbox.
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width Ds
