@@ -104,6 +104,7 @@ sendmail=$(mhdr -h sendmail "$MBLAZE/profile")
 sendmail_args=$(mhdr -h sendmail-args "$MBLAZE/profile")
 sendmail="${sendmail:-sendmail} ${sendmail_args:--t}"
 default_from=$(mhdr -h local-mailbox "$MBLAZE/profile")
+senthook=$(mhdr -h senthook "$MBLAZE/profile")
 
 defaultc=e
 
@@ -306,6 +307,19 @@ fi
 		msgid
 		museragent
 		cat "$MBLAZE/headers" 2>/dev/null
+		if [ -n "$raw" ]; then
+			prev=$(pwd)
+			attachdir=$(mktemp -d)
+			cd $attachdir
+			trap 'rm -r "$attachdir"' EXIT
+
+			mseq -r "$@" \
+				| xargs -I {} mshow -Bx {} \
+				| xargs -I {} realpath {} \
+				| sed '/^$/d; s/^/Attach: /'
+			cd $prev
+		fi
+
 		printf '\n\n'
 		if [ -z "$raw" ]; then
 			mseq -r "$@" | sed 's:^:#message/rfc822#inline :; s:$:>:'
@@ -446,7 +460,10 @@ while :; do
 			if [ "$draft" -ot "$draftmime" ] || [ "$automime" = 1 ]; then
 				stampdate "$draftmime"
 				if $sendmail <"$draftmime"; then
-					if [ "$outbox" ]; then
+					if [ "$senthook" ]; then
+						mv "$draftmime" "$draft"
+						$senthook "$draft"
+					elif [ "$outbox" ]; then
 						mv "$draftmime" "$draft"
 						mrefile "$(mflag -d -S "$draft")" "$outbox"
 					else
@@ -465,7 +482,9 @@ while :; do
 			if mmime -c <"$draft" && ! [ "$automime" = 1 ]; then
 				stampdate "$draft"
 				if $sendmail <"$draft"; then
-					if [ "$outbox" ]; then
+					if [ "$senthook" ]; then
+						$senthook "$draft"
+					elif [ "$outbox" ]; then
 						mrefile "$(mflag -d -S "$draft")" "$outbox"
 					else
 						rm "$draft"
