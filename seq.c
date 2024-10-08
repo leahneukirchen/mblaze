@@ -493,11 +493,13 @@ iterdir(char *dir, void (*cb)(char *))
 		m = "";
 		n = scandir(dir, &namelist, 0, mailsort);
 	}
-		
-	if (n == -1) {	
-		if (errno == ENOTDIR)
+
+	if (n == -1) {
+		if (errno == ENOTDIR) {
 			cb(dir);
-		return 1;
+			return 1;
+		}
+		return 0;
 	}
 
 	long i = 0;
@@ -515,8 +517,8 @@ iterdir(char *dir, void (*cb)(char *))
 	return i;
 }
 
-long
-blaze822_loop(int argc, char *argv[], void (*cb)(char *))
+int
+blaze822_loop(long *num, int argc, char *argv[], void (*cb)(char *))
 {
 	char *line = 0;
 	size_t linelen = 0;
@@ -531,15 +533,25 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 			i++;
 		}
 		free(line);
-		return i;
+
+		if (num)
+			*num = i;
+		return 0;
 	}
 
 	char *map = 0;
+	int status = 0;
 	int map_opened = 0;
-	int j = 0;
+	long j = 0;
 	for (i = 0; i < argc; i++) {
 		if (strchr(argv[i], '/')) {  // a file name
-			j += iterdir(argv[i], cb);
+			long n = iterdir(argv[i], cb);
+			if (!n) {
+				fprintf(stderr, "mblaze: warning: file '%s' does not exist\n", argv[i]);
+				status = 1;
+			} else {
+				j += n;
+			}
 		} else if (strcmp(argv[i], "-") == 0) {
 			if (isatty(0)) {
 				fprintf(stderr, "mblaze: warning: - now means "
@@ -562,12 +574,15 @@ blaze822_loop(int argc, char *argv[], void (*cb)(char *))
 		}
 	}
 	free(map);
-	return j;
+
+	if (num)
+		*num = j;
+	return status;
 }
 
-long
-blaze822_loop1(char *arg, void (*cb)(char *))
+int
+blaze822_loop1(long *num, char *arg, void (*cb)(char *))
 {
 	char *args[] = { arg };
-	return blaze822_loop(1, args, cb);
+	return blaze822_loop(num, 1, args, cb);
 }

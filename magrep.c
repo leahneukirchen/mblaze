@@ -232,9 +232,9 @@ usage:
 	}
 
 	if (argc == optind && isatty(0))
-		blaze822_loop1(":", magrep);
+		blaze822_loop1(NULL, ":", magrep);
 	else
-		blaze822_loop(argc-optind, argv+optind, magrep);
+		blaze822_loop(NULL, argc-optind, argv+optind, magrep);
 
 	if (cflag && !qflag && !mflag)
 		printf("%ld\n", matches);

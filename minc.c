@@ -81,7 +81,7 @@ usage:
 	if (optind == argc) {
 		if (isatty(0))
 			goto usage;
-		blaze822_loop(0, 0, inc);
+		status = blaze822_loop(NULL, 0, 0, inc);
 	} else {
 		for (i = optind; i < argc; i++)
 			inc(argv[i]);

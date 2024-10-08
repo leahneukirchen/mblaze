@@ -1464,11 +1464,12 @@ main(int argc, char *argv[])
 
 	xpledge("stdio rpath wpath cpath proc exec", 0);
 
+	int status;
 	void (*cb)(char *) = need_thr ? collect : oneline;
 	if (argc == optind && isatty(0))
-		i = blaze822_loop1(":", cb);
+		status = blaze822_loop1(&i, ":", cb);
 	else
-		i = blaze822_loop(argc-optind, argv+optind, cb);
+		status = blaze822_loop(&i, argc-optind, argv+optind, cb);
 
 	/* print and free last thread */
 	if (Tflag && thr)
@@ -1488,5 +1489,5 @@ main(int argc, char *argv[])
 		free(files);
 	}
 
-	return 0;
+	return status;
 }
