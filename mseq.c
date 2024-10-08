@@ -301,12 +301,13 @@ usage:
 
 	xpledge("stdio rpath wpath cpath", "");
 
-	if (cflag)
-		blaze822_loop1(cflag, overridecur);
+	if (cflag) {
+		if (blaze822_loop1(NULL, cflag, overridecur))
+			return 1;
+	}
 
 	if (Cflag) {
-		blaze822_loop1(Cflag, setcur);
-		return 0;
+		return blaze822_loop1(NULL, Cflag, setcur);
 	}
 
 	if (Sflag && optind != argc) {

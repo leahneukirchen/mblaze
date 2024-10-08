@@ -250,9 +250,9 @@ main(int argc, char *argv[])
 	xpledge("stdio rpath", "");
 
 	if (argc == optind && isatty(0))
-		blaze822_loop1(".", header);
+		status |= blaze822_loop1(NULL, ".", header);
 	else
-		blaze822_loop(argc-optind, argv+optind, header);
+		status |= blaze822_loop(NULL, argc-optind, argv+optind, header);
 
 	return status;
 }
