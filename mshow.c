@@ -587,13 +587,13 @@ extract_cb(char *file)
 	blaze822_walk_mime(msg, 0, extract_mime);
 }
 
-void
+int
 extract(char *file, int argc, char **argv, int use_stdout)
 {
 	extract_argc = argc;
 	extract_argv = argv;
 	extract_stdout = use_stdout;
-	blaze822_loop1(file, extract_cb);
+	return blaze822_loop1(file, extract_cb);
 }
 
 static char *newcur;
@@ -832,21 +832,22 @@ main(int argc, char *argv[])
 		}
 	}
 
+	int status = 0;
 	if (xflag) { // extract
 		xpledge("stdio rpath wpath cpath", NULL);
-		extract(xflag, argc-optind, argv+optind, 0);
+		status = extract(xflag, argc-optind, argv+optind, 0);
 	} else if (Oflag) { // extract to stdout
 		xpledge("stdio rpath", NULL);
-		extract(Oflag, argc-optind, argv+optind, 1);
+		status = extract(Oflag, argc-optind, argv+optind, 1);
 	} else if (tflag) { // list
 		xpledge("stdio rpath", NULL);
 		if (argc == optind && isatty(0))
-			blaze822_loop1(".", list);
+			status = blaze822_loop1(".", list);
 		else
-			blaze822_loop(argc-optind, argv+optind, list);
+			status = blaze822_loop(argc-optind, argv+optind, list);
 	} else if (Rflag) { // render for reply
 		xpledge("stdio rpath", NULL);
-		blaze822_loop(argc-optind, argv+optind, reply);
+		status = blaze822_loop(argc-optind, argv+optind, reply);
 	} else { // show
 		/* XXX pledge: still r/w on the whole file-system + fork/exec */
 		if (!(qflag || rflag || Fflag)) {
@@ -857,9 +858,9 @@ main(int argc, char *argv[])
 				filters = blaze822(f);
 		}
 		if (argc == optind && isatty(0))
-			blaze822_loop1(".", show);
+			status = blaze822_loop1(".", show);
 		else
-			blaze822_loop(argc-optind, argv+optind, show);
+			status = blaze822_loop(argc-optind, argv+optind, show);
 		if (!nflag) // don't set cur
 			if (newcur)
 				blaze822_seq_setcur(newcur);
@@ -875,5 +876,5 @@ main(int argc, char *argv[])
 		return 1;
 	}
 
-	return 0;
+	return status;
 }

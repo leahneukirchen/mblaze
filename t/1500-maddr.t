@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 11
+plan 13
 
 rm -rf test.dir
 mkdir test.dir
@@ -82,5 +82,7 @@ check_same 'long addr' 'maddr -h long 4' 'echo "heeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 check_same 'decode iso8859' 'maddr -h DecodeISO8859 5' 'echo "Keld Jørn Simonsen <keld@dkuug.dk>"'
 check_same 'decode long iso8859' 'maddr -h DecodeLongISO8859 5' 'echo "\"If you can read this you understand the example. z a b\" <foo@example.com>"'
 check_same 'decode utf8' 'maddr -h DecodeUTF8 5' 'echo "z’z <bar@example.com>"'
+check 'non-existent mail' 'maddr -S /does/not/exist ; [ $? -eq 1 ]'
+check_same 'keep going on non-existent mail' 'maddr /does/not/exist 3 /does/not/exist || true' 'echo "rajwinder@example.com"'
 
 )

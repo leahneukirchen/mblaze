@@ -561,10 +561,9 @@ main(int argc, char *argv[])
 
 	if (nflag) {
 		if (argc == optind && isatty(0))
-			blaze822_loop1(":", numline);
+			return blaze822_loop1(":", numline);
 		else
-			blaze822_loop(argc-optind, argv+optind, numline);
-		return 0;
+			return blaze822_loop(argc-optind, argv+optind, numline);
 	}
 
 	now = time(0);
@@ -624,10 +623,11 @@ main(int argc, char *argv[])
 				fflag = v;
 	}
 
+	int status;
 	if (argc == optind && isatty(0))
-		blaze822_loop1(":", oneline);
+		status = blaze822_loop1(":", oneline);
 	else
-		blaze822_loop(argc-optind, argv+optind, oneline);
+		status = blaze822_loop(argc-optind, argv+optind, oneline);
 
 	if (pager_pid > 0)
 		pipeclose(pager_pid);
@@ -635,5 +635,5 @@ main(int argc, char *argv[])
 	if (vflag)
 		fprintf(stderr, "%ld mails scanned\n", seen);
 
-	return 0;
+	return status;
 }

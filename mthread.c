@@ -421,7 +421,10 @@ main(int argc, char *argv[])
 
 	while ((c = getopt(argc, argv, "S:prv")) != -1)
 		switch (c) {
-		case 'S': blaze822_loop1(optarg, thread); break;
+		case 'S':
+			if (blaze822_loop1(optarg, thread))
+				return 1;
+			break;
 		case 'v': vflag = 1; break;
 		case 'p': pflag = 1; break;
 		case 'r': rflag = 1; break;
@@ -432,10 +435,11 @@ main(int argc, char *argv[])
 
 	optional = 0;
 
+	int status;
 	if (argc == optind && isatty(0))
-		blaze822_loop1(":", thread);
+		status = blaze822_loop1(":", thread);
 	else
-		blaze822_loop(argc-optind, argv+optind, thread);
+		status = blaze822_loop(argc-optind, argv+optind, thread);
 
 	// the tree of all toplevel threads has depth -1,
 	// so toplevel threads have depth 0.
@@ -446,5 +450,5 @@ main(int argc, char *argv[])
 	sort_tree(top, -1);
 	print_tree(top, -1);
 
-	return 0;
+	return status;
 }
