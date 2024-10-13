@@ -282,10 +282,11 @@ usage:
 			flagsum++;
 	}
 
+	int status = 0;
 	if (optind == argc) {
 		if (isatty(0))
 			goto usage;
-		blaze822_loop(0, 0, listarg);
+		status = blaze822_loop(0, 0, listarg);
 	} else {
 		for (i = optind; i < argc; i++)
 			listarg(argv[i]);
@@ -300,5 +301,5 @@ usage:
 			    tunseen, tflagged, tcount);
 	}
 
-	return 0;
+	return status;
 }
