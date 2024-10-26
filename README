@@ -91,6 +91,9 @@ EXAMPLES
      INBOX:
            mlist ~/Maildir/INBOX | msort -S | tail -20 | mshow -t
 
+     Or delete messages beyond a certain age:
+           mlist ~/Maildir/INBOX | mpick -t 'mtime < "-365d"' | xargs rm
+
      Or apply the patches from the current message:
            mshow -O. '*.diff' | patch
 
@@ -110,6 +113,27 @@ CONCEPTS
      For scripting, you must make these arguments explicit.
 
      For configuration, see mblaze-profile(5).
+
+COLORS
+     mblaze color output of mshow(1) and mscan(1) can be configured via
+     environment variables starting with MCOLOR_. For example:
+           export MCOLOR_FROM=226
+
+     will turn the color of From= header line to bright yellow.
+
+     All programmable colors:
+     MCOLOR_CUR       current message in mless
+     MCOLOR_DIFF_D    diff deleted lines
+     MCOLOR_DIFF_I    diff inserted lines
+     MCOLOR_DIFF_R    diff line range
+     MCOLOR_FOOTER    footer
+     MCOLOR_FROM      from header line
+     MCOLOR_HEADER    rest of header
+     MCOLOR_QUOTE     quote
+     MCOLOR_QQUOTE    double-nested quote
+     MCOLOR_QQQUOTE   triple-nested quote
+     MCOLOR_SEP       message separator
+     MCOLOR_SIG       message signature
 
 SEE ALSO
      mailx(1), mblaze-profile(5), nmh(7)
