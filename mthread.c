@@ -165,9 +165,11 @@ thread(char *file)
 				continue;
 
 			// ugly, skip fake Protonmail mids
-			if (strlen(mid) >= 22) {
+			char *at = strchr(mid, '@');
+			if (at != NULL) {
 				const char *pi = "@protonmail.internalid";
-				if (strcmp(mid + strlen(mid) - 22, pi))
+				const char *pc = "@protonmail.conversationid";
+				if (strcmp(at, pi) == 0 || strcmp(at, pc) == 0)
 					continue;
 			}
 
