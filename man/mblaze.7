@@ -197,6 +197,44 @@ For scripting, you must make these arguments explicit.
 .Pp
 For configuration, see
 .Xr mblaze-profile 5 .
+.Sh COLORS
+.Nm
+color output of
+.Xr mshow 1
+and
+.Xr mscan 1
+can be configured via environment variables starting with MCOLOR_. For example:
+.Dl export MCOLOR_FROM=226
+.Pp
+will turn the color of From= header line to bright yellow.
+.Pp
+All programmable colors:
+.Bl -tag -width 15n -compact
+.It Ev MCOLOR_CUR
+current message in mless
+.It Ev MCOLOR_DIFF_D
+diff deleted lines
+.It Ev MCOLOR_DIFF_I
+diff inserted lines
+.It Ev MCOLOR_DIFF_R
+diff line range
+.It Ev MCOLOR_FOOTER
+footer
+.It Ev MCOLOR_FROM
+from header line
+.It Ev MCOLOR_HEADER
+rest of header
+.It Ev MCOLOR_QUOTE
+quote
+.It Ev MCOLOR_QQUOTE
+double-nested quote
+.It Ev MCOLOR_QQQUOTE
+triple-nested quote
+.It Ev MCOLOR_SEP
+message separator
+.It Ev MCOLOR_SIG
+message signature
+.El
 .Sh SEE ALSO
 .Xr mailx 1 ,
 .Xr mblaze-profile 5 ,
