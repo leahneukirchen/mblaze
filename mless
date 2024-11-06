@@ -98,23 +98,78 @@ while :; do
 	78) # N go to next unseen message
 		nu=$(magrep -v -m1 :S .:) && mseq -C "$nu"
 		;;
+	118) # v rdrview?
+		mshow -F -O . "$(mshow -t | awk '/text\/html/{print substr($1,1,length($1)-1)}')" | \
+			rdrview -H | tidy | webdump -r8 -w"$_PREFWIDTH" | less
+		;;
+	119) # w open as pdf
+		mshow -t | sed -n '1d;s/^  \([[:digit:]]\+\).*$/mshow -O \1/p' | sh | \
+			tidy | hpdf 2>/dev/null
+		;;
+	68) # D delete
+		mscan . | cat
+		{
+			rm -i "$(mseq .)" && mseq -C .- && mseq -f | mseq -S
+		}
+		;;
+	82) # R
+		mrep
+		;;
 	107) # k next thread
 		mseq -C "$(mseq .+1: | sed -n '/^[^ <]/{p;q;}')"
 		;;
-	100) # d mark read
+	70) # F mark flaged
+		if printf '%s' "$(mseq)" | grep -q ',\w*F\w*$'; then
+			mflag -f .
+		else
+			mflag -F .
+		fi
+		mseq -f | mseq -S
+		;;
+	114) # r mark read
 		mflag -S .
 		mseq -f : | mseq -S
 		mseq -C +
 		;;
-	117) # u extract URLs
+	111) # o view attachment
+		names="$(mshow -t . | sed '/name=/!d')"
+		if [ ! "$names" = "" ]; then
+			printf %s "$names" | dmenu | sed 's/^\s\+\([[:digit:]]\+\):\s\([a-z\/]\+\).\+name="\(.\+\)"/mshow -O . \1 > \/tmp\/"\3" \&\& xdg-open \/tmp\/"\3"/' | sh >/dev/null 2>&1 &
+		else
+			notify-send "mless" "No attachments" &
+		fi
+		;;
+	115) # s save attachment
+		names="$(mshow -t . | sed '/name=/!d')"
+		if [ ! "$names" = "" ]; then
+			_dir="$(find Documents Downloads Pictures Sync -maxdepth 2 -type d -printf "%d %p\n"|sort -n | cut -d' ' -f2 | dmenu)"
+			if [ ! "$_dir" = "" ]; then
+				printf %s "$names" | dmenu | sed 's/^\s\+\([[:digit:]]\+\):\s\([a-z\/]\+\).\+name="\(.\+\)"/mshow -O . \1 > \$HOME\/'"$_dir"'\/"\3"/' | sh >/dev/null 2>&1 && notify-send "mless" "Saved to $_dir" &
+			fi
+		else
+			notify-send "mless" "No attachments to save" &
+		fi
+		;;
+	38) # & extract URLs
+		_url="$(munsub)"
+		if [ "$_url" != "" ]; then
+			handle-url "$_url"
+		else
+			clear
+			printf '%s' "No unsubscribe URLs found"
+			# wait for char press
+			o=$(stty -g); stty raw -echo ; head -c 1 ; stty "$o"
+		fi
+		;;
+	98) # b extract URLs
 		_url="$(mshow -N -h ''| extract_url -l -c "$XDG_CONFIG_HOME"/urlview/config 2>&- | fzf)"
 		[ "$_url" != "" ] && handle-url "$_url"
 		;;
-	82) # R toggle raw mode
-		MLESS_RAW=$((1-$MLESS_RAW))
+	84) # T toggle raw mode
+		MLESS_RAW=$((1-MLESS_RAW))
 		;;
 	72) # H toggle HTML mode
-		MLESS_HTML=$((1-$MLESS_HTML))
+		MLESS_HTML=$((1-MLESS_HTML))
 		;;
 	94) # ^ goto parent
 		mseq -C '.^' 2>/dev/null
