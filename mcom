@@ -16,9 +16,15 @@ notmine() {
 }
 
 replyfrom() {
-	addrs="$(maddr -a -h reply-from: "$MBLAZE/profile")"
-	[ -z "$addrs" ] && addrs="$(maddr -a -h alternate-mailboxes: "$MBLAZE/profile")"
-	grep -F -e "$addrs"
+	read -r addr
+	for f in "$MBLAZE"/*.profile; do
+		addrs="$(maddr -a -h reply-from: "$f")"
+		[ -z "$addrs" ] && addrs="$(maddr -a -h alternate-mailboxes: "$f")"
+		if echo "$addr" | grep -F -e "$addrs"; then
+			mprofile "$(basename "$f" .profile)" 1>&2
+			break
+		fi
+	done
 }
 
 ouniq() {
@@ -40,7 +46,7 @@ stampdate() {
 		{
 			printf 'Date: '
 			mdate
-			cat "$1"		
+			cat "$1"
 		} >"$tmp" &&
 		mv "$tmp" "$1"
 	fi
@@ -100,6 +106,7 @@ do_mime() {
 
 MBLAZE=${MBLAZE:-$HOME/.mblaze}
 
+addr=$(maddr -a -h delivered-to:to:cc:bcc: "$MBLAZE/profile" | replyfrom | head -n1)
 sendmail=$(mhdr -h sendmail "$MBLAZE/profile")
 sendmail_args=$(mhdr -h sendmail-args "$MBLAZE/profile")
 sendmail="${sendmail:-sendmail} ${sendmail_args:--t}"
@@ -145,7 +152,14 @@ case "$0" in
 			hdr=${1#-}
 			shift;;
 		[!-]*)
-			hdrs="$hdrs$NL$(printf '%s: %s\n' "${hdr}" "$1")"
+			__addr="$1"
+			if [ ! "" = "$__addr" ]; then
+				__addr="$(notmuch-addrlookup "$__addr")"
+			fi
+			if [ "" = "$__addr" ]; then
+				__addr="$1"
+			fi
+			hdrs="$hdrs$NL$(printf '%s: %s\n' "${hdr}" "$__addr")"
 			shift;;
 		*)
 			printf 'mcom: invalid argument %s\n' "$1" 1>&2
@@ -376,6 +390,7 @@ fi
 		if [ "$ng" ]; then
 			printf 'Newsgroups: %s\n' "$ng"
 		else
+			maddr -a -h delivered-to:to:cc:bcc: "$1" | replyfrom >/dev/null
 			to=$(mhdr -d -h reply-to "$1")
 			[ -z "$to" ] && to=$(mhdr -d -A -h from "$1")
 			printf 'To: %s\n' "$to"
@@ -457,7 +472,7 @@ while :; do
 		esac
 
 		if [ -e "$draftmime" ]; then
-			if [ "$draft" -ot "$draftmime" ] || [ "$automime" = 1 ]; then
+			if [ -n "$(find "$draftmime" -newer "$draft")" ] || [ "$automime" = 1 ]; then
 				stampdate "$draftmime"
 				if $sendmail <"$draftmime"; then
 					if [ "$senthook" ]; then
@@ -522,8 +537,12 @@ while :; do
 		c=
 		;;
 	e|edit)
+		if printf '%s' "$VISUAL:$EDITOR" | grep -q '\(vi\|vim\|nvim\|gvim\|nvi\)'; then
+			VISUAL="${VISUAL:+$VISUAL -c ft=mail}"
+			EDITOR="${EDITOR:+$EDITOR -c ft=mail}"
+		fi
 		c=
-		if ! ${VISUAL:-${EDITOR:-vi}} "$draft"; then
+		if ! ${VISUAL:-${EDITOR:-nvim -c ft=mail}} "$draft"; then
 			c=d
 		else
 			if checksensible "$draft"; then
