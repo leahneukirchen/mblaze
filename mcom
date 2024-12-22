@@ -261,6 +261,9 @@ else
 		draft=$(mlist -D "$draftbox" | msort -r -M | sed 1q)
 	fi
 	draftmime="$(printf '%s\n' "$draft" | sed 's,\(.*\)/cur/,\1/tmp/mime-,')"
+	if [ "$draft" = "$draftmime" ]; then
+		draftmime=$(mktemp -t mcom.XXXXXX)
+	fi
 fi
 
 if [ -n "$resume" ] && [ -z "$draft" ]; then
@@ -513,6 +516,7 @@ while :; do
 		;;
 	c|cancel)
 		stampdate "$draft"
+		rm -f "$draftmime"
 		printf '%s\n' "mcom: cancelled draft $draft"
 		exit 1
 		;;
