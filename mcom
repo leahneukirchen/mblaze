@@ -85,7 +85,7 @@ do_mime() {
 			msed '/attach/d' "$draft"
 			for f in $(mhdr -M -h attach "$draft"); do
 				printf '#%s %s\n' \
-				       "$(file -Lb --mime "$f" | sed 's/ //g')" \
+				       "$(file -Lb --mime -- "$f" | sed 's/ //g')" \
 				       "$f"
 			done
 		) | mmime >"$draftmime"
