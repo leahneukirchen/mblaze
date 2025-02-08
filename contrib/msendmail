@@ -62,6 +62,6 @@ else
 fi
 
 for a in $att; do
-	printf '#%s %s\n' "$(file -b --mime-type "$a")" "$a"
+	printf '#%s %s\n' "$(file -b --mime-type -- "$a")" "$a"
 done
 } | mmime
