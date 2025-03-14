@@ -148,9 +148,9 @@ main(int argc, char *argv[])
 	xpledge("stdio rpath", "");
 
 	if (argc == optind && isatty(0))
-		blaze822_loop1(":", export);
+		status |= blaze822_loop1(":", export);
 	else
-		blaze822_loop(argc-optind, argv+optind, export);
+		status |= blaze822_loop(argc-optind, argv+optind, export);
 
 	return status;
 }
