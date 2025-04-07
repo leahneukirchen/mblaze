@@ -326,7 +326,7 @@ parse_parent(char *map, long *starto, long *stopo)
 			indent = 255;
 		previndent[indent] = line;
 		if (line == *starto) {
-			if (previndent[indent-1]) {
+			if (indent > 0 && previndent[indent-1]) {
 				*starto = *stopo = previndent[indent-1];
 				return 0;
 			} else {
