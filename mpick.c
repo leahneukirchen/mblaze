@@ -190,6 +190,7 @@ static int need_thr;
 
 static long kept;
 static long num;
+static long seen;
 
 static struct expr *expr;
 static long cur_idx;
@@ -1363,6 +1364,7 @@ collect(char *file)
 	struct mlist *ml;
 	char *f;
 
+	seen++;
 	f = xstrdup(file);
 	m = xcalloc(1, sizeof *m);
 	m = mailfile(m, f);
@@ -1409,6 +1411,7 @@ void
 oneline(char *file)
 {
 	struct mailinfo m = { 0 };
+	seen++;
 	m.index = num++;
 	(void) mailfile(&m, file);
 	if (expr && !eval(expr, &m))
@@ -1429,7 +1432,6 @@ out:
 int
 main(int argc, char *argv[])
 {
-	long i;
 	int c;
 	int vflag;
 
@@ -1464,11 +1466,12 @@ main(int argc, char *argv[])
 
 	xpledge("stdio rpath wpath cpath proc exec", 0);
 
+	int status;
 	void (*cb)(char *) = need_thr ? collect : oneline;
 	if (argc == optind && isatty(0))
-		i = blaze822_loop1(":", cb);
+		status = blaze822_loop1(":", cb);
 	else
-		i = blaze822_loop(argc-optind, argv+optind, cb);
+		status = blaze822_loop(argc-optind, argv+optind, cb);
 
 	/* print and free last thread */
 	if (Tflag && thr)
@@ -1477,7 +1480,7 @@ main(int argc, char *argv[])
 	freeexpr(expr);
 
 	if (vflag)
-		fprintf(stderr, "%ld mails tested, %ld picked.\n", i, kept);
+		fprintf(stderr, "%ld mails tested, %ld picked.\n", seen, kept);
 
 	for (; files; files = fileq) {
 		fileq = files->next;
@@ -1488,5 +1491,5 @@ main(int argc, char *argv[])
 		free(files);
 	}
 
-	return 0;
+	return status;
 }
