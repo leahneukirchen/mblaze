@@ -45,7 +45,7 @@ BEGIN {
   sub(/^mailto:/, "", url)
   split(url, parts, "?")
   to = parts[1]
-  split(parts[2], fields, "&") 
+  split(parts[2], fields, "&")
   args[1] = to
   for (i in fields) {
     split(fields[i], kv, "=")
