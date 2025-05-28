@@ -3,6 +3,7 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <locale.h>
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -191,6 +192,8 @@ magrep(char *file)
 int
 main(int argc, char *argv[])
 {
+	setlocale(LC_ALL, "");  // for localized regexp
+
 	int c;
 	while ((c = getopt(argc, argv, "acdhilm:opqv")) != -1)
 		switch (c) {
