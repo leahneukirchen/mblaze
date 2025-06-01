@@ -142,6 +142,12 @@ try_again:
 		}
 
 		outfile = fdopen(outfd, "w");
+		if (!outfile) {
+			fprintf(stderr, "mrefile: fdopen: %s: %s\n",
+			    tmp, strerror(errno));
+			close(outfd);
+			goto fail;
+		}
 
 		char statusflags[5] = { 0 };
 
