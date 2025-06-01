@@ -35,13 +35,16 @@ export(char *file)
 	char from[1024] = "nobody";
 	time_t date = 0;
 
+	char *line = 0;
+	size_t linelen = 0;
+
 	if (fseek(infile, 0L, SEEK_SET) && errno == ESPIPE) {
 		date = time(0);
 		memcpy(from, "stdin", 6);
 	} else {
 		msg = blaze822(file);
 		if (!msg)
-			return;
+			goto fail;
 
 		char *v;
 		if ((v = blaze822_hdr(msg, "return-path")) ||
@@ -65,9 +68,6 @@ export(char *file)
 		blaze822_free(msg);
 	}
 
-	char *line = 0;
-	size_t linelen = 0;
-
 	printf("From %s %s", from, asctime(gmtime(&date)));
 
 	int in_header = 1;
@@ -82,7 +82,7 @@ export(char *file)
 			fprintf(stderr, "mexport: error reading '%s': %s\n",
 			    file, strerror(errno));
 			status = 1;
-			return;
+			goto fail;
 		}
 
 		if (in_header && line[0] == '\n' && !line[1]) {
@@ -128,6 +128,8 @@ export(char *file)
 	// ensure empty line at end of message
 	putchar('\n');
 
+fail:
+	free(line);
 	fclose(infile);
 }
 
