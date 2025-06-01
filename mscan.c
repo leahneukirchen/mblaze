@@ -597,8 +597,9 @@ main(int argc, char *argv[])
 
 	xpledge("stdio rpath", "");
 
-	if (getenv("COLUMNS"))
-		cols = atoi(getenv("COLUMNS"));
+	char *columns = getenv("COLUMNS");
+	if (columns)
+		cols = atoi(columns);
 	if (cols <= 40)
 		cols = 80;
 
