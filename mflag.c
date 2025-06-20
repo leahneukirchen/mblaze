@@ -141,31 +141,29 @@ main(int argc, char *argv[])
 
 	if (vflag) {
 		if (argc == optind && !isatty(0)) {
-			blaze822_loop(0, 0, flag);  // read from stdin
-			return 0;
+			return blaze822_loop(0, 0, flag);  // read from stdin
 		}
 
 		args = calloc(argsalloc, sizeof (char *));
 		if (!args)
 			exit(-1);
 
+		int status;
 		if (argc == optind)
-			blaze822_loop1(".", add);
+			status = blaze822_loop1(".", add);
 		else
-			blaze822_loop(argc-optind, argv+optind, add);
+			status = blaze822_loop(argc-optind, argv+optind, add);
 
 		if (isatty(0))
-			blaze822_loop1(":", flag);
+			status |= blaze822_loop1(":", flag);
 		else
-			blaze822_loop(0, 0, flag);
+			status |= blaze822_loop(0, 0, flag);
 
-		return 0;
+		return status;
 	}
 
 	if (argc == optind && isatty(0))
-		blaze822_loop1(".", flag);
+		return blaze822_loop1(".", flag);
 	else
-		blaze822_loop(argc-optind, argv+optind, flag);
-
-	return 0;
+		return blaze822_loop(argc-optind, argv+optind, flag);
 }
