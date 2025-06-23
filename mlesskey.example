@@ -6,6 +6,9 @@ Q quit \1
 :cq quit \1
 [ prev-file
 ] next-file
+#   When using OpenBSD, uncomment this:
+#   [ quit [
+#   ] quit ]
 { noaction E1\n
 } quit $
 $ quit $

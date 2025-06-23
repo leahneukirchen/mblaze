@@ -68,6 +68,12 @@ if [ "$#" -ge 1 ]; then
 	mseq -C "$1"
 fi
 
+: ${MLESS_NO_LESSOPEN=0}
+if less --version 2>/dev/null |grep -q OpenBSD; then
+	# Removed in https://github.com/openbsd/src/commit/c74702f8a020c6cfd3ae0dbd2b85bf100802950e
+	MLESS_NO_LESSOPEN=1
+fi
+
 nl="
 "
 export MLESS_RAW=0
@@ -85,10 +91,30 @@ elif [ -f "$HOME/.mblaze/mless" ]; then
 elif [ -f "$HOME/.mless" ]; then
 	export LESSKEY="$HOME/.mless"
 fi
+scan=0
 while :; do
-	LESSOPEN="|$0 --filter %s" \
-		less -Ps"mless %f?m (message %i of %m).." -R \
+	if [ $MLESS_NO_LESSOPEN -eq 1 ]; then
+		cur=$(mscan -n .)
+		total=$(mscan -n : | tail -1)
+
+		if [ $scan -ne 0 ]
+		then
+			cur="//scan"
+			status="mless.."
+		else
+			status="mless $cur (message $cur of $total).."
+		fi
+
+		case $cur in
+			[0-9]*) $0 --filter $cur;;
+			*) $0 --filter //scan;;
+		esac | less -Ps"$status" -Rc
+	else
+		LESSOPEN="|$0 --filter %s" \
+			less -Ps"mless %f?m (message %i of %m).." -R \
 			"+:e $(mscan -n .)$nl" //scan $(mscan -n :)
+	fi
+
 	case "$?" in
 	0|1) exit $?;;
 	36) # $ goto end
@@ -110,6 +136,21 @@ while :; do
 		;;
 	72) # H toggle HTML mode
 		MLESS_HTML=$((1-$MLESS_HTML))
+		;;
+	91) # [ prev file
+		case $cur in
+			1) scan=1;;
+			*) mseq -C '.-1' 2>/dev/null;;
+		esac
+		;;
+	93) # ] next file
+		if [ $scan -eq 0 ]
+		then
+			mseq -C '.+1' 2>/dev/null
+		else
+			scan=0
+			mseq -C 1 2>/dev/null
+		fi
 		;;
 	94) # ^ goto parent
 		mseq -C '.^' 2>/dev/null
