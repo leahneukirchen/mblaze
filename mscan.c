@@ -294,9 +294,9 @@ print_human(intmax_t i, int w)
 	}
 
 	if (d < 1.0)
-		return printf("%*.2f", w, d);
+		return printf("%*.2fk", w, d);
 	else if (!*u)
-		return printf("%*.0f", w, d);
+		return printf("%*.0fk", w, d);
 	else if (d < 10.0)
 		return printf("%*.1f%s", w-1, d, u);
 	else
