@@ -104,6 +104,7 @@ sendmail=$(mhdr -h sendmail "$MBLAZE/profile")
 sendmail_args=$(mhdr -h sendmail-args "$MBLAZE/profile")
 sendmail="${sendmail:-sendmail} ${sendmail_args:--t}"
 default_from=$(mhdr -h local-mailbox "$MBLAZE/profile")
+default_bcc=$(mhdr -h bcc "$MBLAZE/profile")
 senthook=$(mhdr -h senthook "$MBLAZE/profile")
 
 defaultc=e
@@ -233,6 +234,8 @@ case "$0" in
 	[ "$#" -eq 0 ] && set -- .
 	;;
 esac
+
+[ -n "$default_bcc" ] && hdrs="$hdrs$NL$(printf 'bcc: %s\n' "$default_bcc")"
 
 hdrs="$(printf '%s\n' "${hdrs#$NL}" | mhdr -)"
 
@@ -386,7 +389,7 @@ fi
 			       "$(mhdr -d -A -h to:cc: "$1" |
 				       notmine |grep -Fv -e "$to" |
 				       ouniq |commajoin)"
-			printf 'Bcc: \n'
+			[ -z "$default_bcc" ] && printf 'Bcc: \n'
 			printf '%s\n' "$hdrs" | awk '{ print }' |
 				msed "/body/d" -
 		fi | sed '/^$/d'
