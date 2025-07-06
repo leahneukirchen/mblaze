@@ -287,17 +287,13 @@ static ssize_t
 print_human(intmax_t i, int w)
 {
 	double d = i / 1024.0;
-	const char *u = "\0\0M\0G\0T\0P\0E\0Z\0Y\0";
+	const char *u = "K\0M\0G\0T\0P\0E\0Z\0Y\0";
 	while (d >= 1024) {
 		u += 2;
 		d /= 1024.0;
 	}
 
-	if (d < 1.0)
-		return printf("%*.2f", w, d);
-	else if (!*u)
-		return printf("%*.0f", w, d);
-	else if (d < 10.0)
+	if (d > 0.0 && d < 10.0)
 		return printf("%*.1f%s", w-1, d, u);
 	else
 		return printf("%*.0f%s", w-1, d, u);
