@@ -1,4 +1,4 @@
-.Dd September 11, 2024
+.Dd July 10, 2025
 .Dt MBLAZE-PROFILE 5
 .Os
 .Sh NAME
@@ -97,6 +97,17 @@ If set,
 .Xr mcom 1
 will call this on the mail file after sending,
 and not refile the sent mail to outbox.
+.It Li Editor\&:
+The program that
+.Xr mcom 1
+will call to edit mail.
+(Default:
+.Ev MBLAZE_EDITOR
+or
+.Ev VISUAL
+or
+.Ev EDITOR ) .
+Can contain command line arguments to the editor.
 .El
 .Sh ENVIRONMENT
 .Bl -tag -width Ds

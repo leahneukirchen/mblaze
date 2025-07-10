@@ -103,6 +103,8 @@ MBLAZE=${MBLAZE:-$HOME/.mblaze}
 sendmail=$(mhdr -h sendmail "$MBLAZE/profile")
 sendmail_args=$(mhdr -h sendmail-args "$MBLAZE/profile")
 sendmail="${sendmail:-sendmail} ${sendmail_args:--t}"
+editor=$(mhdr -h editor "$MBLAZE/profile")
+editor="${MBLAZE_EDITOR:-${editor:-${VISUAL:-${EDITOR:-vi}}}}"
 default_from=$(mhdr -h local-mailbox "$MBLAZE/profile")
 senthook=$(mhdr -h senthook "$MBLAZE/profile")
 
@@ -527,7 +529,7 @@ while :; do
 		;;
 	e|edit)
 		c=
-		if ! ${VISUAL:-${EDITOR:-vi}} "$draft"; then
+		if ! $editor "$draft"; then
 			c=d
 		else
 			if checksensible "$draft"; then
