@@ -548,7 +548,7 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 					printf("%s\n", bufptr);
 					writefile(bufptr, body, bodylen);
 				}
-				extractcount++;
+				if (errno == 0) extractcount++;
 			} else if (filename &&
 			    fnmatch(a, filename, FNM_PATHNAME) == 0) {
 				// extract by name
@@ -569,7 +569,7 @@ extract_mime(int depth, struct message *msg, char *body, size_t bodylen)
 					printf("\n");
 					writefile(filename, body, bodylen);
 				}
-				extractcount++;
+				if (errno == 0) extractcount++;
 			}
 		}
 	}
