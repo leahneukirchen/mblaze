@@ -91,6 +91,7 @@ match_part(int depth, struct message *msg, char *body, size_t bodylen)
 		    strcasecmp(charset, "utf-8") == 0 ||
 		    strcasecmp(charset, "utf8") == 0 ||
 		    strcasecmp(charset, "us-ascii") == 0) {
+			body[bodylen] = 0;  // ensure termination
 			if ((hflag || pflag) && !cflag && !oflag && !vflag) {
 				char *s, *p;
 				for (p = s = body; p < body+bodylen+1; p++) {
