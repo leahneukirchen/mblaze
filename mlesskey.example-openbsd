@@ -1,0 +1,17 @@
+# mless(1) keybindings for OpenBSD
+# compile with lesskey -o ~/.mless .mlesskey
+Q quit \1
+:cq quit \1
+[ quit [
+] quit ]
+{ noaction E1\n
+} quit $
+$ quit $
+S noaction E//scan\n
+` noaction E\#\n
+H quit H
+N quit N
+R quit R
+k quit k
+d quit d
+\^ quit \^
