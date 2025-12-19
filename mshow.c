@@ -96,6 +96,7 @@ print_u8recode(char *body, size_t bodylen, char *srcenc)
 		char *bufptr = buf;
 		size_t buflen = sizeof buf;
 		size_t r = iconv(ic, &body, &bodylen, &bufptr, &buflen);
+		int iconv_errno = errno;
 
 		if (bufptr != buf) {
 			print_ascii(buf, bufptr-buf, 0);
@@ -106,6 +107,7 @@ print_u8recode(char *body, size_t bodylen, char *srcenc)
 			bufptr = buf;
 			buflen = sizeof buf;
 			r = iconv(ic, 0, 0, &bufptr, &buflen);
+			iconv_errno = errno;
 			if (bufptr != buf) {
 				print_ascii(buf, bufptr-buf, 0);
 				final_char = bufptr[-1];
@@ -114,7 +116,7 @@ print_u8recode(char *body, size_t bodylen, char *srcenc)
 				break;
 		}
 
-		if (r == (size_t)-1 && errno != E2BIG) {
+		if (r == (size_t)-1 && iconv_errno != E2BIG) {
 			perror("iconv");
 			break;
 		}

@@ -3,6 +3,7 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <locale.h>
 #include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -90,6 +91,7 @@ match_part(int depth, struct message *msg, char *body, size_t bodylen)
 		    strcasecmp(charset, "utf-8") == 0 ||
 		    strcasecmp(charset, "utf8") == 0 ||
 		    strcasecmp(charset, "us-ascii") == 0) {
+			body[bodylen] = 0;  // ensure termination
 			if ((hflag || pflag) && !cflag && !oflag && !vflag) {
 				char *s, *p;
 				for (p = s = body; p < body+bodylen+1; p++) {
@@ -191,6 +193,8 @@ magrep(char *file)
 int
 main(int argc, char *argv[])
 {
+	setlocale(LC_ALL, "");  // for localized regexp
+
 	int c;
 	while ((c = getopt(argc, argv, "acdhilm:opqv")) != -1)
 		switch (c) {

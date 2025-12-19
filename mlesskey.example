@@ -1,6 +1,5 @@
 # mless(1) keybindings
-# When using less <590:
-# compile with lesskey -o .mless mlesskey and install as ~/.mless
+# When using less <590: compile with lesskey -o ~/.mless mlesskey
 # When using less >=590: copy this file to ~/.mlesskey
 Q quit \1
 :cq quit \1

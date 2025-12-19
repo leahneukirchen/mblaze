@@ -166,14 +166,22 @@ void
 cat(FILE *src, FILE *dst)
 {
 	char buf[4096];
-	size_t rd;
 
-	rewind(src);
-	while ((rd = fread(buf, 1, sizeof buf, src)) > 0)
-		fwrite(buf, 1, rd, dst);
-	if (!feof(src)) {
-		perror("mseq: fread");
+	if (fseek(src, 0, SEEK_SET) < 0) {
+		perror("mseq: rewind");
 		exit(2);
+	}
+	while (!feof(src)) {
+		size_t rd = fread(buf, 1, sizeof buf, src);
+		if (ferror(src)) {
+			perror("mseq: fread");
+			exit(2);
+		}
+		size_t wr = fwrite(buf, 1, rd, dst);
+		if (wr < rd) {
+			perror("mseq: fwrite");
+			exit(2);
+		}
 	}
 }
 
@@ -207,6 +215,13 @@ stdinmode()
 			exit(2);
 		}
 		outfile = fdopen(fd, "w+");
+		if (!outfile) {
+			fprintf(stderr,
+			    "mseq: Could not fdopen temporary sequence file '%s': %s.\n",
+			    tmpfile, strerror(errno));
+			close(fd);
+			exit(2);
+		}
 		if (Aflag) {
 			FILE *seq = fopen(seqfile, "r");
 			if (seq) {
