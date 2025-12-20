@@ -544,7 +544,7 @@ while :; do
 		;;
 	e|edit)
 		c=
-		if ! $editor "$draft"; then
+		if ! eval "$editor" \""$draft"\"; then
 			c=d
 		else
 			if checksensible "$draft"; then
