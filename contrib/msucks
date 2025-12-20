@@ -1,0 +1,161 @@
+#!/usr/bin/ruby
+# msuck - suck NNTP groups into Maildirs
+#
+# msuck [-s NNTPSERVER[:PORT]] [-d BASEDIR] [-l LIMIT] GROUPS...  to fetch GROUPS
+# msuck [-s NNTPSERVER[:PORT]] -L    to list all groups
+
+require 'socket'
+require 'fileutils'
+require 'openssl'
+require 'optparse'
+
+$delivery = 0
+HOST = Socket.gethostname
+def genname(id)
+  $delivery += 1
+  t = Time.now
+  "%d.M%06dP%05dQ%d.%s,N=%d" % [t.tv_sec, t.tv_usec, $$, $delivery, HOST, id]
+end
+
+params = ARGV.getopts("u:p:d:fl:s:L")
+dir = params["d"] || '.'
+user = params["u"] || nil
+pass = params["p"] || nil
+LIMIT = if params["l"]
+          Integer(params["l"])
+        else
+          1001
+        end
+
+port = 563
+if params["s"] =~ /(.*):(.*)/
+  params["s"] = $1
+  port = Integer($2)
+end
+
+SERVER = params["s"] || ENV["NNTPSERVER"] || "news"
+
+nntp = TCPSocket.new SERVER, port
+
+ssl = OpenSSL::SSL::SSLContext.new
+sslc = OpenSSL::SSL::SSLSocket.new(nntp, ssl)
+
+sslc.connect
+
+msg = sslc.gets
+abort msg  unless msg =~ /^20[01] /
+
+if user != nil
+  sslc.write("AUTHINFO USER #{user}\r\n")
+  msg = sslc.gets
+  if msg =~ /^381 / and pass != nil
+    sslc.write("AUTHINFO PASS #{pass}\r\n")
+  else
+    abort msg
+  end
+  msg = sslc.gets
+  if msg !~ /^281 /
+    abort msg
+  end
+end
+if params["L"]  # list all groups
+  sslc.write("LIST NEWSGROUPS\r\n")
+  msg = sslc.gets
+  if msg !~ /^215 /
+    abort msg
+  end
+
+  loop {
+    msg = sslc.gets
+    break  if msg == ".\r\n"
+    puts msg
+  }
+
+  exit
+end
+
+STDOUT.sync = true
+
+ARGV.each { |group|
+
+  sslc.write("GROUP #{group}\r\n")
+
+  msg = sslc.gets
+  unless msg =~ /^211 /
+    STDERR.puts msg
+    $exit = 69
+    next
+  end
+
+  _, number, low, high, _ = msg.split(" ", 5)
+
+  number = number.to_i
+  low = low.to_i
+  high = high.to_i
+
+  low = high - LIMIT + 1  if number > LIMIT - 1
+  low = 1  if low <= 0
+
+  FileUtils.mkdir_p(File.join(dir, group, "cur"))
+  FileUtils.mkdir_p(File.join(dir, group, "new"))
+  FileUtils.mkdir_p(File.join(dir, group, "tmp"))
+
+  have = Dir.entries(File.join(dir, group, "cur")).
+           map { |f| $1.to_i if f =~ /N=(\d+)/ }.compact
+
+  ourhigh = have.max
+  if ourhigh && low < ourhigh && !params["f"]
+    low = ourhigh + 1
+  end
+
+  next  if low > high
+
+  printf "%s %d-%d ", group, low, high
+
+  sslc.write("STAT #{low}\r\n")
+  msg = sslc.gets
+  _, num, mid, _ = msg.split(" ", 4)
+
+  loop {
+    unless have.include? num.to_i
+      sslc.write("ARTICLE\r\n")
+      msg = sslc.gets
+
+      if msg =~ /^220 /
+        _, num, mid, _ = msg.split(" ", 4)
+
+        text = ["X-Msuck: nntp://#{SERVER}/#{group}/#{num}\n"]
+        loop {
+          msg = sslc.gets
+          break  if msg == ".\r\n"
+          msg.sub!(/\A\./, "")
+          msg.sub!(/\r\n\z/, "\n")
+          text << msg
+        }
+        text = text.join
+
+        name = genname(num)
+
+        File.write(File.join(dir, group, "tmp", name), text)
+        File.rename(File.join(dir, group, "tmp", name),
+                    File.join(dir, group, "cur", name + ":2,"))
+        print "."
+      else
+        STDERR.puts msg
+      end
+    else
+      print "="
+    end
+
+    sslc.write("NEXT\r\n")
+    msg = sslc.gets
+    if msg !~ /^223 /
+      break
+    end
+    _, num, mid, _ = msg.split(" ", 4)
+  }
+
+  puts
+}
+
+exit $exit || 0
