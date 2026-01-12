@@ -69,9 +69,12 @@ if [ "$#" -ge 1 ]; then
 fi
 
 : ${MLESS_NO_LESSOPEN=0}
+: ${MLESS_OPT_C=c}
 if less --version 2>/dev/null |grep -q OpenBSD; then
 	# Removed in https://github.com/openbsd/src/commit/c74702f8a020c6cfd3ae0dbd2b85bf100802950e
 	MLESS_NO_LESSOPEN=1
+	# In OpenBSD, -c means the opposite of upstream -c m(
+	MLESS_OPT_C=
 fi
 
 nl="
@@ -108,7 +111,7 @@ while :; do
 		case $cur in
 			[0-9]*) $0 --filter $cur;;
 			*) $0 --filter //scan;;
-		esac | less -Ps"$status" -Rc
+		esac | less -Ps"$status" -R"$MLESS_OPT_C"
 	else
 		LESSOPEN="|$0 --filter %s" \
 			less -Ps"mless %f?m (message %i of %m).." -R \

@@ -4,6 +4,8 @@ Q quit \1
 :cq quit \1
 [ quit [
 ] quit ]
+:n quit ]
+:p quit [
 { noaction E1\n
 } quit $
 $ quit $
