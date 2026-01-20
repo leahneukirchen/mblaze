@@ -1,0 +1,12 @@
+#!/bin/sh
+
+test -z "$1" && {
+	for f in "$MBLAZE"/*.profile; do
+		basename "$f" .profile
+	done | dmenu | xe mprofile && exit
+}
+
+ln -sf "$MBLAZE/$1".profile "$MBLAZE"/profile
+ln -sf "$MAILDIR/$1"/.signature "$XDG_CONFIG_HOME"/mblaze/signature
+printf 'profile = '\''%s'\''\n' "$1"
+
