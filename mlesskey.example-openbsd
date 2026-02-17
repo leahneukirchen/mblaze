@@ -1,5 +1,5 @@
 # mless(1) keybindings for OpenBSD
-# compile with lesskey -o ~/.mless .mlesskey
+# install with "lesskey -o ~/.mless mlesskey.example-openbsd"
 Q quit \1
 :cq quit \1
 [ quit [
