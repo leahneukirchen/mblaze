@@ -1,0 +1,66 @@
+#!/bin/sh
+
+# mco, mfw and mbn are slightly more interactive variants of mcom(1), mfwd(1) 
+# and mbnc(1). There is no need for an equivalent of mrep(1) because it already 
+# inserts all the necessary headers. These scripts read aliases from 
+# ${MBLAZE:-$HOME/.mblaze}/aliases, which is similar in structure to profile. 
+# That is on the left side of the colon is an alias, and on the right its actual 
+# value. Note that *all* values passed to the "To" prompt are comma-separated 
+# with optional whitespace after the comma. That includes the optional "-cc" and 
+# "-bcc". "-resent-cc" and "-resent-bcc" are not recognised, instead if the 
+# script is called as mbn, -cc and -bcc are automatically converted to their 
+# -resent-* equivalents. Each time there may be only a single "-cc" and a single 
+# "-bcc" further ones are rejected. Should I state that the values the "To" 
+# prompt accepts prior to "-*cc" go to To, while the values after the respective 
+# options to Cc and Bcc?
+#
+# To use these scripts place mco somewhere in the $PATH and then symlink mbn and
+# mfw to it.
+
+ALIASES="${MBLAZE:-$HOME/.mlbaze}/aliases"
+SELF="${0##*/}"
+
+IFS='
+'
+printf %s 'From: '; read -r FROM
+printf %s 'To (comma-separated + one or less of each: -cc, -bcc): '; read -r TO
+[ "$SELF" = mco ] && { printf %s 'Subject: '; read -r SUBJECT; }
+
+set --
+[ "$SELF" != "mbn" ] && set -- "$@" "-from" || set -- "$@" "-resent-from"
+temp="$(mhdr -h "$(printf "$FROM")" "$ALIASES")"
+[ -n "$temp" ] && set -- "$@" "$temp" || set -- "$@" "$FROM"
+[ "$SELF" = "mco" ] && set -- "$@" "-subject" && set -- "$@" "$SUBJECT"
+
+IFS=,
+CC=
+BCC=
+[ "$SELF" != "mbn" ] && set -- "$@" "-to" || set -- "$@" "-resent-to"
+for i in $TO; do
+	# Forgive whitespace after comma.
+	i="$(printf %s "$i" | sed 's/^[[:blank:]]*//')"
+	if [ "$i" = "-cc" ]; then
+		if [ -z "$CC" ]; then
+			CC=1
+			[ "$SELF" != "mbn" ] && set -- "$@" "-cc" ||
+				set -- "$@" "-resent-cc"
+		fi
+	elif [ "$i" = "-bcc" ]; then
+		if [ -z "$BCC" ]; then
+			BCC=1
+			[ "$SELF" != "mbn" ] && set -- "$@" "-bcc" ||
+				set -- "$@" "-resent-bcc"
+		fi
+	else
+		temp="$(mhdr -h "$(printf "$i")" "$ALIASES")"
+		[ -n "$temp" ] && set -- "$@" "$temp" || set "$@" "$i"
+	fi
+done
+
+case "$SELF" in
+mco) CMD=mcom ;;
+mbn) CMD=mbnc ;;
+mfw) CMD=mfwd ;;
+*)   CMD=mcom ;;
+esac
+"$CMD" "$@"
