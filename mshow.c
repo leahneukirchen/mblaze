@@ -26,7 +26,7 @@ static int Lflag;
 static int Nflag;
 static int tflag;
 static int nflag;
-static char defaulthflags[] = "from:subject:to:cc:date:reply-to:";
+static char defaulthflags[] = "from:subject:to:cc:bcc:date:reply-to:";
 static char *hflag = defaulthflags;
 static char *xflag;
 static char *Oflag;
