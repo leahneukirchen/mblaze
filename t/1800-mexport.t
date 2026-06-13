@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 2
+plan 3
 
 cat <<EOF >tmp.1
 Subject: message 1
@@ -24,3 +24,4 @@ mexport ./tmp.1 ./tmp.2 ./tmp.3 >./tmp.mbox
 
 check 'generated mbox has 16 lines' 'cat ./tmp.mbox | wc -l | grep 16'
 check 'generated mbox has 7 empty lines' 'grep -c "^$" ./tmp.mbox | grep 7'
+check 'non-existent mail' 'mexport ./foo-bar ; [ $? -eq 1 ]'

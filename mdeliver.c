@@ -337,9 +337,7 @@ usage:
 		if (argc == optind + 1 && isatty(0))
 			goto usage;
 		else
-			blaze822_loop(argc - 1 - optind, argv + optind, refile);
-
-		return 0;
+			return blaze822_loop(argc - 1 - optind, argv + optind, refile);
 	}
 
 	int c;

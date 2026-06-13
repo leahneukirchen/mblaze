@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 5
+plan 6
 
 rm -rf test.dir
 mkdir test.dir
@@ -84,5 +84,7 @@ inbox/cur/4:2,
 inbox/cur/1:2,
 !
 check_same 'subject' 'msort -s :' 'cat expect'
+
+check 'non-existent mail' 'msort -s /does/not/exist ; [ $? -eq 1 ]'
 
 )

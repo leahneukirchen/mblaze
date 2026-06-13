@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 10
+plan 12
 
 rm -rf test.dir
 mkdir test.dir
@@ -190,5 +190,8 @@ check_same 'print match only' 'magrep -o subject:nice :' 'cat expect'
 
 echo 'inbox/cur/3:2,' >expect
 check_same 'multiple subjects' 'magrep subject:multi :' 'cat expect'
+
+check 'non-existent mail' 'magrep subject:nice /does/not/exist ; [ $? -eq 2 ]'
+check 'error take precedence over match' 'magrep subject:nomatch : /does/not/exist ; [ $? -eq 2 ]'
 
 )

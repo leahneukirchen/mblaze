@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 2
+plan 3
 
 # Nested MIME where the outer boundary is a prefix of the inner boundary
 cat <<EOF >tmp
@@ -39,3 +39,4 @@ EOF
 
 check 'nested mail has 5 attachments' 'mshow -t ./tmp | wc -l | grep 6'
 check 'nested mail has text/html attachment' 'mshow -t ./tmp | grep text/html'
+check 'non-existent mail' 'mshow ./does-not-exist ; [ $? -eq 1 ]'

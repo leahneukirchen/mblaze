@@ -1,7 +1,7 @@
 #!/bin/sh -e
 cd ${0%/*}
 . ./lib.sh
-plan 16
+plan 18
 
 rm -rf test.dir
 mkdir test.dir
@@ -35,5 +35,7 @@ check 'mark trashed' 'mflag -T 1 && [ -e "inbox/cur/1:2,T" ]'
 check_test 'fix seq' -eq 2 'mseq -f : | mseq -S | wc -l'
 check 'unmark trashed' 'mflag -t 1 && [ -e "inbox/cur/1:2," ]'
 check_test 'fix seq' -eq 2 'mseq -f : | mseq -S | wc -l'
+check 'non-existent mail' 'mflag -S /does/not/exist ; [ $? -eq 1 ]'
+check 'keep going on non-existent mail' 'mflag -t /does/not/exist 1 ; [ -e "inbox/cur/1:2," ]'
 
 )

@@ -30,6 +30,7 @@
 static int cols;
 static wchar_t replacement = L'?';
 static char *cur;
+static long seen;
 
 static char *aliases[32];
 static int alias_idx;
@@ -302,6 +303,7 @@ print_human(intmax_t i, int w)
 void
 oneline(char *file)
 {
+	seen++;
 	if (!init) {
 		// delay loading of the seq until we need to scan the first
 		// file, in case someone in the pipe updated the map before
@@ -555,10 +557,9 @@ main(int argc, char *argv[])
 
 	if (nflag) {
 		if (argc == optind && isatty(0))
-			blaze822_loop1(":", numline);
+			return blaze822_loop1(":", numline);
 		else
-			blaze822_loop(argc-optind, argv+optind, numline);
-		return 0;
+			return blaze822_loop(argc-optind, argv+optind, numline);
 	}
 
 	now = time(0);
@@ -619,17 +620,17 @@ main(int argc, char *argv[])
 				fflag = v;
 	}
 
-	long i;
+	int status;
 	if (argc == optind && isatty(0))
-		i = blaze822_loop1(":", oneline);
+		status = blaze822_loop1(":", oneline);
 	else
-		i = blaze822_loop(argc-optind, argv+optind, oneline);
+		status = blaze822_loop(argc-optind, argv+optind, oneline);
 
 	if (pager_pid > 0)
 		pipeclose(pager_pid);
 
 	if (vflag)
-		fprintf(stderr, "%ld mails scanned\n", i);
+		fprintf(stderr, "%ld mails scanned\n", seen);
 
-	return 0;
+	return status;
 }
