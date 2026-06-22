@@ -7,6 +7,8 @@ tryterm() {
 	fi
 }
 
+tryterm st
+tryterm st-256color
 tryterm x-terminal-emulator
 tryterm urxvt
 tryterm xterm
@@ -15,6 +17,8 @@ if [ -z "$TERMINAL" ]; then
 	echo 'No terminal emulator found, set $TERMINAL.' 1>&2
         exit 1
 fi
+
+mprofile
 
 IFS='
 '
@@ -41,7 +45,7 @@ BEGIN {
   sub(/^mailto:/, "", url)
   split(url, parts, "?")
   to = parts[1]
-  split(parts[2], fields, "&") 
+  split(parts[2], fields, "&")
   args[1] = to
   for (i in fields) {
     split(fields[i], kv, "=")

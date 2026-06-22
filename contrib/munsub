@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "$1" = "-m" ]; then
+	p=mailto
+	shift
+else
+	p=http
+fi
+
+mhdr -hlist-unsubscribe | grep -o "\(${p}[^>]*\)"
