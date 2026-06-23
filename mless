@@ -24,13 +24,15 @@ if [ "$1" = --filter ]; then
 	mseq -C "$2"
 
 	total=$(mscan -n -- -1)
+       linesToScan=$(mhdr -h Scan-Lines "$MBLAZE/profile")
+       linesToScan=${linesToScan:-6}
 	case $2 in
-		1)              mscan .-0:.+5 ;;
-		2)              mscan .-1:.+4 ;;
-		$((total - 2))) mscan .-3:.+2 ;;
-		$((total - 1))) mscan .-4:.+1 ;;
-		$total)         mscan .-5:.+0 ;;
-		*)              mscan .-2:.+3 ;;
+               1)              mscan .-0:.+$(expr $linesToScan - 1) ;;
+		2)              mscan .-1:.+$(expr $linesToScan - 2) ;;
+		$((total - 2))) mscan .-3:.+$(expr $linesToScan - 4) ;;
+		$((total - 1))) mscan .-4:.+$(expr $linesToScan - 5) ;;
+		$total)         mscan .-5:.+$(expr $linesToScan - 6) ;;
+		*)              mscan .-2:.+$(expr $linesToScan - 3) ;;
 	esac 2>/dev/null | colorscan
 	echo
 
