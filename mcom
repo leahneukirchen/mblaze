@@ -584,7 +584,7 @@ while :; do
 		;;
 	*)
 		printf 'What now? (%s[s]end, [c]ancel, [d]elete, [e]dit, [m]ime, [p]review, sign, encrypt) ' "${automime:+mime and }"
-		read -r c
+		read -r c || exit 1
 		;;
 	esac
 done
