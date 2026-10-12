@@ -520,7 +520,7 @@ while :; do
 		stampdate "$draft"
 		rm -f "$draftmime"
 		printf '%s\n' "mcom: cancelled draft $draft"
-		exit 1
+		exit 3
 		;;
 	m|mime)
 		do_mime
