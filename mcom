@@ -384,7 +384,7 @@ fi
 			to=$(mhdr -d -h reply-to "$1")
 			[ -z "$to" ] && to=$(mhdr -d -A -h from "$1" | notmine ||
 						mhdr -d -A -h to "$1")
-			printf 'To: %s\n' "$to"
+			printf 'To: %s\n' "$(printf '%s\n' "$to" | ouniq | commajoin)"
 			printf 'Cc: %s\n' \
 			       "$(mhdr -d -A -h to:cc: "$1" |
 				       notmine |grep -Fv -e "$to" |
