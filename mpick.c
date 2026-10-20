@@ -1014,7 +1014,7 @@ msg_date(struct mailinfo *m)
 	if (m->date)
 		return m->date;
 
-	// XXX: date comparisation should handle zero dates
+	// XXX: date comparison should handle zero dates
 	if (!m->msg && m->fpath) {
 		if (!(m->msg = blaze822(m->fpath))) {
 			m->fpath = NULL;

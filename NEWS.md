@@ -1,6 +1,6 @@
 ## 1.4 (2026-01-17)
 
-* mcom: $MBLAZE_EDITOR is prefered to configure the editor
+* mcom: $MBLAZE_EDITOR is preferred to configure the editor
 * mless: support OpenBSD less without LESSOPEN
   (needs mlesskey.example-openbsd)
 * magrep: support multibyte regexps.
