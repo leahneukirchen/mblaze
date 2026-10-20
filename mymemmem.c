@@ -1,8 +1,7 @@
-// taken straight from musl@c718f9fc
-// incooperates fix from <20170629213533.18744-1-amonakov@ispras.ru>
+// taken straight from musl@593caa456309714402ca4cb77c3770f4c24da9da
 
 /*
-Copyright © 2005-2014 Rich Felker, et al.
+Copyright © 2005-2020 Rich Felker, et al.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -37,8 +36,8 @@ static char *twobyte_memmem(const unsigned char *h, size_t k, const unsigned cha
 
 static char *threebyte_memmem(const unsigned char *h, size_t k, const unsigned char *n)
 {
-	uint32_t nw = n[0]<<24 | n[1]<<16 | n[2]<<8;
-	uint32_t hw = h[0]<<24 | h[1]<<16 | h[2]<<8;
+	uint32_t nw = (uint32_t)n[0]<<24 | n[1]<<16 | n[2]<<8;
+	uint32_t hw = (uint32_t)h[0]<<24 | h[1]<<16 | h[2]<<8;
 	for (h+=3, k-=3; k; k--, hw = (hw|*h++)<<8)
 		if (hw == nw) return (char *)h-3;
 	return hw == nw ? (char *)h-3 : 0;
@@ -46,8 +45,8 @@ static char *threebyte_memmem(const unsigned char *h, size_t k, const unsigned c
 
 static char *fourbyte_memmem(const unsigned char *h, size_t k, const unsigned char *n)
 {
-	uint32_t nw = n[0]<<24 | n[1]<<16 | n[2]<<8 | n[3];
-	uint32_t hw = h[0]<<24 | h[1]<<16 | h[2]<<8 | h[3];
+	uint32_t nw = (uint32_t)n[0]<<24 | n[1]<<16 | n[2]<<8 | n[3];
+	uint32_t hw = (uint32_t)h[0]<<24 | h[1]<<16 | h[2]<<8 | h[3];
 	for (h+=4, k-=4; k; k--, hw = hw<<8 | *h++)
 		if (hw == nw) return (char *)h-4;
 	return hw == nw ? (char *)h-4 : 0;
@@ -125,7 +124,7 @@ static char *twoway_memmem(const unsigned char *h, const unsigned char *z, const
 		if (BITOP(byteset, h[l-1], &)) {
 			k = l-shift[h[l-1]];
 			if (k) {
-				if (mem0 && mem && k < p) k = l-p;
+				if (k < mem) k = mem;
 				h += k;
 				mem = 0;
 				continue;
