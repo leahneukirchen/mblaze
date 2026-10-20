@@ -1,5 +1,5 @@
 #!/bin/sh -e
-# mopenall [MSG] - open every attachements in xdg-open
+# mopenall [MSG] - open every attachment in xdg-open
 
 [ "$#" -eq 0 ] && set -- .
 
@@ -11,7 +11,7 @@ cd "$dir"
 mshow -t "$1"
 mshow -B -x "$1" 2>/dev/null
 for f in * ; do
-    xdg-open "$f" &
+    xdg-open ./"$f" &
 done
 wait
 echo rm -r "$dir"

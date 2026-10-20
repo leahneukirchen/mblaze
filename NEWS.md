@@ -17,7 +17,7 @@
 * minc: read directory names from stdin
 * mcom: add Drafts profile key
 * mcolor: print out form-feed
-* add contrib/mopenall - open every attachements in xdg-open
+* add contrib/mopenall - open every attachment in xdg-open
 * Many bug fixes.
 * Documentation improvements.
 
