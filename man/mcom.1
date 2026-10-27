@@ -130,6 +130,13 @@ Delete the draft and quit.
 Preview the draft, using
 .Xr mshow 1 .
 .El
+.Sh ATTACHMENTS
+From within the editor, attachments are added by setting an Attach: header with the path to the desired files. Multiple Attach: headers can be added.
+
+To add from the commandline, use
+.Sq mcom Fl attach No path/to/file
+and the header will be added automatically.
+It is possible to use tilde (~) in the file path.
 .Sh ENVIRONMENT
 .Bl -tag -width Ds
 .It Ev EDITOR , Ev VISUAL

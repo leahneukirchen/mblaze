@@ -1,0 +1,29 @@
+#!/usr/bin/env rc
+
+# Deliver a stream of mboxrd emails into a given maildir making sure
+# there are no duplicates.
+# Duplicates are checked through the Message-ID only.
+# This script expects a feed of emails, as in `mdeliver -M`
+
+if (~ $1 "") {
+	echo "missing maildir"
+	exit 1
+}
+mmkdir $1
+
+tmpdir=`{mktemp -d '/tmp/sfeed_deliver.XXXX'}
+fn sigexit {
+	rm -r $tmpdir
+}
+
+mmkdir $tmpdir/work
+
+mdeliver -M $tmpdir/work
+
+mlist $1 | mhdr -h 'Message-ID' > $tmpdir/ids
+for (file in `{mlist $tmpdir/work}) {
+	myid=`{mhdr -h 'Message-ID' $file}
+	if (! grep -s $myid $tmpdir/ids) {
+		mdeliver $1 < $file
+	}
+}
