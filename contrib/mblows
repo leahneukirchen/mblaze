@@ -1,0 +1,65 @@
+#!/usr/bin/ruby
+# mblow - post an article via NNTP
+
+require 'socket'
+require 'optparse'
+
+params = ARGV.getopts("s:u:p:")
+
+port = 563
+if params["s"] =~ /(.*):(.*)/
+  params["s"] = $1
+  port = Integer($2)
+end
+
+user = params["u"] || nil
+pass = params["p"] || nil
+SERVER = params["s"] || ENV["NNTPSERVER"] || "news"
+
+nntp = TCPSocket.new SERVER, port
+
+
+ssl = OpenSSL::SSL::SSLContext.new
+sslc = OpenSSL::SSL::SSLSocket.new(nntp, ssl)
+
+sslc.connect
+
+print sslc.state
+
+msg = sslc.gets
+abort msg  unless msg =~ /^200 /
+
+if user != nil
+  printf "%s %s", user, pass
+  sslc.write("AUTHINFO USER #{user}\r\n")
+  msg = sslc.gets
+  if msg =~ /^381 / and pass != nil
+    sslc.write("AUTHINFO PASS #{pass}\r\n")
+  else
+    abort msg
+  end
+  msg = sslc.gets
+  if msg !~ /^281 /
+    abort msg
+  end
+end
+
+sslc.write "POST\r\n"
+msg = sslc.gets
+
+abort msg  unless msg =~ /^340 /
+
+while line = gets
+  line.chomp!
+  line.sub!(/\A\./, '..')
+  sslc.write(line + "\r\n")
+end
+
+sslc.write(".\r\n")
+msg = sslc.gets
+
+sslc.puts "NOOP"
+puts sslc.gets
+
+abort msg  unless msg =~ /^240 /
+puts msg

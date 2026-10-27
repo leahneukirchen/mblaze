@@ -164,6 +164,15 @@ thread(char *file)
 			if (me == c)
 				continue;
 
+			// ugly, skip fake Protonmail mids
+			char *at = strchr(mid, '@');
+			if (at != NULL) {
+				const char *pi = "@protonmail.internalid";
+				const char *pc = "@protonmail.conversationid";
+				if (strcmp(at, pi) == 0 || strcmp(at, pc) == 0)
+					continue;
+			}
+
 			if (parent && !me->parent &&
 			    !reachable(me, parent) && !reachable(parent, me)) {
 				me->parent = parent;
