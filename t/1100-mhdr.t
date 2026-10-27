@@ -2,7 +2,7 @@
 cd ${0%/*}
 . ./lib.sh
 
-plan 9
+plan 10
 
 cat <<EOF >tmp
 Header: foo
@@ -24,3 +24,5 @@ check_same 'header-Three' 'mhdr -h header-Three ./tmp' 'echo quux'
 check_same 'header_Four' 'mhdr -h header_Four ./tmp' 'echo ding'
 
 check 'issue 235' 'mhdr ./tmp |grep -i header_four'
+check 'non-existent mail' 'mhdr ./does-not-exist ; [ $? -eq 2 ]'
+

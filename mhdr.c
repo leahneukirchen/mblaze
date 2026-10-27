@@ -249,10 +249,13 @@ main(int argc, char *argv[])
 
 	xpledge("stdio rpath", "");
 
+	int ret;
 	if (argc == optind && isatty(0))
-		blaze822_loop1(".", header);
+		ret = blaze822_loop1(".", header);
 	else
-		blaze822_loop(argc-optind, argv+optind, header);
+		ret = blaze822_loop(argc-optind, argv+optind, header);
+	if (ret)
+		return 2;
 
 	return status;
 }

@@ -330,9 +330,7 @@ main(int argc, char *argv[])
 	optind++;
 
 	if (argc == optind && isatty(0))
-		blaze822_loop1(".", sed);
+		return blaze822_loop1(".", sed);
 	else
-		blaze822_loop(argc-optind, argv+optind, sed);
-
-	return 0;
+		return blaze822_loop(argc-optind, argv+optind, sed);
 }

@@ -235,10 +235,13 @@ usage:
 		exit(2);
 	}
 
+	int ret;
 	if (argc == optind && isatty(0))
-		blaze822_loop1(":", magrep);
+		ret = blaze822_loop1(":", magrep);
 	else
-		blaze822_loop(argc-optind, argv+optind, magrep);
+		ret = blaze822_loop(argc-optind, argv+optind, magrep);
+	if (ret)
+		return 2;
 
 	if (cflag && !qflag && !mflag)
 		printf("%ld\n", matches);

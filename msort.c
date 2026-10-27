@@ -323,10 +323,11 @@ main(int argc, char *argv[])
 	if (!mails)
 		exit(-1);
 
+	int status;
 	if (argc == optind && isatty(0))
-		blaze822_loop1(":", add);
+		status = blaze822_loop1(":", add);
 	else
-		blaze822_loop(argc-optind, argv+optind, add);
+		status = blaze822_loop(argc-optind, argv+optind, add);
 
 	qsort(mails, idx, sizeof (struct mail), order);
 
@@ -337,5 +338,5 @@ main(int argc, char *argv[])
 		for (i = 0; i < idx; i++)
 			printf("%s\n", mails[i].file);
 
-	return 0;
+	return status;
 }
